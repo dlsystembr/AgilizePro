@@ -1,0 +1,2 @@
+INSERT INTO `permissoes` (`id`, `nome`, `permissoes`, `situacao`) VALUES
+(NULL, 'Alíquotas', 'a:4:{s:8:"vAliquota";s:1:"1";s:8:"aAliquota";s:1:"1";s:8:"eAliquota";s:1:"1";s:8:"dAliquota";s:1:"1";}', 1); 
