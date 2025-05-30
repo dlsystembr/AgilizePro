@@ -13,6 +13,10 @@
         </ol>
     </section>
 
+    <!-- Adiciona SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+
     <section class="content">
         <div class="row">
             <div class="col-xs-12">
@@ -122,21 +126,7 @@
                                                         <input type="text" class="form-control" id="transportadora" name="transportadora" value="<?php echo $nome_transportadora; ?>" readonly>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-3">
-                                                    <div class="form-group">
-                                                        <label for="volume">Volume (m³):</label>
-                                                        <input type="number" class="form-control" id="volume" name="volume" value="<?php echo isset($entrada->volume) ? number_format($entrada->volume, 3, '.', '') : '0.000'; ?>" step="0.001" min="0">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <div class="form-group">
-                                                        <label for="peso_bruto">Peso Bruto (kg):</label>
-                                                        <input type="number" class="form-control" id="peso_bruto" name="peso_bruto" value="<?php echo isset($entrada->peso_bruto) ? number_format($entrada->peso_bruto, 3, '.', '') : '0.000'; ?>" step="0.001" min="0">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row" style="margin-left: 15px; margin-right: 15px;">
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label for="modalidade_frete">Modalidade do Frete:</label>
                                                         <select class="form-control" id="modalidade_frete" name="modalidade_frete">
@@ -149,10 +139,30 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label for="peso_liquido">Peso Líquido (kg):</label>
-                                                        <input type="number" class="form-control" id="peso_liquido" name="peso_liquido" value="<?php echo isset($entrada->peso_liquido) ? number_format($entrada->peso_liquido, 3, '.', '') : '0.000'; ?>" step="0.001" min="0">
+                                                        <label for="peso_liquido">Peso Líquido</label>
+                                                        <input type="text" class="form-control" id="peso_liquido" name="peso_liquido" value="<?php echo $entrada->peso_liquido ?? ''; ?>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="peso_bruto">Peso Bruto</label>
+                                                        <input type="text" class="form-control" id="peso_bruto" name="peso_bruto" value="<?php echo $entrada->peso_bruto ?? ''; ?>">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="margin-left: 15px; margin-right: 15px;">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="volume">Volume</label>
+                                                        <input type="text" class="form-control" id="volume" name="volume" value="<?php echo $entrada->volume ?? '1'; ?>">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="especie">Espécie</label>
+                                                        <input type="text" class="form-control" id="especie" name="especie" value="VOLUME">
                                                     </div>
                                                 </div>
                                             </div>
@@ -173,7 +183,7 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-xs-12">
+                                <div class="col-xs-12 text-right">
                                     <button type="submit" class="btn btn-primary" id="btn-confirmar">
                                         <i class="fa fa-check"></i> Confirmar Devolução
                                     </button>
@@ -217,10 +227,20 @@
     color: #fff;
 }
 
+/* Estilo para campos desabilitados */
 .table-dark .form-control:disabled {
-    background-color: #2b2b2b;
-    border-color: #454d55;
-    color: #6c757d;
+    background-color: #1a1a1a !important;
+    border-color: #454d55 !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+}
+
+/* Estilo para campos desabilitados no hover */
+.table-dark .form-control:disabled:hover {
+    background-color: #1a1a1a !important;
+    border-color: #454d55 !important;
+    cursor: not-allowed !important;
 }
 
 .table-dark .checkbox {
@@ -338,6 +358,32 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+    // Prevenir o envio do formulário ao pressionar Enter
+    $(document).on('keypress', 'input, select', function(e) {
+        if (e.which == 13) { // 13 é o código da tecla Enter
+            e.preventDefault();
+            var inputs = $(this).closest('form').find(':input:visible');
+            var index = inputs.index(this);
+            if (index > -1 && index < inputs.length - 1) {
+                inputs.eq(index + 1).focus();
+            }
+            return false;
+        }
+    });
+
+    // Manipular a tecla ESC para voltar um campo
+    $(document).on('keydown', 'input, select', function(e) {
+        if (e.which == 27) { // 27 é o código da tecla ESC
+            e.preventDefault();
+            var inputs = $(this).closest('form').find(':input:visible');
+            var index = inputs.index(this);
+            if (index > 0) {
+                inputs.eq(index - 1).focus();
+            }
+            return false;
+        }
+    });
+
     // Armazenar valores originais
     var valoresOriginais = {
         volume: $('#volume').val(),
@@ -369,7 +415,7 @@ $(document).ready(function() {
         controlarCamposTransporte();
     });
 
-    // Função para calcular os valores do ICMS e IPI
+    // Função para calcular valores do ICMS e IPI
     function calcularValoresICMS(row) {
         var quantidade = parseFloat(row.find('.quantidade').val()) || 0;
         var quantidadeOriginal = parseFloat(row.find('.quantidade').attr('max')) || 0;
@@ -390,9 +436,15 @@ $(document).ready(function() {
         row.find('.ipi-devolucao').val(novoIPI.toFixed(2));
         
         // Atualiza o total do item
-        var valorUnitario = parseFloat(row.find('td:eq(4)').text().replace('R$ ', '').replace('.', '').replace(',', '.')) || 0;
-        var total = (quantidade * valorUnitario) + novoIPI;
-        row.find('.total-item').text('R$ ' + total.toFixed(2).replace('.', ','));
+        atualizarTotalItem(row);
+    }
+
+    // Função para calcular valor do ICMS baseado na base e alíquota
+    function calcularValorICMS(row) {
+        var base = parseFloat(row.find('.base-icms').val()) || 0;
+        var aliquota = parseFloat(row.find('.aliquota-icms').val()) || 0;
+        var valorICMS = (base * aliquota) / 100;
+        row.find('.valor-icms').val(valorICMS.toFixed(2));
     }
 
     // Função para atualizar o total do item
@@ -400,9 +452,212 @@ $(document).ready(function() {
         var quantidade = parseFloat(row.find('.quantidade').val()) || 0;
         var valorUnitario = parseFloat(row.find('td:eq(4)').text().replace('R$ ', '').replace('.', '').replace(',', '.')) || 0;
         var ipi = parseFloat(row.find('.ipi-devolucao').val()) || 0;
-        var total = (quantidade * valorUnitario) + ipi;
+        
+        // Calcula o valor total do produto
+        var valorProduto = quantidade * valorUnitario;
+        
+        // O total é o valor do produto mais o IPI
+        var total = valorProduto + ipi;
+        
         row.find('.total-item').text('R$ ' + total.toFixed(2).replace('.', ','));
     }
+
+    // Função para validar campos numéricos
+    function validarCampoNumerico(campo, valor) {
+        // Verifica se está vazio
+        if (campo.val() === '' || campo.val() === null) {
+            Swal.fire({
+                title: 'Atenção!',
+                text: 'O campo não pode ficar vazio',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6',
+                background: '#2b2b2b',
+                color: '#fff'
+            }).then((result) => {
+                campo.focus();
+            });
+            return false;
+        }
+
+        // Verifica se é negativo
+        if (valor < 0) {
+            Swal.fire({
+                title: 'Atenção!',
+                text: 'O valor não pode ser negativo',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6',
+                background: '#2b2b2b',
+                color: '#fff'
+            }).then((result) => {
+                campo.val('');
+                campo.focus();
+            });
+            return false;
+        }
+        return true;
+    }
+
+    // Adiciona validação no blur (quando o campo perde o foco)
+    $(document).on('blur', '.base-icms, .aliquota-icms, .valor-icms, .ipi-devolucao, .quantidade', function() {
+        var valor = parseFloat($(this).val()) || 0;
+        if (!validarCampoNumerico($(this), valor)) {
+            return;
+        }
+    });
+
+    // Evento de mudança na base do ICMS
+    $(document).on('change', '.base-icms', function() {
+        var valor = parseFloat($(this).val()) || 0;
+        if (!validarCampoNumerico($(this), valor)) {
+            return;
+        }
+        var row = $(this).closest('tr');
+        calcularValorICMS(row);
+        atualizarTotalItem(row);
+    });
+
+    // Evento de mudança na alíquota do ICMS
+    $(document).on('change', '.aliquota-icms', function() {
+        var valor = parseFloat($(this).val()) || 0;
+        if (!validarCampoNumerico($(this), valor)) {
+            return;
+        }
+        var row = $(this).closest('tr');
+        calcularValorICMS(row);
+        atualizarTotalItem(row);
+    });
+
+    // Evento de mudança no valor do ICMS
+    $(document).on('change', '.valor-icms', function() {
+        var valor = parseFloat($(this).val()) || 0;
+        if (!validarCampoNumerico($(this), valor)) {
+            return;
+        }
+        var row = $(this).closest('tr');
+        atualizarTotalItem(row);
+    });
+
+    // Evento de mudança no IPI
+    $(document).on('change', '.ipi-devolucao', function() {
+        var valor = parseFloat($(this).val()) || 0;
+        if (!validarCampoNumerico($(this), valor)) {
+            return;
+        }
+        var row = $(this).closest('tr');
+        atualizarTotalItem(row);
+    });
+
+    // Evento de mudança na quantidade
+    $(document).on('change', '.quantidade', function() {
+        var row = $(this).closest('tr');
+        var quantidade = parseFloat($(this).val()) || 0;
+        var quantidadeOriginal = parseFloat($(this).attr('max')) || 0;
+        var $this = $(this);
+        
+        // Validação da quantidade
+        if ($this.val() === '' || $this.val() === null) {
+            Swal.fire({
+                title: 'Atenção!',
+                text: 'A quantidade não pode ficar vazia',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6',
+                background: '#2b2b2b',
+                color: '#fff'
+            }).then((result) => {
+                $this.focus();
+            });
+            return;
+        }
+        
+        if (quantidade <= 0) {
+            Swal.fire({
+                title: 'Atenção!',
+                text: 'A quantidade deve ser maior que zero',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6',
+                background: '#2b2b2b',
+                color: '#fff'
+            }).then((result) => {
+                $this.val('');
+                $this.focus();
+            });
+            return;
+        }
+
+        if (quantidade > quantidadeOriginal) {
+            Swal.fire({
+                title: 'Atenção!',
+                text: 'A quantidade deve ser igual ou menor que a quantidade original da nota (' + quantidadeOriginal + ')',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6',
+                background: '#2b2b2b',
+                color: '#fff'
+            }).then((result) => {
+                $this.val(quantidadeOriginal);
+                quantidade = quantidadeOriginal;
+                
+                var ipiOriginal = parseFloat(row.find('.ipi-devolucao').attr('data-ipi-original')) || 0;
+                
+                // Calcula o IPI proporcional
+                var fator = quantidade / quantidadeOriginal;
+                var novoIPI = ipiOriginal * fator;
+                
+                // Atualiza o valor do IPI
+                row.find('.ipi-devolucao').val(novoIPI.toFixed(2));
+                
+                // Recalcula os outros valores
+                calcularValoresICMS(row);
+
+                // Retorna o foco para o campo de quantidade
+                $this.focus();
+                // Seleciona todo o texto do campo
+                $this.select();
+            });
+        } else {
+            var ipiOriginal = parseFloat(row.find('.ipi-devolucao').attr('data-ipi-original')) || 0;
+            
+            // Calcula o IPI proporcional
+            var fator = quantidade / quantidadeOriginal;
+            var novoIPI = ipiOriginal * fator;
+            
+            // Atualiza o valor do IPI
+            row.find('.ipi-devolucao').val(novoIPI.toFixed(2));
+            
+            // Recalcula os outros valores
+            calcularValoresICMS(row);
+        }
+    });
+
+    // Evento de mudança nos checkboxes individuais
+    $('.item-checkbox').change(function() {
+        var row = $(this).closest('tr');
+        var campos = row.find('.quantidade, .base-icms, .aliquota-icms, .valor-icms, .ipi-devolucao');
+        campos.prop('disabled', !$(this).is(':checked'));
+        
+        if (!$(this).is(':checked')) {
+            // Apenas atualiza o total, mantém os valores
+            atualizarTotalItem(row);
+        } else {
+            row.find('.quantidade').val(row.find('.quantidade').attr('max'));
+            // Restaura os valores originais
+            var baseOriginal = parseFloat(row.find('.base-icms').attr('data-base-original')) || 0;
+            var valorOriginal = parseFloat(row.find('.valor-icms').attr('data-valor-original')) || 0;
+            var ipiOriginal = parseFloat(row.find('.ipi-devolucao').attr('data-ipi-original')) || 0;
+            var aliquotaOriginal = parseFloat(row.find('.aliquota-icms').attr('data-aliquota-original')) || 0;
+            
+            row.find('.base-icms').val(baseOriginal.toFixed(2));
+            row.find('.valor-icms').val(valorOriginal.toFixed(2));
+            row.find('.ipi-devolucao').val(ipiOriginal.toFixed(2));
+            row.find('.aliquota-icms').val(aliquotaOriginal.toFixed(2));
+            
+            calcularValoresICMS(row);
+        }
+    });
 
     // Função para habilitar/desabilitar campos
     function toggleCampos() {
@@ -419,22 +674,6 @@ $(document).ready(function() {
         }
     }
 
-    // Armazena os valores originais ao carregar a página
-    $('.base-icms').each(function() {
-        var valor = parseFloat($(this).val()) || 0;
-        $(this).attr('data-base-original', valor);
-    });
-
-    $('.valor-icms').each(function() {
-        var valor = parseFloat($(this).val()) || 0;
-        $(this).attr('data-valor-original', valor);
-    });
-
-    $('.ipi-devolucao').each(function() {
-        var valor = parseFloat($(this).val()) || 0;
-        $(this).attr('data-ipi-original', valor);
-    });
-
     // Evento de mudança no checkbox de devolver todos
     $('#devolver_todos').change(function() {
         toggleCampos();
@@ -445,29 +684,25 @@ $(document).ready(function() {
         var row = $(this).closest('tr');
         var campos = row.find('.quantidade, .base-icms, .aliquota-icms, .valor-icms, .ipi-devolucao');
         campos.prop('disabled', !$(this).is(':checked'));
+        
         if (!$(this).is(':checked')) {
-            campos.val('');
+            // Apenas atualiza o total, mantém os valores
             atualizarTotalItem(row);
         } else {
             row.find('.quantidade').val(row.find('.quantidade').attr('max'));
-            atualizarTotalItem(row);
+            // Restaura os valores originais
+            var baseOriginal = parseFloat(row.find('.base-icms').attr('data-base-original')) || 0;
+            var valorOriginal = parseFloat(row.find('.valor-icms').attr('data-valor-original')) || 0;
+            var ipiOriginal = parseFloat(row.find('.ipi-devolucao').attr('data-ipi-original')) || 0;
+            var aliquotaOriginal = parseFloat(row.find('.aliquota-icms').attr('data-aliquota-original')) || 0;
+            
+            row.find('.base-icms').val(baseOriginal.toFixed(2));
+            row.find('.valor-icms').val(valorOriginal.toFixed(2));
+            row.find('.ipi-devolucao').val(ipiOriginal.toFixed(2));
+            row.find('.aliquota-icms').val(aliquotaOriginal.toFixed(2));
+            
             calcularValoresICMS(row);
         }
-    });
-
-    // Evento de mudança na quantidade
-    $('.quantidade').change(function() {
-        var row = $(this).closest('tr');
-        var quantidade = parseFloat($(this).val()) || 0;
-        var max = parseFloat($(this).attr('max')) || 0;
-        
-        if (quantidade > max) {
-            $(this).val(max);
-            quantidade = max;
-        }
-        
-        atualizarTotalItem(row);
-        calcularValoresICMS(row);
     });
 
     // Evento do botão Selecionar Todos
@@ -485,11 +720,52 @@ $(document).ready(function() {
             alert('Selecione pelo menos um item para devolução.');
             return false;
         }
+
+        // Calcula o total do IPI dos itens selecionados
+        var totalIPI = 0;
+        $('.item-checkbox:checked').each(function() {
+            var row = $(this).closest('tr');
+            var ipi = parseFloat(row.find('.ipi-devolucao').val()) || 0;
+            totalIPI += ipi;
+        });
+
+        // Adiciona um campo hidden com o total do IPI
+        if ($('#total_ipi').length === 0) {
+            $('<input>').attr({
+                type: 'hidden',
+                id: 'total_ipi',
+                name: 'total_ipi',
+                value: totalIPI.toFixed(2)
+            }).appendTo('#formDevolucao');
+        } else {
+            $('#total_ipi').val(totalIPI.toFixed(2));
+        }
         
         // Mostra o loading
         $('.loading-overlay').css('display', 'flex');
         
         return true;
+    });
+
+    // Armazena os valores originais ao carregar a página
+    $('.base-icms').each(function() {
+        var valor = parseFloat($(this).val()) || 0;
+        $(this).attr('data-base-original', valor);
+    });
+
+    $('.valor-icms').each(function() {
+        var valor = parseFloat($(this).val()) || 0;
+        $(this).attr('data-valor-original', valor);
+    });
+
+    $('.ipi-devolucao').each(function() {
+        var valor = parseFloat($(this).val()) || 0;
+        $(this).attr('data-ipi-original', valor);
+    });
+
+    $('.aliquota-icms').each(function() {
+        var valor = parseFloat($(this).val()) || 0;
+        $(this).attr('data-aliquota-original', valor);
     });
 });
 </script> 

@@ -328,6 +328,10 @@ class DevolucaoCompra extends CI_Controller
                 // Se houver quantidades específicas, usa a quantidade informada
                 $quantidade = $devolver_todos === 'true' ? $produto->quantidade : 
                              (isset($quantidades[$produto->idProdutos]) ? $quantidades[$produto->idProdutos] : $produto->quantidade);
+                                                 // Primeiro tenta pegar do POST (selecionarItensDevolucao.php)
+                    $base_icms = $this->input->post('base_icms')[$produto->idProdutos] ?? null;
+                    $aliquota_icms = $this->input->post('aliquota_icms')[$produto->idProdutos] ?? null;
+                    $valor_icms = $this->input->post('valor_icms')[$produto->idProdutos] ?? null;
 
                 $emitente = $this->Mapos_model->getEmitente();
                 $cliente = $this->Clientes_model->getById($entrada->fornecedor_id);
@@ -549,32 +553,38 @@ class DevolucaoCompra extends CI_Controller
             // Calcula o valor total dos produtos proporcionalmente aos itens selecionados
             $totalProdutos = 0;
             $totalBaseICMS = 0;
-            $valorTotalIPI = 0;
+            $valorTotalIPI = $this->input->post('total_ipi') ? floatval($this->input->post('total_ipi')) : 0;
+            $totalICMS = 0;
+
             foreach ($produtos as $produto) {
                 if ($devolver_todos === 'true' || in_array($produto->idProdutos, $itens_selecionados)) {
                     $quantidade = $devolver_todos === 'true' ? $produto->quantidade : 
                                 (isset($quantidades[$produto->idProdutos]) ? $quantidades[$produto->idProdutos] : $produto->quantidade);
                     
-                    // Busca o item da entrada para pegar o valor unitário e base ICMS
+                    // Busca o item da entrada
                     $item_entrada = $this->db->where('faturamento_entrada_id', $entrada->id)
                                            ->where('produto_id', $produto->idProdutos)
                                            ->get('faturamento_entrada_itens')
                                            ->row();
                     
                     if ($item_entrada) {
+                        // Calcula os valores proporcionais à quantidade
+                        $proporcao = $quantidade / $item_entrada->quantidade;
+                        
+                        $base_icms = ($item_entrada->base_calculo_icms / $item_entrada->quantidade) * $quantidade;
+                        $valor_icms = ($item_entrada->valor_icms / $item_entrada->quantidade) * $quantidade;
+                        
+                        // Atualiza os totais
+                        $totalBaseICMS += $base_icms;
+                        $totalICMS += $valor_icms;
+                        
                         // Calcula o valor total proporcional à quantidade
                         $valorItem = $item_entrada->valor_unitario * $quantidade;
                         $totalProdutos += $valorItem;
-                        
-                        // Calcula o IPI proporcional à quantidade
-                        $valorTotalIPI += ($item_entrada->valor_ipi / $item_entrada->quantidade) * $quantidade;
-                        
-                        // Calcula a base ICMS proporcional à quantidade
-                        $totalBaseICMS += ($item_entrada->base_calculo_icms / $item_entrada->quantidade) * $quantidade;
                     }
                 }
             }
-            
+
             // Calcula o valor total da nota (vNF) como soma dos produtos + IPI
             $valorTotalNota = $totalProdutos + $valorTotalIPI;
             
@@ -602,7 +612,16 @@ if (!$transportadora) {
 
 // Define o tipo de frete
 $std = new \stdClass();
-$std->modFrete = $entrada->modalidade_frete ?? '1';
+
+// Primeiro tenta pegar do POST (selecionarItensDevolucao.php)
+$modalidade_frete = $this->input->post('modalidade_frete');
+
+// Se não encontrou no POST, tenta pegar da entrada
+if ($modalidade_frete === null || $modalidade_frete === '') {
+    $modalidade_frete = $entrada->modalidade_frete ?? '1';
+}
+
+$std->modFrete = $modalidade_frete;
 $nfe->tagtransp($std);
 
 // Informações da transportadora
@@ -625,17 +644,53 @@ $stdTransp->UF = $transportadora->estado;
 
 $nfe->tagtransporta($stdTransp);
 
-// Verifica peso
-if (empty($entrada->peso_bruto) || empty($entrada->peso_liquido)) {
-    throw new Exception('Peso bruto e peso líquido são obrigatórios quando a modalidade de frete é diferente de 9 (Sem Frete)');
+// Busca informações de peso e volume
+$peso_liquido = null;
+$peso_bruto = null;
+$volume = null;
+$especie = null;
+
+// Primeiro tenta pegar do POST (selecionarItensDevolucao.php)
+if ($this->input->post('peso_liquido')) {
+    $peso_liquido = $this->input->post('peso_liquido');
+}
+if ($this->input->post('peso_bruto')) {
+    $peso_bruto = $this->input->post('peso_bruto');
+}
+if ($this->input->post('volume')) {
+    $volume = $this->input->post('volume');
+}
+if ($this->input->post('especie')) {
+    $especie = $this->input->post('especie');
+}
+
+// Se não encontrou no POST, tenta pegar da entrada
+if ($peso_liquido === null && !empty($entrada->peso_liquido)) {
+    $peso_liquido = $entrada->peso_liquido;
+}
+if ($peso_bruto === null && !empty($entrada->peso_bruto)) {
+    $peso_bruto = $entrada->peso_bruto;
+}
+if ($volume === null && !empty($entrada->volume)) {
+    $volume = $entrada->volume;
+}
+if ($especie === null && !empty($entrada->especie)) {
+    $especie = $entrada->especie;
 }
 
 // Volume
 $stdVol = new \stdClass();
-$stdVol->qVol = '1';
-$stdVol->esp = 'VOLUME';
-$stdVol->pesoL = number_format($entrada->peso_liquido, 3, '.', '');
-$stdVol->pesoB = number_format($entrada->peso_bruto, 3, '.', '');
+$stdVol->qVol = !empty($volume) ? $volume : '1';
+$stdVol->esp = !empty($especie) ? $especie : 'VOLUME';
+
+// Só adiciona os pesos se existirem
+if ($peso_liquido !== null) {
+    $stdVol->pesoL = number_format($peso_liquido, 3, '.', '');
+}
+if ($peso_bruto !== null) {
+    $stdVol->pesoB = number_format($peso_bruto, 3, '.', '');
+}
+
 $nfe->tagvol($stdVol);
 
 
@@ -1323,28 +1378,34 @@ $nfe->tagvol($stdVol);
             // Calcula o valor total dos produtos proporcionalmente aos itens selecionados
             $totalProdutos = 0;
             $totalBaseICMS = 0;
-            $valorTotalIPI = 0;
+            $valorTotalIPI = $this->input->post('total_ipi') ? floatval($this->input->post('total_ipi')) : 0;
+            $totalICMS = 0;
+
             foreach ($produtos as $produto) {
                 if ($devolver_todos === 'true' || in_array($produto->idProdutos, $itens_selecionados)) {
                     $quantidade = $devolver_todos === 'true' ? $produto->quantidade : 
                                 (isset($quantidades[$produto->idProdutos]) ? $quantidades[$produto->idProdutos] : $produto->quantidade);
-                                
-                    // Busca o item da entrada para pegar o valor unitário e base ICMS
+                    
+                    // Busca o item da entrada
                     $item_entrada = $this->db->where('faturamento_entrada_id', $entrada->id)
                                            ->where('produto_id', $produto->idProdutos)
                                            ->get('faturamento_entrada_itens')
                                            ->row();
                     
                     if ($item_entrada) {
+                        // Calcula os valores proporcionais à quantidade
+                        $proporcao = $quantidade / $item_entrada->quantidade;
+                        
+                        $base_icms = ($item_entrada->base_calculo_icms / $item_entrada->quantidade) * $quantidade;
+                        $valor_icms = ($item_entrada->valor_icms / $item_entrada->quantidade) * $quantidade;
+                        
+                        // Atualiza os totais
+                        $totalBaseICMS += $base_icms;
+                        $totalICMS += $valor_icms;
+                        
                         // Calcula o valor total proporcional à quantidade
                         $valorItem = $item_entrada->valor_unitario * $quantidade;
                         $totalProdutos += $valorItem;
-                        
-                        // Calcula o IPI proporcional à quantidade
-                        $valorTotalIPI += ($item_entrada->valor_ipi / $item_entrada->quantidade) * $quantidade;
-                        
-                        // Calcula a base ICMS proporcional à quantidade
-                        $totalBaseICMS += ($item_entrada->base_calculo_icms / $item_entrada->quantidade) * $quantidade;
                     }
                 }
             }
