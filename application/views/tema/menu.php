@@ -122,6 +122,90 @@
                         </a>
                     </li>
                 <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vUsuario')) { ?>
+                    <li class="<?php if (isset($menuUsuarios)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('usuarios') ?>"><i class='bx bx-user iconX'></i>
+                            <span class="title">Usuários</span>
+                            <span class="title-tooltip">Usuários</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vPermissao')) { ?>
+                    <li class="<?php if (isset($menuPermissoes)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('permissoes') ?>"><i class='bx bx-shield iconX'></i>
+                            <span class="title">Permissões</span>
+                            <span class="title-tooltip">Permissões</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vConfiguracao')) { ?>
+                    <li class="<?php if (isset($menuConfiguracoes)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('mapos/configuracoes') ?>"><i class='bx bx-cog iconX'></i>
+                            <span class="title">Configurações</span>
+                            <span class="title-tooltip">Configurações</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vAuditoria')) { ?>
+                    <li class="<?php if (isset($menuAuditoria)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('auditoria') ?>"><i class='bx bx-history iconX'></i>
+                            <span class="title">Auditoria</span>
+                            <span class="title-tooltip">Auditoria</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vArquivo')) { ?>
+                    <li class="<?php if (isset($menuArquivos)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('arquivos') ?>"><i class='bx bx-folder iconX'></i>
+                            <span class="title">Arquivos</span>
+                            <span class="title-tooltip">Arquivos</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vBackup')) { ?>
+                    <li class="<?php if (isset($menuBackup)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('mapos/backup') ?>"><i class='bx bx-data iconX'></i>
+                            <span class="title">Backup</span>
+                            <span class="title-tooltip">Backup</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vEmitente')) { ?>
+                    <li class="<?php if (isset($menuEmitente)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('mapos/emitente') ?>"><i class='bx bx-building iconX'></i>
+                            <span class="title">Emitente</span>
+                            <span class="title-tooltip">Emitente</span>
+                        </a>
+                    </li>
+                <?php } ?>
             </ul>
         </div>
 
