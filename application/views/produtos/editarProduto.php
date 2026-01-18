@@ -543,23 +543,34 @@ L<style>
                 </div>
                 <div class="row-fluid" id="modalNcmTableRow">
                     <div class="span12" id="modalNcmTableCol">
-                        <div class="table-responsive" id="modalNcmTableContainer" style="max-height: 600px; overflow-y: auto;">
+                        <div class="table-responsive" id="modalNcmTableContainer" style="max-height: 500px; overflow-y: auto;">
                             <table class="table table-bordered table-striped" id="tabelaNcm">
                                 <thead>
                                     <tr>
-                                        <th>Código</th>
-                                        <th>Descrição</th>
-                                        <th>Ações</th>
+                                        <th style="width: 15%;">Código</th>
+                                        <th style="width: 70%;">Descrição</th>
+                                        <th style="width: 15%;">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td colspan="3" class="text-center">Digite algo para pesquisar</td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div id="totalResultados" class="text-right" style="margin-top: 10px;"></div>
+                        <div class="row-fluid" style="margin-top: 15px;">
+                            <div class="span6">
+                                <div id="totalResultados" style="font-weight: bold; color: #666; padding: 8px 0;"></div>
+                            </div>
+                            <div class="span6 text-right">
+                                <div class="btn-group" id="paginacaoNcm" style="display: none;">
+                                    <button type="button" class="btn btn-default btn-sm" id="btnAnteriorNcm" disabled>
+                                        <i class="fas fa-chevron-left"></i> Anterior
+                                    </button>
+                                    <button type="button" class="btn btn-default btn-sm" id="btnProximoNcm">
+                                        Próximo <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1106,9 +1117,9 @@ L<style>
         
         function toggleFields(manualChange) {
             var isService = $('#PRO_TIPO_TOGGLE').is(':checked');
-            
+
             console.log('toggleFields chamado - isService:', isService, 'manualChange:', manualChange);
-            
+
             if (isService) { // Serviço
                 $('.field-produto').hide();
                 $('.field-servico').show();
@@ -1163,6 +1174,11 @@ L<style>
                 carregarUnidadesProduto();
                 carregarUnidadesCampoAntigo();
             }
+
+            // Garantir que todos os campos estejam sempre habilitados após alternar tipo
+            $('input, select, textarea').prop('disabled', false).prop('readonly', false);
+            // Manter apenas o campo código como readonly
+            $('#codigo').prop('readonly', true);
         }
 
         // Evento do toggle switch
@@ -1193,25 +1209,37 @@ L<style>
         // Marcar que o primeiro carregamento foi concluído
         primeiroCarregamento = false;
 
-        // Função para pesquisar NCM no modal
-        function pesquisarNcmModal(termo) {
-            if (!termo || termo.length < 2) {
-                $('#tabelaNcm tbody').html('<tr><td colspan="3" class="text-center">Digite pelo menos 2 caracteres</td></tr>');
-                $('#totalResultados').text('');
-                return;
+        // Variáveis para controle de paginação NCM
+        var paginaAtualNcm = 1;
+        var totalPaginasNcm = 1;
+        var termoPesquisaAtual = '';
+
+        // Função para pesquisar NCM no modal com paginação
+        function pesquisarNcmModal(termo, pagina) {
+            pagina = pagina || 1;
+            var data = { pagina: pagina, limite: 25 };
+
+            // Só adiciona termo se ele não estiver vazio ou undefined
+            if (termo && typeof termo === 'string' && termo.trim().length > 0) {
+                data.termo = termo.trim();
             }
 
             $.ajax({
                 url: '<?php echo base_url(); ?>index.php/ncms/buscar',
                 type: 'GET',
-                data: { termo: termo },
+                data: data,
                 dataType: 'json',
                 success: function(response) {
                     var tbody = $('#tabelaNcm tbody');
                     tbody.empty();
 
-                    if (response.length > 0) {
-                        $.each(response, function(i, ncm) {
+                    // Verifica se a resposta tem a estrutura com 'resultados' (sem termo) ou é direta (com termo)
+                    var ncms = response.resultados || response;
+                    var totalRegistros = response.total_registros || (Array.isArray(response) ? response.length : 0);
+                    var totalPaginas = response.total_paginas || Math.ceil(totalRegistros / 25);
+
+                    if (ncms && ncms.length > 0) {
+                        $.each(ncms, function(i, ncm) {
                             var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
                             var descricao = ncm.NCM_DESCRICAO || ncm.descricao || ncm.ncm_descricao || '';
                             var id = ncm.NCM_ID || ncm.id || ncm.ncm_id || '';
@@ -1229,33 +1257,68 @@ L<style>
                                 '</tr>'
                             );
                         });
-                        $('#totalResultados').text('Total: ' + response.length + ' resultado(s)');
+
+                        // Atualizar controles de paginação
+                        totalPaginasNcm = totalPaginas;
+                        paginaAtualNcm = pagina;
+
+                        if (totalPaginasNcm > 1) {
+                            $('#paginacaoNcm').show();
+                            $('#btnAnteriorNcm').prop('disabled', paginaAtualNcm <= 1);
+                            $('#btnProximoNcm').prop('disabled', paginaAtualNcm >= totalPaginasNcm);
+                        } else {
+                            $('#paginacaoNcm').hide();
+                        }
+
+                        $('#totalResultados').html('<i class="fas fa-info-circle"></i> ' + totalRegistros + ' resultado(s) encontrado(s) - Página ' + paginaAtualNcm + ' de ' + totalPaginasNcm);
                     } else {
                         tbody.append('<tr><td colspan="3" class="text-center">Nenhum NCM encontrado</td></tr>');
                         $('#totalResultados').text('');
+                        $('#paginacaoNcm').hide();
                     }
                 },
                 error: function() {
                     $('#tabelaNcm tbody').html('<tr><td colspan="3" class="text-center text-danger">Erro na busca</td></tr>');
                     $('#totalResultados').text('');
+                    $('#paginacaoNcm').hide();
                 }
             });
+        }
+
+        // Função para carregar os primeiros 25 NCMs automaticamente
+        function carregarPrimeirosNcms() {
+            termoPesquisaAtual = '';
+            pesquisarNcmModal('', 1);
         }
 
         // Evento de digitação no campo de pesquisa NCM
         $('#pesquisaNcm').on('input', function() {
             var termo = $(this).val();
+            termoPesquisaAtual = termo;
             if (termo.length >= 2) {
-                pesquisarNcmModal(termo);
+                pesquisarNcmModal(termo, 1);
             } else if (termo.length === 0) {
-                $('#tabelaNcm tbody').html('<tr><td colspan="3" class="text-center">Digite algo para pesquisar</td></tr>');
-                $('#totalResultados').text('');
+                carregarPrimeirosNcms();
             }
         });
 
         // Evento de clique no botão pesquisar NCM
         $('#btnPesquisarNcm').on('click', function() {
-            pesquisarNcmModal($('#pesquisaNcm').val());
+            termoPesquisaAtual = $('#pesquisaNcm').val();
+            pesquisarNcmModal(termoPesquisaAtual, 1);
+        });
+
+        // Eventos de paginação
+        $('#btnAnteriorNcm').on('click', function () {
+            if (paginaAtualNcm > 1) {
+                pesquisarNcmModal(termoPesquisaAtual, paginaAtualNcm - 1);
+            }
+        });
+
+        $('#btnProximoNcm').on('click', function () {
+            if (paginaAtualNcm < totalPaginasNcm) {
+                pesquisarNcmModal(termoPesquisaAtual, paginaAtualNcm + 1);
+            }
         });
 
         // Evento de seleção do NCM
@@ -1271,12 +1334,86 @@ L<style>
         });
 
         $('#modalNcm').on('hidden.bs.modal', function() {
-            $('.modal-backdrop').remove();
-            $('body').removeClass('modal-open');
-            $('input, select, textarea').prop('disabled', false);
-            $('input, select').not('#codigo').prop('readonly', false);
-            $('.field-produto input, .field-produto select').prop('disabled', false).prop('readonly', false);
-            $('.field-servico input, .field-servico select').prop('disabled', false).prop('readonly', false);
+            console.log('Modal NCM fechado - liberando campos');
+
+            // Garantir que os campos do formulário estejam liberados após o modal fechar
+            $('input, select, textarea').prop('disabled', false).prop('readonly', false);
+
+            // Garantir especificamente que os campos de preço e estoque estejam liberados
+            $('#precoCompra, #precoVenda, #estoque, #estoqueMinimo, #PRO_ORIGEM').prop('disabled', false).prop('readonly', false);
+
+            // Verificar se é produto ou serviço
+            var isService = $('#PRO_TIPO_TOGGLE').is(':checked');
+            console.log('Tipo atual:', isService ? 'Serviço' : 'Produto');
+
+            // Reaplicar apenas a visibilidade dos campos baseada no tipo (sem afetar disabled/readonly)
+            if (isService) {
+                $('.field-produto').hide();
+                $('.field-servico').show();
+            } else {
+                $('.field-produto').show();
+                $('.field-servico').hide();
+            }
+
+            // Manter apenas o campo código como readonly
+            $('#codigo').prop('readonly', true);
+
+            // Forçar liberação específica dos campos de produto após um pequeno delay
+            setTimeout(function() {
+                if (!isService) {
+                    console.log('Garantindo que campos de produto estejam liberados');
+                    console.log('Antes da liberação - precoCompra disabled:', $('#precoCompra').prop('disabled'), 'readonly:', $('#precoCompra').prop('readonly'));
+                    console.log('Antes da liberação - precoVenda disabled:', $('#precoVenda').prop('disabled'), 'readonly:', $('#precoVenda').prop('readonly'));
+
+                    $('#precoCompra, #precoVenda, #estoque, #estoqueMinimo, #PRO_ORIGEM').prop('disabled', false).prop('readonly', false);
+                    $('#precoCompra, #precoVenda, #estoque, #estoqueMinimo, #PRO_ORIGEM').removeAttr('disabled');
+
+                    console.log('Após liberação - precoCompra disabled:', $('#precoCompra').prop('disabled'), 'readonly:', $('#precoCompra').prop('readonly'));
+                    console.log('Após liberação - precoVenda disabled:', $('#precoVenda').prop('disabled'), 'readonly:', $('#precoVenda').prop('readonly'));
+
+                    // Reaplicar as funcionalidades dos campos após liberá-los
+                    $('.preco-simples').off('input').on('input', function() {
+                        var value = $(this).val();
+                        var cleanValue = value.replace(/[^0-9,]/g, '');
+                        if (value !== cleanValue) {
+                            $(this).val(cleanValue);
+                        }
+                    });
+
+                    $('.preco-simples').off('focus click').on('focus click', function() {
+                        $(this).select();
+                    });
+                }
+            }, 100);
+
+            // Verificar novamente após um delay maior
+            setTimeout(function() {
+                if (!isService) {
+                    console.log('Verificação final - precoCompra disabled:', $('#precoCompra').prop('disabled'), 'readonly:', $('#precoCompra').prop('readonly'));
+                    console.log('Verificação final - precoVenda disabled:', $('#precoVenda').prop('disabled'), 'readonly:', $('#precoVenda').prop('readonly'));
+
+                    // Forçar liberação uma segunda vez se necessário
+                    if ($('#precoCompra').prop('disabled') || $('#precoCompra').prop('readonly')) {
+                        console.log('Forçando liberação novamente para precoCompra');
+                        $('#precoCompra').prop('disabled', false).prop('readonly', false).removeAttr('disabled');
+                    }
+                    if ($('#precoVenda').prop('disabled') || $('#precoVenda').prop('readonly')) {
+                        console.log('Forçando liberação novamente para precoVenda');
+                        $('#precoVenda').prop('disabled', false).prop('readonly', false).removeAttr('disabled');
+                    }
+                }
+            }, 500);
+        });
+
+        // Limpar pesquisa ao abrir modal e carregar primeiros NCMs
+        $('#modalNcm').on('show.bs.modal', function () {
+            // Garantir que os campos de preço estejam liberados antes de abrir o modal
+            $('#precoCompra, #precoVenda').prop('disabled', false).prop('readonly', false).removeAttr('disabled');
+            console.log('Campos liberados antes de abrir modal NCM');
+
+            $('#pesquisaNcm').val('');
+            $('#tabelaNcm tbody').empty();
+            carregarPrimeirosNcms();
         });
 
         // Carregar descrição do NCM ao carregar a página

@@ -84,12 +84,52 @@ class Ncms extends MY_Controller
         }
 
         $termo = $this->input->get('termo');
-        
+        $pagina = $this->input->get('pagina') ? $this->input->get('pagina') : 1;
+        $limite = $this->input->get('limite') ? $this->input->get('limite') : 25;
+        $start = ($pagina - 1) * $limite;
+
         // Se for uma requisição AJAX, retorna JSON
         if ($this->input->is_ajax_request()) {
-            $ncms = $this->ncms_model->buscar($termo);
-            $this->output->set_content_type('application/json')
-                        ->set_output(json_encode($ncms));
+            if (!$this->input->get('termo')) {
+                // Carregar primeiros NCMs sem termo de busca
+                log_message('debug', 'Buscando NCMs sem termo - limite: ' . $limite . ', start: ' . $start);
+                $ncms = $this->ncms_model->get(null, $limite, $start);
+                $total_registros = $this->ncms_model->count();
+                $total_paginas = ceil($total_registros / $limite);
+
+                log_message('debug', 'Encontrados ' . count($ncms) . ' NCMs de ' . $total_registros . ' total');
+
+                $this->output->set_content_type('application/json')
+                            ->set_output(json_encode(array(
+                                'resultados' => $ncms,
+                                'total_registros' => $total_registros,
+                                'total_paginas' => $total_paginas,
+                                'pagina_atual' => $pagina
+                            )));
+            } else {
+                // Busca com termo
+                log_message('debug', 'Controller Ncms - Buscando por termo: ' . $termo . ', limite: ' . $limite . ', start: ' . $start);
+                $ncms = $this->ncms_model->buscar($termo, $limite, $start);
+                log_message('debug', 'Controller Ncms - Resultados encontrados: ' . count($ncms));
+
+                $total_registros = count($this->ncms_model->buscar($termo)); // Contagem total sem limite
+                log_message('debug', 'Controller Ncms - Total de registros: ' . $total_registros);
+
+                $total_paginas = ceil($total_registros / $limite);
+
+                $response = array(
+                    'resultados' => $ncms,
+                    'total_registros' => $total_registros,
+                    'total_paginas' => $total_paginas,
+                    'pagina_atual' => $pagina,
+                    'termo_pesquisado' => $termo
+                );
+
+                log_message('debug', 'Controller Ncms - Resposta final: ' . json_encode($response));
+
+                $this->output->set_content_type('application/json')
+                            ->set_output(json_encode($response));
+            }
             return;
         }
 

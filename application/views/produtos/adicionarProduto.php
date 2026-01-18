@@ -600,53 +600,56 @@
 </div>
 
 <!-- Modal de Pesquisa NCM -->
-<div class="modal fade" id="modalNcm" tabindex="-1" role="dialog" aria-labelledby="modalNcmLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" id="modalNcmDialog">
-        <div class="modal-content" id="modalNcmContent">
-            <div class="modal-header" id="modalNcmHeader">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h4 class="modal-title" id="modalNcmLabel"><i class="fas fa-search"></i> Pesquisar NCM</h4>
+<div class="modal fade" id="modalNcm" role="dialog" data-backdrop="false">
+    <div class="modal-dialog modal-lg" style="width: 95%; max-width: 1200px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title"><i class="fas fa-search"></i> Pesquisar NCM</h4>
             </div>
-            <div class="modal-body" id="modalNcmBody">
-                <div class="row-fluid" id="modalNcmSearchRow">
-                    <div class="span12" id="modalNcmSearchCol">
-                        <div class="control-group" id="modalNcmSearchGroup">
-                            <div class="controls" id="modalNcmSearchControls">
-                                <div class="input-group" id="modalNcmSearchInputGroup">
+            <div class="modal-body" style="max-height: 600px;">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="control-group">
+                            <div class="controls">
+                                <div class="input-group">
                                     <input type="text" id="pesquisaNcm" class="form-control"
-                                        placeholder="Digite o código ou descrição do NCM"
-                                        style="width: 100%; height: 34px;">
-                                    <button type="button" class="btn btn-info" id="btnPesquisarNcm"
-                                        style="height: 34px;">
+                                        placeholder="Digite o código ou parte da descrição do NCM (mín. 2 caracteres)">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-info" id="btnPesquisarNcm">
                                         <i class="fas fa-search"></i> Pesquisar
                                     </button>
+                                    </span>
                                 </div>
+                                <div class="help-block" style="margin-top: 5px; font-size: 11px; color: #666;">
+                                    <i class="fas fa-info-circle"></i> Busca por código exato ou palavras na descrição
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row-fluid" id="modalNcmTableRow">
-                    <div class="span12" id="modalNcmTableCol">
-                        <div class="table-responsive" id="modalNcmTableContainer"
-                            style="max-height: 600px; overflow-y: auto;">
+                </div>
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
                             <table class="table table-bordered table-striped" id="tabelaNcm">
                                 <thead>
                                     <tr>
-                                        <th style="width: 15%;">Código</th>
-                                        <th style="width: 70%;">Descrição</th>
-                                        <th style="width: 15%;">Ações</th>
+                                        <th>Código</th>
+                                        <th>Descrição</th>
+                                        <th>Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="corpoTabelaNcm">
+                                    <tr>
+                                        <td colspan="3" class="text-center">Carregando NCMs...</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div id="totalResultados" class="text-right"
-                            style="margin-top: 10px; font-weight: bold; color: #666;"></div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" id="modalNcmFooter">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
             </div>
         </div>
@@ -654,35 +657,37 @@
 </div>
 
 <!-- Modal de Pesquisa cClass -->
-<div class="modal fade" id="modalCClass" tabindex="-1" role="dialog" aria-labelledby="modalCClassLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" id="modalCClassDialog">
-        <div class="modal-content" id="modalCClassContent">
-            <div class="modal-header" id="modalCClassHeader">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="modalCClassLabel"><i class="fas fa-search"></i> Pesquisar cClass</h4>
+<div class="modal fade" id="modalCClass" role="dialog" data-backdrop="false">
+    <div class="modal-dialog modal-lg" style="width: 95%; max-width: 1200px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title"><i class="fas fa-search"></i> Pesquisar cClass</h4>
             </div>
-            <div class="modal-body" id="modalCClassBody">
-                <div class="row-fluid" id="modalCClassSearchRow">
-                    <div class="span12" id="modalCClassSearchCol">
-                        <div class="control-group" id="modalCClassSearchGroup">
-                            <div class="controls" id="modalCClassSearchControls">
-                                <div class="input-group" id="modalCClassSearchInputGroup">
+            <div class="modal-body" style="max-height: 600px;">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="control-group">
+                            <div class="controls">
+                                <div class="input-group">
                                     <input type="text" id="pesquisaCClass" class="form-control"
-                                        placeholder="Digite o código ou descrição do cClass"
-                                        style="width: 100%; height: 34px;">
-                                    <button type="button" class="btn btn-info" id="btnPesquisarCClass"
-                                        style="height: 34px;">
-                                        <i class="fas fa-search"></i> Pesquisar
-                                    </button>
+                                        placeholder="Digite o código ou parte da descrição do cClass (mín. 2 caracteres)">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-info" id="btnPesquisarCClass">
+                                            <i class="fas fa-search"></i> Pesquisar
+                                        </button>
+                                    </span>
+                                </div>
+                                <div class="help-block" style="margin-top: 5px; font-size: 11px; color: #666;">
+                                    <i class="fas fa-info-circle"></i> Busca por código exato ou palavras na descrição
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row-fluid" id="modalCClassTableRow">
-                    <div class="span12" id="modalCClassTableCol">
-                        <div class="table-responsive" id="modalCClassTableContainer"
-                            style="max-height: 600px; overflow-y: auto;">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
                             <table class="table table-bordered table-striped" id="tabelaCClass">
                                 <thead>
                                     <tr>
@@ -691,18 +696,17 @@
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="corpoTabelaCClass">
                                     <tr>
-                                        <td colspan="3" class="text-center">Digite algo para pesquisar</td>
+                                        <td colspan="3" class="text-center">Carregando cClass...</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div id="totalResultadosCClass" class="text-right" style="margin-top: 10px;"></div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" id="modalCClassFooter">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
             </div>
         </div>
@@ -1107,149 +1111,398 @@
             }
         });
 
-        // Função para pesquisar NCM
-        function pesquisarNcm(termo) {
+
+        // Função para carregar os primeiros 25 NCMs automaticamente
+        function carregarPrimeirosNcms() {
             $.ajax({
                 url: '<?php echo base_url(); ?>index.php/ncms/buscar',
                 type: 'GET',
-                data: { termo: termo },
+                data: { pagina: 1, limite: 25 },
                 dataType: 'json',
-                success: function (response) {
-                    var tbody = $('#tabelaNcm tbody');
+                success: function(response) {
+                    var tbody = $('#corpoTabelaNcm');
                     tbody.empty();
 
-                    if (response.length > 0) {
-                        $.each(response, function (i, ncm) {
+                    // A API sempre retorna um objeto com "resultados"
+                    var ncms = response.resultados || response;
+
+                    if (ncms && ncms.length > 0) {
+                        $.each(ncms, function(i, ncm) {
                             var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
                             var descricao = ncm.NCM_DESCRICAO || ncm.descricao || ncm.ncm_descricao || '';
                             var id = ncm.NCM_ID || ncm.id || ncm.ncm_id || '';
 
                             tbody.append(
                                 '<tr>' +
-                                '<td style="padding: 12px;">' + codigo + '</td>' +
-                                '<td style="padding: 12px;">' + descricao + '</td>' +
-                                '<td style="padding: 12px; text-align: center;">' +
+                                '<td>' + codigo + '</td>' +
+                                '<td>' + descricao + '</td>' +
+                                '<td class="text-center">' +
                                 '<button type="button" class="btn btn-success btn-sm selecionarNcm" ' +
                                 'data-codigo="' + codigo + '" ' +
-                                'data-descricao="' + descricao + '" ' +
                                 'data-id="' + id + '">' +
                                 '<i class="fas fa-check"></i> Selecionar</button>' +
                                 '</td>' +
                                 '</tr>'
                             );
                         });
-                        $('#totalResultados').html('<i class="fas fa-info-circle"></i> Total de resultados: ' + response.length);
                     } else {
-                        tbody.append('<tr><td colspan="3" class="text-center" style="padding: 12px;">Nenhum NCM encontrado</td></tr>');
-                        $('#totalResultados').html('');
+                        tbody.html('<tr><td colspan="3" class="text-center">Nenhum NCM encontrado</td></tr>');
                     }
+                },
+                error: function() {
+                    $('#corpoTabelaNcm').html('<tr><td colspan="3" class="text-center text-danger">Erro ao carregar NCMs</td></tr>');
                 }
             });
         }
 
-        // Evento de pesquisa ao digitar
-        $('#pesquisaNcm').on('keyup', function (e) {
-            if (e.keyCode === 13) {
-                pesquisarNcm($(this).val());
-            }
-        });
-
-        // Evento de clique no botão pesquisar
-        $('#btnPesquisarNcm').on('click', function () {
-            pesquisarNcm($('#pesquisaNcm').val());
-        });
-
-        // Evento de seleção do NCM
-        $(document).on('click', '.selecionarNcm', function () {
-            var codigo = $(this).data('codigo');
-            var descricao = $(this).data('descricao');
-            var id = $(this).data('id');
-
-            $('#PRO_NCM').val(codigo);
-            $('#NCM_ID').val(id);
-            $('#modalNcm').modal('hide');
-        });
-
-        $('#modalNcm').on('hidden.bs.modal', function () {
-            // Garantir que os campos do formulário estejam liberados após o modal fechar
-            $('input, select, textarea').prop('disabled', false).prop('readonly', false);
-            $('#PRO_PRECO_COMPRA, #PRO_PRECO_VENDA, #Lucro, #PRO_ESTOQUE, #estoqueMinimo, #PRO_ORIGEM').prop('disabled', false).prop('readonly', false);
-            $('.modal-backdrop').remove();
-            $('body').removeClass('modal-open');
-        });
-
-        // Limpar pesquisa ao abrir modal
-        $('#modalNcm').on('show.bs.modal', function () {
-            $('#pesquisaNcm').val('');
-            $('#tabelaNcm tbody').empty();
-        });
-
-        // Função para pesquisar cClass
-        function pesquisarCClass(termo) {
-            if (!termo || termo.length < 2) {
-                $('#tabelaCClass tbody').html('<tr><td colspan="3" class="text-center">Digite pelo menos 2 caracteres</td></tr>');
-                $('#totalResultadosCClass').text('');
+        // Função simples para pesquisar NCM por código OU descrição
+        function pesquisarNcm(termo) {
+            if (!termo || termo.trim().length < 2) {
+                // Se não há termo suficiente, volta aos primeiros 25 NCMs
+                console.log('Termo muito curto, carregando primeiros NCMs');
+                carregarPrimeirosNcms();
                 return;
             }
 
+            var termoLimpo = termo.trim();
+            console.log('Pesquisando NCM por:', termoLimpo);
+            console.log('URL da requisição:', '<?php echo base_url(); ?>index.php/ncms/buscar?termo=' + encodeURIComponent(termoLimpo));
+
             $.ajax({
-                url: '<?php echo base_url(); ?>index.php/produtos/pesquisarCClass',
-                type: 'POST',
-                data: { termo: termo },
+                url: '<?php echo base_url(); ?>index.php/ncms/buscar',
+                type: 'GET',
+                data: { termo: termo.trim() },
                 dataType: 'json',
-                success: function (response) {
-                    var tbody = $('#tabelaCClass tbody');
+                success: function(response) {
+                    console.log('Resposta da busca NCM:', response);
+
+                    var tbody = $('#corpoTabelaNcm');
                     tbody.empty();
 
-                    if (response.length > 0) {
-                        $.each(response, function (i, cclass) {
+                    // A API sempre retorna um objeto com "resultados"
+                    var ncms = response.resultados || response;
+
+                    if (ncms && ncms.length > 0) {
+                        console.log('Encontrados ' + ncms.length + ' NCMs');
+
+                        $.each(ncms, function(i, ncm) {
+                            var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
+                            var descricao = ncm.NCM_DESCRICAO || ncm.descricao || ncm.ncm_descricao || '';
+                            var id = ncm.NCM_ID || ncm.id || ncm.ncm_id || '';
+
                             tbody.append(
                                 '<tr>' +
-                                '<td style="padding: 12px;">' + cclass.codigo + '</td>' +
-                                '<td style="padding: 12px;">' + cclass.descricao + '</td>' +
-                                '<td style="padding: 12px; text-align: center;">' +
-                                '<button type="button" class="btn btn-success btn-sm selecionarCClass" ' +
-                                'data-codigo="' + cclass.codigo + '" ' +
-                                'data-descricao="' + cclass.descricao + '">Selecionar</button>' +
+                                '<td>' + codigo + '</td>' +
+                                '<td>' + descricao + '</td>' +
+                                '<td class="text-center">' +
+                                '<button type="button" class="btn btn-success btn-sm selecionarNcm" ' +
+                                'data-codigo="' + codigo + '" ' +
+                                'data-id="' + id + '">' +
+                                '<i class="fas fa-check"></i> Selecionar</button>' +
                                 '</td>' +
                                 '</tr>'
                             );
                         });
-                        $('#totalResultadosCClass').text('Total: ' + response.length + ' resultado(s)');
                     } else {
-                        tbody.append('<tr><td colspan="3" class="text-center">Nenhum cClass encontrado</td></tr>');
-                        $('#totalResultadosCClass').text('');
+                        console.log('Nenhum NCM encontrado para:', termo.trim());
+                        tbody.html('<tr><td colspan="3" class="text-center text-warning"><i class="fas fa-info-circle"></i> Nenhum NCM encontrado para "' + termo.trim() + '"</td></tr>');
                     }
                 },
-                error: function () {
-                    $('#tabelaCClass tbody').html('<tr><td colspan="3" class="text-center text-danger">Erro na busca</td></tr>');
-                    $('#totalResultadosCClass').text('');
+                error: function(xhr, status, error) {
+                    console.error('Erro na busca NCM:', error);
+                    $('#corpoTabelaNcm').html('<tr><td colspan="3" class="text-center text-danger"><i class="fas fa-exclamation-triangle"></i> Erro na busca. Tente novamente.</td></tr>');
+                }
+            });
+        }
+
+        // Evento de digitação no campo de pesquisa NCM
+        $('#pesquisaNcm').on('input', function() {
+                pesquisarNcm($(this).val());
+        });
+
+        // Evento de clique no botão pesquisar NCM
+        $('#btnPesquisarNcm').on('click', function() {
+            pesquisarNcm($('#pesquisaNcm').val());
+        });
+
+        // Evento de seleção do NCM - apenas define o valor no campo
+        $(document).on('click', '.selecionarNcm', function() {
+            var codigo = $(this).data('codigo');
+            var id = $(this).data('id');
+
+            // Apenas define os valores nos campos do formulário
+            $('#PRO_NCM').val(codigo);
+            $('#NCM_ID').val(id);
+
+            // Fecha o modal
+            $('#modalNcm').modal('hide');
+        });
+
+        // Carregar primeiros 25 NCMs ao abrir modal
+        $('#modalNcm').on('show.bs.modal', function() {
+            $('#pesquisaNcm').val('');
+            $('#corpoTabelaNcm').html('<tr><td colspan="3" class="text-center">Carregando NCMs...</td></tr>');
+            carregarPrimeirosNcms();
+        });
+
+        // Limpar qualquer resíduo quando o modal fechar
+        $('#modalNcm').on('hidden.bs.modal', function() {
+            // Aguardar um pouco para garantir que o modal foi completamente fechado
+            setTimeout(function() {
+                console.log('Iniciando limpeza completa do modal NCM');
+
+                // 1. Forçar fechamento e remoção completa do modal
+                $('#modalNcm').removeClass('in').hide();
+                $('#modalNcm').css({
+                    'display': 'none',
+                    'visibility': 'hidden',
+                    'opacity': '0',
+                    'pointer-events': 'none'
+                });
+
+                // 2. Garantir que não há nenhum elemento bloqueante residual
+            $('.modal-backdrop').remove();
+                $('.modal').not('#modalNcm').removeClass('in').hide();
+            $('body').removeClass('modal-open');
+                $('body').css({
+                    'overflow': 'auto',
+                    'padding-right': '0',
+                    'pointer-events': 'auto'
+                });
+
+                // 3. Resetar especificamente a área onde o modal estava
+                $('#modalNcm').css({
+                    'position': 'static',
+                    'z-index': 'auto',
+                    'pointer-events': 'none'
+                });
+
+                // 4. Garantir que todos os campos do formulário estão acessíveis
+                $('input, select, textarea, button, a').each(function() {
+                    var $element = $(this);
+                    $element.prop('disabled', false).prop('readonly', false);
+                    $element.removeAttr('disabled').removeAttr('readonly');
+                    $element.css({
+                        'pointer-events': 'auto',
+                        'cursor': 'auto',
+                        'z-index': 'auto',
+                        'position': 'static'
+                    });
+                });
+
+                // 5. Resetar containers principais
+                $('.widget-box, .widget-content, form, .row-fluid, .span6, .span12').css({
+                    'pointer-events': 'auto',
+                    'position': 'static',
+                    'z-index': 'auto'
+                });
+
+                // 6. Verificar se há elementos com pointer-events bloqueantes
+                $('*').each(function() {
+                    var $el = $(this);
+                    var pointerEvents = $el.css('pointer-events');
+                    if (pointerEvents === 'none') {
+                        $el.css('pointer-events', 'auto');
+                    }
+                });
+
+                console.log('Modal NCM fechado completamente - área liberada');
+
+                // Verificação adicional após mais tempo
+                setTimeout(function() {
+                    // Garantir que o modal está completamente fora da área
+                    $('#modalNcm').css('display', 'none !important');
+                    $('#modalNcm').hide();
+
+                    // Testar se os campos estão realmente funcionais
+                    console.log('Verificação final: campos devem estar clicáveis agora');
+                }, 300);
+
+            }, 200); // Aumentei o delay para 200ms
+        });
+
+        // Função para carregar os primeiros 25 cClass automaticamente
+        function carregarPrimeirosCClass() {
+            $.ajax({
+                url: '<?php echo base_url(); ?>index.php/produtos/pesquisarCClass',
+                type: 'POST',
+                data: { limite: 25 },
+                dataType: 'json',
+                success: function(response) {
+                    var tbody = $('#corpoTabelaCClass');
+                    tbody.empty();
+
+                    if (response && response.length > 0) {
+                        $.each(response.slice(0, 25), function(i, cclass) { // Limita a 25
+                            tbody.append(
+                                '<tr>' +
+                                '<td>' + cclass.codigo + '</td>' +
+                                '<td>' + cclass.descricao + '</td>' +
+                                '<td class="text-center">' +
+                                '<button type="button" class="btn btn-success btn-sm selecionarCClass" ' +
+                                'data-codigo="' + cclass.codigo + '" ' +
+                                'data-descricao="' + cclass.descricao + '">' +
+                                '<i class="fas fa-check"></i> Selecionar</button>' +
+                                '</td>' +
+                                '</tr>'
+                            );
+                        });
+                    } else {
+                        tbody.html('<tr><td colspan="3" class="text-center">Nenhum cClass encontrado</td></tr>');
+                    }
+                },
+                error: function() {
+                    $('#corpoTabelaCClass').html('<tr><td colspan="3" class="text-center text-danger">Erro ao carregar cClass</td></tr>');
+                }
+            });
+        }
+
+        // Função simples para pesquisar cClass por código OU descrição
+        function pesquisarCClass(termo) {
+            if (!termo || termo.trim().length < 2) {
+                // Se não há termo suficiente, volta aos primeiros 25 cClass
+                carregarPrimeirosCClass();
+                return;
+            }
+
+            console.log('Pesquisando cClass por:', termo.trim());
+
+            $.ajax({
+                url: '<?php echo base_url(); ?>index.php/produtos/pesquisarCClass',
+                type: 'POST',
+                data: { termo: termo.trim() },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Resposta da busca cClass:', response);
+
+                    var tbody = $('#corpoTabelaCClass');
+                    tbody.empty();
+
+                    if (response && response.length > 0) {
+                        console.log('Encontrados ' + response.length + ' cClass');
+
+                        $.each(response, function(i, cclass) {
+                            tbody.append(
+                                '<tr>' +
+                                '<td>' + cclass.codigo + '</td>' +
+                                '<td>' + cclass.descricao + '</td>' +
+                                '<td class="text-center">' +
+                                '<button type="button" class="btn btn-success btn-sm selecionarCClass" ' +
+                                'data-codigo="' + cclass.codigo + '" ' +
+                                'data-descricao="' + cclass.descricao + '">' +
+                                '<i class="fas fa-check"></i> Selecionar</button>' +
+                                '</td>' +
+                                '</tr>'
+                            );
+                        });
+                    } else {
+                        console.log('Nenhum cClass encontrado para:', termo.trim());
+                        tbody.html('<tr><td colspan="3" class="text-center text-warning"><i class="fas fa-info-circle"></i> Nenhum cClass encontrado para "' + termo.trim() + '"</td></tr>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro na busca cClass:', error);
+                    $('#corpoTabelaCClass').html('<tr><td colspan="3" class="text-center text-danger"><i class="fas fa-exclamation-triangle"></i> Erro na busca. Tente novamente.</td></tr>');
                 }
             });
         }
 
         // Evento de digitação no campo de pesquisa cClass
-        $('#pesquisaCClass').on('input', function () {
-            var termo = $(this).val();
-            if (termo.length >= 2) {
-                pesquisarCClass(termo);
-            } else if (termo.length === 0) {
-                $('#tabelaCClass tbody').html('<tr><td colspan="3" class="text-center">Digite algo para pesquisar</td></tr>');
-                $('#totalResultadosCClass').text('');
-            }
+        $('#pesquisaCClass').on('input', function() {
+            pesquisarCClass($(this).val());
         });
 
         // Evento de clique no botão pesquisar cClass
-        $('#btnPesquisarCClass').on('click', function () {
+        $('#btnPesquisarCClass').on('click', function() {
             pesquisarCClass($('#pesquisaCClass').val());
         });
 
-        // Evento de seleção do cClass
-        $(document).on('click', '.selecionarCClass', function () {
+        // Carregar primeiros 25 cClass ao abrir modal
+        $('#modalCClass').on('show.bs.modal', function() {
+            $('#pesquisaCClass').val('');
+            $('#corpoTabelaCClass').html('<tr><td colspan="3" class="text-center">Carregando cClass...</td></tr>');
+            carregarPrimeirosCClass();
+        });
+
+        // Limpar qualquer resíduo quando o modal fechar
+        $('#modalCClass').on('hidden.bs.modal', function() {
+            // Aguardar um pouco para garantir que o modal foi completamente fechado
+            setTimeout(function() {
+                console.log('Iniciando limpeza completa do modal cClass');
+
+                // Forçar fechamento e remoção completa do modal
+                $('#modalCClass').removeClass('in').hide();
+                $('#modalCClass').css({
+                    'display': 'none',
+                    'visibility': 'hidden',
+                    'opacity': '0',
+                    'pointer-events': 'none'
+                });
+
+                // Garantir que não há nenhum elemento bloqueante residual
+                $('.modal-backdrop').remove();
+                $('.modal').not('#modalCClass').removeClass('in').hide();
+                $('body').removeClass('modal-open');
+                $('body').css({
+                    'overflow': 'auto',
+                    'padding-right': '0',
+                    'pointer-events': 'auto'
+                });
+
+                // Resetar especificamente a área do modal
+                $('#modalCClass').css({
+                    'position': 'static',
+                    'z-index': 'auto',
+                    'pointer-events': 'none'
+                });
+
+                // Garantir que todos os campos do formulário estão acessíveis
+                $('input, select, textarea, button, a').each(function() {
+                    var $element = $(this);
+                    $element.prop('disabled', false).prop('readonly', false);
+                    $element.removeAttr('disabled').removeAttr('readonly');
+                    $element.css({
+                        'pointer-events': 'auto',
+                        'cursor': 'auto',
+                        'z-index': 'auto',
+                        'position': 'static'
+                    });
+                });
+
+                // Resetar containers principais
+                $('.widget-box, .widget-content, form, .row-fluid, .span6, .span12').css({
+                    'pointer-events': 'auto',
+                    'position': 'static',
+                    'z-index': 'auto'
+                });
+
+                // Verificar e corrigir elementos com pointer-events bloqueantes
+                $('*').each(function() {
+                    if ($(this).css('pointer-events') === 'none') {
+                        $(this).css('pointer-events', 'auto');
+                    }
+                });
+
+                console.log('Modal cClass fechado completamente - área liberada');
+
+                // Verificação adicional após mais tempo
+                setTimeout(function() {
+                    $('#modalCClass').css('display', 'none !important').hide();
+                    console.log('Verificação final: campos devem estar clicáveis agora');
+                }, 300);
+
+            }, 200);
+        });
+
+        // Evento de seleção do cClass - apenas define o valor no campo
+        $(document).on('click', '.selecionarCClass', function() {
             var codigo = $(this).data('codigo');
             var descricao = $(this).data('descricao');
 
+            // Apenas define os valores nos campos do formulário
             $('#PRO_CCLASS_SERV').val(codigo);
+
+            // Fecha o modal
             $('#modalCClass').modal('hide');
         });
 

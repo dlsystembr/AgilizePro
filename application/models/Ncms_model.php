@@ -122,26 +122,23 @@ class Ncms_model extends CI_Model
         return $this->db->delete('ncms');
     }
 
-    public function buscar($termo)
+    public function buscar($termo, $limite = null, $start = null)
     {
-        // Primeiro tenta encontrar uma correspondência exata do código
+        // Busca por similaridade em código E descrição (sempre LIKE)
         $this->db->select('*');
         $this->db->from('ncms');
-        $this->db->where('NCM_CODIGO', $termo);
-        $result = $this->db->get()->result();
-        
-        // Se não encontrar correspondência exata, busca por similaridade
-        if (empty($result)) {
-            $this->db->select('*');
-            $this->db->from('ncms');
-            $this->db->group_start();
-            $this->db->like('NCM_CODIGO', $termo);
-            $this->db->or_like('NCM_DESCRICAO', $termo);
-            $this->db->group_end();
-            $this->db->order_by('NCM_CODIGO', 'asc');
-            $result = $this->db->get()->result();
+        $this->db->group_start();
+        $this->db->like('NCM_CODIGO', $termo, 'both'); // 'both' adiciona % no início e fim
+        $this->db->or_like('NCM_DESCRICAO', $termo, 'both'); // 'both' adiciona % no início e fim
+        $this->db->group_end();
+        $this->db->order_by('NCM_CODIGO', 'asc');
+
+        if ($limite !== null && $start !== null) {
+            $this->db->limit($limite, $start);
         }
-        
+
+        $result = $this->db->get()->result();
+
         return $result;
     }
 

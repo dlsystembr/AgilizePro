@@ -46,6 +46,15 @@
     .btn-edit:hover {
         background-color: #0056b3;
     }
+
+    /* Estilos para mostrar/ocultar campos baseado no tipo */
+    .field-produto {
+        display: block;
+    }
+
+    .field-servico {
+        display: none;
+    }
 </style>
 
 <div class="row-fluid" style="margin-top:0">
@@ -72,7 +81,7 @@
                                     <input id="codigo" type="text" name="codigo" value="<?php echo $result->PRO_ID; ?>" readonly />
                                 </div>
                             </div>
-                            <div class="control-group">
+                            <div class="control-group field-produto">
                                 <label for="codDeBarra" class="control-label">Código de Barra</label>
                                 <div class="controls">
                                     <div style="display: flex; gap: 10px; align-items: center;">
@@ -101,17 +110,10 @@
                                     <input id="ncm_id" class="form-control" type="hidden" name="ncm_id" value="<?php echo $result->NCM_ID; ?>" />
                                 </div>
                             </div>
-                            <div class="control-group">
-                                <label class="control-label">Tipo de Movimento</label>
+                            <div class="control-group field-servico">
+                                <label for="cclass_serv" class="control-label">cClass (Serviço)</label>
                                 <div class="controls">
-                                    <label for="entrada" class="btn btn-default" style="margin-top: 5px;">Entrada
-                                        <input type="checkbox" id="entrada" name="entrada" class="badgebox" value="1" <?= ($result->PRO_ENTRADA == 1) ? 'checked' : '' ?> disabled>
-                                        <span class="badge">&check;</span>
-                                    </label>
-                                    <label for="saida" class="btn btn-default" style="margin-top: 5px;">Saída
-                                        <input type="checkbox" id="saida" name="saida" class="badgebox" value="1" <?= ($result->PRO_SAIDA == 1) ? 'checked' : '' ?> disabled>
-                                        <span class="badge">&check;</span>
-                                    </label>
+                                    <input id="cclass_serv" type="text" name="cclass_serv" value="<?php echo $result->PRO_CCLASS_SERV; ?>" readonly />
                                 </div>
                             </div>
                             <div class="control-group">
@@ -124,7 +126,7 @@
 
                         <div class="span6">
                             <!-- Coluna 2: Preços e Estoque -->
-                            <div class="control-group">
+                            <div class="control-group field-produto">
                                 <label for="precoCompra" class="control-label">Preço de Compra<span class="required">*</span></label>
                                 <div class="controls">
                                     <input id="precoCompra" type="text" name="precoCompra" value="<?php echo number_format($result->PRO_PRECO_COMPRA, 2, ',', '.'); ?>" readonly />
@@ -136,19 +138,19 @@
                                     <input id="precoVenda" type="text" name="precoVenda" value="<?php echo number_format($result->PRO_PRECO_VENDA, 2, ',', '.'); ?>" readonly />
                                 </div>
                             </div>
-                            <div class="control-group">
+                            <div class="control-group field-produto">
                                 <label for="estoque" class="control-label">Estoque<span class="required">*</span></label>
                                 <div class="controls">
                                     <input id="estoque" type="number" name="estoque" value="<?php echo $result->PRO_ESTOQUE; ?>" readonly />
                                 </div>
                             </div>
-                            <div class="control-group">
+                            <div class="control-group field-produto">
                                 <label for="estoqueMinimo" class="control-label">Estoque Mínimo</label>
                                 <div class="controls">
                                     <input id="estoqueMinimo" type="number" name="estoqueMinimo" value="<?php echo $result->PRO_ESTOQUE_MINIMO; ?>" readonly />
                                 </div>
                             </div>
-                            <div class="control-group">
+                            <div class="control-group field-produto">
                                 <label for="origem" class="control-label">Origem do Produto<span class="required">*</span></label>
                                 <div class="controls">
                                     <select id="origem" name="origem" disabled>
@@ -167,13 +169,13 @@
                         </div>
                     </div>
 
-                    <div class="row-fluid">
+                    <div class="row-fluid field-produto">
                         <div class="span12">
                             <h5 style="margin: 20px 0 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; padding-left: 20px;">Dimensões e Peso</h5>
                         </div>
                     </div>
 
-                    <div class="row-fluid" style="margin-left: 0;">
+                    <div class="row-fluid field-produto" style="margin-left: 0;">
                         <div class="span2">
                             <div class="control-group">
                                 <label for="peso_bruto" class="control-label">Peso Bruto (kg)</label>
@@ -242,19 +244,63 @@
 
 <script src="<?php echo base_url(); ?>assets/js/ncm-search.js"></script>
 <script type="text/javascript">
+    // Função para mostrar/ocultar campos baseado no tipo do produto
+    function toggleFieldsVisualizar() {
+        var isService = '<?php echo $result->PRO_TIPO; ?>' == '2';
+
+        if (isService) {
+            // É serviço - mostrar apenas campos de serviço
+            $('.field-produto').hide();
+            $('.field-servico').show();
+
+            // Alterar label do código
+            $('label[for="codigo"]').text('Código do Serviço');
+        } else {
+            // É produto - mostrar apenas campos de produto
+            $('.field-produto').show();
+            $('.field-servico').hide();
+
+            // Alterar label do código
+            $('label[for="codigo"]').text('Código do Produto');
+        }
+    }
+
     $(document).ready(function() {
-        // Carregar unidades
-        $.getJSON('<?php echo base_url() ?>assets/json/tabela_medidas.json', function(data) {
-            var select = $('#unidade');
-            select.empty();
-            select.append('<option value="">Selecione</option>');
-            $.each(data.medidas, function(i, medida) {
-                select.append($('<option></option>').val(medida.sigla).text(medida.descricao));
+        // Aplicar lógica de mostrar/ocultar campos na visualização
+        toggleFieldsVisualizar();
+
+        // Carregar unidades baseado no tipo
+        var isService = '<?php echo $result->PRO_TIPO; ?>' == '2';
+
+        if (isService) {
+            // Carregar unidades de serviço
+            $.getJSON('<?php echo base_url() ?>assets/json/unidades_servico.json', function(data) {
+                var select = $('#unidade');
+                select.empty();
+                select.append('<option value="">Selecione</option>');
+                $.each(data.unidades_servico, function(i, unidade) {
+                    var texto = unidade.codigo + ' - ' + unidade.descricao;
+                    select.append($('<option></option>').val(unidade.valor).text(texto));
+                });
+                // Selecionar a unidade atual
+                if ('<?php echo $result->PRO_UNID_MEDIDA; ?>') {
+                    select.val('<?php echo $result->PRO_UNID_MEDIDA; ?>');
+                }
             });
-            // Selecionar a unidade atual
-            if ('<?php echo $result->PRO_UNID_MEDIDA; ?>') {
-                select.val('<?php echo $result->PRO_UNID_MEDIDA; ?>');
-            }
-        });
+        } else {
+            // Carregar unidades de produto
+            $.getJSON('<?php echo base_url() ?>assets/json/tabela_medidas.json', function(data) {
+                var select = $('#unidade');
+                select.empty();
+                select.append('<option value="">Selecione</option>');
+                $.each(data.medidas, function(i, medida) {
+                    select.append($('<option></option>').val(medida.sigla).text(medida.descricao));
+                });
+                // Selecionar a unidade atual
+                if ('<?php echo $result->PRO_UNID_MEDIDA; ?>') {
+                    select.val('<?php echo $result->PRO_UNID_MEDIDA; ?>');
+                }
+            });
+        }
     });
 </script>
