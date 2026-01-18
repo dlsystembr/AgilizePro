@@ -171,7 +171,7 @@ class NFComPreview
             $end['cep']
         );
         $pdf->SetX($emitX);
-        $pdf->Cell(0, 4, $this->safeText(trim(preg_replace('/\s+/', ' ', $linha))), 0, 1, 'L');
+        $pdf->MultiCell(0, 3.5, $this->safeText(trim(preg_replace('/\s+/', ' ', $linha))), 0, 'L');
 
         $pdf->SetX($emitX);
         $pdf->Cell(0, 4, $this->safeText('CNPJ: ' . $this->formatCnpjCpf($this->config['empresa']['cnpj'])), 0, 1, 'L');
@@ -238,7 +238,14 @@ class NFComPreview
         $qrY = $rightY + 2;
         $qrX = $rightX + 2;
         $qrData = 'https://dfe-portal.svrs.rs.gov.br/nfcom/consulta?chNFCom=' . $chave;
-        $this->drawQrCode($pdf, $qrData, $qrX, $qrY, $qrSize);
+
+        // Se não for autorizada (3) nem cancelada/encerrada (5), exibe placeholder
+        $status = $dados['status'] ?? 0;
+        if ($status != 3 && $status != 5) {
+            $this->drawPlaceholder($pdf, $qrX, $qrY, $qrSize, $qrSize, 'CAMPO PARA QRCODE');
+        } else {
+            $this->drawQrCode($pdf, $qrData, $qrX, $qrY, $qrSize);
+        }
 
         // Informações ao lado do QR
         $gap = 4;
@@ -258,8 +265,14 @@ class NFComPreview
         $pdf->MultiCell($infoW, 3.2, $this->safeText('CONSULTE PELA CHAVE DE ACESSO EM:' . PHP_EOL . 'https://dfe-portal.svrs.rs.gov.br/nfcom/consulta'), 0, 'L');
         $pdf->Cell(0, 1, '', 0, 1, 'L');
 
+        // Se não autorizado, zera a chave inteira para exibição (exceto formatação)
+        $chaveDisplay = $chave;
+        if ($status != 3 && $status != 5 && strlen($chave) == 44) {
+            $chaveDisplay = str_repeat('0', 44);
+        }
+
         $pdf->SetX($infoX);
-        $pdf->MultiCell($infoW, 3.2, $this->safeText('CHAVE DE ACESSO:' . PHP_EOL . $this->formatChave($chave)), 0, 'L');
+        $pdf->MultiCell($infoW, 3.2, $this->safeText('CHAVE DE ACESSO:' . PHP_EOL . $this->formatChave($chaveDisplay)), 0, 'L');
 
         $pdf->SetFont('helvetica', '', 9);
         $pdf->Cell(0, 1, '', 0, 1, 'L');
@@ -463,6 +476,15 @@ class NFComPreview
         $info = $dados['informacoes_adicionais'] ?? '';
         $pdf->MultiCell($w - 4, 3.5, $this->safeText($info), 0, 'L');
 
+        // Marca d'água SEM VALOR FISCAL se não autorizado
+        if ($status != 3 && $status != 5) {
+            $pdf->SetFont('helvetica', 'B', 20);
+            $pdf->SetTextColor(200, 200, 200);
+            $pdf->SetXY($x, $infoY + $headerInfoH + 4);
+            $pdf->Cell($w, 10, $this->safeText('SEM VALOR FISCAL'), 0, 0, 'C');
+            $pdf->SetTextColor(0, 0, 0);
+        }
+
         // ===== ÁREA DO CONTRIBUINTE E ANATEL =====
         $headerAreaH = 5;
 
@@ -479,6 +501,13 @@ class NFComPreview
         // Caixas internas
         $innerY = $areaY + $headerAreaH + 2;
         $gapBox = 3;
+
+        // Software House (Lateral)
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->SetTextColor(150, 150, 150);
+        $textoLateral = "Software House: DL System - www.dlsystem.com.br - (62) 99678-6878";
+        $pdf->RotatedText(208, 190, $this->safeText($textoLateral), 90);
+        $pdf->SetTextColor(0, 0, 0);
         $boxW = ($w - $gapBox - 2) / 2;
         $boxH = 11;
 
@@ -978,8 +1007,46 @@ class LocalFpdf extends FPDF
         return $this->k;
     }
 
+    public function RotatedText($x, $y, $txt, $angle)
+    {
+        // Text rotated around its origin
+        $this->Rotate($angle, $x, $y);
+        $this->Text($x, $y, $txt);
+        $this->Rotate(0);
+    }
+
+    public function Rotate($angle, $x = -1, $y = -1)
+    {
+        if ($x == -1)
+            $x = $this->x;
+        if ($y == -1)
+            $y = $this->y;
+        if (isset($this->angle) && $this->angle != 0)
+            $this->_out('Q');
+        $this->angle = $angle;
+        if ($angle != 0) {
+            $angle *= M_PI / 180;
+            $c = cos($angle);
+            $s = sin($angle);
+            $cx = $x * $this->k;
+            $cy = ($this->h - $y) * $this->k;
+            $this->_out(sprintf('q %.5F %.5F %.5F %.5F %.2F %.2F cm 1 0 0 1 %.2F %.2F cm', $c, $s, -$s, $c, $cx, $cy, -$cx, -$cy));
+        }
+    }
+
     public function getH(): float
     {
         return $this->h;
+    }
+
+    protected $angle = 0;
+
+    function _endpage()
+    {
+        if ($this->angle != 0) {
+            $this->angle = 0;
+            $this->_out('Q');
+        }
+        parent::_endpage();
     }
 }

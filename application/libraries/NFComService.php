@@ -117,11 +117,7 @@ class NFComService
         $ambiente = $config['ambiente'] ?? $ambiente; // Usar configuração ou parâmetro
         $url = $this->getEndpoint($ambiente, 'ConsultaProtocolo');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>
-<consSitNFCom xmlns="http://www.portalfiscal.inf.br/nfcom" versao="1.00">
-    <tpAmb>' . $ambiente . '</tpAmb>
-    <chNFCom>' . $chave . '</chNFCom>
-</consSitNFCom>';
+        $xml = '<consSitNFCom xmlns="http://www.portalfiscal.inf.br/nfcom" versao="1.00"><tpAmb>' . $ambiente . '</tpAmb><xServ>CONSULTAR</xServ><chNFCom>' . $chave . '</chNFCom></consSitNFCom>';
 
         try {
             log_message('info', 'NFCom Consult - URL: ' . $url);
@@ -322,7 +318,7 @@ class NFComService
     private function executeCurl($url, $xmlContent, $soapAction)
     {
         // Determinar namespace e service name baseado na URL
-        $isConsulta = strpos($url, 'ConsultaProtocolo') !== false;
+        $isConsulta = strpos($url, 'Consulta') !== false;
         $serviceName = $isConsulta ? 'NFComConsulta' : 'NFComRecepcao';
         $namespaceMsg = 'http://www.portalfiscal.inf.br/nfcom/wsdl/' . $serviceName;
 
@@ -352,22 +348,20 @@ class NFComService
 
         // Envelope SOAP 1.2 - formato exato como NFePHP usa
         // NFePHP usa SOAP 1.2 com estrutura específica
+        // Envelope SOAP específico para NFCom
         $soapEnvelope = '<?xml version="1.0" encoding="UTF-8"?>';
         $soapEnvelope .= '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">';
         $soapEnvelope .= '<soap12:Body>';
         $soapEnvelope .= '<nfcomDadosMsg xmlns="' . $namespaceMsg . '">';
-        // XML direto sem quebras de linha extras (como NFePHP faz)
         $soapEnvelope .= $cleanXml;
         $soapEnvelope .= '</nfcomDadosMsg>';
         $soapEnvelope .= '</soap12:Body>';
         $soapEnvelope .= '</soap12:Envelope>';
 
-        // Headers exatamente como NFePHP usa
-        $soapActionValue = $namespaceMsg . '/' . $soapAction;
-
+        // Headers para NFCom - formato correto
         $headers = [
-            'Content-Type: application/soap+xml; charset=utf-8; action="' . $soapActionValue . '"',
-            'SOAPAction: "' . $soapActionValue . '"',
+            'Content-Type: application/soap+xml; charset=utf-8',
+            'SOAPAction: "' . $namespaceMsg . '/' . $soapAction . '"',
         ];
 
         // Converter PFX para PEM para uso no cURL

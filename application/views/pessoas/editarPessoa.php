@@ -1,4 +1,5 @@
 <?php /** @var object $result */ ?>
+<script src="<?php echo base_url() ?>assets/js/sweetalert2.all.min.js"></script>
 <style>
     /* Sugestões dropdown */
     .suggest-box {
@@ -1802,6 +1803,64 @@
         $.validator.addMethod("customCPFCNPJ", function (value, element) {
             return validarCPFCNPJ(value);
         }, "CPF/CNPJ inválido");
+
+        // AJAX Submission logic
+        $('#formPessoa').submit(function (e) {
+            e.preventDefault();
+
+            if (!$(this).valid()) return;
+
+            var form = $(this);
+            var btn = form.find('button[type=submit]');
+            var originalBtnText = btn.html();
+
+            // Disable button and show spinner
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Salvando...');
+
+            // Remove existing alerts
+            $('.alert').remove();
+            $('.form_error').remove();
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                dataType: 'json',
+                success: function (response) {
+                    if (response.result) {
+                        // Success
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sucesso',
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: false,
+                            willClose: () => {
+                                window.location.href = response.redirect;
+                            }
+                        });
+                    } else {
+                        // Validation Error
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Atenção',
+                            html: response.message
+                        });
+                    }
+                    // Reset button
+                    btn.prop('disabled', false).html(originalBtnText);
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro Interno',
+                        text: 'Ocorreu um erro ao processar a requisição.'
+                    });
+                    console.error(error);
+                    btn.prop('disabled', false).html(originalBtnText);
+                }
+            });
+        });
 
         // ==========================================
         // CARREGAR DADOS EXISTENTES NA EDIÇÃO

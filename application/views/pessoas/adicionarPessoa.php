@@ -1,3 +1,4 @@
+<script src="<?php echo base_url() ?>assets/js/sweetalert2.all.min.js"></script>
 <style>
     /* Sugestões dropdown */
     .suggest-box {
@@ -982,10 +983,13 @@
 
             // Só verificar se tiver 11 (CPF) ou 14 (CNPJ) dígitos
             if (cpfcnpj.length === 11 || cpfcnpj.length === 14) {
+                // Desabilitar botão de busca enquanto verifica
+                $('#btnBuscarCNPJ').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
                 $.ajax({
                     url: '<?php echo base_url(); ?>index.php/pessoas/verificarCpfCnpj',
                     method: 'POST',
-                    data: { cpfcnpj: cpfcnpj },
+                    data: { cpfcnpj: cpfcnpjFormatado },
                     dataType: 'json',
                     success: function (response) {
                         if (response.exists) {
@@ -1017,7 +1021,7 @@
                             // Limpar o campo CPF/CNPJ
                             $('#PES_CPFCNPJ').val('');
                             $('#PES_FISICO_JURIDICO').val('');
-                            $('#btnBuscarCNPJ').hide();
+                            $('#btnBuscarCNPJ').hide(); // Esconder botão busca
 
                             // Mostrar modal com backdrop
                             $('#modalCpfCnpjDuplicado').modal({
@@ -1029,10 +1033,19 @@
                             $('#modalCpfCnpjDuplicado').on('hidden', function () {
                                 $('#PES_CPFCNPJ').focus();
                             });
+                        } else {
+                            // Se não existe e é CNPJ, reabilitar botão de busca
+                            if (cpfcnpj.length === 14) {
+                                $('#btnBuscarCNPJ').show().prop('disabled', false).html('<i class="fas fa-search"></i>');
+                            }
                         }
                     },
                     error: function () {
                         console.log('Erro ao verificar CPF/CNPJ');
+                        // Em caso de erro, reabilitar botão por segurança
+                        if (cpfcnpj.length === 14) {
+                            $('#btnBuscarCNPJ').show().prop('disabled', false).html('<i class="fas fa-search"></i>');
+                        }
                     }
                 });
             }
@@ -1142,6 +1155,7 @@
         // Busca CNPJ
         $('#btnBuscarCNPJ').on('click', function () {
             const cnpj = $('#PES_CPFCNPJ').val().replace(/[^\d]/g, '');
+            const cnpjFormatado = $('#PES_CPFCNPJ').val();
             const btn = $(this);
 
             if (cnpj.length !== 14) {
@@ -1154,9 +1168,71 @@
                 return;
             }
 
-            // Feedback visual
+            // Feedback visual e desabilitar
             btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
 
+            // 1. Verificar Duplicidade Internamente Primeiro
+            $.ajax({
+                url: '<?php echo base_url(); ?>index.php/pessoas/verificarCpfCnpj',
+                method: 'POST',
+                data: { cpfcnpj: cnpjFormatado },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.exists) {
+                        // Se existe, exibir alerta, preencher modal e bloquear
+
+                        // Configurar modal (reaproveitando lógica do blur)
+                        var tipo = 'CNPJ';
+                        $('#tipoCpfCnpj').text(tipo);
+                        $('#tipoCpfCnpjLabel').text(tipo);
+                        $('#pessoaNome').text(response.nome);
+                        $('#pessoaCpfCnpj').text(cnpjFormatado);
+
+                        if (response.razao_social && response.razao_social.trim() !== '') {
+                            $('#pessoaRazaoSocial').text(response.razao_social);
+                            $('#rowRazaoSocial').show();
+                        } else {
+                            $('#rowRazaoSocial').hide();
+                        }
+
+                        // Configurar botões do modal
+                        $('#btnEditarPessoa').off('click').on('click', function () {
+                            window.location.href = '<?php echo base_url(); ?>index.php/pessoas/editar/' + response.id;
+                        });
+
+                        $('#btnVisualizarPessoa').off('click').on('click', function () {
+                            window.location.href = '<?php echo base_url(); ?>index.php/pessoas/visualizar/' + response.id;
+                        });
+
+                        // Limpar campo e interface
+                        $('#PES_CPFCNPJ').val('');
+                        $('#PES_FISICO_JURIDICO').val('');
+                        $('#btnBuscarCNPJ').hide(); // Hide button specifically
+
+                        // Mostrar modal
+                        $('#modalCpfCnpjDuplicado').modal({
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+
+                        $('#modalCpfCnpjDuplicado').on('hidden', function () {
+                            $('#PES_CPFCNPJ').focus();
+                        });
+
+                        // MANTER O BOTÃO DESABILITADO/ESCONDIDO POIS É DUPLICADO
+                    } else {
+                        // 2. Se NÃO existe, prosseguir com a busca na API externa
+                        realizarBuscaExterna(cnpj, btn);
+                    }
+                },
+                error: function () {
+                    alert('Erro ao verificar duplicidade. Tente novamente.');
+                    btn.prop('disabled', false).html('<i class="fas fa-search"></i>');
+                }
+            });
+        });
+
+        function realizarBuscaExterna(cnpj, btn) {
             $.ajax({
                 url: `https://publica.cnpj.ws/cnpj/${cnpj}`,
                 method: 'GET',
@@ -1363,7 +1439,7 @@
                     btn.prop('disabled', false).html('<i class="fas fa-search"></i>');
                 }
             });
-        });
+        }
 
         // Controle das seções de tipos de pessoa
         $(document).on('change', 'input[name="TIPOS_PESSOA[]"]', function () {
@@ -1877,6 +1953,58 @@
             },
             invalidHandler: function (event, validator) {
                 $('.alert-error').show();
+            },
+            submitHandler: function (form) {
+                var btn = $(form).find('button[type=submit]');
+                var originalBtnText = btn.html();
+
+                // Disable button and show spinner
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Salvando...');
+
+                // Remove existing alerts
+                $('.alert').remove();
+                $('.form_error').remove();
+
+                $.ajax({
+                    url: $(form).attr('action'),
+                    type: 'POST',
+                    data: $(form).serialize(),
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.result) {
+                            // Success
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Sucesso',
+                                text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false,
+                                willClose: () => {
+                                    window.location.href = response.redirect;
+                                }
+                            });
+                        } else {
+                            // Validation Error
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Atenção',
+                                html: response.message
+                            });
+                            // Reset button
+                            btn.prop('disabled', false).html(originalBtnText);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro Interno',
+                            text: 'Ocorreu um erro ao processar a requisição.'
+                        });
+                        console.error(error);
+                        btn.prop('disabled', false).html(originalBtnText);
+                    }
+                });
+                return false;
             }
         });
 

@@ -274,22 +274,22 @@
             </div>
         <?php endif ?>
 
-<script type="text/javascript">
-    if (window.outerWidth > 2000) {
-        Chart.defaults.font.size = 15;
-    };
-    if (window.outerWidth < 2000 && window.outerWidth > 1367) {
-        Chart.defaults.font.size = 11;
-    };
-    if (window.outerWidth < 1367 && window.outerWidth > 480) {
-        Chart.defaults.font.size = 9.5;
-    };
-    if (window.outerWidth < 480) {
-        Chart.defaults.font.size = 8.5;
-    };
+        <script type="text/javascript">
+            if (window.outerWidth > 2000) {
+                Chart.defaults.font.size = 15;
+            };
+            if (window.outerWidth < 2000 && window.outerWidth > 1367) {
+                Chart.defaults.font.size = 11;
+            };
+            if (window.outerWidth < 1367 && window.outerWidth > 480) {
+                Chart.defaults.font.size = 9.5;
+            };
+            if (window.outerWidth < 480) {
+                Chart.defaults.font.size = 8.5;
+            };
 
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var StatusOS = document.getElementById('statusOS').getContext('2d');
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var StatusOS = document.getElementById('statusOS').getContext('2d');
 
     var myChart = new Chart(ctx, {
         data: {
@@ -480,11 +480,11 @@
         }
     });
 
-    function responsiveFonts() {
-        myChart.update();
-    }
-</script>
-<?php  }
+            function responsiveFonts() {
+                myChart.update();
+            }
+        </script>
+    <?php  }
 } ?>
 </div>
 </div>

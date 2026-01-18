@@ -54,7 +54,8 @@ class Pessoas extends MY_Controller
         }
 
         // Remover formatação
-        $cpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
+        // Não remover formatação pois no banco está formatado
+        // $cpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
 
         // Buscar pessoa com este CPF/CNPJ
         $this->db->where('PES_CPFCNPJ', $cpfCnpj);
@@ -96,7 +97,7 @@ class Pessoas extends MY_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('PES_CPFCNPJ', 'CPF/CNPJ', 'required|trim');
+        $this->form_validation->set_rules('PES_CPFCNPJ', 'CPF/CNPJ', 'required|trim|is_unique[pessoas.PES_CPFCNPJ]');
         $this->form_validation->set_rules('PES_NOME', 'Nome', 'required|trim');
         $this->form_validation->set_rules('PES_CODIGO', 'Código', 'trim');
         $this->form_validation->set_rules('PES_FISICO_JURIDICO', 'Tipo (F/J)', 'required|in_list[F,J]');
@@ -291,7 +292,7 @@ class Pessoas extends MY_Controller
                             $this->db->insert('documentos', [
                                 'PES_ID' => $pessoaId,
                                 'DOC_TIPO_DOCUMENTO' => mb_substr($tipo, 0, 60),
-                                'ENDEID' => $endeId,
+                                'END_ID' => $endeId,
                                 'DOC_ORGAO_EXPEDIDOR' => $orgao !== '' ? mb_substr($orgao, 0, 60) : null,
                                 'DOC_NUMERO' => mb_substr($numero, 0, 60),
                                 'DOC_NATUREZA_CONTRIBUINTE' => in_array($natureza, ['Contribuinte', 'Não Contribuinte']) ? $natureza : null,
@@ -366,12 +367,21 @@ class Pessoas extends MY_Controller
                     }
                 }
 
+                if ($this->input->is_ajax_request()) {
+                    echo json_encode(['result' => true, 'message' => 'Pessoa adicionada com sucesso!', 'redirect' => base_url('index.php/pessoas/visualizar/' . $pessoaId)]);
+                    return;
+                }
                 $this->session->set_flashdata('success', 'Pessoa adicionada com sucesso!');
                 log_info('Adicionou uma pessoa.');
                 redirect(base_url('index.php/pessoas/visualizar/' . $pessoaId));
             } else {
                 $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro.</p></div>';
             }
+        }
+
+        if ($this->input->is_ajax_request() && isset($this->data['custom_error']) && $this->data['custom_error']) {
+            echo json_encode(['result' => false, 'message' => $this->data['custom_error']]);
+            return;
         }
         // Carrega estados para o modal de endereço
         $this->data['estados'] = $this->db->order_by('EST_UF', 'ASC')->get('estados')->result();
@@ -686,12 +696,21 @@ class Pessoas extends MY_Controller
                     }
                 }
 
+                if ($this->input->is_ajax_request()) {
+                    echo json_encode(['result' => true, 'message' => 'Pessoa editada com sucesso!', 'redirect' => base_url('index.php/pessoas/visualizar/' . $id)]);
+                    return;
+                }
                 $this->session->set_flashdata('success', 'Pessoa editada com sucesso!');
                 log_info('Alterou uma pessoa. ID ' . $id);
                 redirect(base_url('index.php/pessoas/visualizar/' . $id));
             } else {
                 $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro</p></div>';
             }
+        }
+
+        if ($this->input->is_ajax_request() && isset($this->data['custom_error']) && $this->data['custom_error']) {
+            echo json_encode(['result' => false, 'message' => $this->data['custom_error']]);
+            return;
         }
 
         $this->data['result'] = $this->Pessoas_model->getById($id);

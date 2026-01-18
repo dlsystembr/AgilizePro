@@ -537,6 +537,130 @@ class Nfecom extends MY_Controller
         return $this->layout();
     }
 
+    public function editar()
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para editar NFECom.');
+            redirect(base_url());
+        }
+
+        $id = $this->uri->segment(3);
+        $nfecom = $this->Nfecom_model->getById($id);
+
+        if ($nfecom == null) {
+            $this->session->set_flashdata('error', 'NFECom não encontrada.');
+            redirect(site_url('nfecom'));
+        }
+
+        // Só permite editar NFCom rejeitadas
+        if ($nfecom->NFC_STATUS != 4) {
+            $this->session->set_flashdata('error', 'Apenas NFCom rejeitadas podem ser editadas.');
+            redirect(site_url('nfecom/visualizar/' . $id));
+        }
+
+        $this->db->trans_begin();
+
+        try {
+            // Atualizar dados básicos da NFCom (NÃO alterar o número da NFE)
+            $dados = [
+                'nfc_serie' => $this->input->post('nfc_serie'),
+                'nfc_dhemi' => $this->input->post('nfc_dhemi'),
+                'nfc_n_contrato' => $this->input->post('nfc_n_contrato'),
+                'nfc_d_contrato_ini' => $this->input->post('nfc_d_contrato_ini'),
+                'nfc_compet_fat' => $this->input->post('nfc_compet_fat'),
+                'nfc_d_venc_fat' => $this->input->post('nfc_d_venc_fat'),
+                'nfc_d_per_uso_ini' => $this->input->post('nfc_d_per_uso_ini'),
+                'nfc_d_per_uso_fim' => $this->input->post('nfc_d_per_uso_fim'),
+                'nfc_inf_cpl' => $this->input->post('nfc_inf_cpl'),
+            ];
+
+            // Atualizar dados do destinatário se fornecidos
+            $destinatario = [
+                'nfc_x_nome_dest' => $this->input->post('nfc_x_nome_dest'),
+                'nfc_cnpj_dest' => $this->input->post('nfc_cnpj_dest'),
+                'nfc_x_lgr_dest' => $this->input->post('nfc_x_lgr_dest'),
+                'nfc_nro_dest' => $this->input->post('nfc_nro_dest'),
+                'nfc_x_bairro_dest' => $this->input->post('nfc_x_bairro_dest'),
+                'nfc_x_mun_dest' => $this->input->post('nfc_x_mun_dest'),
+                'nfc_uf_dest' => $this->input->post('nfc_uf_dest'),
+                'nfc_cep_dest' => $this->input->post('nfc_cep_dest'),
+            ];
+
+            // Mesclar dados do destinatário apenas se houver valores
+            foreach ($destinatario as $key => $value) {
+                if ($value !== null && $value !== '') {
+                    $dados[$key] = $value;
+                }
+            }
+
+            // Atualizar NFCom
+            if (!$this->Nfecom_model->edit('nfecom_capa', $dados, 'nfc_id', $id)) {
+                throw new Exception('Erro ao atualizar dados da NFCom.');
+            }
+
+            // Processar itens se fornecidos
+            $itens = $this->input->post('itens');
+            if ($itens && is_array($itens)) {
+                // Remover itens existentes
+                $this->db->where('nfc_id', $id);
+                $this->db->delete('nfecom_itens');
+
+                // Inserir novos itens
+                foreach ($itens as $item) {
+                    if (!empty($item['c_prod']) || !empty($item['x_prod'])) {
+                        $itemData = [
+                            'nfc_id' => $id,
+                            'nfi_n_item' => $item['n_item'] ?? 1,
+                            'nfi_c_prod' => $item['c_prod'] ?? '',
+                            'nfi_x_prod' => $item['x_prod'] ?? '',
+                            'nfi_cfop' => $item['cfop'] ?? '5301',
+                            'nfi_q_faturada' => str_replace(',', '.', $item['q_faturada'] ?? '1.0000'),
+                            'nfi_v_item' => str_replace(',', '.', $item['v_item'] ?? '0.00'),
+                        ];
+
+                        // Calcular valor total
+                        $itemData['nfi_v_prod'] = $itemData['nfi_q_faturada'] * $itemData['nfi_v_item'];
+
+                        $this->db->insert('nfecom_itens', $itemData);
+                        if ($this->db->affected_rows() == 0) {
+                            throw new Exception('Erro ao inserir item da NFCom.');
+                        }
+                    }
+                }
+            }
+
+            // Limpar dados de rejeição anterior para reenvio
+            if ($this->input->post('reenviar') == '1') {
+                $limparDados = [
+                    'nfc_x_motivo' => null,
+                    'nfc_c_stat' => null,
+                    'nfc_n_prot' => null,
+                    'nfc_dh_recbto' => null,
+                    'nfc_xml' => null,
+                    'nfc_status' => 0, // Volta para rascunho
+                ];
+                $this->Nfecom_model->edit('nfecom_capa', $limparDados, 'nfc_id', $id);
+            }
+
+            $this->db->trans_commit();
+
+            $this->session->set_flashdata('success', 'NFCom atualizada com sucesso.');
+
+            // Se foi solicitado reenvio automático
+            if ($this->input->post('reenviar') == '1') {
+                // Redireciona para o método gerarXml que fará o reenvio
+                redirect(site_url('nfecom/gerarXml/' . $id . '?reenviar=1'));
+            } else {
+                redirect(site_url('nfecom/visualizar/' . $id));
+            }
+
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('error', 'Erro ao atualizar NFCom: ' . $e->getMessage());
+            redirect(site_url('nfecom/visualizar/' . $id));
+        }
+    }
+
     public function gerarXml()
     {
         // Verificar se é uma requisição AJAX
@@ -569,6 +693,8 @@ class Nfecom extends MY_Controller
 
         // Se ainda não foi autorizada, fazer a autorização automática
         if ($nfecom->NFC_STATUS < 3) {
+            $isReemissao = ($nfecom->NFC_STATUS == 4);
+            log_message('info', 'NFCom ' . ($isReemissao ? 'Reemissão' : 'Emissão') . ' iniciada - ID: ' . $id . ', Status: ' . $nfecom->NFC_STATUS);
             try {
                 // Atualizar dados fiscais e gerar XML se necessário
                 $configFiscal = $this->getConfiguracaoNfcom();
@@ -576,12 +702,30 @@ class Nfecom extends MY_Controller
                     $ufEmit = $nfecom->NFC_UF_EMIT ?? 'GO';
                     $codigoUf = $this->get_cUF($ufEmit);
 
+                    // Para NFCom rejeitadas (reemissão), manter o número atual
+                    // Para NFCom novas, apenas pegar número atual (incremento será feito no final do processo)
+                    if ($nfecom->NFC_STATUS < 2) {
+                        $numeroNota = $configFiscal->CFG_NUMERO_ATUAL;
+                    } else {
+                        // NFCom rejeitada mantém o número atual
+                        $numeroNota = $nfecom->NFC_NNF;
+                    }
+
                     $atualizacao = [
                         'NFC_TIPO_AMBIENTE' => $configFiscal->CFG_AMBIENTE,
                         'NFC_SERIE' => $configFiscal->CFG_SERIE,
-                        'NFC_NNF' => $configFiscal->CFG_NUMERO_ATUAL,
+                        'NFC_NNF' => $numeroNota,
                         'NFC_CUF' => $codigoUf,
                     ];
+
+                    // Para reemissão (NFCom rejeitada), limpar o motivo antigo
+                    if ($nfecom->NFC_STATUS == 4) {
+                        $atualizacao['NFC_X_MOTIVO'] = null;
+                        $atualizacao['NFC_C_STAT'] = null;
+                        $atualizacao['NFC_N_PROT'] = null;
+                        $atualizacao['NFC_DH_RECBTO'] = null;
+                        $atualizacao['NFC_XML'] = null;
+                    }
 
                     $chaveData = [
                         'NFC_CUF' => $atualizacao['NFC_CUF'],
@@ -752,12 +896,30 @@ class Nfecom extends MY_Controller
                 $ufEmit = $nfecom->NFC_UF_EMIT ?? 'GO';
                 $codigoUf = $this->get_cUF($ufEmit);
 
+                // Para NFCom rejeitadas (reemissão), manter o número atual
+                // Para NFCom novas, apenas pegar número atual (incremento será feito apenas na autorização)
+                if ($nfecom->NFC_STATUS < 2) {
+                    $numeroNota = $configFiscal->CFG_NUMERO_ATUAL;
+                } else {
+                    // NFCom rejeitada mantém o número atual
+                    $numeroNota = $nfecom->NFC_NNF;
+                }
+
                 $atualizacao = [
                     'NFC_TIPO_AMBIENTE' => $configFiscal->CFG_AMBIENTE,
                     'NFC_SERIE' => $configFiscal->CFG_SERIE,
-                    'NFC_NNF' => $configFiscal->CFG_NUMERO_ATUAL,
+                    'NFC_NNF' => $numeroNota,
                     'NFC_CUF' => $codigoUf,
                 ];
+
+                // Para reemissão (NFCom rejeitada), limpar o motivo antigo
+                if ($nfecom->NFC_STATUS == 4) {
+                    $atualizacao['NFC_X_MOTIVO'] = null;
+                    $atualizacao['NFC_C_STAT'] = null;
+                    $atualizacao['NFC_N_PROT'] = null;
+                    $atualizacao['NFC_DH_RECBTO'] = null;
+                    $atualizacao['NFC_XML'] = null;
+                }
 
                 $chaveData = [
                     'NFC_CUF' => $atualizacao['NFC_CUF'],
@@ -1289,12 +1451,30 @@ class Nfecom extends MY_Controller
                 $ufEmit = $nfecom->NFC_UF_EMIT ?? 'GO';
                 $codigoUf = $this->get_cUF($ufEmit);
 
+                // Para NFCom rejeitadas (reemissão), manter o número atual
+                // Para NFCom novas, apenas pegar número atual (incremento será feito no final do processo)
+                if ($nfecom->NFC_STATUS < 2) {
+                    $numeroNota = $configFiscal->CFG_NUMERO_ATUAL;
+                } else {
+                    // NFCom rejeitada mantém o número atual
+                    $numeroNota = $nfecom->NFC_NNF;
+                }
+
                 $atualizacao = [
                     'NFC_TIPO_AMBIENTE' => $configFiscal->CFG_AMBIENTE,
                     'NFC_SERIE' => $configFiscal->CFG_SERIE,
-                    'NFC_NNF' => $configFiscal->CFG_NUMERO_ATUAL,
+                    'NFC_NNF' => $numeroNota,
                     'NFC_CUF' => $codigoUf,
                 ];
+
+                // Para reemissão (NFCom rejeitada), limpar o motivo antigo
+                if ($nfecom->NFC_STATUS == 4) {
+                    $atualizacao['NFC_X_MOTIVO'] = null;
+                    $atualizacao['NFC_C_STAT'] = null;
+                    $atualizacao['NFC_N_PROT'] = null;
+                    $atualizacao['NFC_DH_RECBTO'] = null;
+                    $atualizacao['NFC_XML'] = null;
+                }
 
                 $chaveData = [
                     'NFC_CUF' => $atualizacao['NFC_CUF'],
@@ -1383,10 +1563,10 @@ class Nfecom extends MY_Controller
 
                 $this->Nfecom_model->updateStatus($id, $dadosAtu);
                 $this->registrarProtocolo($id, $protocolo, 'AUTORIZACAO', $motivo, $dhRecbto);
-                $this->incrementarSequenciaNfcom();
 
                 log_info('NFCom Autorizada Real (ID: ' . $id . ', Chave: ' . $chaveAcesso . ')');
-                $this->session->set_flashdata('success', 'NFCom autorizada com sucesso no SEFAZ! Chave: ' . $chaveAcesso);
+                log_message('info', 'NFCom ' . ($isReemissao ? 'Reemissão' : 'Emissão') . ' concluída com sucesso - ID: ' . $id);
+                $this->session->set_flashdata('success', 'NFCom ' . ($isReemissao ? 'reemitida' : 'autorizada') . ' com sucesso no SEFAZ! Chave: ' . $chaveAcesso);
             } elseif (in_array($cStat, ['110', '205', '301', '302', '303'])) {
                 // Erro de validação/rejeição
                 $motivo = $retorno['xMotivo'] ?? 'Erro de validação';
@@ -1433,6 +1613,11 @@ class Nfecom extends MY_Controller
                 redirect(site_url('nfecom/visualizar/' . $id));
             }
             return false;
+        }
+
+        // Incrementar sequência apenas uma vez no final do processo para NFCom novas
+        if ($nfecom->NFC_STATUS < 2) {
+            $this->incrementarSequenciaNfcom();
         }
 
         if ($redirect) {

@@ -28,7 +28,7 @@
                 <select name="status" class="span12">
                     <option value="">Selecione status</option>
                     <option value="0" <?php echo $this->input->get('status') == '0' ? 'selected' : ''; ?>>Rascunho</option>
-                    <option value="1" <?php echo $this->input->get('status') == '1' ? 'selected' : ''; ?>>Salvo</option>
+                    <option value="1" <?php echo $this->input->get('status') == '1' ? 'selected' : ''; ?>>Pendente</option>
                     <option value="2" <?php echo $this->input->get('status') == '2' ? 'selected' : ''; ?>>Enviado</option>
                     <option value="3" <?php echo $this->input->get('status') == '3' ? 'selected' : ''; ?>>Autorizado</option>
                     <option value="4" <?php echo $this->input->get('status') == '4' ? 'selected' : ''; ?>>Rejeitada</option>
@@ -76,7 +76,7 @@
 
                             $statusNum = (int)$r->NFC_STATUS;
                             if ($statusNum === 0) $statusDesc = 'Rascunho';
-                            elseif ($statusNum === 1) $statusDesc = 'Salvo';
+                            elseif ($statusNum === 1) $statusDesc = 'Pendente';
                             elseif ($statusNum === 2) $statusDesc = 'Enviado';
                             elseif ($statusNum === 3) $statusDesc = 'Autorizado';
                             elseif ($statusNum === 4) $statusDesc = 'Rejeitada';
@@ -86,7 +86,7 @@
 
                             $corStatus = match($statusNum) {
                                 0 => '#CDB380', // Rascunho - bege
-                                1 => '#436eee', // Salvo - azul
+                                1 => '#f39c12', // Pendente - amarelo
                                 2 => '#00cd00', // Enviado - verde claro
                                 3 => '#4d9c79', // Autorizado - verde escuro
                                 4 => '#f24c6f', // Rejeitada - vermelho
@@ -107,16 +107,25 @@
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
                                 echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" class="btn btn-mini btn-info" title="Ver dados da nota" style="margin-right: 2px">Ver dados</a>';
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($r->NFC_STATUS < 2 || $r->NFC_STATUS == 4)) {
-                                $titulo = $r->NFC_STATUS == 4 ? 'Reemitir Nota' : 'Gerar NFCom';
-                                echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="' . $titulo . '" style="margin-right: 2px">' . $titulo . '</a>';
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
+                                if ($r->NFC_STATUS < 2) {
+                                    // NFCom nova ou salva - permite gerar
+                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Gerar NFCom" style="margin-right: 2px">Gerar NFCom</a>';
+                                } elseif ($r->NFC_STATUS == 4) {
+                                    // NFCom rejeitada - permite reemitir
+                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Reemitir Nota" style="margin-right: 2px">Reemitir Nota</a>';
+                                }
+                                // NFCom autorizada (status 3 ou 5) não mostra botão
+                                // NFCom cancelada (status 7) não mostra botão
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && $r->NFC_STATUS == 3) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->NFC_ID . '" class="btn btn-mini btn-inverse" title="Visualizar Danfe" style="margin-right: 2px">Danfe</a>';
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
+                                echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->NFC_ID . '" class="btn btn-mini btn-inverse" target="_blank" title="Imprimir NFCom" style="margin-right: 2px"><i class="bx bx-printer"></i></a>';
+                            }
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($r->NFC_STATUS == 3 || $r->NFC_STATUS == 5)) {
                                 echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" title="Baixar XML Autorizado" style="margin-right: 2px">XML</a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS >= 2) {
-                                echo '<a href="#" onclick="consultarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini" title="Consultar Status na SEFAZ" style="margin-right: 2px">Consultar</a>';
+                                echo '<a href="#" onclick="consultarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini" title="Consultar Status na SEFAZ" style="margin-right: 2px"><i class="bx bx-search"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS != 3) {
                                 echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->NFC_ID . '" class="btn btn-mini btn-danger" title="Excluir NFCom" style="margin-right: 2px" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')">Excluir</a>';
