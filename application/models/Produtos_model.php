@@ -35,9 +35,6 @@ class Produtos_model extends CI_Model
 
     public function add($table, $data)
     {
-        if (!isset($data['origem'])) {
-            $data['origem'] = 0; // Default to Nacional if not set
-        }
         $this->db->insert($table, $data);
         if ($this->db->affected_rows() == '1') {
             return true;
@@ -47,9 +44,6 @@ class Produtos_model extends CI_Model
 
     public function edit($table, $data, $fieldID, $ID)
     {
-        if (!isset($data['origem'])) {
-            $data['origem'] = 0; // Default to Nacional if not set
-        }
         $this->db->where($fieldID, $ID);
         $this->db->update($table, $data);
 

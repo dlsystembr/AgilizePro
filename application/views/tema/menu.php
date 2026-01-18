@@ -98,6 +98,42 @@
                     </li>
                 <?php } ?>
 
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vFaturamentoEntrada')) { ?>
+                    <li class="<?php if (isset($menuFaturamentoEntrada)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('faturamento_entrada') ?>"><i class='bx bx-receipt iconX'></i>
+                            <span class="title">Faturamento Entrada</span>
+                            <span class="title-tooltip">Faturamento Entrada</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfe')) { ?>
+                    <li class="<?php if (isset($menuNfe)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('nfe') ?>"><i class='bx bx-file-blank iconX'></i>
+                            <span class="title">Emissor de Notas</span>
+                            <span class="title-tooltip">NFE</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) { ?>
+                    <li class="<?php if (isset($menuNfecom)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('nfecom') ?>"><i class='bx bx-notepad iconX'></i>
+                            <span class="title">NFCOM</span>
+                            <span class="title-tooltip">NFCOM</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
                 <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vProduto')) { ?>
                     <li class="<?php if (isset($menuDocumentos)) {
                         echo 'active';
@@ -119,6 +155,54 @@
                                 class="bx bx-bar-chart-alt-2 iconX"></i>
                             <span class="title">Lançamentos</span>
                             <span class="title-tooltip">Lançamentos</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vGarantia')) { ?>
+                    <li class="<?php if (isset($menuGarantias)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('garantias') ?>"><i class='bx bx-shield-check iconX'></i>
+                            <span class="title">Garantias</span>
+                            <span class="title-tooltip">Garantias</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vFaturamentoEntrada')) { ?>
+                    <li class="<?php if (isset($menuFaturamentoEntrada)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('faturamentoEntrada') ?>"><i class='bx bx-receipt iconX'></i>
+                            <span class="title">Faturamento Entrada</span>
+                            <span class="title-tooltip">Faturamento</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfe')) { ?>
+                    <li class="<?php if (isset($menuNfe)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('nfe') ?>"><i class='bx bx-file-blank iconX'></i>
+                            <span class="title">Emissor de Notas</span>
+                            <span class="title-tooltip">NFE</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) { ?>
+                    <li class="<?php if (isset($menuNfecom)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('nfecom') ?>"><i class='bx bx-file-invoice iconX'></i>
+                            <span class="title">NFCOM</span>
+                            <span class="title-tooltip">NFCOM</span>
                         </a>
                     </li>
                 <?php } ?>

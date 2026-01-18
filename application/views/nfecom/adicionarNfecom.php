@@ -200,6 +200,28 @@
         border-color: #ddd;
     }
 
+    /* Resumo dos valores */
+    #servicos-resumo {
+        font-size: 14px;
+    }
+
+    #servicos-resumo strong {
+        color: #333;
+    }
+
+    #total-servicos, #valor-liquido {
+        font-weight: bold;
+        color: #28a745;
+        font-size: 16px;
+    }
+
+    #comissaoAgencia {
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        padding: 2px 4px;
+        font-size: 12px;
+    }
+
     /* Melhorar aparência do Select2 */
     .select2-container--default .select2-selection--single {
         height: 30px;
@@ -304,6 +326,7 @@
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="enderecoClienteSelect" class="control-label">Endereço<span class="required">*</span></label>
+                                                <small style="display: block; color: #666; margin-top: 2px;">Endereço padrão do cliente será selecionado automaticamente.</small>
                                                 <div class="controls">
                                                     <select name="enderecoClienteSelect" id="enderecoClienteSelect" disabled required>
                                                         <option value="">Selecione um cliente primeiro</option>
@@ -314,21 +337,13 @@
                                     </div>
 
 
-                                    <!-- Linha 3: Número do Contrato e Série -->
+                                    <!-- Linha 3: Número do Contrato -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span8">
+                                        <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="numeroContrato" class="control-label">Contrato<span class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="text" name="numeroContrato" id="numeroContrato" value="<?php echo set_value('numeroContrato'); ?>" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="span4">
-                                            <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="serie" class="control-label">Série</label>
-                                                <div class="controls">
-                                                    <input type="number" name="serie" id="serie" value="<?php echo set_value('serie', '1'); ?>" min="1" max="999">
                                                 </div>
                                             </div>
                                         </div>
@@ -377,25 +392,6 @@
                                     <span>Valores e Períodos</span>
                                 </div>
                                 <div class="form-section-content">
-                                    <!-- Linha 1: Valor Bruto e Comissão -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span7">
-                                            <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="valorBruto" class="control-label">Valor Bruto<span class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input type="number" name="valorBruto" id="valorBruto" step="0.01" value="<?php echo set_value('valorBruto'); ?>" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="span5">
-                                            <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="comissaoAgencia" class="control-label">Comissão</label>
-                                                <div class="controls">
-                                                    <input type="number" name="comissaoAgencia" id="comissaoAgencia" step="0.01" value="<?php echo set_value('comissaoAgencia', '0'); ?>">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
                                     <!-- Linha 2: Data Vencimento -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
@@ -466,6 +462,22 @@
                                 <!-- Serviços serão adicionados dinamicamente aqui -->
                             </div>
 
+                            <!-- Resumo dos valores calculados -->
+                            <div id="servicos-resumo" style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; display: none;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong>Total dos Serviços:</strong> R$ <span id="total-servicos">0,00</span>
+                                    </div>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <label for="comissaoAgencia" style="margin: 0;">Comissão:</label>
+                                        <input type="number" name="comissaoAgencia" id="comissaoAgencia" step="0.01" value="0" placeholder="0,00" style="width: 80px; text-align: right;">
+                                    </div>
+                                </div>
+                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #dee2e6;">
+                                    <strong>Valor Líquido:</strong> R$ <span id="valor-liquido">0,00</span>
+                                </div>
+                            </div>
+
                             <?php if (empty($servicos)): ?>
                             <div id="servicos-aviso" style="margin-top: 15px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
                                 <i class="fas fa-exclamation-triangle"></i>
@@ -473,6 +485,9 @@
                                 <br><small>Para adicionar serviços, vá em <strong>Produtos → Adicionar</strong> e defina o tipo como "Serviço" (pro_tipo = 2).</small>
                             </div>
                             <?php endif; ?>
+
+                            <!-- Campo oculto para valor bruto (calculado automaticamente) -->
+                            <input type="hidden" name="valorBruto" id="valorBruto" value="0">
                             <div id="servicos-error" style="display: none; margin-top: 10px; padding: 10px; background-color: #f2dede; border: 1px solid #ebccd1; border-radius: 4px; color: #a94442;">
                                 <i class="fas fa-exclamation-triangle"></i> Adicione pelo menos um serviço
                             </div>
@@ -581,6 +596,8 @@ $(document).ready(function(){
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
+                    console.log('📡 Dados recebidos da API de endereços:', data);
+
                     if (data.error) {
                         alert(data.error);
                         $('#enderecoClienteSelect').prop('disabled', true).html('<option value="">Nenhum endereço encontrado</option>');
@@ -590,13 +607,47 @@ $(document).ready(function(){
                     // Habilitar e popular o select de endereços
                     $('#enderecoClienteSelect').prop('disabled', false);
                     var options = '<option value="">Selecione um endereço</option>';
+                    var enderecoPadrao = null;
+
                     $.each(data, function(index, endereco) {
+                        console.log('🏠 Endereço processado:', endereco.id, endereco.enderecoCompleto, 'Padrão:', endereco.enderecoPadrao);
                         options += '<option value="' + endereco.id + '" data-endereco="' + JSON.stringify(endereco).replace(/"/g, '&quot;') + '">' + endereco.enderecoCompleto + '</option>';
+
+                        // Identificar endereço padrão (END_PADRAO = 1)
+                        if (endereco.enderecoPadrao == 1 && !enderecoPadrao) {
+                            enderecoPadrao = endereco;
+                            console.log('🎯 Endereço padrão encontrado:', enderecoPadrao);
+                        }
                     });
                     $('#enderecoClienteSelect').html(options);
 
-                    // Limpar campos ocultos de endereço
-                    $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
+                    // Selecionar automaticamente o endereço padrão se existir
+                    if (enderecoPadrao) {
+                        console.log('✅ Selecionando endereço padrão automaticamente...');
+
+                        // Pequeno delay para garantir que as opções foram carregadas
+                        setTimeout(function() {
+                            $('#enderecoClienteSelect').val(enderecoPadrao.id);
+                            console.log('🔄 Disparando change event...');
+                            $('#enderecoClienteSelect').trigger('change');
+                            console.log('🏠 Endereço padrão selecionado automaticamente:', enderecoPadrao.enderecoCompleto);
+
+                            // Verificar se foi selecionado corretamente
+                            setTimeout(function() {
+                                var selectedValue = $('#enderecoClienteSelect').val();
+                                console.log('📋 Valor selecionado no dropdown:', selectedValue);
+                                if (selectedValue == enderecoPadrao.id) {
+                                    console.log('✅ Seleção confirmada com sucesso!');
+                                } else {
+                                    console.log('❌ Falha na seleção - valor esperado:', enderecoPadrao.id, 'valor atual:', selectedValue);
+                                }
+                            }, 100);
+                        }, 100);
+                    } else {
+                        console.log('⚠️  Nenhum endereço padrão encontrado para este cliente');
+                        // Limpar campos ocultos se não houver endereço padrão
+                        $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
+                    }
                 },
                 error: function() {
                     alert('Erro ao buscar endereços do cliente');
@@ -612,11 +663,15 @@ $(document).ready(function(){
 
     // Função para processar seleção de endereço
     $('#enderecoClienteSelect').change(function(){
+        console.log('🏠 Evento change do endereço disparado');
         var enderecoId = $(this).val();
+        console.log('📍 ID do endereço selecionado:', enderecoId);
+
         if(enderecoId) {
             // Obter dados do endereço da opção selecionada
             // jQuery .data() já converte automaticamente para objeto
             var enderecoData = $(this).find('option:selected').data('endereco');
+            console.log('📋 Dados do endereço:', enderecoData);
 
             // Preencher campos ocultos necessários para processamento
             $('#enderecoClienteId').val(enderecoData.id);
@@ -627,7 +682,10 @@ $(document).ready(function(){
             $('#codMunCliente').val(enderecoData.codMun || '');
             $('#cepCliente').val(enderecoData.cep || '');
             $('#ufCliente').val(enderecoData.uf || '');
+
+            console.log('✅ Campos ocultos preenchidos para endereço ID:', enderecoData.id);
         } else {
+            console.log('🧹 Limpando campos - nenhum endereço selecionado');
             // Limpar campos quando nenhum endereço selecionado
             $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
         }
@@ -652,7 +710,7 @@ $(document).ready(function(){
                     <select name="servicos[${servicoIndex}][id]" class="form-control servico-select" style="width: 100%;" required>
                         <option value="">Selecione um serviço</option>
                         <?php foreach ($servicos as $servico) { ?>
-                        <option value="<?php echo $servico->idServicos; ?>" <?php echo ($servicoId == $servico->idServicos) ? 'selected' : ''; ?>><?php echo $servico->nome; ?></option>
+                        <option value="<?php echo $servico->idServicos; ?>"><?php echo $servico->nome; ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -695,6 +753,9 @@ $(document).ready(function(){
     console.log('   ⚠️  Nenhum serviço encontrado! Verifique se há produtos com pro_tipo = 2');
     <?php endif; ?>
     console.log('   👥 Clientes - Carregados:', <?php echo count($clientes_iniciais); ?>, 'iniciais + busca AJAX');
+    console.log('   📍 Endereços - Seleção automática do endereço padrão ativada');
+    console.log('   💰 Valores - Cálculo automático do valor bruto ativado');
+    console.log('   🔢 Série - Valor padrão "1" (não controlado na tela)');
 
     // Botão para adicionar serviço
     $('#btnAdicionarServico').on('click', function() {
@@ -714,14 +775,53 @@ $(document).ready(function(){
         }
     });
 
-    // Calcular valor total quando quantidade ou valor unitário mudam
-    $(document).on('input', '.quantidade-input, .valor-unitario-input', function() {
-        const row = $(this).closest('.servico-row');
-        const quantidade = parseFloat(row.find('.quantidade-input').val()) || 0;
-        const valorUnitario = parseFloat(row.find('.valor-unitario-input').val()) || 0;
-        const valorTotal = quantidade * valorUnitario;
+    // Função para calcular e atualizar totais
+    function atualizarTotais() {
+        let totalServicos = 0;
+        const comissao = parseFloat($('#comissaoAgencia').val()) || 0;
 
-        row.find('.valor-total-input').val(valorTotal.toFixed(2));
+        // Calcular total de todos os serviços
+        $('.servico-row').each(function() {
+            const quantidade = parseFloat($(this).find('.quantidade-input').val()) || 0;
+            const valorUnitario = parseFloat($(this).find('.valor-unitario-input').val()) || 0;
+            const valorTotal = quantidade * valorUnitario;
+            totalServicos += valorTotal;
+        });
+
+        const valorLiquido = totalServicos - comissao;
+
+        // Atualizar interface
+        $('#total-servicos').text(totalServicos.toFixed(2).replace('.', ','));
+        $('#valor-liquido').text(valorLiquido.toFixed(2).replace('.', ','));
+        $('#valorBruto').val(totalServicos.toFixed(2));
+
+        // Mostrar/esconder resumo
+        if (totalServicos > 0) {
+            $('#servicos-resumo').show();
+        } else {
+            $('#servicos-resumo').hide();
+        }
+
+        console.log('💰 Totais atualizados:', { totalServicos, comissao, valorLiquido });
+    }
+
+    // Calcular valor total quando quantidade ou valor unitário mudam
+    $(document).on('input', '.quantidade-input, .valor-unitario-input, #comissaoAgencia', function() {
+        const row = $(this).closest('.servico-row');
+        if (row.length > 0) {
+            const quantidade = parseFloat(row.find('.quantidade-input').val()) || 0;
+            const valorUnitario = parseFloat(row.find('.valor-unitario-input').val()) || 0;
+            const valorTotal = quantidade * valorUnitario;
+            row.find('.valor-total-input').val(valorTotal.toFixed(2));
+        }
+
+        // Atualizar totais gerais
+        atualizarTotais();
+    });
+
+    // Atualizar totais quando serviço é removido
+    $(document).on('click', '.remove-servico', function() {
+        setTimeout(atualizarTotais, 100); // Pequeno delay para garantir que o elemento foi removido
     });
 
     // Função para atualizar validação de serviços
@@ -734,13 +834,7 @@ $(document).ready(function(){
         }
     }
 
-    // Cálculo automático do valor líquido
-    $('#valorBruto, #comissaoAgencia').on('input', function(){
-        var valorBruto = parseFloat($('#valorBruto').val()) || 0;
-        var comissao = parseFloat($('#comissaoAgencia').val()) || 0;
-        var valorLiquido = valorBruto - comissao;
-        console.log('Valor líquido calculado:', valorLiquido);
-    });
+    // Cálculo automático é feito pela função atualizarTotais()
 
     // Validação do formulário
     $('#formNfecom').validate({
@@ -764,9 +858,7 @@ $(document).ready(function(){
             observacoes: { required: true },
             numeroContrato: { required: true },
             dataContratoIni: { required: true },
-            serie: { required: true, number: true, min: 1, max: 999 },
             dataEmissao: { required: true },
-            valorBruto: { required: true, number: true },
             comissaoAgencia: { number: true },
             dataVencimento: { required: true },
             dataPeriodoIni: { required: true },
@@ -778,9 +870,7 @@ $(document).ready(function(){
             observacoes: 'Observações são obrigatórias',
             numeroContrato: 'Número do contrato é obrigatório',
             dataContratoIni: 'Data de início do contrato é obrigatória',
-            serie: 'Série deve ser um número entre 1 e 999',
             dataEmissao: 'Data de emissão é obrigatória',
-            valorBruto: 'Valor bruto é obrigatório',
             comissaoAgencia: 'Comissão deve ser um valor numérico',
             dataVencimento: 'Data de vencimento é obrigatória',
             dataPeriodoIni: 'Data de início do período é obrigatória',
@@ -805,6 +895,9 @@ $(document).ready(function(){
                 }, 500);
                 return false;
             }
+
+            // Atualizar o valor bruto com o total calculado antes de enviar
+            atualizarTotais();
 
             $('#servicos-error').hide();
             form.submit();

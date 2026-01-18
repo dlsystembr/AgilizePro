@@ -95,5 +95,13 @@ $config['permission'] = [
     'vNfecom' => 'Visualizar NFECom',
     'aNfecom' => 'Adicionar NFECom',
     'eNfecom' => 'Editar NFECom',
-    'dNfecom' => 'Excluir NFECom'
+    'dNfecom' => 'Excluir NFECom',
+    'vFaturamentoEntrada' => 'Visualizar Faturamento Entrada',
+    'aFaturamentoEntrada' => 'Adicionar Faturamento Entrada',
+    'eFaturamentoEntrada' => 'Editar Faturamento Entrada',
+    'dFaturamentoEntrada' => 'Excluir Faturamento Entrada',
+    'vNfe' => 'Visualizar Emissor de Notas',
+    'aNfe' => 'Adicionar Emissor de Notas',
+    'eNfe' => 'Editar Emissor de Notas',
+    'dNfe' => 'Excluir Emissor de Notas'
 ]; 

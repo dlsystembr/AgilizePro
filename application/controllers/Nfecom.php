@@ -70,17 +70,35 @@ class Nfecom extends MY_Controller
                           END as nomeCliente");
         $this->db->from('clientes c');
         $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
-        $this->db->order_by('nomeCliente', 'asc');
+        $this->db->order_by("CASE WHEN p.PES_FISICO_JURIDICO = 'F' THEN p.PES_NOME ELSE COALESCE(p.PES_RAZAO_SOCIAL, p.PES_NOME) END ASC");
         $this->db->limit(1000);
         $query_clientes = $this->db->get();
         $this->data['clientes'] = $query_clientes ? $query_clientes->result() : [];
 
-        // Serviços ficam na tabela produtos
-        $this->db->select('idProdutos as idServicos, descricao as nome');
+        // Serviços ficam na tabela produtos - pro_tipo = 2 significa serviço
+        // Usar query direta para descobrir a coluna primária
+        $primary_key_query = $this->db->query("SHOW KEYS FROM produtos WHERE Key_name = 'PRIMARY'");
+        $primary_key = 'idProdutos'; // fallback padrão
+
+        if ($primary_key_query->num_rows() > 0) {
+            $key_info = $primary_key_query->row();
+            $primary_key = $key_info->Column_name;
+        } else {
+            // Se não encontrou chave primária, tentar colunas comuns
+            $possible_keys = ['idProdutos', 'id_produtos', 'id_produto', 'produtos_id', 'produto_id'];
+            foreach ($possible_keys as $key) {
+                if ($this->db->field_exists($key, 'produtos')) {
+                    $primary_key = $key;
+                    break;
+                }
+            }
+        }
+
+        // Agora buscar serviços com a coluna correta
+        $this->db->select("$primary_key as idServicos, PRO_DESCRICAO as nome");
         $this->db->from('produtos');
-        $this->db->where('tipo', 'servico'); // Filtrar apenas serviços
-        $this->db->order_by('descricao', 'asc');
-        $this->db->limit(1000);
+        $this->db->where('pro_tipo', 2);
+        $this->db->order_by('PRO_DESCRICAO', 'asc');
         $query_servicos = $this->db->get();
         $this->data['servicos'] = $query_servicos ? $query_servicos->result() : [];
 
@@ -105,9 +123,7 @@ class Nfecom extends MY_Controller
         $this->form_validation->set_rules('observacoes', 'Observações', 'trim|required');
         $this->form_validation->set_rules('numeroContrato', 'Número do Contrato', 'trim|required');
         $this->form_validation->set_rules('dataContratoIni', 'Data Início Contrato', 'trim|required');
-        $this->form_validation->set_rules('serie', 'Série', 'trim|required|numeric|min_length[1]|max_length[3]');
         $this->form_validation->set_rules('dataEmissao', 'Data Emissão', 'trim|required');
-        $this->form_validation->set_rules('valorBruto', 'Valor Bruto', 'trim|required|numeric');
         $this->form_validation->set_rules('comissaoAgencia', 'Comissão Agência', 'trim|numeric');
         $this->form_validation->set_rules('dataVencimento', 'Data Vencimento', 'trim|required');
         $this->form_validation->set_rules('dataPeriodoIni', 'Data Período Início', 'trim|required');
@@ -122,16 +138,25 @@ class Nfecom extends MY_Controller
                           p.PES_CPFCNPJ as cpf_cnpj");
         $this->db->from('clientes c');
         $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
-        $this->db->order_by('text', 'asc'); // Ordem alfabética para melhor UX
+        $this->db->order_by("CASE WHEN p.PES_FISICO_JURIDICO = 'F' THEN p.PES_NOME ELSE COALESCE(p.PES_RAZAO_SOCIAL, p.PES_NOME) END ASC"); // Ordem alfabética para melhor UX
         $this->db->limit(50); // Limitar a 50 para não sobrecarregar
         $query_clientes = $this->db->get();
         $this->data['clientes_iniciais'] = $query_clientes ? $query_clientes->result() : [];
 
         // Serviços ficam na tabela produtos - pro_tipo = 2 significa serviço
-        $this->db->select('idProdutos as idServicos, descricao as nome, pro_tipo as tipo');
+        // Descobrir dinamicamente a coluna primária
+        $primary_key_query = $this->db->query("SHOW KEYS FROM produtos WHERE Key_name = 'PRIMARY'");
+        $produtos_primary_key = 'idProdutos'; // fallback
+
+        if ($primary_key_query->num_rows() > 0) {
+            $key_info = $primary_key_query->row();
+            $produtos_primary_key = $key_info->Column_name;
+        }
+
+        $this->db->select("$produtos_primary_key as idServicos, PRO_DESCRICAO as nome");
         $this->db->from('produtos');
-        $this->db->where('pro_tipo', 2); // 2 = serviço
-        $this->db->order_by('descricao', 'asc');
+        $this->db->where('pro_tipo', 2);
+        $this->db->order_by('PRO_DESCRICAO', 'asc');
         $query_servicos = $this->db->get();
         $this->data['servicos'] = $query_servicos ? $query_servicos->result() : [];
 
@@ -139,6 +164,9 @@ class Nfecom extends MY_Controller
             $this->data['custom_error'] = (validation_errors() ? true : false);
         } else {
             $data = $this->input->post();
+
+            // Definir série padrão (não controlada na tela)
+            $data['serie'] = isset($data['serie']) ? $data['serie'] : '1';
 
             // Processar data de emissão
             if ($data['dataEmissao']) {
@@ -201,11 +229,11 @@ class Nfecom extends MY_Controller
                     $valorTotal = $quantidade * $valorUnitario;
                     $totalValorBruto += $valorTotal;
 
-                    // Buscar nome do serviço
-                    $this->db->select('descricao');
-                    $this->db->from('produtos');
-                    $this->db->where('idProdutos', $servico['id']);
-                    $servico_query = $this->db->get();
+                        // Buscar nome do serviço
+                        $this->db->select('PRO_DESCRICAO as descricao');
+                        $this->db->from('produtos');
+                        $this->db->where($produtos_primary_key, $servico['id']);
+                        $servico_query = $this->db->get();
                     $servico_info = $servico_query->row();
                     if ($servico_info) {
                         $nomesServicos[] = $servico_info->descricao . ' (Qtd: ' . $quantidade . ')';
@@ -339,9 +367,9 @@ class Nfecom extends MY_Controller
                         $valorTotal = $quantidade * $valorUnitario;
 
                         // Buscar nome do serviço
-                        $this->db->select('descricao');
+                        $this->db->select('PRO_DESCRICAO as descricao');
                         $this->db->from('produtos');
-                        $this->db->where('idProdutos', $servico['id']);
+                        $this->db->where($produtos_primary_key, $servico['id']);
                         $servico_query = $this->db->get();
                         $servico_info = $servico_query->row();
                         $nomeServicoItem = $servico_info ? $servico_info->descricao : 'Serviço não encontrado';
@@ -810,6 +838,9 @@ class Nfecom extends MY_Controller
             if ($query->num_rows() > 0) {
                 $enderecos = $query->result_array();
 
+                // Debug: mostrar endereços encontrados
+                log_message('debug', 'Endereços encontrados para PES_ID ' . $pesId . ': ' . json_encode($enderecos));
+
                 // Formatar endereços para exibição (sem joins complexos)
                 foreach ($enderecos as &$endereco) {
                     $enderecoCompleto = $endereco['logradouro'];
@@ -824,6 +855,7 @@ class Nfecom extends MY_Controller
                     }
                     if ($endereco['enderecoPadrao'] == 1) {
                         $enderecoCompleto .= ' (Padrão)';
+                        log_message('debug', 'Endereço marcado como padrão: ' . $endereco['id']);
                     }
 
                     $endereco['enderecoCompleto'] = $enderecoCompleto;
@@ -872,7 +904,7 @@ class Nfecom extends MY_Controller
                 $this->db->group_end();
             }
 
-            $this->db->order_by('text', 'asc');
+            $this->db->order_by("CASE WHEN p.PES_FISICO_JURIDICO = 'F' THEN p.PES_NOME ELSE COALESCE(p.PES_RAZAO_SOCIAL, p.PES_NOME) END ASC");
             $this->db->limit($limit, $offset);
 
             $query = $this->db->get();
