@@ -1,7 +1,7 @@
-Content-Type: application/soap+xml; charset=utf-8; action="http://www.portalfiscal.inf.br/nfcom/wsdl/NFComConsulta/nfcomConsulta"
-SOAPAction: "http://www.portalfiscal.inf.br/nfcom/wsdl/NFComConsulta/nfcomConsulta"
+Content-Type: application/soap+xml; charset=utf-8; action="http://www.portalfiscal.inf.br/nfcom/wsdl/NFComRecepcao/nfcomConsulta"
+SOAPAction: "http://www.portalfiscal.inf.br/nfcom/wsdl/NFComRecepcao/nfcomConsulta"
 
-<?xml version="1.0" encoding="UTF-8"?><soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope"><soap12:Body><nfcomDadosMsg xmlns="http://www.portalfiscal.inf.br/nfcom/wsdl/NFComConsulta"><consSitNFCom xmlns="http://www.portalfiscal.inf.br/nfcom" versao="1.00">
+<?xml version="1.0" encoding="UTF-8"?><soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope"><soap12:Body><nfcomDadosMsg xmlns="http://www.portalfiscal.inf.br/nfcom/wsdl/NFComRecepcao"><consSitNFCom xmlns="http://www.portalfiscal.inf.br/nfcom" versao="1.00">
     <tpAmb>2</tpAmb>
-    <chNFCom>52260154314807000128620010000000071049945813</chNFCom>
+    <chNFCom>52260154314807000128620010000000071021836262</chNFCom>
 </consSitNFCom></nfcomDadosMsg></soap12:Body></soap12:Envelope>

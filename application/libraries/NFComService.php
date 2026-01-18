@@ -43,7 +43,8 @@ class NFComService
     public function send($xmlSigned)
     {
         try {
-            $ambiente = 2; // FORÇADO PARA HOMOLOGAÇÃO
+            $config = $this->config;
+            $ambiente = $config['ambiente'] ?? 2; // Usar configuração ou padrão homologação
             $url = $this->getEndpoint($ambiente, 'Recepcao');
 
             // Extrair o conteúdo do NFCom (remover <?xml e obter apenas o elemento NFCom)
@@ -112,7 +113,8 @@ class NFComService
 
     public function consult($chave, $ambiente = 2)
     {
-        $ambiente = 2; // FORÇADO PARA HOMOLOGAÇÃO
+        $config = $this->config;
+        $ambiente = $config['ambiente'] ?? $ambiente; // Usar configuração ou parâmetro
         $url = $this->getEndpoint($ambiente, 'ConsultaProtocolo');
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>
@@ -122,13 +124,35 @@ class NFComService
 </consSitNFCom>';
 
         try {
+            log_message('info', 'NFCom Consult - URL: ' . $url);
+            log_message('info', 'NFCom Consult - Chave: ' . $chave);
+
+            // Primeiro testar se conseguimos conectar ao servidor
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_NOBODY, true); // Apenas headers
+            curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode == 0) {
+                return ['error' => 'Não foi possível conectar ao servidor da SEFAZ. Verifique sua conexão com internet.'];
+            }
+
+            log_message('info', 'NFCom Consult - Servidor acessível (HTTP ' . $httpCode . ')');
+
             $response = $this->executeCurl($url, $xml, 'nfcomConsulta');
 
             if (empty($response) || trim($response) === '') {
                 log_message('error', 'Resposta vazia do SEFAZ na consulta. URL: ' . $url);
-                return ['error' => 'Resposta vazia do SEFAZ. Verifique: 1) Conexão com internet, 2) Certificado válido, 3) URL do serviço correta'];
+                return ['error' => 'Resposta vazia do SEFAZ. O serviço pode estar temporariamente indisponível.'];
             }
 
+            log_message('info', 'NFCom Consult - Response received');
             return $this->parseConsultResponse($response);
 
         } catch (\Exception $e) {
@@ -504,11 +528,20 @@ class NFComService
 
     private function getEndpoint($ambiente, $service)
     {
-        // For NFCom, SVRS uses NFComRecepcao for authorization
+        // NFCom endpoints based on official documentation
+        // Using SVRS (Rio Grande do Sul) as the main provider
         if ($ambiente == 1) { // Produção
-            return "https://nfcom.svrs.rs.gov.br/WS/NFCom{$service}/NFCom{$service}.asmx";
+            if ($service === 'ConsultaProtocolo') {
+                return "https://nfcom.svrs.rs.gov.br/WS/NFComConsulta/NFComConsulta.asmx";
+            } else {
+                return "https://nfcom.svrs.rs.gov.br/WS/NFComRecepcao/NFComRecepcao.asmx";
+            }
         } else { // Homologação
-            return "https://nfcom-homologacao.svrs.rs.gov.br/WS/NFCom{$service}/NFCom{$service}.asmx";
+            if ($service === 'ConsultaProtocolo') {
+                return "https://nfcom-homologacao.svrs.rs.gov.br/WS/NFComConsulta/NFComConsulta.asmx";
+            } else {
+                return "https://nfcom-homologacao.svrs.rs.gov.br/WS/NFComRecepcao/NFComRecepcao.asmx";
+            }
         }
     }
 

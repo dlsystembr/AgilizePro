@@ -31,7 +31,9 @@
                     <option value="1" <?php echo $this->input->get('status') == '1' ? 'selected' : ''; ?>>Salvo</option>
                     <option value="2" <?php echo $this->input->get('status') == '2' ? 'selected' : ''; ?>>Enviado</option>
                     <option value="3" <?php echo $this->input->get('status') == '3' ? 'selected' : ''; ?>>Autorizado</option>
-                    <option value="4" <?php echo $this->input->get('status') == '4' ? 'selected' : ''; ?>>Rejeitado</option>
+                    <option value="4" <?php echo $this->input->get('status') == '4' ? 'selected' : ''; ?>>Rejeitada</option>
+                    <option value="5" <?php echo $this->input->get('status') == '5' ? 'selected' : ''; ?>>Autorizada</option>
+                    <option value="7" <?php echo $this->input->get('status') == '7' ? 'selected' : ''; ?>>Cancelada</option>
                 </select>
             </div>
             <div class="span3">
@@ -57,6 +59,7 @@
                         <th>Data Emissão</th>
                         <th>Valor</th>
                         <th>Status</th>
+                        <th>Motivo</th>
                         <th style="text-align:center">Ações</th>
                     </tr>
                 </thead>
@@ -64,29 +67,32 @@
                     <?php
                         if (!$results) {
                             echo '<tr>
-                                    <td colspan="7">Nenhuma NFECom Cadastrada</td>
+                                    <td colspan="8">Nenhuma NFECom Cadastrada</td>
                                 </tr>';
                         }
                         foreach ($results as $r) {
                             $dataEmissao = date('d/m/Y', strtotime($r->NFC_DHEMI));
                             $valorTotal = number_format($r->NFC_V_NF, 2, ',', '.');
 
-                            $corStatus = match($r->NFC_STATUS) {
-                                0 => '#CDB380', // Rascunho
-                                1 => '#436eee', // Salvo
-                                2 => '#00cd00', // Enviado
-                                3 => '#4d9c79', // Autorizado
-                                4 => '#f24c6f', // Rejeitado
-                                default => '#999'
-                            };
+                            $statusNum = (int)$r->NFC_STATUS;
+                            if ($statusNum === 0) $statusDesc = 'Rascunho';
+                            elseif ($statusNum === 1) $statusDesc = 'Salvo';
+                            elseif ($statusNum === 2) $statusDesc = 'Enviado';
+                            elseif ($statusNum === 3) $statusDesc = 'Autorizado';
+                            elseif ($statusNum === 4) $statusDesc = 'Rejeitada';
+                            elseif ($statusNum === 5) $statusDesc = 'Autorizada';
+                            elseif ($statusNum === 7) $statusDesc = 'Cancelada';
+                            else $statusDesc = 'Desconhecido (Status: ' . $r->NFC_STATUS . ' | Tipo: ' . gettype($r->NFC_STATUS) . ')';
 
-                            $statusDesc = match($r->NFC_STATUS) {
-                                0 => 'Rascunho',
-                                1 => 'Salvo',
-                                2 => 'Enviado',
-                                3 => 'Autorizado',
-                                4 => 'Rejeitado',
-                                default => 'Desconhecido'
+                            $corStatus = match($statusNum) {
+                                0 => '#CDB380', // Rascunho - bege
+                                1 => '#436eee', // Salvo - azul
+                                2 => '#00cd00', // Enviado - verde claro
+                                3 => '#4d9c79', // Autorizado - verde escuro
+                                4 => '#f24c6f', // Rejeitada - vermelho
+                                5 => '#28a745', // Autorizada - verde
+                                7 => '#999',    // Cancelada - cinza
+                                default => '#999' // Default - cinza
                             };
 
                             echo '<tr>';
@@ -96,6 +102,7 @@
                             echo '<td>' . $dataEmissao . '</td>';
                             echo '<td>R$ ' . $valorTotal . '</td>';
                             echo '<td><span class="badge" style="background-color: ' . $corStatus . '; border-color: ' . $corStatus . '">' . $statusDesc . '</span></td>';
+                            echo '<td>' . (!empty($r->NFC_X_MOTIVO) ? htmlspecialchars(substr($r->NFC_X_MOTIVO, 0, 50)) . (strlen($r->NFC_X_MOTIVO) > 50 ? '...' : '') : '-') . '</td>';
                             echo '<td style="text-align:center; white-space: nowrap;">';
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
                                 echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" class="btn btn-mini btn-info" title="Ver dados da nota" style="margin-right: 2px">Ver dados</a>';
@@ -109,7 +116,7 @@
                                 echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" title="Baixar XML Autorizado" style="margin-right: 2px">XML</a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS >= 2) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/consultar/' . $r->NFC_ID . '" class="btn btn-mini" title="Consultar Status na SEFAZ" style="margin-right: 2px">Consultar</a>';
+                                echo '<a href="#" onclick="consultarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini" title="Consultar Status na SEFAZ" style="margin-right: 2px">Consultar</a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS != 3) {
                                 echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->NFC_ID . '" class="btn btn-mini btn-danger" title="Excluir NFCom" style="margin-right: 2px" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')">Excluir</a>';
@@ -190,9 +197,10 @@
                 <?php endif; ?>
             </div>
             <div class="modal-footer">
-                <?php if ($this->session->flashdata('nfecom_modal')):
+                <?php
+                if ($this->session->flashdata('nfecom_modal')) {
                     $nfecom_modal = $this->session->flashdata('nfecom_modal');
-                    if ($nfecom_modal['status'] == 'Autorizado'):
+                    if ($nfecom_modal['status'] == 'Autorizado') {
                 ?>
                     <a href="<?php echo base_url() ?>index.php/nfecom/gerarXml/<?php echo $nfecom_modal['id']; ?>" class="btn btn-primary" target="_blank">
                         <i class="fas fa-download"></i> Baixar XML
@@ -203,8 +211,10 @@
                     <a href="<?php echo base_url() ?>index.php/nfecom/danfe/<?php echo $nfecom_modal['id']; ?>" class="btn btn-info" target="_blank">
                         <i class="fas fa-eye"></i> Visualizar DANFE
                     </a>
-                <?php endif; ?>
-                <?php endif; ?>
+                <?php
+                    }
+                }
+                ?>
                 <button type="button" class="nfe-button" data-dismiss="modal">
                     <i class="fas fa-times"></i> Fechar
                 </button>
@@ -215,27 +225,34 @@
 
 <script>
 $(document).ready(function() {
-    <?php if ($this->session->flashdata('nfecom_modal')): ?>
+    /* Verificar se deve mostrar modal */
+    <?php
+    $showModal = false;
+    if ($this->session->flashdata('nfecom_modal')) {
+        $showModal = true;
+    }
+    ?>
+    if (<?php echo $showModal ? 'true' : 'false'; ?>) {
         $('#nfecomModal').modal('show');
-    <?php endif; ?>
+    }
 });
 
-function gerarNFCom(id) {
-    // Mostrar loading
-    Swal.fire({
-        title: 'Processando NFCom...',
-        text: 'Aguarde enquanto autorizamos a NFCom na SEFAZ',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+function consultarNFCom(id) {
+    /* Verificar se a função está sendo chamada */
+    console.log('consultarNFCom called with id:', id);
 
-    // Fazer chamada AJAX
+    /* Encontrar o botão clicado e alterar seu texto */
+    var botao = event.target.closest('a');
+    var textoOriginal = botao.innerHTML;
+
+    /* Alterar texto do botão e desabilitar */
+    botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando...';
+    botao.style.pointerEvents = 'none';
+    botao.style.opacity = '0.6';
+
+    /* Fazer chamada AJAX */
     $.ajax({
-        url: '<?php echo base_url(); ?>index.php/nfecom/gerarXml',
+        url: '<?php echo base_url(); ?>index.php/nfecom/consultar',
         type: 'POST',
         data: {
             id: id,
@@ -244,10 +261,13 @@ function gerarNFCom(id) {
         },
         dataType: 'json',
         success: function(response) {
-            Swal.close();
+            /* Reverter alterações do botão */
+            botao.innerHTML = textoOriginal;
+            botao.style.pointerEvents = 'auto';
+            botao.style.opacity = '1';
 
             if (response.success) {
-                // Preencher o modal com os dados retornados
+                /* Preencher o modal com os dados retornados */
                 $('#nfecomModal .modal-body').html(`
                     <div class="table-responsive">
                         <table class="table">
@@ -262,9 +282,14 @@ function gerarNFCom(id) {
                                 </td>
                                 <td>
                                     <label><strong>Status:</strong></label>
-                                    <div class="nfe-status ${response.modal.status == 'Autorizado' ? 'success' : 'error'}">
+                                    <div class="nfe-status ${response.modal.status.includes('Rejeitada') ? 'error' : response.modal.status == 'Autorizado' ? 'success' : 'warning'}">
                                         ${response.modal.status}
                                     </div>
+                                    ${response.modal.cstat ? `
+                                    <div class="mt-2">
+                                        <small><strong>Código SEFAZ:</strong> ${response.modal.cstat}</small>
+                                    </div>
+                                    ` : ''}
                                 </td>
                             </tr>
                         </table>
@@ -294,7 +319,144 @@ function gerarNFCom(id) {
                     ` : ''}
                 `);
 
-                // Adicionar botões se autorizado
+                /* Adicionar botões se autorizado */
+                let footerHtml = '';
+                if (response.modal.status == 'Autorizado') {
+                    footerHtml += `
+                        <a href="<?php echo base_url(); ?>index.php/nfecom/gerarXml/${response.modal.id}" class="btn btn-primary" target="_blank">
+                            <i class="fas fa-download"></i> Baixar XML
+                        </a>
+                        <a href="<?php echo base_url(); ?>index.php/nfecom/baixarDanfe/${response.modal.id}" class="btn btn-success" target="_blank">
+                            <i class="fas fa-file-pdf"></i> Baixar DANFE
+                        </a>
+                        <a href="<?php echo base_url(); ?>index.php/nfecom/danfe/${response.modal.id}" class="btn btn-info" target="_blank">
+                            <i class="fas fa-eye"></i> Visualizar DANFE
+                        </a>
+                    `;
+                }
+                footerHtml += '<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-times"></i> Fechar</button>';
+
+                $('#nfecomModal .modal-footer').html(footerHtml);
+
+                /* Mostrar modal */
+                $('#nfecomModal').modal('show');
+
+            } else {
+                /* Mostrar erro no modal */
+                $('#nfecomModal .modal-body').html(`
+                    <div class="alert alert-danger">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Erro na Consulta</h4>
+                        <p>${response.message}</p>
+                    </div>
+                `);
+                $('#nfecomModal .modal-footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>');
+                $('#nfecomModal').modal('show');
+            }
+        },
+        error: function(xhr, status, error) {
+            /* Reverter alterações do botão */
+            botao.innerHTML = textoOriginal;
+            botao.style.pointerEvents = 'auto';
+            botao.style.opacity = '1';
+
+            /* Mostrar erro no modal */
+            $('#nfecomModal .modal-body').html(`
+                <div class="alert alert-danger">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Erro de Comunicação</h4>
+                    <p>Não foi possível consultar a NFCom. Tente novamente.</p>
+                    <small>Detalhes: ${error}</small>
+                </div>
+            `);
+            $('#nfecomModal .modal-footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>');
+            $('#nfecomModal').modal('show');
+        }
+    });
+}
+
+function gerarNFCom(id) {
+    /* Verificar se a função está sendo chamada */
+    console.log('gerarNFCom called with id:', id);
+
+    /* Encontrar o botão clicado e alterar seu texto */
+    var botao = event.target.closest('a');
+    var textoOriginal = botao.innerHTML;
+    var isReemitir = textoOriginal.includes('Reemitir');
+
+    /* Alterar texto do botão e desabilitar */
+    botao.innerHTML = isReemitir ? '<i class="fas fa-spinner fa-spin"></i> Reemitindo...' : '<i class="fas fa-spinner fa-spin"></i> Emitindo...';
+    botao.style.pointerEvents = 'none';
+    botao.style.opacity = '0.6';
+
+    /* Fazer chamada AJAX */
+    $.ajax({
+        url: '<?php echo base_url(); ?>index.php/nfecom/gerarXml',
+        type: 'POST',
+        data: {
+            id: id,
+            ajax: 'true',
+            '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+        },
+        dataType: 'json',
+        success: function(response) {
+            /* Reverter alterações do botão */
+            botao.innerHTML = textoOriginal;
+            botao.style.pointerEvents = 'auto';
+            botao.style.opacity = '1';
+
+            if (response.success) {
+                /* Preencher o modal com os dados retornados */
+                $('#nfecomModal .modal-body').html(`
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    <label><strong>Número NFeCOM:</strong></label>
+                                    <div class="text-break">${response.modal.numero_nfcom}</div>
+                                </td>
+                                <td>
+                                    <label><strong>Chave NFeCOM:</strong></label>
+                                    <div class="text-break">${response.modal.chave_nfcom}</div>
+                                </td>
+                                <td>
+                                    <label><strong>Status:</strong></label>
+                                    <div class="nfe-status ${response.modal.status.includes('Rejeitada') ? 'error' : response.modal.status == 'Autorizado' ? 'success' : 'warning'}">
+                                        ${response.modal.status}
+                                    </div>
+                                    ${response.modal.cstat ? `
+                                    <div class="mt-2">
+                                        <small><strong>Código SEFAZ:</strong> ${response.modal.cstat}</small>
+                                    </div>
+                                    ` : ''}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="mt-3">
+                        <label><strong>Motivo:</strong></label>
+                        <div class="text-break">${response.modal.motivo}</div>
+                    </div>
+
+                    ${response.modal.protocolo ? `
+                    <div class="mt-3">
+                        <label><strong>Protocolo:</strong></label>
+                        <div class="well">
+                            <pre>${response.modal.protocolo}</pre>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${response.modal.retorno ? `
+                    <div class="mt-3">
+                        <label><strong>Retorno SEFAZ:</strong></label>
+                        <div class="well">
+                            <pre>${response.modal.retorno}</pre>
+                        </div>
+                    </div>
+                    ` : ''}
+                `);
+
+                /* Adicionar botões se autorizado */
                 let footerHtml = '';
                 if (response.modal.status == 'Autorizado') {
                     footerHtml += `
@@ -313,29 +475,42 @@ function gerarNFCom(id) {
 
                 $('#nfecomModal .modal-footer').html(footerHtml);
 
-                // Mostrar modal
+                /* Mostrar modal */
                 $('#nfecomModal').modal('show');
 
-                // Recarregar a página após fechar o modal para atualizar a listagem
+                /* Recarregar a página após fechar o modal para atualizar a listagem */
                 $('#nfecomModal').on('hidden.bs.modal', function() {
                     location.reload();
                 });
 
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro',
-                    text: response.message
-                });
+                /* Mostrar erro no modal */
+                $('#nfecomModal .modal-body').html(`
+                    <div class="alert alert-danger">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Erro na Emissão</h4>
+                        <p>${response.message}</p>
+                    </div>
+                `);
+                $('#nfecomModal .modal-footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>');
+                $('#nfecomModal').modal('show');
             }
         },
         error: function(xhr, status, error) {
-            Swal.close();
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro de Comunicação',
-                text: 'Não foi possível processar a NFCom. Tente novamente.'
-            });
+            /* Reverter alterações do botão */
+            botao.innerHTML = textoOriginal;
+            botao.style.pointerEvents = 'auto';
+            botao.style.opacity = '1';
+
+            /* Mostrar erro no modal */
+            $('#nfecomModal .modal-body').html(`
+                <div class="alert alert-danger">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Erro de Comunicação</h4>
+                    <p>Não foi possível processar a NFCom. Tente novamente.</p>
+                    <small>Detalhes: ${error}</small>
+                </div>
+            `);
+            $('#nfecomModal .modal-footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>');
+            $('#nfecomModal').modal('show');
         }
     });
 }
@@ -463,11 +638,11 @@ $(document).ready(function(){
                         return;
                     }
 
-                    // Preencher os campos básicos
+                    /* Preencher os campos básicos */
                     $('#nomeCliente').val(data.nomeCliente || '');
                     $('#cnpjCliente').val(data.cnpjCliente || '');
 
-                    // Concatenar endereço completo
+                    /* Concatenar endereço completo */
                     var enderecoCompleto = '';
                     if (data.logradouroCliente) {
                         enderecoCompleto += data.logradouroCliente;
@@ -490,7 +665,7 @@ $(document).ready(function(){
 
                     $('#enderecoCliente').val(enderecoCompleto);
 
-                    // Preencher campos ocultos necessários para processamento
+                    /* Preencher campos ocultos necessários para processamento */
                     $('#logradouroCliente').val(data.logradouroCliente || '');
                     $('#numeroCliente').val(data.numeroCliente || '');
                     $('#bairroCliente').val(data.bairroCliente || '');
@@ -504,7 +679,7 @@ $(document).ready(function(){
                 }
             });
         } else {
-            // Limpar campos quando nenhum cliente selecionado
+            /* Limpar campos quando nenhum cliente selecionado */
             $('#nomeCliente, #cnpjCliente, #enderecoCliente, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
         }
     });
@@ -517,7 +692,7 @@ $(document).ready(function(){
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
-                    // Dados do serviço serão preenchidos automaticamente no controller
+                    /* Dados do serviço serão preenchidos automaticamente no controller */
                 }
             });
         }

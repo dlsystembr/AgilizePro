@@ -622,10 +622,18 @@ class Nfecom extends MY_Controller
         }
 
         // Preparar dados para o modal
+        $statusDescricao = $this->getStatusDescricao($nfecom->NFC_STATUS);
+
+        // Para notas rejeitadas, incluir o cStat da SEFAZ
+        if ($nfecom->NFC_STATUS == 4 && !empty($nfecom->NFC_C_STAT)) {
+            $statusDescricao = 'Rejeitada (cStat: ' . $nfecom->NFC_C_STAT . ')';
+        }
+
         $modalData = [
             'numero_nfcom' => $nfecom->NFC_NNF,
             'chave_nfcom' => $nfecom->NFC_CH_NFCOM,
-            'status' => $this->getStatusDescricao($nfecom->NFC_STATUS),
+            'status' => $statusDescricao,
+            'cstat' => $nfecom->NFC_C_STAT ?? '',
             'motivo' => $nfecom->NFC_X_MOTIVO ?? 'NFCom processada com sucesso',
             'protocolo' => $nfecom->NFC_N_PROT ?? '',
             'id' => $id
@@ -689,7 +697,9 @@ class Nfecom extends MY_Controller
             1 => 'Salvo',
             2 => 'Enviado',
             3 => 'Autorizado',
-            4 => 'Rejeitado/Erro de Validação',
+            4 => 'Rejeitada',
+            5 => 'Autorizada',
+            7 => 'Cancelada',
             default => 'Desconhecido'
         };
     }
@@ -701,12 +711,38 @@ class Nfecom extends MY_Controller
             redirect(base_url());
         }
 
-        $id = $this->uri->segment(3);
+        // Verificar se é requisição AJAX
+        $isAjax = $this->input->post('ajax') === 'true';
+
+        if ($isAjax) {
+            $id = $this->input->post('id');
+        } else {
+            $id = $this->uri->segment(3);
+        }
+
         $nfecom = $this->Nfecom_model->getById($id);
 
         if ($nfecom == null) {
-            $this->session->set_flashdata('error', 'NFECom não encontrada.');
-            redirect(site_url('nfecom'));
+            if ($isAjax) {
+                $response = ['success' => false, 'message' => 'NFECom não encontrada.'];
+                echo json_encode($response);
+                return;
+            } else {
+                $this->session->set_flashdata('error', 'NFECom não encontrada.');
+                redirect(site_url('nfecom'));
+            }
+        }
+
+        // Verificar se a NFCom já foi enviada para SEFAZ
+        if ($nfecom->NFC_STATUS < 2) {
+            if ($isAjax) {
+                $response = ['success' => false, 'message' => 'NFCom ainda não foi enviada para SEFAZ. Primeiro envie para autorização.'];
+                echo json_encode($response);
+                return;
+            } else {
+                $this->session->set_flashdata('error', 'NFCom ainda não foi enviada para SEFAZ. Primeiro envie para autorização.');
+                redirect(site_url('nfecom'));
+            }
         }
 
         // 0. Atualizar dados fiscais e gerar XML se rascunho ou rejeitado
@@ -813,18 +849,33 @@ class Nfecom extends MY_Controller
                 'numero_nfcom' => $nfecom->NFC_NNF,
                 'chave_nfcom' => $nfecom->NFC_CH_NFCOM,
                 'status' => $statusTexto,
+                'cstat' => $cStat,
                 'motivo' => $xMotivo,
                 'protocolo' => $retorno['protocolo']['nProt'] ?? '',
                 'retorno' => $retornoSefaz
             ];
 
-            $this->session->set_flashdata('nfecom_modal', $modalData);
+            if ($isAjax) {
+                $response = ['success' => true, 'modal' => $modalData];
+                echo json_encode($response);
+                return;
+            } else {
+                $this->session->set_flashdata('nfecom_modal', $modalData);
+            }
 
         } catch (Exception $e) {
-            $this->session->set_flashdata('error', 'Erro ao consultar SEFAZ: ' . $e->getMessage());
+            if ($isAjax) {
+                $response = ['success' => false, 'message' => 'Erro ao consultar SEFAZ: ' . $e->getMessage()];
+                echo json_encode($response);
+                return;
+            } else {
+                $this->session->set_flashdata('error', 'Erro ao consultar SEFAZ: ' . $e->getMessage());
+            }
         }
 
-        redirect(site_url('nfecom'));
+        if (!$isAjax) {
+            redirect(site_url('nfecom'));
+        }
     }
 
     public function danfe()
@@ -1338,26 +1389,34 @@ class Nfecom extends MY_Controller
                 $this->session->set_flashdata('success', 'NFCom autorizada com sucesso no SEFAZ! Chave: ' . $chaveAcesso);
             } elseif (in_array($cStat, ['110', '205', '301', '302', '303'])) {
                 // Erro de validação/rejeição
+                $motivo = $retorno['xMotivo'] ?? 'Erro de validação';
                 $dadosAtu = [
-                    'NFC_STATUS' => 4, // Rejeitado
+                    'NFC_STATUS' => 4, // Rejeitada
                     'NFC_C_STAT' => $cStat,
-                    'NFC_X_MOTIVO' => $retorno['xMotivo'] ?? 'Erro de validação'
+                    'NFC_X_MOTIVO' => $motivo
                 ];
                 $this->Nfecom_model->updateStatus($id, $dadosAtu);
 
-                log_message('error', 'NFCom com Erro de Validação (ID: ' . $id . '): ' . $cStat . ' - ' . ($retorno['xMotivo'] ?? 'Erro de validação'));
-                $this->session->set_flashdata('error', 'NFCom com Erro de Validação: ' . $cStat . ' - ' . ($retorno['xMotivo'] ?? 'Erro de validação'));
+                // Registrar protocolo com o motivo da rejeição
+                $this->registrarProtocolo($id, 'REJ-' . $cStat, 'REJEICAO', $motivo);
+
+                log_message('error', 'NFCom com Erro de Validação (ID: ' . $id . '): ' . $cStat . ' - ' . $motivo);
+                $this->session->set_flashdata('error', 'NFCom com Erro de Validação: ' . $cStat . ' - ' . $motivo);
             } else {
                 // Outros tipos de rejeição
+                $motivo = $retorno['xMotivo'] ?? 'Erro desconhecido';
                 $dadosAtu = [
-                    'NFC_STATUS' => 4, // Rejeitado
+                    'NFC_STATUS' => 4, // Rejeitada
                     'NFC_C_STAT' => $cStat,
-                    'NFC_X_MOTIVO' => $retorno['xMotivo'] ?? 'Erro desconhecido'
+                    'NFC_X_MOTIVO' => $motivo
                 ];
                 $this->Nfecom_model->updateStatus($id, $dadosAtu);
 
-                log_message('error', 'NFCom Rejeitada (ID: ' . $id . '): ' . $cStat . ' - ' . ($retorno['xMotivo'] ?? 'Erro desconhecido'));
-                $this->session->set_flashdata('error', 'NFCom Rejeitada pelo SEFAZ: ' . $cStat . ' - ' . ($retorno['xMotivo'] ?? 'Erro desconhecido'));
+                // Registrar protocolo com o motivo da rejeição
+                $this->registrarProtocolo($id, 'REJ-' . $cStat, 'REJEICAO', $motivo);
+
+                log_message('error', 'NFCom Rejeitada (ID: ' . $id . '): ' . $cStat . ' - ' . $motivo);
+                $this->session->set_flashdata('error', 'NFCom Rejeitada pelo SEFAZ: ' . $cStat . ' - ' . $motivo);
             }
 
         } catch (Exception $e) {
