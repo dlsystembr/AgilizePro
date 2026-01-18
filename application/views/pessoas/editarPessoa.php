@@ -1560,11 +1560,17 @@
                     <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 2;" />
                     <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 100px;" />
                 </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
                     <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 1;" />
                     <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" />
-                    <input type="text" name="END_CIDADE[]" placeholder="Cidade" class="form-control" style="flex: 1;" />
-                    <input type="text" name="END_UF[]" placeholder="UF" class="form-control" style="width: 60px;" maxlength="2" />
+                    <input type="text" name="END_CIDADE[]" placeholder="Cidade *" class="form-control" style="flex: 1;" title="Campo obrigatório - necessário para determinar o município" />
+                    <input type="text" name="END_UF[]" placeholder="UF *" class="form-control" style="width: 60px;" maxlength="2" title="Campo obrigatório - necessário para determinar o estado" />
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label class="checkbox" style="margin: 0;">
+                        <input type="radio" name="endereco_padrao" value="novo_${enderecoIndex}" style="margin-right: 5px;" />
+                        <strong>Endereço Padrão</strong>
+                    </label>
                     <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -1599,6 +1605,14 @@
                 }
             });
         }
+
+        // Controlar endereço padrão (apenas um pode ser marcado)
+        $(document).on('change', 'input[name="endereco_padrao"]', function() {
+            if ($(this).is(':checked')) {
+                // Desmarcar todos os outros
+                $('input[name="endereco_padrao"]').not(this).prop('checked', false);
+            }
+        });
 
         // Remover endereço
         $(document).on('click', '.remove-endereco', function () {
@@ -1730,12 +1744,16 @@
                 PES_CPFCNPJ: {
                     required: true,
                     customCPFCNPJ: true
-                }
+                },
+                'END_CIDADE[]': { required: true },
+                'END_UF[]': { required: true }
             },
             messages: {
                 PES_FISICO_JURIDICO: 'Selecione o tipo de cliente',
                 PES_NOME: 'Nome é obrigatório',
-                PES_CPFCNPJ: 'CPF/CNPJ é obrigatório e deve ser válido'
+                PES_CPFCNPJ: 'CPF/CNPJ é obrigatório e deve ser válido',
+                'END_CIDADE[]': 'Cidade é obrigatória para determinar o município',
+                'END_UF[]': 'UF é obrigatória para determinar o estado'
             },
             invalidHandler: function (event, validator) {
                 $('.alert-error').show();
@@ -1819,11 +1837,17 @@
                         <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 2;" value="<?php echo isset($end->END_LOGRADOURO) ? $end->END_LOGRADOURO : ''; ?>" />
                         <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 100px;" value="<?php echo isset($end->END_NUMERO) ? $end->END_NUMERO : ''; ?>" />
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
                         <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 1;" value="<?php echo isset($end->END_COMPLEMENTO) ? $end->END_COMPLEMENTO : ''; ?>" />
                         <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="<?php echo isset($end->BAI_NOME) ? $end->BAI_NOME : ''; ?>" />
-                        <input type="text" name="END_CIDADE[]" placeholder="Cidade" class="form-control" style="flex: 1;" value="<?php echo isset($end->MUN_NOME) ? $end->MUN_NOME : ''; ?>" />
-                        <input type="text" name="END_UF[]" placeholder="UF" class="form-control" style="width: 60px;" maxlength="2" value="<?php echo isset($end->EST_UF) ? $end->EST_UF : ''; ?>" />
+                        <input type="text" name="END_CIDADE[]" placeholder="Cidade *" class="form-control" style="flex: 1;" value="<?php echo isset($end->MUN_NOME) ? $end->MUN_NOME : ''; ?>" title="Campo obrigatório - necessário para determinar o município" />
+                        <input type="text" name="END_UF[]" placeholder="UF *" class="form-control" style="width: 60px;" maxlength="2" value="<?php echo isset($end->EST_UF) ? $end->EST_UF : ''; ?>" title="Campo obrigatório - necessário para determinar o estado" />
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <label class="checkbox" style="margin: 0;">
+                            <input type="radio" name="endereco_padrao" value="<?php echo $end->END_ID; ?>" <?php echo (isset($end->END_PADRAO) && $end->END_PADRAO == 1) ? 'checked' : ''; ?> style="margin-right: 5px;" />
+                            <strong>Endereço Padrão</strong>
+                        </label>
                         <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <i class="fas fa-trash"></i>
                         </button>

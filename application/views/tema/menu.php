@@ -134,18 +134,6 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vProduto')) { ?>
-                    <li class="<?php if (isset($menuDocumentos)) {
-                        echo 'active';
-                    }
-                    ; ?>">
-                        <a class="tip-bottom" title="" href="<?= site_url('documentos_faturados') ?>"><i class='bx bx-file-invoice-dollar iconX'></i>
-                            <span class="title">Documentos Faturados</span>
-                            <span class="title-tooltip">Documentos</span>
-                        </a>
-                    </li>
-                <?php } ?>
-
                 <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vLancamento')) { ?>
                     <li class="<?php if (isset($menuLancamentos)) {
                         echo 'active';
@@ -164,45 +152,9 @@
                         echo 'active';
                     }
                     ; ?>">
-                        <a class="tip-bottom" title="" href="<?= site_url('garantias') ?>"><i class='bx bx-shield-check iconX'></i>
+                        <a class="tip-bottom" title="" href="<?= site_url('garantias') ?>"><i class='bx bx-certification iconX'></i>
                             <span class="title">Garantias</span>
                             <span class="title-tooltip">Garantias</span>
-                        </a>
-                    </li>
-                <?php } ?>
-
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vFaturamentoEntrada')) { ?>
-                    <li class="<?php if (isset($menuFaturamentoEntrada)) {
-                        echo 'active';
-                    }
-                    ; ?>">
-                        <a class="tip-bottom" title="" href="<?= site_url('faturamentoEntrada') ?>"><i class='bx bx-receipt iconX'></i>
-                            <span class="title">Faturamento Entrada</span>
-                            <span class="title-tooltip">Faturamento</span>
-                        </a>
-                    </li>
-                <?php } ?>
-
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfe')) { ?>
-                    <li class="<?php if (isset($menuNfe)) {
-                        echo 'active';
-                    }
-                    ; ?>">
-                        <a class="tip-bottom" title="" href="<?= site_url('nfe') ?>"><i class='bx bx-file-blank iconX'></i>
-                            <span class="title">Emissor de Notas</span>
-                            <span class="title-tooltip">NFE</span>
-                        </a>
-                    </li>
-                <?php } ?>
-
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) { ?>
-                    <li class="<?php if (isset($menuNfecom)) {
-                        echo 'active';
-                    }
-                    ; ?>">
-                        <a class="tip-bottom" title="" href="<?= site_url('nfecom') ?>"><i class='bx bx-file-invoice iconX'></i>
-                            <span class="title">NFCOM</span>
-                            <span class="title-tooltip">NFCOM</span>
                         </a>
                     </li>
                 <?php } ?>

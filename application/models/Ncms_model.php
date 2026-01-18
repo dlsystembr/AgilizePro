@@ -16,16 +16,16 @@ class Ncms_model extends CI_Model
         
         if ($search) {
             $this->db->group_start();
-            $this->db->like('codigo', $search);
-            $this->db->or_like('descricao', $search);
+            $this->db->like('NCM_CODIGO', $search);
+            $this->db->or_like('NCM_DESCRICAO', $search);
             $this->db->group_end();
         }
 
         if ($tipo) {
             if ($tipo == 'analitico') {
-                $this->db->where('LENGTH(codigo) = 8');
+                $this->db->where('LENGTH(NCM_CODIGO) = 8');
             } else if ($tipo == 'sintetico') {
-                $this->db->where('LENGTH(codigo) < 8');
+                $this->db->where('LENGTH(NCM_CODIGO) < 8');
             } else if ($tipo == 'configurados') {
                 // Subconsulta para NCMs com tributação federal configurada
                 $this->db->where("EXISTS (
@@ -45,7 +45,7 @@ class Ncms_model extends CI_Model
             }
         }
         
-        $this->db->order_by('codigo', 'ASC');
+        $this->db->order_by('NCM_CODIGO', 'ASC');
         
         if ($per_page && $start !== null) {
             $this->db->limit($per_page, $start);
@@ -61,16 +61,16 @@ class Ncms_model extends CI_Model
         
         if ($search) {
             $this->db->group_start();
-            $this->db->like('codigo', $search);
-            $this->db->or_like('descricao', $search);
+            $this->db->like('NCM_CODIGO', $search);
+            $this->db->or_like('NCM_DESCRICAO', $search);
             $this->db->group_end();
         }
 
         if ($tipo) {
             if ($tipo == 'analitico') {
-                $this->db->where('LENGTH(codigo) = 8');
+                $this->db->where('LENGTH(NCM_CODIGO) = 8');
             } else if ($tipo == 'sintetico') {
-                $this->db->where('LENGTH(codigo) < 8');
+                $this->db->where('LENGTH(NCM_CODIGO) < 8');
             } else if ($tipo == 'configurados') {
                 // Subconsulta para NCMs com tributação federal configurada
                 $this->db->where("EXISTS (
@@ -96,7 +96,7 @@ class Ncms_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->select('ncm_id, codigo as ncm_codigo, descricao as ncm_descricao, data_inicio, data_fim, tipo_ato, numero_ato, ano_ato');
+        $this->db->select('NCM_ID, NCM_CODIGO, NCM_DESCRICAO, data_inicio, data_fim, tipo_ato, numero_ato, ano_ato');
         $this->db->from('ncms');
         $this->db->where('ncm_id', $id);
         $ncm = $this->db->get()->row();
@@ -127,7 +127,7 @@ class Ncms_model extends CI_Model
         // Primeiro tenta encontrar uma correspondência exata do código
         $this->db->select('*');
         $this->db->from('ncms');
-        $this->db->where('codigo', $termo);
+        $this->db->where('NCM_CODIGO', $termo);
         $result = $this->db->get()->result();
         
         // Se não encontrar correspondência exata, busca por similaridade
@@ -135,10 +135,10 @@ class Ncms_model extends CI_Model
             $this->db->select('*');
             $this->db->from('ncms');
             $this->db->group_start();
-            $this->db->like('codigo', $termo);
-            $this->db->or_like('descricao', $termo);
+            $this->db->like('NCM_CODIGO', $termo);
+            $this->db->or_like('NCM_DESCRICAO', $termo);
             $this->db->group_end();
-            $this->db->order_by('codigo', 'asc');
+            $this->db->order_by('NCM_CODIGO', 'asc');
             $result = $this->db->get()->result();
         }
         
@@ -416,11 +416,11 @@ class Ncms_model extends CI_Model
         }
     }
 
-    public function getByCodigo($codigo)
+    public function getByCodigo($NCM_CODIGO)
     {
         $this->db->select('*');
         $this->db->from('ncms');
-        $this->db->where('codigo', $codigo);
+        $this->db->where('NCM_CODIGO', $NCM_CODIGO);
         return $this->db->get()->row();
     }
 

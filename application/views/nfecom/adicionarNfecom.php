@@ -200,6 +200,55 @@
         border-color: #ddd;
     }
 
+    /* Grid layout para campos de serviço */
+    .servico-row .grid-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 0.5fr;
+        gap: 8px;
+        align-items: end;
+        margin-bottom: 10px;
+    }
+
+    .servico-row .grid-layout > div {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .servico-row .grid-layout label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .servico-row .grid-layout input,
+    .servico-row .grid-layout select {
+        width: 100%;
+        height: 30px;
+        padding: 4px 8px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-size: 12px;
+    }
+
+    /* Valores calculados */
+    .servico-row .valores-calculados {
+        display: flex;
+        gap: 15px;
+        padding-top: 8px;
+        border-top: 1px solid #dee2e6;
+        font-size: 13px;
+    }
+
+    .servico-row .valores-calculados strong {
+        color: #333;
+    }
+
+    .servico-row .valores-calculados .valor-display {
+        color: #28a745;
+        font-weight: bold;
+    }
+
     /* Resumo dos valores */
     #servicos-resumo {
         font-size: 14px;
@@ -287,7 +336,7 @@
                 echo '<div class="alert alert-danger">' . $custom_error . '</div>';
             } ?>
             <form action="<?php echo current_url(); ?>" id="formNfecom" method="post" class="form-horizontal">
-                <div class="widget-content nopadding tab-content">
+            <div class="widget-content nopadding tab-content">
 
                     <!-- Seções lado a lado -->
                     <div class="row-fluid row-flex" style="margin: 20px 0 0 0; padding: 0;">
@@ -307,7 +356,7 @@
                                                 <small style="display: block; color: #666; margin-top: 2px;">
                                                     <?php echo count($clientes_iniciais); ?> clientes disponíveis. Ordem alfabética.
                                                 </small>
-                                                <div class="controls">
+                        <div class="controls">
                                                     <select name="clientes_id" id="cliente" required style="width: 100%;">
                                                         <option value="">Selecione um cliente ou digite para buscar...</option>
                                                         <?php foreach ($clientes_iniciais as $cliente): ?>
@@ -315,11 +364,11 @@
                                                                 <?php echo $cliente->text; ?><?php echo !empty($cliente->cpf_cnpj) ? ' (' . $cliente->cpf_cnpj . ')' : ''; ?>
                                                             </option>
                                                         <?php endforeach; ?>
-                                                    </select>
+                            </select>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
+                        </div>
+                    </div>
 
                                     <!-- Linha 2: Endereço do Cliente -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
@@ -327,14 +376,14 @@
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="enderecoClienteSelect" class="control-label">Endereço<span class="required">*</span></label>
                                                 <small style="display: block; color: #666; margin-top: 2px;">Endereço padrão do cliente será selecionado automaticamente.</small>
-                                                <div class="controls">
+                        <div class="controls">
                                                     <select name="enderecoClienteSelect" id="enderecoClienteSelect" disabled required>
                                                         <option value="">Selecione um cliente primeiro</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            </select>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
 
 
                                     <!-- Linha 3: Número do Contrato -->
@@ -342,39 +391,39 @@
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="numeroContrato" class="control-label">Contrato<span class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input type="text" name="numeroContrato" id="numeroContrato" value="<?php echo set_value('numeroContrato'); ?>" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div class="controls">
+                            <input type="text" name="numeroContrato" id="numeroContrato" value="<?php echo set_value('numeroContrato'); ?>" required>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
 
                                     <!-- Linha 4: Data Emissão e Data Contrato -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataEmissao" class="control-label">Emissão<span class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input type="date" name="dataEmissao" id="dataEmissao" value="<?php echo set_value('dataEmissao', date('Y-m-d')); ?>" required>
-                                                </div>
-                                            </div>
+                        <div class="controls">
+                            <input type="date" name="dataEmissao" id="dataEmissao" value="<?php echo set_value('dataEmissao', date('Y-m-d')); ?>" required>
+                        </div>
+                    </div>
                                         </div>
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataContratoIni" class="control-label">Contrato<span class="required">*</span></label>
-                                                <div class="controls">
+                        <div class="controls">
                                                     <input type="date" name="dataContratoIni" id="dataContratoIni" value="<?php echo set_value('dataContratoIni'); ?>" required>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
+                        </div>
+                    </div>
 
                                     <!-- Linha 5: Observações -->
                                     <div class="row-fluid">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="observacoes" class="control-label">Observações<span class="required">*</span></label>
-                                                <div class="controls">
+                        <div class="controls">
                                                     <textarea name="observacoes" id="observacoes" rows="3" required><?php echo set_value('observacoes'); ?></textarea>
                                                 </div>
                                             </div>
@@ -390,7 +439,7 @@
                                 <div class="form-section-header">
                                     <i class="fas fa-calculator"></i>
                                     <span>Valores e Períodos</span>
-                                </div>
+                    </div>
                                 <div class="form-section-content">
 
                                     <!-- Linha 2: Data Vencimento -->
@@ -398,43 +447,43 @@
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataVencimento" class="control-label">Vencimento<span class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input type="date" name="dataVencimento" id="dataVencimento" value="<?php echo set_value('dataVencimento'); ?>" required>
+                        <div class="controls">
+                            <input type="date" name="dataVencimento" id="dataVencimento" value="<?php echo set_value('dataVencimento'); ?>" required>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
+                        </div>
+                    </div>
 
                                     <!-- Linha 3: Período Início -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataPeriodoIni" class="control-label">Período Início<span class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input type="date" name="dataPeriodoIni" id="dataPeriodoIni" value="<?php echo set_value('dataPeriodoIni'); ?>" required>
+                        <div class="controls">
+                            <input type="date" name="dataPeriodoIni" id="dataPeriodoIni" value="<?php echo set_value('dataPeriodoIni'); ?>" required>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
+                        </div>
+                    </div>
 
                                     <!-- Linha 4: Período Fim -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataPeriodoFim" class="control-label">Período Fim<span class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input type="date" name="dataPeriodoFim" id="dataPeriodoFim" value="<?php echo set_value('dataPeriodoFim'); ?>" required>
+                        <div class="controls">
+                            <input type="date" name="dataPeriodoFim" id="dataPeriodoFim" value="<?php echo set_value('dataPeriodoFim'); ?>" required>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
+                        </div>
+                    </div>
 
                                     <!-- Linha 5: Dados Bancários -->
                                     <div class="row-fluid">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="dadosBancarios" class="control-label">Dados Bancários</label>
-                                                <div class="controls">
+                        <label for="dadosBancarios" class="control-label">Dados Bancários</label>
+                        <div class="controls">
                                                     <textarea name="dadosBancarios" id="dadosBancarios" rows="2"><?php echo set_value('dadosBancarios'); ?></textarea>
                                                 </div>
                                             </div>
@@ -452,7 +501,7 @@
                             <div>
                                 <i class="fas fa-tools"></i>
                                 <span>Serviços<span class="required">*</span></span>
-                            </div>
+                    </div>
                             <button type="button" id="btnAdicionarServico" class="btn btn-success btn-mini">
                                 <i class="fas fa-plus"></i> Adicionar Serviço
                             </button>
@@ -460,7 +509,58 @@
                         <div class="form-section-content">
                             <div id="servicos-container">
                                 <!-- Serviços serão adicionados dinamicamente aqui -->
-                            </div>
+                                <div class="servico-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
+                                    <div class="grid-layout">
+                                        <div>
+                                            <label>Serviço *</label>
+                                            <select name="servicos[0][id]" class="form-control servico-select" required>
+                                                <option value="">Selecione um serviço</option>
+                                                <?php foreach ($servicos as $servico) { ?>
+                                                <option value="<?php echo $servico->idServicos; ?>"><?php echo $servico->nome; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label>CFOP</label>
+                                            <input type="text" name="servicos[0][cfop]" class="form-control cfop-input" value="5307" placeholder="5307">
+                                        </div>
+                                        <div>
+                                            <label>Unid.</label>
+                                            <input type="text" name="servicos[0][unidade]" class="form-control unidade-input" value="4" placeholder="4">
+                                        </div>
+                                        <div>
+                                            <label>Qtd *</label>
+                                            <input type="number" name="servicos[0][quantidade]" class="form-control quantidade-input" step="0.01" value="1" required>
+                                        </div>
+                                        <div>
+                                            <label>V. Unit *</label>
+                                            <input type="number" name="servicos[0][valorUnitario]" class="form-control valor-unitario-input" step="0.01" value="0.01" required>
+                                        </div>
+                                        <div>
+                                            <label>V. Desc</label>
+                                            <input type="number" name="servicos[0][valorDesconto]" class="form-control valor-desconto-input" step="0.01" value="0">
+                                        </div>
+                                        <div>
+                                            <label>V. Outros</label>
+                                            <input type="number" name="servicos[0][valorOutros]" class="form-control valor-outros-input" step="0.01" value="0">
+                                        </div>
+                                        <div>
+                                            <label>&nbsp;</label>
+                                            <button type="button" class="btn btn-mini btn-danger remove-servico" style="width: 100%; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="valores-calculados">
+                                        <div>
+                                            <strong>Valor Item:</strong> R$ <span class="valor-item-display valor-display">0,00</span>
+                                        </div>
+                                        <div>
+                                            <strong>Valor Produto:</strong> R$ <span class="valor-produto-display valor-display">0,00</span>
+                                        </div>
+                                    </div>
+                        </div>
+                    </div>
 
                             <!-- Resumo dos valores calculados -->
                             <div id="servicos-resumo" style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; display: none;">
@@ -475,8 +575,8 @@
                                 </div>
                                 <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #dee2e6;">
                                     <strong>Valor Líquido:</strong> R$ <span id="valor-liquido">0,00</span>
-                                </div>
-                            </div>
+                        </div>
+                    </div>
 
                             <?php if (empty($servicos)): ?>
                             <div id="servicos-aviso" style="margin-top: 15px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
@@ -518,10 +618,10 @@
                                     <span class="button__text2">Voltar</span>
                                 </a>
                             </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </form>
+                </form>
         </div>
     </div>
 </div>
@@ -697,40 +797,62 @@ $(document).ready(function(){
     // Função para adicionar serviço
     function adicionarServico(servicoData = {}) {
         const servicoId = servicoData.id || '';
-        const servicoNome = servicoData.nome || '';
+        const cfop = servicoData.cfop || '5307';
+        const unidade = servicoData.unidade || '4';
         const quantidade = servicoData.quantidade || 1;
-        const valorUnitario = servicoData.valorUnitario || '';
-        const valorTotal = servicoData.valorTotal || '';
+        const valorUnitario = servicoData.valorUnitario || 0;
+        const valorDesconto = servicoData.valorDesconto || 0;
+        const valorOutros = servicoData.valorOutros || 0;
 
         const servicoRow = `
         <div class="servico-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
-            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-                <div style="flex: 2;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Serviço</label>
-                    <select name="servicos[${servicoIndex}][id]" class="form-control servico-select" style="width: 100%;" required>
+            <div class="grid-layout">
+                <div>
+                    <label>Serviço *</label>
+                    <select name="servicos[${servicoIndex}][id]" class="form-control servico-select" required>
                         <option value="">Selecione um serviço</option>
                         <?php foreach ($servicos as $servico) { ?>
                         <option value="<?php echo $servico->idServicos; ?>"><?php echo $servico->nome; ?></option>
                         <?php } ?>
                     </select>
                 </div>
-                <div style="flex: 1;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Quantidade</label>
-                    <input type="number" name="servicos[${servicoIndex}][quantidade]" class="form-control quantidade-input" style="width: 100%;" min="0.01" step="0.01" value="${quantidade}" required>
+                <div>
+                    <label>CFOP</label>
+                    <input type="text" name="servicos[${servicoIndex}][cfop]" class="form-control cfop-input" value="${cfop}" placeholder="5307">
                 </div>
-                <div style="flex: 1;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Valor Unitário</label>
-                    <input type="number" name="servicos[${servicoIndex}][valorUnitario]" class="form-control valor-unitario-input" style="width: 100%;" min="0" step="0.01" value="${valorUnitario}" required>
+                <div>
+                    <label>Unid.</label>
+                    <input type="text" name="servicos[${servicoIndex}][unidade]" class="form-control unidade-input" value="${unidade}" placeholder="4">
                 </div>
-                <div style="flex: 1;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Valor Total</label>
-                    <input type="number" name="servicos[${servicoIndex}][valorTotal]" class="form-control valor-total-input" style="width: 100%;" min="0" step="0.01" value="${valorTotal}" readonly>
+                <div>
+                    <label>Qtd *</label>
+                    <input type="number" name="servicos[${servicoIndex}][quantidade]" class="form-control quantidade-input" step="0.01" value="${quantidade}" required>
                 </div>
-                <div style="flex: 0 0 40px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">&nbsp;</label>
+                <div>
+                    <label>V. Unit *</label>
+                    <input type="number" name="servicos[${servicoIndex}][valorUnitario]" class="form-control valor-unitario-input" step="0.01" value="${valorUnitario || 0.01}" required>
+                </div>
+                <div>
+                    <label>V. Desc</label>
+                    <input type="number" name="servicos[${servicoIndex}][valorDesconto]" class="form-control valor-desconto-input" step="0.01" value="${valorDesconto}">
+                </div>
+                <div>
+                    <label>V. Outros</label>
+                    <input type="number" name="servicos[${servicoIndex}][valorOutros]" class="form-control valor-outros-input" step="0.01" value="${valorOutros}">
+                </div>
+                <div>
+                    <label>&nbsp;</label>
                     <button type="button" class="btn btn-mini btn-danger remove-servico" style="width: 100%; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-trash"></i>
                     </button>
+                </div>
+            </div>
+            <div class="valores-calculados">
+                <div>
+                    <strong>Valor Item:</strong> R$ <span class="valor-item-display valor-display">0,00</span>
+                </div>
+                <div>
+                    <strong>Valor Produto:</strong> R$ <span class="valor-produto-display valor-display">0,00</span>
                 </div>
             </div>
         </div>
@@ -741,10 +863,7 @@ $(document).ready(function(){
         atualizarValidacaoServicos();
     }
 
-    // Adicionar primeiro serviço automaticamente se não houver nenhum
-    if ($('#servicos-container .servico-row').length === 0) {
-        adicionarServico();
-    }
+    // Já temos um serviço template na view, então não precisamos adicionar automaticamente
 
     // Debug: Mostrar informações sobre serviços e clientes
     console.log('🔍 Debug NFECOM:');
@@ -754,7 +873,7 @@ $(document).ready(function(){
     <?php endif; ?>
     console.log('   👥 Clientes - Carregados:', <?php echo count($clientes_iniciais); ?>, 'iniciais + busca AJAX');
     console.log('   📍 Endereços - Seleção automática do endereço padrão ativada');
-    console.log('   💰 Valores - Cálculo automático do valor bruto ativado');
+    console.log('   💰 Valores - Cálculo automático com CFOP, unidade, desconto e outros');
     console.log('   🔢 Série - Valor padrão "1" (não controlado na tela)');
 
     // Botão para adicionar serviço
@@ -805,14 +924,27 @@ $(document).ready(function(){
         console.log('💰 Totais atualizados:', { totalServicos, comissao, valorLiquido });
     }
 
-    // Calcular valor total quando quantidade ou valor unitário mudam
-    $(document).on('input', '.quantidade-input, .valor-unitario-input, #comissaoAgencia', function() {
+    // Calcular valores quando qualquer campo do serviço muda
+    $(document).on('input', '.quantidade-input, .valor-unitario-input, .valor-desconto-input, .valor-outros-input', function() {
         const row = $(this).closest('.servico-row');
         if (row.length > 0) {
             const quantidade = parseFloat(row.find('.quantidade-input').val()) || 0;
             const valorUnitario = parseFloat(row.find('.valor-unitario-input').val()) || 0;
-            const valorTotal = quantidade * valorUnitario;
-            row.find('.valor-total-input').val(valorTotal.toFixed(2));
+            const valorDesconto = parseFloat(row.find('.valor-desconto-input').val()) || 0;
+            const valorOutros = parseFloat(row.find('.valor-outros-input').val()) || 0;
+
+            // Valor Item = (Quantidade × Valor Unitário)
+            const valorItem = quantidade * valorUnitario;
+
+            // Valor Produto = Valor Item - Desconto + Outros
+            const valorProduto = valorItem - valorDesconto + valorOutros;
+
+            // Atualizar displays visuais
+            row.find('.valor-item-display').text(valorItem.toFixed(2).replace('.', ','));
+            row.find('.valor-produto-display').text(valorProduto.toFixed(2).replace('.', ','));
+
+            // Atualizar campo oculto para compatibilidade
+            row.find('.valor-total-input').val(valorProduto.toFixed(2));
         }
 
         // Atualizar totais gerais
@@ -835,6 +967,10 @@ $(document).ready(function(){
     }
 
     // Cálculo automático é feito pela função atualizarTotais()
+
+    // Inicializar totais e validação ao carregar a página
+    atualizarTotais();
+    atualizarValidacaoServicos();
 
     // Validação do formulário
     $('#formNfecom').validate({
@@ -871,6 +1007,9 @@ $(document).ready(function(){
             numeroContrato: 'Número do contrato é obrigatório',
             dataContratoIni: 'Data de início do contrato é obrigatória',
             dataEmissao: 'Data de emissão é obrigatória',
+            'servicos[0][id]': 'Selecione um serviço',
+            'servicos[0][quantidade]': 'Quantidade deve ser maior que zero',
+            'servicos[0][valorUnitario]': 'Valor unitário deve ser maior que zero',
             comissaoAgencia: 'Comissão deve ser um valor numérico',
             dataVencimento: 'Data de vencimento é obrigatória',
             dataPeriodoIni: 'Data de início do período é obrigatória',
@@ -885,7 +1024,8 @@ $(document).ready(function(){
                 const servicoId = $(this).find('.servico-select').val();
                 const quantidade = parseFloat($(this).find('.quantidade-input').val()) || 0;
                 const valorUnitario = parseFloat($(this).find('.valor-unitario-input').val()) || 0;
-                return servicoId && quantidade > 0 && valorUnitario > 0;
+                const valorProduto = parseFloat($(this).find('.valor-produto-display').text().replace(',', '.')) || 0;
+                return servicoId && quantidade > 0 && valorUnitario > 0 && valorProduto > 0;
             }).length;
 
             if (servicosValidos === 0) {

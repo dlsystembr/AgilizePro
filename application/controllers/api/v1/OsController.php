@@ -56,10 +56,8 @@ class OsController extends REST_Controller
             $start = $page ? ($perPage * $page) : 0;
 
             $oss = $this->os_model->getOs(
-                'os',
-                'os.*,
-                COALESCE((SELECT SUM(produtos_os.preco * produtos_os.quantidade ) FROM produtos_os WHERE produtos_os.os_id = os.idOs), 0) totalProdutos,
-                COALESCE((SELECT SUM(servicos_os.preco * servicos_os.quantidade ) FROM servicos_os WHERE servicos_os.os_id = os.idOs), 0) totalServicos',
+                'ordem_servico',
+                'ordem_servico.*',
                 $where_array,
                 $perPage,
                 $page

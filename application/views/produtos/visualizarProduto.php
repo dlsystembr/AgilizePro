@@ -92,17 +92,6 @@
                                 </div>
                             </div>
                             <div class="control-group">
-                                <label for="tributacao_produto_id" class="control-label">Tributação de Produto</label>
-                                <div class="controls">
-                                    <select name="tributacao_produto_id" id="tributacao_produto_id" disabled>
-                                        <option value="">Selecione</option>
-                                        <?php foreach ($tributacoes as $t): ?>
-                                            <option value="<?= $t->id ?>" <?= ($result->tributacao_produto_id == $t->id) ? 'selected' : '' ?>><?= $t->nome_configuracao ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="control-group">
                                 <label for="NCMs" class="control-label">NCM<span class="required">*</span></label>
                                 <div class="controls">
                                     <div class="input-group" style="display: flex; gap: 5px;">

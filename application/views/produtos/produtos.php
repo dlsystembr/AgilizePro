@@ -2,6 +2,36 @@
   select {
     width: 70px;
   }
+  
+  /* Estilos para badges de tipo de produto */
+  .badge-tipo {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  
+  .badge-produto {
+    background: linear-gradient(135deg, #5cb85c 0%, #4cae4c 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(92, 184, 92, 0.3);
+  }
+  
+  .badge-servico {
+    background: linear-gradient(135deg, #5bc0de 0%, #46b8da 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(91, 192, 222, 0.3);
+  }
+  
+  .badge-tipo i {
+    font-size: 10px;
+    margin-right: 2px;
+    vertical-align: middle;
+  }
 </style>
 <div class="new122">
     <div class="widget-title" style="margin: -20px 0 0">
@@ -41,6 +71,7 @@
                     <th>Cod.</th>
                     <th>Cod. Barra</th>
                     <th>Nome</th>
+                    <th>Tipo</th>
                     <th>Estoque</th>
                     <th>Preço</th>
                     <th>Ações</th>
@@ -51,16 +82,25 @@
 
                 if (!$results) {
                     echo '<tr>
-                                    <td colspan="6">Nenhum Produto Cadastrado</td>
+                                    <td colspan="7">Nenhum Produto Cadastrado</td>
                                     </tr>';
                 }
                 foreach ($results as $r) {
+                    // Determinar o tipo de item
+                    $tipoBadge = '';
+                    if (isset($r->PRO_TIPO) && $r->PRO_TIPO == '2') {
+                        $tipoBadge = '<span class="badge-tipo badge-servico"><i class="bx bx-briefcase"></i> Serviço</span>';
+                    } else {
+                        $tipoBadge = '<span class="badge-tipo badge-produto"><i class="bx bx-package"></i> Produto</span>';
+                    }
+                    
                     echo '<tr>';
                     echo '<td>' . $r->PRO_ID . '</td>';
                     echo '<td>' . $r->PRO_COD_BARRA . '</td>';
                     echo '<td>' . $r->PRO_DESCRICAO . '</td>';
+                    echo '<td style="text-align: center;">' . $tipoBadge . '</td>';
                     echo '<td>' . $r->PRO_ESTOQUE . '</td>';
-                    echo '<td>' . number_format($r->PRO_PRECO_VENDA, 2, ',', '.') . '</td>';
+                    echo '<td>R$ ' . number_format($r->PRO_PRECO_VENDA, 2, ',', '.') . '</td>';
                     echo '<td>';
                     if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vProduto')) {
                         echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/produtos/visualizar/' . $r->PRO_ID . '" class="btn-nwe" title="Visualizar Produto"><i class="bx bx-show bx-xs"></i></a>  ';

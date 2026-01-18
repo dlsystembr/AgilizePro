@@ -6,7 +6,7 @@
 <html lang="pt-br">
 
 <head>
-    <title><?= $this->config->item('app_name') ?> - <?= $result->idOs ?> - <?= $result->nomeCliente ?></title>
+    <title><?= $this->config->item('app_name') ?> - <?= $result->ORV_ID ?> - <?= $result->nomeCliente ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="<?= base_url() ?>assets/css/bootstrap5.3.2.min.css" />
     <link rel="stylesheet" href="<?= base_url() ?>assets/font-awesome/css/font-awesome.css" />
@@ -44,11 +44,11 @@
             <section>
                 <div class="title">
                     <?php if ($configuration['control_2vias']) : ?><span class="via">Via cliente</span><?php endif; ?>
-                    ORDEM DE SERVIÇO #<?= str_pad($result->idOs, 4, 0, STR_PAD_LEFT) ?>
+                    ORDEM DE SERVIÇO #<?= str_pad($result->ORV_ID, 4, 0, STR_PAD_LEFT) ?>
                     <span class="emissao">Emissão: <?= date('d/m/Y H:i:s') ?></span>
                 </div>
 
-                <?php if ($result->dataInicial != null): ?>
+                <?php if ($result->ORV_DATA_INICIAL != null): ?>
                     <div class="tabela">
                         <table class="table table-bordered">
                             <thead>
@@ -56,24 +56,24 @@
                                     <th class="text-center">STATUS</th>
                                     <th class="text-center">DATA INICIAL</th>
                                     <th class="text-center">DATA FINAL</th>
-                                    <?php if ($result->garantia) : ?>
+                                    <?php if ($result->ORV_GARANTIA) : ?>
                                         <th class="text-center">GARANTIA</th>
                                     <?php endif; ?>
-                                    <?php if (in_array($result->status, ['Finalizado', 'Faturado'])) : ?>
+                                    <?php if (in_array($result->ORV_STATUS, ['Finalizado', 'Faturado'])) : ?>
                                         <th class="text-center">VENC. GARANTIA</th>
                                     <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td class="text-center"><?= $result->status ?></td>
-                                    <td class="text-center"><?= date('d/m/Y', strtotime($result->dataInicial)) ?></td>
-                                    <td class="text-center"><?= $result->dataFinal ? date('d/m/Y', strtotime($result->dataFinal)) : '' ?></td>
-                                    <?php if ($result->garantia) : ?>
-                                        <td class="text-center"><?= $result->garantia . ' dia(s)' ?></td>
+                                    <td class="text-center"><?= $result->ORV_STATUS ?></td>
+                                    <td class="text-center"><?= date('d/m/Y', strtotime($result->ORV_DATA_INICIAL)) ?></td>
+                                    <td class="text-center"><?= $result->ORV_DATA_FINAL ? date('d/m/Y', strtotime($result->ORV_DATA_FINAL)) : '' ?></td>
+                                    <?php if ($result->ORV_GARANTIA) : ?>
+                                        <td class="text-center"><?= $result->ORV_GARANTIA . ' dia(s)' ?></td>
                                     <?php endif; ?>
-                                    <?php if (in_array($result->status, ['Finalizado', 'Faturado'])) : ?>
-                                        <td class="text-center"><?= dateInterval($result->dataFinal, $result->garantia) ?></td>
+                                    <?php if (in_array($result->ORV_STATUS, ['Finalizado', 'Faturado'])) : ?>
+                                        <td class="text-center"><?= dateInterval($result->ORV_DATA_FINAL, $result->ORV_GARANTIA) ?></td>
                                     <?php endif; ?>
                                 </tr>
                             </tbody>
@@ -96,43 +96,43 @@
                     </div>
                 </div>
 
-                <?php if ($result->descricaoProduto) : ?>
+                <?php if ($result->ORV_DESCRICAO_PRODUTO) : ?>
                     <div class="subtitle">DESCRIÇÃO</div>
                     <div class="dados">
                         <div style="text-align: justify;">
-                            <?= htmlspecialchars_decode($result->descricaoProduto) ?>
+                            <?= htmlspecialchars_decode($result->ORV_DESCRICAO_PRODUTO) ?>
                         </div>
                     </div>
                 <?php endif; ?>
 
-                <?php if ($result->defeito) : ?>
+                <?php if ($result->ORV_DEFEITO) : ?>
                     <div class="subtitle">DEFEITO APRESENTADO</div>
                     <div class="dados">
                         <div style="text-align: justify;">
-                            <?= htmlspecialchars_decode($result->defeito) ?>
+                            <?= htmlspecialchars_decode($result->ORV_DEFEITO) ?>
                         </div>
                     </div>
                 <?php endif; ?>
 
-                <?php if ($result->observacoes) : ?>
+                <?php if ($result->ORV_OBSERVACOES) : ?>
                     <div class="subtitle">OBSERVAÇÕES</div>
                     <div class="dados">
                         <div style="text-align: justify;">
-                            <?= htmlspecialchars_decode($result->observacoes) ?>
+                            <?= htmlspecialchars_decode($result->ORV_OBSERVACOES) ?>
                         </div>
                     </div>
                 <?php endif; ?>
 
-                <?php if ($result->laudoTecnico) : ?>
+                <?php if ($result->ORV_LAUDO_TECNICO) : ?>
 					<div class="subtitle">PARECER TÉCNICO</div>
                     <div class="dados">
                         <div style="text-align: justify;">
-    						<?= htmlspecialchars_decode($result->laudoTecnico) ?>
+    						<?= htmlspecialchars_decode($result->ORV_LAUDO_TECNICO) ?>
 						</div>
                     </div>
                 <?php endif; ?>
 
-                <?php if ($result->garantias_id) : ?>
+                <?php if ($result->ORV_GARANTIAS_ID) : ?>
                     <div class="subtitle">TERMO DE GARANTIA</div>
                     <div class="dados">
                         <div style="text-align: justify;"><?= htmlspecialchars_decode($result->textoGarantia) ?></div>
@@ -152,12 +152,12 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($produtos as $p) :
-                                    $totalProdutos = $totalProdutos + $p->subTotal;
+                                    $totalProdutos = $totalProdutos + $p->PRO_OS_SUBTOTAL;
                                     echo '<tr>';
-                                    echo '  <td>' . $p->descricao . '</td>';
-                                    echo '  <td class="text-center">' . $p->quantidade . '</td>';
-                                    echo '  <td class="text-center">' . number_format($p->preco ?: $p->precoVenda, 2, ',', '.') . '</td>';
-                                    echo '  <td class="text-end">R$ ' . number_format($p->subTotal, 2, ',', '.') . '</td>';
+                                    echo '  <td>' . $p->PRO_OS_DESCRICAO . '</td>';
+                                    echo '  <td class="text-center">' . $p->PRO_OS_QUANTIDADE . '</td>';
+                                    echo '  <td class="text-center">' . number_format($p->PRO_OS_PRECO ?: $p->precoVenda, 2, ',', '.') . '</td>';
+                                    echo '  <td class="text-end">R$ ' . number_format($p->PRO_OS_SUBTOTAL, 2, ',', '.') . '</td>';
                                     echo '</tr>';
                                 endforeach; ?>
                                 <tr>
@@ -184,12 +184,12 @@
                                 <?php 
                                     setlocale(LC_MONETARY, 'en_US'); 
                                     foreach ($servicos as $s) :
-                                        $preco = $s->preco ?: $s->precoVenda;
-                                        $subtotal = $preco * ($s->quantidade ?: 1);
+                                        $preco = $s->SOS_PRECO ?: $s->precoVenda;
+                                        $subtotal = $preco * ($s->SOS_QUANTIDADE ?: 1);
                                         $totalServico = $totalServico + $subtotal;
                                         echo '<tr>';
                                         echo '  <td>' . $s->nome . '</td>';
-                                        echo '  <td class="text-center">' . ($s->quantidade ?: 1) . '</td>';
+                                        echo '  <td class="text-center">' . ($s->SOS_QUANTIDADE ?: 1) . '</td>';
                                         echo '  <td class="text-center">' . number_format($preco, 2, ',', '.') . '</td>';
                                         echo '  <td class="text-end">R$ ' . number_format($subtotal, 2, ',', '.') . '</td>';
                                         echo '</tr>';
@@ -226,18 +226,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php if ($result->valor_desconto != 0) : ?>
+                                        <?php if ($result->ORV_VALOR_DESCONTO != 0) : ?>
                                             <tr>
                                                 <td width="65%">SUBTOTAL</td>
                                                 <td>R$ <b><?= number_format($totalProdutos + $totalServico, 2, ',', '.') ?></b></td>
                                             </tr>
                                             <tr>
                                                 <td>DESCONTO</td>
-                                                <td>R$ <b><?= number_format($result->valor_desconto != 0 ? $result->valor_desconto - ($totalProdutos + $totalServico) : 0.00, 2, ',', '.') ?></b></td>
+                                                <td>R$ <b><?= number_format($result->ORV_VALOR_DESCONTO != 0 ? $result->ORV_VALOR_DESCONTO - ($totalProdutos + $totalServico) : 0.00, 2, ',', '.') ?></b></td>
                                             </tr>
                                             <tr>
                                                 <td>TOTAL</td>
-                                                <td>R$ <?= number_format($result->valor_desconto, 2, ',', '.') ?></td>
+                                                <td>R$ <?= number_format($result->ORV_VALOR_DESCONTO, 2, ',', '.') ?></td>
                                             </tr>
                                         <?php else : ?>
                                             <tr>
@@ -254,9 +254,9 @@
             </section>
             <footer>
                 <div class="detalhes">
-                    <span>Data inicial: <b><?= date('d/m/Y', strtotime($result->dataInicial)) ?></b></span>
-                    <span>ORDEM DE SERVIÇO <b>#<?= str_pad($result->idOs, 4, 0, STR_PAD_LEFT) ?></b></span>
-                    <span>Data final: <b><?= $result->dataFinal ? date('d/m/Y', strtotime($result->dataFinal)) : '' ?></b></span>
+                    <span>Data inicial: <b><?= date('d/m/Y', strtotime($result->ORV_DATA_INICIAL)) ?></b></span>
+                    <span>ORDEM DE SERVIÇO <b>#<?= str_pad($result->ORV_ID, 4, 0, STR_PAD_LEFT) ?></b></span>
+                    <span>Data final: <b><?= $result->ORV_DATA_FINAL ? date('d/m/Y', strtotime($result->ORV_DATA_FINAL)) : '' ?></b></span>
                 </div>
                 <div class="assinaturas">
                     <span>Assinatura do cliente</span>
@@ -298,11 +298,11 @@
                         <!-- VIA EMPRESA  -->
                         <?php $totalServico = 0; $totalProdutos = 0; ?>
                         <?php if ($configuration['control_2vias']) : ?><span class="via">Via Empresa</span><?php endif; ?>
-                        ORDEM DE SERVIÇO #<?= str_pad($result->idOs, 4, 0, STR_PAD_LEFT) ?>
+                        ORDEM DE SERVIÇO #<?= str_pad($result->ORV_ID, 4, 0, STR_PAD_LEFT) ?>
                         <span class="emissao">Emissão: <?= date('d/m/Y') ?></span>
                     </div>
 
-                    <?php if ($result->dataInicial != null): ?>
+                    <?php if ($result->ORV_DATA_INICIAL != null): ?>
                         <div class="tabela">
                             <table class="table table-bordered">
                                 <thead>
@@ -310,24 +310,24 @@
                                         <th class="text-center">STATUS</th>
                                         <th class="text-center">DATA INICIAL</th>
                                         <th class="text-center">DATA FINAL</th>
-                                        <?php if ($result->garantia) : ?>
+                                        <?php if ($result->ORV_GARANTIA) : ?>
                                             <th class="text-center">GARANTIA</th>
                                         <?php endif; ?>
-                                        <?php if (in_array($result->status, ['Finalizado', 'Faturado'])) : ?>
+                                        <?php if (in_array($result->ORV_STATUS, ['Finalizado', 'Faturado'])) : ?>
                                             <th class="text-center">VENC. GARANTIA</th>
                                         <?php endif; ?>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td class="text-center"><?= $result->status ?></td>
-                                        <td class="text-center"><?= date('d/m/Y', strtotime($result->dataInicial)) ?></td>
-                                        <td class="text-center"><?= $result->dataFinal ? date('d/m/Y', strtotime($result->dataFinal)) : '' ?></td>
-                                        <?php if ($result->garantia) : ?>
-                                            <td class="text-center"><?= $result->garantia . ' dia(s)' ?></td>
+                                        <td class="text-center"><?= $result->ORV_STATUS ?></td>
+                                        <td class="text-center"><?= date('d/m/Y', strtotime($result->ORV_DATA_INICIAL)) ?></td>
+                                        <td class="text-center"><?= $result->ORV_DATA_FINAL ? date('d/m/Y', strtotime($result->ORV_DATA_FINAL)) : '' ?></td>
+                                        <?php if ($result->ORV_GARANTIA) : ?>
+                                            <td class="text-center"><?= $result->ORV_GARANTIA . ' dia(s)' ?></td>
                                         <?php endif; ?>
-                                        <?php if (in_array($result->status, ['Finalizado', 'Faturado'])) : ?>
-                                            <td class="text-center"><?= dateInterval($result->dataFinal, $result->garantia) ?></td>
+                                        <?php if (in_array($result->ORV_STATUS, ['Finalizado', 'Faturado'])) : ?>
+                                            <td class="text-center"><?= dateInterval($result->ORV_DATA_FINAL, $result->ORV_GARANTIA) ?></td>
                                         <?php endif; ?>
                                     </tr>
                                 </tbody>
@@ -350,43 +350,43 @@
                         </div>
                     </div>
 
-                    <?php if ($result->descricaoProduto) : ?>
+                    <?php if ($result->ORV_DESCRICAO_PRODUTO) : ?>
                         <div class="subtitle">DESCRIÇÃO</div>
                         <div class="dados">
                             <div>
-                                <?= htmlspecialchars_decode($result->descricaoProduto) ?>
+                                <?= htmlspecialchars_decode($result->ORV_DESCRICAO_PRODUTO) ?>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($result->defeito) : ?>
+                    <?php if ($result->ORV_DEFEITO) : ?>
                         <div class="subtitle">DEFEITO APRESENTADO</div>
                         <div class="dados">
                             <div>
-                                <?= htmlspecialchars_decode($result->defeito) ?>
+                                <?= htmlspecialchars_decode($result->ORV_DEFEITO) ?>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($result->observacoes) : ?>
+                    <?php if ($result->ORV_OBSERVACOES) : ?>
                         <div class="subtitle">OBSERVAÇÕES</div>
                         <div class="dados">
                             <div>
-                                <?= htmlspecialchars_decode($result->observacoes) ?>
+                                <?= htmlspecialchars_decode($result->ORV_OBSERVACOES) ?>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($result->laudoTecnico) : ?>
+                    <?php if ($result->ORV_LAUDO_TECNICO) : ?>
                         <div class="subtitle">PARECER TÉCNICO</div>
                         <div class="dados">
                             <div>
-                                <?= htmlspecialchars_decode($result->laudoTecnico) ?>
+                                <?= htmlspecialchars_decode($result->ORV_LAUDO_TECNICO) ?>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                    <?php if ($result->garantias_id) : ?>
+                    <?php if ($result->ORV_GARANTIAS_ID) : ?>
                         <div class="subtitle">TERMO DE GARANTIA</div>
                         <div class="dados">
                             <div style="text-align: justify;"><?= htmlspecialchars_decode($result->textoGarantia) ?></div>
@@ -406,12 +406,12 @@
                                 </thead>
                                 <tbody>
                                     <?php foreach ($produtos as $p) :
-                                        $totalProdutos = $totalProdutos + $p->subTotal;
+                                        $totalProdutos = $totalProdutos + $p->PRO_OS_SUBTOTAL;
                                         echo '<tr>';
-                                        echo '  <td>' . $p->descricao . '</td>';
-                                        echo '  <td class="text-center">' . $p->quantidade . '</td>';
-                                        echo '  <td class="text-center">' . number_format($p->preco ?: $p->precoVenda, 2, ',', '.') . '</td>';
-                                        echo '  <td class="text-end">R$ ' . number_format($p->subTotal, 2, ',', '.') . '</td>';
+                                        echo '  <td>' . $p->PRO_OS_DESCRICAO . '</td>';
+                                        echo '  <td class="text-center">' . $p->PRO_OS_QUANTIDADE . '</td>';
+                                        echo '  <td class="text-center">' . number_format($p->PRO_OS_PRECO ?: $p->precoVenda, 2, ',', '.') . '</td>';
+                                        echo '  <td class="text-end">R$ ' . number_format($p->PRO_OS_SUBTOTAL, 2, ',', '.') . '</td>';
                                         echo '</tr>';
                                     endforeach; ?>
                                     <tr>
@@ -480,18 +480,18 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php if ($result->valor_desconto != 0) : ?>
+                                            <?php if ($result->ORV_VALOR_DESCONTO != 0) : ?>
                                                 <tr>
                                                     <td width="65%">SUBTOTAL</td>
                                                     <td>R$ <b><?= number_format($totalProdutos + $totalServico, 2, ',', '.') ?></b></td>
                                                 </tr>
                                                 <tr>
                                                     <td>DESCONTO</td>
-                                                    <td>R$ <b><?= number_format($result->valor_desconto != 0 ? $result->valor_desconto - ($totalProdutos + $totalServico) : 0.00, 2, ',', '.') ?></b></td>
+                                                    <td>R$ <b><?= number_format($result->ORV_VALOR_DESCONTO != 0 ? $result->ORV_VALOR_DESCONTO - ($totalProdutos + $totalServico) : 0.00, 2, ',', '.') ?></b></td>
                                                 </tr>
                                                 <tr>
                                                     <td>TOTAL</td>
-                                                    <td>R$ <?= number_format($result->valor_desconto, 2, ',', '.') ?></td>
+                                                    <td>R$ <?= number_format($result->ORV_VALOR_DESCONTO, 2, ',', '.') ?></td>
                                                 </tr>
                                             <?php else : ?>
                                                 <tr>
@@ -508,9 +508,9 @@
                 </section>
                 <footer>
                     <div class="detalhes">
-                        <span>Data inicial: <b><?= date('d/m/Y', strtotime($result->dataInicial)) ?></b></span>
-                        <span>ORDEM DE SERVIÇO <b>#<?= str_pad($result->idOs, 4, 0, STR_PAD_LEFT) ?></b></span>
-                        <span>Data final: <b><?= $result->dataFinal ? date('d/m/Y', strtotime($result->dataFinal)) : '' ?></b></span>
+                        <span>Data inicial: <b><?= date('d/m/Y', strtotime($result->ORV_DATA_INICIAL)) ?></b></span>
+                        <span>ORDEM DE SERVIÇO <b>#<?= str_pad($result->ORV_ID, 4, 0, STR_PAD_LEFT) ?></b></span>
+                        <span>Data final: <b><?= $result->ORV_DATA_FINAL ? date('d/m/Y', strtotime($result->ORV_DATA_FINAL)) : '' ?></b></span>
                     </div>
                     <div class="assinaturas">
                         <span>Assinatura do cliente</span>
@@ -550,7 +550,7 @@
                 </header>
                 <section>
                     <div class="title">
-                        ORDEM DE SERVIÇO #<?= str_pad($result->idOs, 4, 0, STR_PAD_LEFT) ?>
+                        ORDEM DE SERVIÇO #<?= str_pad($result->ORV_ID, 4, 0, STR_PAD_LEFT) ?>
                         <span class="emissao">Emissão: <?= date('d/m/Y') ?></span>
                     </div>
                     <div class="subtitle">ANEXO(S)</div>

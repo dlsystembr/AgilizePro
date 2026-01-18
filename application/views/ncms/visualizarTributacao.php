@@ -6,7 +6,7 @@
             <span class="icon">
                 <i class="fas fa-balance-scale"></i>
             </span>
-            <h5>NCM: <?php echo $ncm->ncm_codigo; ?> - <?php echo $ncm->ncm_descricao; ?></h5>
+            <h5>NCM: <?php echo $ncm->NCM_CODIGO; ?> - <?php echo $ncm->NCM_DESCRICAO; ?></h5>
         </div>
         <div class="widget-content nopadding">
             <?php if ($this->session->flashdata('success')) { ?>
@@ -157,7 +157,7 @@
                 <div class="span12" style="margin-left: 0; margin-top: 20px;">
                     <div class="span6 offset3" style="display:flex;justify-content: center">
                         <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNcm')) { ?>
-                            <a href="<?php echo base_url() ?>index.php/ncms/tributacao/<?php echo $ncm->ncm_id; ?>" class="button btn btn-warning">
+                            <a href="<?php echo base_url() ?>index.php/ncms/tributacao/<?php echo $ncm->NCM_ID; ?>" class="button btn btn-warning">
                                 <span class="button__icon"><i class="fas fa-edit"></i></span>
                                 <span class="button__text2">Editar</span>
                             </a>

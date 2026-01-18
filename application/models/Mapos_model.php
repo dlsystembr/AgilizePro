@@ -245,22 +245,17 @@ class Mapos_model extends CI_Model
     public function calendario($start, $end, $status = null)
     {
         $this->db->select(
-            'os.*,
-            pessoas.pes_nome as nomeCliente,
-            COALESCE((SELECT SUM(produtos_os.preco * produtos_os.quantidade ) FROM produtos_os WHERE produtos_os.os_id = os.idOs), 0) totalProdutos,
-            COALESCE((SELECT SUM(servicos_os.preco * servicos_os.quantidade ) FROM servicos_os WHERE servicos_os.os_id = os.idOs), 0) totalServicos'
+            'ordem_servico.*,
+            pessoas.pes_nome as nomeCliente'
         );
-        $this->db->from('os');
-        $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
-        $this->db->join('produtos_os', 'produtos_os.os_id = os.idOs', 'left');
-        $this->db->join('servicos_os', 'servicos_os.os_id = os.idOs', 'left');
-        $this->db->where('os.dataFinal >=', $start);
-        $this->db->where('os.dataFinal <=', $end);
-        $this->db->group_by('os.idOs');
+        $this->db->from('ordem_servico');
+        $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.ORV_PESS_ID');
+        $this->db->where('ordem_servico.ORV_DATA_FINAL >=', $start);
+        $this->db->where('ordem_servico.ORV_DATA_FINAL <=', $end);
+        $this->db->group_by('ordem_servico.ORV_ID');
 
         if (! empty($status)) {
-            $this->db->where('os.status', $status);
+            $this->db->where('ordem_servico.ORV_STATUS', $status);
         }
 
         return $this->db->get()->result();

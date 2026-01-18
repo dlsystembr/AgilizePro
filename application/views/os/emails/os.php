@@ -231,12 +231,12 @@ $totalProdutos = 0; ?>
                 </tr>
 
                 <?php foreach ($produtos as $p) {
-                    $totalProdutos = $totalProdutos + $p->subTotal;
+                    $totalProdutos = $totalProdutos + $p->PRO_OS_SUBTOTAL;
                     echo '<tr class="item">';
-                    echo '<td>' . $p->descricao . '</td>';
-                    echo '<td>' . $p->quantidade . '</td>';
-                    echo '<td>' . $p->preco ?: $p->precoVenda . '</td>';
-                    echo '<td style="text-align: center">R$ ' . number_format($p->subTotal, 2, ',', '.') . '</td>';
+                    echo '<td>' . $p->PRO_OS_DESCRICAO . '</td>';
+                    echo '<td>' . $p->PRO_OS_QUANTIDADE . '</td>';
+                    echo '<td>' . $p->PRO_OS_PRECO ?: $p->precoVenda . '</td>';
+                    echo '<td style="text-align: center">R$ ' . number_format($p->PRO_OS_SUBTOTAL, 2, ',', '.') . '</td>';
                     echo '</tr>';
                 } ?>
 
@@ -256,12 +256,12 @@ $totalProdutos = 0; ?>
                 </tr>
 
                 <?php foreach ($servicos as $s) {
-                    $preco = $s->preco ?: $s->precoVenda;
-                    $subtotal = $preco * ($s->quantidade ?: 1);
+                    $preco = $s->SOS_PRECO ?: $s->precoVenda;
+                    $subtotal = $preco * ($s->SOS_QUANTIDADE ?: 1);
                     $totalServico = $totalServico + $subtotal;
                     echo '<tr class="item">';
                     echo '<td>' . $s->nome . '</td>';
-                    echo '<td>' . ($s->quantidade ?: 1) . '</td>';
+                    echo '<td>' . ($s->SOS_QUANTIDADE ?: 1) . '</td>';
                     echo '<td>' . $preco . '</td>';
                     echo '<td>R$ ' . number_format($subtotal, 2, ',', '.') . '</td>';
                     echo '</tr>';

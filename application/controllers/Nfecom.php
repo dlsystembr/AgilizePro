@@ -1,6 +1,6 @@
 <?php
 
-if (! defined('BASEPATH')) {
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
@@ -12,6 +12,7 @@ class Nfecom extends MY_Controller
 
         $this->load->helper('form');
         $this->load->model('Nfecom_model');
+        $this->load->model('Nfe_model');
         $this->load->model('Clientes_model');
         $this->data['menuNfecom'] = 'NFECom';
     }
@@ -55,7 +56,7 @@ class Nfecom extends MY_Controller
 
         if (count($where_array) > 0) {
             $this->data['configuration']['suffix'] = "?pesquisa={$pesquisa}&status={$status}&data={$de}&data2={$ate}";
-            $this->data['configuration']['first_url'] = base_url("index.php/nfecom/gerenciar")."?pesquisa={$pesquisa}&status={$status}&data={$de}&data2={$ate}";
+            $this->data['configuration']['first_url'] = base_url("index.php/nfecom/gerenciar") . "?pesquisa={$pesquisa}&status={$status}&data={$de}&data2={$ate}";
         }
 
         $this->pagination->initialize($this->data['configuration']);
@@ -226,14 +227,22 @@ class Nfecom extends MY_Controller
                 if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
                     $quantidade = floatval($servico['quantidade']);
                     $valorUnitario = floatval($servico['valorUnitario']);
-                    $valorTotal = $quantidade * $valorUnitario;
-                    $totalValorBruto += $valorTotal;
+                    $valorDesconto = floatval($servico['valorDesconto'] ?? 0);
+                    $valorOutros = floatval($servico['valorOutros'] ?? 0);
 
-                        // Buscar nome do serviço
-                        $this->db->select('PRO_DESCRICAO as descricao');
-                        $this->db->from('produtos');
-                        $this->db->where($produtos_primary_key, $servico['id']);
-                        $servico_query = $this->db->get();
+                    // Valor Item = Quantidade × Valor Unitário
+                    $valorItem = $quantidade * $valorUnitario;
+
+                    // Valor Produto = Valor Item - Desconto + Outros
+                    $valorProduto = $valorItem - $valorDesconto + $valorOutros;
+
+                    $totalValorBruto += $valorProduto;
+
+                    // Buscar nome do serviço
+                    $this->db->select('PRO_DESCRICAO as descricao');
+                    $this->db->from('produtos');
+                    $this->db->where($produtos_primary_key, $servico['id']);
+                    $servico_query = $this->db->get();
                     $servico_info = $servico_query->row();
                     if ($servico_info) {
                         $nomesServicos[] = $servico_info->descricao . ' (Qtd: ' . $quantidade . ')';
@@ -261,12 +270,12 @@ class Nfecom extends MY_Controller
             $nomeServico = implode('; ', $nomesServicos);
 
             // Buscar dados completos do cliente incluindo endereço
-            $this->db->select('p.*, e.END_LOGRADOURO as logradouro, e.END_NUMERO as numero, e.END_COMPLEMENTO as complemento, e.END_CEP as cep, m.nome as municipio_nome, m.codigo_ibge, es.uf as estado_uf');
+            $this->db->select('p.*, e.END_LOGRADOURO as logradouro, e.END_NUMERO as numero, e.END_COMPLEMENTO as complemento, e.END_CEP as cep, m.MUN_NOME as municipio_nome, m.MUN_IBGE, es.EST_UF as estado_uf');
             $this->db->from('clientes c');
             $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID');
             $this->db->join('enderecos e', 'e.PES_ID = p.PES_ID AND e.END_PADRAO = 1', 'left'); // Endereço padrão
-            $this->db->join('municipios m', 'm.id = e.MUN_ID', 'left');
-            $this->db->join('estados es', 'es.id = e.EST_ID', 'left');
+            $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
+            $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
             $this->db->where('c.CLN_ID', $data['clientes_id']);
             $cliente_query = $this->db->get();
             $cliente = $cliente_query->row();
@@ -283,9 +292,20 @@ class Nfecom extends MY_Controller
                 $data['ufCliente'] = $cliente->estado_uf ?? '';
             }
 
+
+            // Carregar dados do emitente da tabela empresas
+            $emit = $this->Nfe_model->getEmit();
+
+            if (!$emit) {
+                $this->session->set_flashdata('error', 'Nenhuma empresa emitente configurada. Por favor, cadastre uma empresa.');
+                redirect(site_url('nfecom/adicionar'));
+            }
+
+            // ... busca de cliente ...
+
             // Dados da NFCom
             $nfecomData = [
-                'NFC_CUF' => $this->config->item('cod_uf'),
+                'NFC_CUF' => $emit['enderEmit']['UF'],
                 'NFC_TIPO_AMBIENTE' => $this->data['configuration']['ambiente'],
                 'NFC_MOD' => '62',
                 'NFC_SERIE' => $data['serie'],
@@ -294,24 +314,24 @@ class Nfecom extends MY_Controller
                 'NFC_DHEMI' => $data['dataEmissao'] . ' ' . date('H:i:s'),
                 'NFC_TP_EMIS' => 1,
                 'NFC_N_SITE_AUTORIZ' => 0,
-                'NFC_C_MUN_FG' => $this->config->item('cod_mun'),
+                'NFC_C_MUN_FG' => $emit['enderEmit']['cMun'],
                 'NFC_FIN_NFCOM' => 0,
                 'NFC_TP_FAT' => 0,
                 'NFC_VER_PROC' => '1.0.0',
-                'NFC_CNPJ_EMIT' => $this->config->item('cnpj'),
-                'NFC_IE_EMIT' => $this->config->item('ie'),
-                'NFC_CRT_EMIT' => 3,
-                'NFC_X_NOME_EMIT' => $this->config->item('nome'),
-                'NFC_X_FANT_EMIT' => $this->config->item('nome_fantasia'),
-                'NFC_X_LGR_EMIT' => $this->config->item('logradouro'),
-                'NFC_NRO_EMIT' => $this->config->item('numero'),
-                'NFC_X_CPL_EMIT' => $this->config->item('complemento'),
-                'NFC_X_BAIRRO_EMIT' => $this->config->item('bairro'),
-                'NFC_C_MUN_EMIT' => $this->config->item('cod_mun'),
-                'NFC_X_MUN_EMIT' => $this->config->item('municipio'),
-                'NFC_CEP_EMIT' => $this->config->item('cep'),
-                'NFC_UF_EMIT' => $this->config->item('uf'),
-                'NFC_FONE_EMIT' => $this->config->item('telefone'),
+                'NFC_CNPJ_EMIT' => $emit['CNPJ'],
+                'NFC_IE_EMIT' => $emit['IE'],
+                'NFC_CRT_EMIT' => $emit['CRT'],
+                'NFC_X_NOME_EMIT' => $emit['xNome'],
+                'NFC_X_FANT_EMIT' => $emit['xNome'], // Assumindo nome fantasia = nome
+                'NFC_X_LGR_EMIT' => $emit['enderEmit']['xLgr'],
+                'NFC_NRO_EMIT' => $emit['enderEmit']['nro'],
+                'NFC_X_CPL_EMIT' => $emit['enderEmit']['xCpl'],
+                'NFC_X_BAIRRO_EMIT' => $emit['enderEmit']['xBairro'],
+                'NFC_C_MUN_EMIT' => $emit['enderEmit']['cMun'],
+                'NFC_X_MUN_EMIT' => $emit['enderEmit']['xMun'],
+                'NFC_CEP_EMIT' => $emit['enderEmit']['CEP'],
+                'NFC_UF_EMIT' => $emit['enderEmit']['UF'],
+                'NFC_FONE_EMIT' => $emit['enderEmit']['fone'],
                 'NFC_X_NOME_DEST' => $data['nomeCliente'],
                 'NFC_CNPJ_DEST' => $data['cnpjCliente'],
                 'NFC_IND_IE_DEST' => 9,
@@ -364,7 +384,16 @@ class Nfecom extends MY_Controller
                     if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
                         $quantidade = floatval($servico['quantidade']);
                         $valorUnitario = floatval($servico['valorUnitario']);
-                        $valorTotal = $quantidade * $valorUnitario;
+                        $valorDesconto = floatval($servico['valorDesconto'] ?? 0);
+                        $valorOutros = floatval($servico['valorOutros'] ?? 0);
+                        $cfop = $servico['cfop'] ?? '5307';
+                        $unidade = $servico['unidade'] ?? '4';
+
+                        // Valor Item = Quantidade × Valor Unitário
+                        $valorItem = $quantidade * $valorUnitario;
+
+                        // Valor Produto = Valor Item - Desconto + Outros
+                        $valorProduto = $valorItem - $valorDesconto + $valorOutros;
 
                         // Buscar nome do serviço
                         $this->db->select('PRO_DESCRICAO as descricao');
@@ -375,7 +404,7 @@ class Nfecom extends MY_Controller
                         $nomeServicoItem = $servico_info ? $servico_info->descricao : 'Serviço não encontrado';
 
                         // Calcular tributos proporcionais para este item
-                        $proporcao = $valorTotal / $valorBruto;
+                        $proporcao = $valorProduto / $valorBruto;
                         $pisItem = $pis * $proporcao;
                         $cofinsItem = $cofins * $proporcao;
                         $irrfItem = $irrf * $proporcao;
@@ -386,20 +415,20 @@ class Nfecom extends MY_Controller
                             'NFI_C_PROD' => $servico['id'],
                             'NFI_X_PROD' => $nomeServicoItem . ' - Qtd: ' . $quantidade . ' - ' . $data['observacoes'],
                             'NFI_C_CLASS' => '0600402',
-                            'NFI_CFOP' => '5307',
-                            'NFI_U_MED' => '4',
+                            'NFI_CFOP' => $cfop,
+                            'NFI_U_MED' => $unidade,
                             'NFI_Q_FATURADA' => $quantidade,
-                            'NFI_V_ITEM' => $valorTotal,
-                            'NFI_V_DESC' => 0.00,
-                            'NFI_V_OUTRO' => 0.00,
-                            'NFI_V_PROD' => $valorTotal,
+                            'NFI_V_ITEM' => $valorItem,
+                            'NFI_V_DESC' => $valorDesconto,
+                            'NFI_V_OUTRO' => $valorOutros,
+                            'NFI_V_PROD' => $valorProduto,
                             'NFI_CST_ICMS' => '41',
                             'NFI_CST_PIS' => '01',
-                            'NFI_V_BC_PIS' => $valorTotal,
+                            'NFI_V_BC_PIS' => $valorProduto,
                             'NFI_P_PIS' => 0.65,
                             'NFI_V_PIS' => $pisItem,
                             'NFI_CST_COFINS' => '01',
-                            'NFI_V_BC_COFINS' => $valorTotal,
+                            'NFI_V_BC_COFINS' => $valorProduto,
                             'NFI_P_COFINS' => 3.00,
                             'NFI_V_COFINS' => $cofinsItem,
                             'NFI_V_BC_FUST' => 0.00,
@@ -408,7 +437,7 @@ class Nfecom extends MY_Controller
                             'NFI_V_BC_FUNTEL' => 0.00,
                             'NFI_P_FUNTEL' => 0.00,
                             'NFI_V_FUNTEL' => 0.00,
-                            'NFI_V_BC_IRRF' => $valorTotal,
+                            'NFI_V_BC_IRRF' => $valorProduto,
                             'NFI_V_IRRF' => $irrfItem,
                             'NFI_DATA_CADASTRO' => date('Y-m-d H:i:s'),
                             'NFI_DATA_ATUALIZACAO' => date('Y-m-d H:i:s')
@@ -534,11 +563,171 @@ class Nfecom extends MY_Controller
             redirect(site_url('nfecom'));
         }
 
-        // Gerar DANFE (por enquanto apenas mostrar dados)
-        $this->data['nfecom'] = $nfecom;
-        $this->data['itens'] = $itens;
-        $this->data['view'] = 'nfecom/danfe';
-        return $this->layout();
+        // Carregar a classe NFComPreview
+        require_once APPPATH . 'libraries/NFComPreview.php';
+
+        // Buscar dados da empresa emitente
+        $emit = $this->Nfe_model->getEmit();
+
+        if (!$emit) {
+            $this->session->set_flashdata('error', 'Nenhuma empresa emitente configurada.');
+            redirect(site_url('nfecom'));
+        }
+
+        // Configuração para a classe NFComPreview
+        $config = [
+            'empresa' => [
+                'razao_social' => $emit['xNome'],
+                'cnpj' => $emit['CNPJ'],
+                'ie' => $emit['IE'],
+                'logo' => !empty($emit['url_logo']) ? str_replace('/', DIRECTORY_SEPARATOR, FCPATH . $emit['url_logo']) : null,
+                'endereco' => [
+                    'logradouro' => $emit['enderEmit']['xLgr'],
+                    'numero' => $emit['enderEmit']['nro'],
+                    'complemento' => $emit['enderEmit']['xCpl'] ?? '',
+                    'bairro' => $emit['enderEmit']['xBairro'],
+                    'municipio' => $emit['enderEmit']['xMun'],
+                    'uf' => $emit['enderEmit']['UF'],
+                    'cep' => $emit['enderEmit']['CEP']
+                ]
+            ],
+            'debug_logo' => [
+                'url_logo_db' => $emit['url_logo'] ?? 'NULL',
+                'caminho_completo' => !empty($emit['url_logo']) ? FCPATH . $emit['url_logo'] : 'NULL',
+                'arquivo_existe' => !empty($emit['url_logo']) && file_exists(FCPATH . $emit['url_logo']) ? 'SIM' : 'NÃO'
+            ],
+            'serie' => $nfecom->NFC_SERIE,
+            'numero_inicial' => $nfecom->NFC_NNF,
+            'nSiteAutoriz' => $nfecom->NFC_N_SITE_AUTORIZ,
+            'classe' => '0101011',
+            'diretorios' => [
+                'temp' => FCPATH . 'assets/temp'
+            ]
+        ];
+
+        // Preparar dados do destinatário
+        $destinatario = [
+            'nome' => $nfecom->NFC_X_NOME_DEST,
+            'cnpj' => $nfecom->NFC_CNPJ_DEST ?? '',
+            'cpf' => '',
+            'ie' => '',
+            'endereco' => [
+                'logradouro' => $nfecom->NFC_X_LGR_DEST ?? '',
+                'numero' => $nfecom->NFC_NRO_DEST ?? '',
+                'bairro' => $nfecom->NFC_X_BAIRRO_DEST ?? '',
+                'municipio' => $nfecom->NFC_X_MUN_DEST ?? '',
+                'uf' => $nfecom->NFC_UF_DEST ?? '',
+                'cep' => $nfecom->NFC_CEP_DEST ?? '',
+                'telefone' => ''
+            ]
+        ];
+
+        // Preparar dados do assinante
+        $assinante = [
+            'iCodAssinante' => $nfecom->NFC_I_COD_ASSINANTE ?? '',
+            'numero_contrato' => $nfecom->NFC_N_CONTRATO ?? '',
+            'identificador_debito' => ''
+        ];
+
+        // Preparar dados de faturamento
+        $faturamento = [
+            'competencia' => $nfecom->NFC_COMPET_FAT ?? date('Y-m'),
+            'periodo_inicio' => date('d/m/Y', strtotime($nfecom->NFC_D_PER_USO_INI)),
+            'periodo_fim' => date('d/m/Y', strtotime($nfecom->NFC_D_PER_USO_FIM)),
+            'vencimento' => date('d/m/Y', strtotime($nfecom->NFC_D_VENC_FAT)),
+            'linha_digitavel' => $nfecom->NFC_COD_BARRAS ?? '',
+            'cod_barras' => $nfecom->NFC_COD_BARRAS ?? ''
+        ];
+
+        // Preparar itens
+        $itensFormatados = [];
+        foreach ($itens as $item) {
+            $itensFormatados[] = [
+                'descricao' => $item->NFI_X_PROD,
+                'cclass' => $item->NFI_C_CLASS,
+                'unidade' => $item->NFI_U_MED,
+                'quantidade' => $item->NFI_Q_FATURADA,
+                'valor_unitario' => $item->NFI_V_ITEM / $item->NFI_Q_FATURADA,
+                'valor_total' => $item->NFI_V_PROD,
+                'desconto' => $item->NFI_V_DESC,
+                'outros' => $item->NFI_V_OUTRO,
+                'base_calculo' => $item->NFI_V_BC_PIS,
+                'aliquota_icms' => 0,
+                'valor_icms' => 0,
+                'pis' => [
+                    'valor' => $item->NFI_V_PIS
+                ],
+                'cofins' => [
+                    'valor' => $item->NFI_V_COFINS
+                ]
+            ];
+        }
+
+        // Preparar totais
+        $totais = [
+            'valor_total' => $nfecom->NFC_V_NF,
+            'valor_base_calculo' => $nfecom->NFC_V_PROD,
+            'valor_produtos' => $nfecom->NFC_V_PROD,
+            'valor_icms' => 0,
+            'valor_isento' => 0,
+            'valor_outros' => $nfecom->NFC_V_OUTRO,
+            'valor_pis' => $nfecom->NFC_V_PIS,
+            'valor_cofins' => $nfecom->NFC_V_COFINS,
+            'valor_fust' => $nfecom->NFC_V_FUST,
+            'valor_funtel' => $nfecom->NFC_V_FUNTEL
+        ];
+
+        // Preparar dados completos
+        $dados = [
+            'numero' => $nfecom->NFC_NNF,
+            'destinatario' => $destinatario,
+            'assinante' => $assinante,
+            'faturamento' => $faturamento,
+            'itens' => $itensFormatados,
+            'totais' => $totais,
+            'informacoes_adicionais' => $nfecom->NFC_INF_CPL ?? ''
+        ];
+
+        try {
+            // Gerar PDF
+            $nfcomPreview = new \App\NFComPreview($config);
+            $resultado = $nfcomPreview->gerarPdf($dados);
+
+            // Verificar se o PDF foi gerado
+            if (empty($resultado['pdf'])) {
+                throw new Exception('PDF vazio gerado');
+            }
+
+            // Limpar qualquer output anterior
+            if (ob_get_length()) {
+                ob_clean();
+            }
+
+            // Enviar PDF para o navegador
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="danfe_nfcom_' . $nfecom->NFC_NNF . '.pdf"');
+            header('Content-Length: ' . strlen($resultado['pdf']));
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+
+            echo $resultado['pdf'];
+            exit;
+        } catch (Exception $e) {
+            // Log do erro
+            log_message('error', 'Erro ao gerar DANFE NFCom: ' . $e->getMessage() . ' - ' . $e->getTraceAsString());
+
+            // Exibir erro detalhado em desenvolvimento
+            if (ENVIRONMENT === 'development') {
+                echo '<h1>Erro ao gerar DANFE</h1>';
+                echo '<p><strong>Mensagem:</strong> ' . $e->getMessage() . '</p>';
+                echo '<p><strong>Arquivo:</strong> ' . $e->getFile() . ':' . $e->getLine() . '</p>';
+                echo '<pre>' . $e->getTraceAsString() . '</pre>';
+                exit;
+            }
+
+            $this->session->set_flashdata('error', 'Erro ao gerar DANFE: ' . $e->getMessage());
+            redirect(site_url('nfecom/visualizar/' . $id));
+        }
     }
 
     public function autorizar()
@@ -574,14 +763,21 @@ class Nfecom extends MY_Controller
 
     private function buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido)
     {
-        $info = "VEICULAÇÃO COMERCIAL NA RÁDIO " . strtoupper($this->config->item('nome_fantasia')) . ", " .
-                strtoupper($this->config->item('municipio')) . "-" . $this->config->item('uf') . ", " .
-                "DA CAMPANHA " . $data['observacoes'] . ", " .
-                "VALOR BRUTO: R$ " . number_format($valorBruto, 2, ',', '.') . "\n" .
-                "COMISSÃO AGÊNCIA: R$ " . number_format($comissaoAgencia, 2, ',', '.') . "\n" .
-                "VALOR LÍQUIDO: R$ " . number_format($valorLiquido, 2, ',', '.') . "\n" .
-                "DADOS BANCÁRIOS " . $data['dadosBancarios'] . "\n" .
-                "Não tributação de ICMS conforme art. 155, §2º, X, 'd' da CRFB/1988. Imunidade de IBS/CBS conforme Artigo 9º, inciso VI da Lei Complementar nº 214/2025.";
+        $emit = $this->Nfe_model->getEmit();
+
+        if (!$emit) {
+            // Tratar erro ou retornar string padrão, dependendo da necessidade
+            return "Erro: Dados do emitente não configurados.";
+        }
+
+        $info = "VEICULAÇÃO COMERCIAL NA RÁDIO " . strtoupper($emit['xNome']) . ", " .
+            strtoupper($emit['enderEmit']['xMun']) . "-" . $emit['enderEmit']['UF'] . ", " .
+            "DA CAMPANHA " . $data['observacoes'] . ", " .
+            "VALOR BRUTO: R$ " . number_format($valorBruto, 2, ',', '.') . "\n" .
+            "COMISSÃO AGÊNCIA: R$ " . number_format($comissaoAgencia, 2, ',', '.') . "\n" .
+            "VALOR LÍQUIDO: R$ " . number_format($valorLiquido, 2, ',', '.') . "\n" .
+            "DADOS BANCÁRIOS " . $data['dadosBancarios'] . "\n" .
+            "Não tributação de ICMS conforme art. 155, §2º, X, 'd' da CRFB/1988. Imunidade de IBS/CBS conforme Artigo 9º, inciso VI da Lei Complementar nº 214/2025.";
 
         return $info;
     }
@@ -591,9 +787,9 @@ class Nfecom extends MY_Controller
         // Implementação simplificada do cálculo do DV
         // Em produção, deve seguir as regras oficiais da SEFAZ
         $chave = $data['NFC_CUF'] . date('ym', strtotime($data['NFC_DHEMI'])) .
-                $data['NFC_CNPJ_EMIT'] . $data['NFC_MOD'] . $data['NFC_SERIE'] .
-                str_pad($data['NFC_NNF'], 9, '0', STR_PAD_LEFT) .
-                $data['NFC_TP_EMIS'] . $data['NFC_CNF'];
+            $data['NFC_CNPJ_EMIT'] . $data['NFC_MOD'] . $data['NFC_SERIE'] .
+            str_pad($data['NFC_NNF'], 9, '0', STR_PAD_LEFT) .
+            $data['NFC_TP_EMIS'] . $data['NFC_CNF'];
 
         // Cálculo simples para exemplo
         $soma = 0;
@@ -608,14 +804,14 @@ class Nfecom extends MY_Controller
     {
         // Gerar chave da NFCom
         $chave = $data['NFC_CUF'] .
-                date('ym', strtotime($data['NFC_DHEMI'])) .
-                $data['NFC_CNPJ_EMIT'] .
-                $data['NFC_MOD'] .
-                str_pad($data['NFC_SERIE'], 3, '0', STR_PAD_LEFT) .
-                str_pad($data['NFC_NNF'], 9, '0', STR_PAD_LEFT) .
-                $data['NFC_TP_EMIS'] .
-                str_pad($data['NFC_CNF'], 8, '0', STR_PAD_LEFT) .
-                $data['NFC_CDV'];
+            date('ym', strtotime($data['NFC_DHEMI'])) .
+            $data['NFC_CNPJ_EMIT'] .
+            $data['NFC_MOD'] .
+            str_pad($data['NFC_SERIE'], 3, '0', STR_PAD_LEFT) .
+            str_pad($data['NFC_NNF'], 9, '0', STR_PAD_LEFT) .
+            $data['NFC_TP_EMIS'] .
+            str_pad($data['NFC_CNF'], 8, '0', STR_PAD_LEFT) .
+            $data['NFC_CDV'];
 
         return $chave;
     }
@@ -774,12 +970,12 @@ class Nfecom extends MY_Controller
             return;
         }
 
-        $this->db->select('p.*, e.END_LOGRADOURO as logradouro, e.END_NUMERO as numero, e.END_COMPLEMENTO as complemento, e.END_CEP as cep, m.nome as municipio_nome, m.codigo_ibge, es.uf as estado_uf');
+        $this->db->select('p.*, e.END_LOGRADOURO as logradouro, e.END_NUMERO as numero, e.END_COMPLEMENTO as complemento, e.END_CEP as cep, m.MUN_NOME as municipio_nome, m.MUN_IBGE, es.EST_UF as estado_uf');
         $this->db->from('clientes c');
         $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID');
         $this->db->join('enderecos e', 'e.PES_ID = p.PES_ID AND e.END_PADRAO = 1', 'left'); // Endereço padrão
-        $this->db->join('municipios m', 'm.id = e.MUN_ID', 'left');
-        $this->db->join('estados es', 'es.id = e.EST_ID', 'left');
+        $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
+        $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
         $this->db->where('c.CLN_ID', $id);
         $query = $this->db->get();
 

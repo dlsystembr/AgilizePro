@@ -4,7 +4,7 @@
     <div class="span12">
         <div class="widget-box">
             <div class="widget-title" style="margin: -20px 0 0 0;padding: 10px;">
-                <h5>NCM: <?php echo $ncm->ncm_codigo; ?> - <?php echo $ncm->ncm_descricao; ?></h5>
+                <h5>NCM: <?php echo $ncm->NCM_CODIGO; ?> - <?php echo $ncm->NCM_DESCRICAO; ?></h5>
             </div>
             <div class="widget-content">
                 <div class="widget-content" style="padding: 15px;">
@@ -84,7 +84,7 @@
 
                     <div class="span12" style="margin-left: 0; margin-top: 20px;">
                         <div class="span6 offset3" style="display:flex;justify-content: center">
-                            <a href="<?php echo base_url() ?>index.php/ncms/tributacao/<?php echo $ncm->ncm_id; ?>" class="button btn btn-success">
+                            <a href="<?php echo base_url() ?>index.php/ncms/tributacao/<?php echo $ncm->NCM_ID; ?>" class="button btn btn-success">
                                 <span class="button__icon"><i class="fas fa-edit"></i></span>
                                 <span class="button__text2">Editar Configurações</span>
                             </a>

@@ -11,12 +11,11 @@ class Os_model extends CI_Model
 
     public function get($table, $fields, $where = '', $perpage = 0, $start = 0, $one = false, $array = 'array')
     {
-        $this->db->select($fields . ',pessoas.pes_nome as nomeCliente, pessoas.pes_celular as celular_cliente');
+        $this->db->select($fields . ',pessoas.pes_nome as nomeCliente');
         $this->db->from($table);
-        $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
+        $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.ORV_PESS_ID');
         $this->db->limit($perpage, $start);
-        $this->db->order_by('idOs', 'desc');
+        $this->db->order_by('ORV_ID', 'desc');
         if ($where) {
             $this->db->where($where);
         }
@@ -36,8 +35,6 @@ class Os_model extends CI_Model
                 $this->db->select('pes_id');
                 $this->db->like('pes_nome', $where['pesquisa']);
                 $this->db->or_like('pes_cpf_cnpj', $where['pesquisa']);
-                $this->db->or_like('pes_telefone', $where['pesquisa']);
-                $this->db->or_like('pes_celular', $where['pesquisa']);
                 $this->db->limit(25);
                 $pessoas = $this->db->get('pessoas')->result();
 
@@ -47,7 +44,7 @@ class Os_model extends CI_Model
             }
         }
 
-        $this->db->select($fields . ',pessoas.pes_id as idClientes, pessoas.pes_nome as nomeCliente, pessoas.pes_celular as celular_cliente, usuarios.nome, garantias.*');
+        $this->db->select($fields . ',pessoas.pes_id as idClientes, pessoas.pes_nome as nomeCliente, usuarios.nome, garantias.*');
         $this->db->from($table);
         $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.ORV_PESS_ID');
         $this->db->join('usuarios', 'usuarios.idUsuarios = ordem_servico.ORV_USUARIOS_ID');
@@ -91,11 +88,39 @@ class Os_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->select('ordem_servico.*, pessoas.*, pessoas.pes_celular as celular_cliente, pessoas.pes_telefone as telefone_cliente, pessoas.pes_contato as contato_cliente, garantias.refGarantia, garantias.textoGarantia, usuarios.telefone as telefone_usuario, usuarios.email as email_usuario, usuarios.nome');
+        $this->db->select('ordem_servico.*, 
+            pessoas.PES_NOME as nomeCliente, 
+            pessoas.PES_ID as idClientes,
+            pessoas.PES_CPFCNPJ as documento,
+            pessoas.PES_OBSERVACAO as contato_cliente,
+            garantias.refGarantia, 
+            garantias.textoGarantia, 
+            usuarios.telefone as telefone_usuario, 
+            usuarios.email as email_usuario, 
+            usuarios.nome, 
+            usuarios.idUsuarios as usuarios_id, 
+            telefones_celular.TEL_NUMERO as celular_cliente,
+            telefones_celular.TEL_NUMERO as celular,
+            telefones_residencial.TEL_NUMERO as telefone,
+            telefones_residencial.TEL_NUMERO as telefone_cliente,
+            (SELECT EML_EMAIL FROM emails WHERE PES_ID = pessoas.PES_ID AND EML_TIPO = "Geral" LIMIT 1) as email,
+            enderecos.END_LOGRADOURO as rua,
+            enderecos.END_NUMERO as numero,
+            enderecos.END_COMPLEMENTO as complemento,
+            enderecos.END_CEP as cep,
+            bairros.BAI_NOME as bairro,
+            municipios.MUN_NOME as cidade,
+            estados.EST_UF as estado');
         $this->db->from('ordem_servico');
-        $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.ORV_PESS_ID');
+        $this->db->join('pessoas', 'pessoas.PES_ID = ordem_servico.ORV_PESS_ID');
         $this->db->join('usuarios', 'usuarios.idUsuarios = ordem_servico.ORV_USUARIOS_ID');
         $this->db->join('garantias', 'garantias.idGarantias = ordem_servico.ORV_GARANTIAS_ID', 'left');
+        $this->db->join('telefones as telefones_celular', 'telefones_celular.PES_ID = pessoas.PES_ID AND telefones_celular.TEL_TIPO = "Celular"', 'left');
+        $this->db->join('telefones as telefones_residencial', 'telefones_residencial.PES_ID = pessoas.PES_ID AND telefones_residencial.TEL_TIPO = "Residencial"', 'left');
+        $this->db->join('enderecos', 'enderecos.PES_ID = pessoas.PES_ID AND enderecos.END_PADRAO = 1', 'left');
+        $this->db->join('bairros', 'bairros.BAI_ID = enderecos.BAI_ID', 'left');
+        $this->db->join('municipios', 'municipios.MUN_ID = enderecos.MUN_ID', 'left');
+        $this->db->join('estados', 'estados.EST_ID = enderecos.EST_ID', 'left');
         $this->db->where('ordem_servico.ORV_ID', $id);
         $this->db->limit(1);
 
@@ -104,12 +129,43 @@ class Os_model extends CI_Model
 
     public function getByIdCobrancas($id)
     {
-        $this->db->select('ordem_servico.*, pessoas.*, pessoas.pes_celular as celular_cliente, garantias.refGarantia, garantias.textoGarantia, usuarios.telefone as telefone_usuario, usuarios.email as email_usuario, usuarios.nome,cobrancas.os_id,cobrancas.idCobranca,cobrancas.status');
+        $this->db->select('ordem_servico.*, 
+            pessoas.PES_NOME as nomeCliente, 
+            pessoas.PES_ID as idClientes,
+            pessoas.PES_CPFCNPJ as documento,
+            pessoas.PES_OBSERVACAO as contato_cliente,
+            garantias.refGarantia, 
+            garantias.textoGarantia, 
+            usuarios.telefone as telefone_usuario, 
+            usuarios.email as email_usuario, 
+            usuarios.nome, 
+            usuarios.idUsuarios as usuarios_id, 
+            cobrancas.os_id, 
+            cobrancas.idCobranca, 
+            cobrancas.status, 
+            telefones_celular.TEL_NUMERO as celular_cliente,
+            telefones_celular.TEL_NUMERO as celular,
+            telefones_residencial.TEL_NUMERO as telefone,
+            telefones_residencial.TEL_NUMERO as telefone_cliente,
+            (SELECT EML_EMAIL FROM emails WHERE PES_ID = pessoas.PES_ID AND EML_TIPO = "Geral" LIMIT 1) as email,
+            enderecos.END_LOGRADOURO as rua,
+            enderecos.END_NUMERO as numero,
+            enderecos.END_COMPLEMENTO as complemento,
+            enderecos.END_CEP as cep,
+            bairros.BAI_NOME as bairro,
+            municipios.MUN_NOME as cidade,
+            estados.EST_UF as estado');
         $this->db->from('ordem_servico');
-        $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.ORV_PESS_ID');
+        $this->db->join('pessoas', 'pessoas.PES_ID = ordem_servico.ORV_PESS_ID');
         $this->db->join('usuarios', 'usuarios.idUsuarios = ordem_servico.ORV_USUARIOS_ID');
         $this->db->join('cobrancas', 'cobrancas.os_id = ordem_servico.ORV_ID');
         $this->db->join('garantias', 'garantias.idGarantias = ordem_servico.ORV_GARANTIAS_ID', 'left');
+        $this->db->join('telefones as telefones_celular', 'telefones_celular.PES_ID = pessoas.PES_ID AND telefones_celular.TEL_TIPO = "Celular"', 'left');
+        $this->db->join('telefones as telefones_residencial', 'telefones_residencial.PES_ID = pessoas.PES_ID AND telefones_residencial.TEL_TIPO = "Residencial"', 'left');
+        $this->db->join('enderecos', 'enderecos.PES_ID = pessoas.PES_ID AND enderecos.END_PADRAO = 1', 'left');
+        $this->db->join('bairros', 'bairros.BAI_ID = enderecos.BAI_ID', 'left');
+        $this->db->join('municipios', 'municipios.MUN_ID = enderecos.MUN_ID', 'left');
+        $this->db->join('estados', 'estados.EST_ID = enderecos.EST_ID', 'left');
         $this->db->where('ordem_servico.ORV_ID', $id);
         $this->db->limit(1);
 
@@ -120,7 +176,7 @@ class Os_model extends CI_Model
     {
         $this->db->select('produtos_os.*, produtos.*');
         $this->db->from('produtos_os');
-        $this->db->join('produtos', 'produtos.idProdutos = produtos_os.produtos_id');
+        $this->db->join('produtos', 'produtos.PRO_ID = produtos_os.PRO_ID');
         $this->db->where('os_id', $id);
 
         return $this->db->get()->result();
@@ -128,9 +184,9 @@ class Os_model extends CI_Model
 
     public function getServicos($id = null)
     {
-        $this->db->select('servicos_os.*, servicos.nome, servicos.preco as precoVenda');
+        $this->db->select('servicos_os.*, servicos.SRV_NOME as nome, servicos.SRV_PRECO as precoVenda');
         $this->db->from('servicos_os');
-        $this->db->join('servicos', 'servicos.idServicos = servicos_os.servicos_id');
+        $this->db->join('servicos', 'servicos.SRV_ID = servicos_os.PRO_ID');
         $this->db->where('os_id', $id);
 
         return $this->db->get()->result();
@@ -324,17 +380,17 @@ class Os_model extends CI_Model
         $valorDesconto = 0;
         if ($servicos = $this->getServicos($id)) {
             foreach ($servicos as $s) {
-                $preco = $s->preco ?: $s->precoVenda;
-                $totalServico = $totalServico + ($preco * ($s->quantidade ?: 1));
+                $preco = $s->SOS_PRECO ?: $s->precoVenda;
+                $totalServico = $totalServico + ($preco * ($s->SOS_QUANTIDADE ?: 1));
             }
         }
         if ($produtos = $this->getProdutos($id)) {
             foreach ($produtos as $p) {
-                $totalProdutos = $totalProdutos + $p->subTotal;
+                $totalProdutos = $totalProdutos + $p->PRO_OS_SUBTOTAL;
             }
         }
         if ($valorDescontoBD = $this->getById($id)) {
-            $valorDesconto = $valorDescontoBD->valor_desconto;
+            $valorDesconto = $valorDescontoBD->ORV_VALOR_DESCONTO;
         }
 
         return ['totalServico' => $totalServico, 'totalProdutos' => $totalProdutos, 'valor_desconto' => $valorDesconto];
@@ -346,7 +402,7 @@ class Os_model extends CI_Model
             return false;
         }
         if ($os = $this->getById($id)) {
-            $osT = (int) ($os->status === 'Faturado' || $os->status === 'Cancelado' || $os->faturado == 1);
+            $osT = (int) ($os->ORV_STATUS === 'Faturado' || $os->ORV_STATUS === 'Cancelado' || $os->ORV_FATURADO == 1);
             if ($osT) {
                 return $this->data['configuration']['control_editos'] == '1';
             }

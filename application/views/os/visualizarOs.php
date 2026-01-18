@@ -5,7 +5,7 @@
             <div class="widget-title" style="margin: 10px 0 0">
                 <div class="buttons">
                     <?php if ($editavel) {
-                        echo '<a title="Editar OS" class="button btn btn-mini btn-success" href="' . base_url() . 'index.php/os/editar/' . $result->idOs . '">
+                        echo '<a title="Editar OS" class="button btn btn-mini btn-success" href="' . base_url() . 'index.php/os/editar/' . $result->ORV_ID . '">
                             <span class="button__icon"><i class="bx bx-edit"></i> </span> <span class="button__text">Editar</span>
                         </a>';
                     } ?>
@@ -13,14 +13,14 @@
                     <div class="button-container">
                         <a target="_blank" title="Imprimir Ordem de Serviço" class="button btn btn-mini btn-inverse"> <span class="button__icon"><i class="bx bx-printer"></i></span><span class="button__text">Imprimir</span></a>
                         <div class="cascading-buttons">
-                            <a target="_blank" title="Impressão em Papel A4" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/os/imprimir/<?php echo $result->idOs; ?>">
+                            <a target="_blank" title="Impressão em Papel A4" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/os/imprimir/<?php echo $result->ORV_ID; ?>">
                                 <span class="button__icon"><i class='bx bx-file'></i></span> <span class="button__text">Papel A4</span>
                             </a>
-                            <a target="_blank" title="Impressão Cupom Não Fical" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/os/imprimirTermica/<?php echo $result->idOs; ?>">
+                            <a target="_blank" title="Impressão Cupom Não Fical" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/os/imprimirTermica/<?php echo $result->ORV_ID; ?>">
                                 <span class="button__icon"><i class='bx bx-receipt'></i></span> <span class="button__text">Cupom 80mm</span>
                             </a>
-                            <?php if ($result->garantias_id) { ?>
-                                <a target="_blank" title="Imprimir Termo de Garantia" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/garantias/imprimirGarantiaOs/<?php echo $result->garantias_id; ?>">
+                            <?php if ($result->ORV_GARANTIAS_ID) { ?>
+                                <a target="_blank" title="Imprimir Termo de Garantia" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/garantias/imprimirGarantiaOs/<?php echo $result->ORV_GARANTIAS_ID; ?>">
                                     <span class="button__icon"><i class="bx bx-paperclip"></i></span> <span class="button__text">Termo Garantia</span>
                                 </a>
                             <?php } ?>
@@ -30,7 +30,7 @@
                     <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) {
                         $this->load->model('os_model');
                         $zapnumber = preg_replace("/[^0-9]/", "", $result->celular_cliente);
-                        $troca = [$result->nomeCliente, $result->idOs, $result->status, 'R$ ' . ($result->desconto != 0 && $result->valor_desconto != 0 ? number_format($result->valor_desconto, 2, ',', '.') : number_format($totalProdutos + $totalServico, 2, ',', '.')), strip_tags($result->descricaoProduto), ($emitente ? $emitente->nome : ''), ($emitente ? $emitente->telefone : ''), strip_tags($result->observacoes), strip_tags($result->defeito), strip_tags($result->laudoTecnico), date('d/m/Y', strtotime($result->dataFinal)), date('d/m/Y', strtotime($result->dataInicial)), $result->garantia . ' dias'];
+                        $troca = [$result->nomeCliente, $result->ORV_ID, $result->ORV_STATUS, 'R$ ' . ($result->ORV_DESCONTO != 0 && $result->ORV_VALOR_DESCONTO != 0 ? number_format($result->ORV_VALOR_DESCONTO, 2, ',', '.') : number_format($totalProdutos + $totalServico, 2, ',', '.')), strip_tags($result->ORV_DESCRICAO_PRODUTO), ($emitente ? $emitente->nome : ''), ($emitente ? $emitente->telefone : ''), strip_tags($result->ORV_OBSERVACOES), strip_tags($result->ORV_DEFEITO), strip_tags($result->ORV_LAUDO_TECNICO), date('d/m/Y', strtotime($result->ORV_DATA_FINAL)), date('d/m/Y', strtotime($result->ORV_DATA_INICIAL)), $result->ORV_GARANTIA . ' dias'];
                         $texto_de_notificacao = $this->os_model->criarTextoWhats($texto_de_notificacao, $troca);
                         if (!empty($zapnumber)) {
                             echo '<a title="Enviar Por WhatsApp" class="button btn btn-mini btn-success" id="enviarWhatsApp" target="_blank" href="https://api.whatsapp.com/send?phone=55' . $zapnumber . '&text=' . $texto_de_notificacao . '">
@@ -39,7 +39,7 @@
                         }
                     } ?>
 
-                    <a title="Enviar OS por E-mail" class="button btn btn-mini btn-warning" href="<?php echo site_url() ?>/os/enviar_email/<?php echo $result->idOs; ?>">
+                    <a title="Enviar OS por E-mail" class="button btn btn-mini btn-warning" href="<?php echo site_url() ?>/os/enviar_email/<?php echo $result->ORV_ID; ?>">
                         <span class="button__icon"><i class="bx bx-envelope"></i></span> <span class="button__text">via E-mail</span>
                     </a>
 
@@ -64,7 +64,7 @@
                                         <td colspan="3" class="alert">Você precisa configurar os dados do emitente. >>><a href="<?php echo base_url(); ?>index.php/mapos/emitente">Configurar <<< </a></td>
                                     </tr>
                                 <?php } ?>
-                                <h3><i class='bx bx-file'></i> Ordem de Serviço #<?php echo sprintf('%04d', $result->idOs) ?></h3>
+                                <h3><i class='bx bx-file'></i> Ordem de Serviço #<?php echo sprintf('%04d', $result->ORV_ID) ?></h3>
                             </tbody>
                         </table>
                         <table class="table table-condensend">
@@ -127,75 +127,75 @@
                     <div style="margin-top: 0; padding-top: 0">
                         <table class="table table-condensed">
                             <tbody>
-                                <?php if ($result->dataInicial != null) { ?>
+                                <?php if ($result->ORV_DATA_INICIAL != null) { ?>
                                     <tr>
                                         <td>
                                             <b>STATUS OS: </b><br>
-                                            <?php echo $result->status ?>
+                                            <?php echo $result->ORV_STATUS ?>
                                         </td>
 
                                         <td>
                                             <b>DATA INICIAL: </b><br>
-                                            <?php echo date('d/m/Y', strtotime($result->dataInicial)); ?>
+                                            <?php echo date('d/m/Y', strtotime($result->ORV_DATA_INICIAL)); ?>
                                         </td>
 
                                         <td>
                                             <b>DATA FINAL: </b><br>
-                                            <?php echo $result->dataFinal ? date('d/m/Y', strtotime($result->dataFinal)) : ''; ?>
+                                            <?php echo $result->ORV_DATA_FINAL ? date('d/m/Y', strtotime($result->ORV_DATA_FINAL)) : ''; ?>
                                         </td>
 
                                         <td>
-                                            <?php if ($result->garantia) { ?>
-                                                <b>GARANTIA: </b><br><?php echo $result->garantia . ' dia(s)'; ?>
+                                            <?php if ($result->ORV_GARANTIA) { ?>
+                                                <b>GARANTIA: </b><br><?php echo $result->ORV_GARANTIA . ' dia(s)'; ?>
                                             <?php } ?>
                                         </td>
 
-                                        <?php if (in_array($result->status, ['Finalizado', 'Faturado', 'Orçamento', 'Aberto'])): ?>
+                                        <?php if (in_array($result->ORV_STATUS, ['Finalizado', 'Faturado', 'Orçamento', 'Aberto'])): ?>
                                             <td>
                                                 <b>VENC. DA GARANTIA:</b><br>
-                                                <?= dateInterval($result->dataFinal, $result->garantia); ?>
+                                                <?= dateInterval($result->ORV_DATA_FINAL, $result->ORV_GARANTIA); ?>
                                             </td>
                                         <?php endif; ?>
                                     </tr>
                                 <?php } ?>
 
-                                <?php if ($result->descricaoProduto != null) { ?>
+                                <?php if ($result->ORV_DESCRICAO_PRODUTO != null) { ?>
                                     <tr>
                                         <td colspan="5">
                                             <b>DESCRIÇÃO: </b>
-                                            <?php echo htmlspecialchars_decode($result->descricaoProduto) ?>
+                                            <?php echo htmlspecialchars_decode($result->ORV_DESCRICAO_PRODUTO) ?>
                                         </td>
                                     </tr>
                                 <?php } ?>
 
-                                <?php if ($result->defeito != null) { ?>
+                                <?php if ($result->ORV_DEFEITO != null) { ?>
                                     <tr>
                                         <td colspan="5">
                                             <b>DEFEITO APRESENTADO: </b>
-                                            <?php echo htmlspecialchars_decode($result->defeito) ?>
+                                            <?php echo htmlspecialchars_decode($result->ORV_DEFEITO) ?>
                                         </td>
                                     </tr>
                                 <?php } ?>
 
-                                <?php if ($result->observacoes != null) { ?>
+                                <?php if ($result->ORV_OBSERVACOES != null) { ?>
                                     <tr>
                                         <td colspan="5">
                                             <b>OBSERVAÇÕES: </b>
-                                            <?php echo htmlspecialchars_decode($result->observacoes) ?>
+                                            <?php echo htmlspecialchars_decode($result->ORV_OBSERVACOES) ?>
                                         </td>
                                     </tr>
                                 <?php } ?>
 
-                                <?php if ($result->laudoTecnico != null) { ?>
+                                <?php if ($result->ORV_LAUDO_TECNICO != null) { ?>
                                     <tr>
                                         <td colspan="5">
                                             <b>LAUDO TÉCNICO: </b>
-                                            <?php echo htmlspecialchars_decode($result->laudoTecnico) ?>
+                                            <?php echo htmlspecialchars_decode($result->ORV_LAUDO_TECNICO) ?>
                                         </td>
                                     </tr>
                                 <?php } ?>
 
-                                <?php if ($result->garantias_id != null) { ?>
+                                <?php if ($result->ORV_GARANTIAS_ID != null) { ?>
                                     <tr>
                                         <td colspan="5">
                                             <strong>TERMO DE GARANTIA </strong><br>
@@ -266,10 +266,10 @@
                                 <tbody>
                                     <?php foreach ($produtos as $p) {
                                         echo '<tr>';
-                                        echo '<td>' . $p->descricao . '</td>';
-                                        echo '<td>' . $p->quantidade . '</td>';
-                                        echo '<td>R$ ' . $p->preco ?: $p->precoVenda . '</td>';
-                                        echo '<td>R$ ' . number_format($p->subTotal, 2, ',', '.') . '</td>';
+                                        echo '<td>' . $p->PRO_OS_DESCRICAO . '</td>';
+                                        echo '<td>' . $p->PRO_OS_QUANTIDADE . '</td>';
+                                        echo '<td>R$ ' . $p->PRO_OS_PRECO ?: $p->precoVenda . '</td>';
+                                        echo '<td>R$ ' . number_format($p->PRO_OS_SUBTOTAL, 2, ',', '.') . '</td>';
                                         echo '</tr>';
                                     } ?>
                                     <tr>
@@ -294,11 +294,11 @@
                                 <tbody>
                                     <?php setlocale(LC_MONETARY, 'en_US');
                                     foreach ($servicos as $s) {
-                                        $preco = $s->preco ?: $s->precoVenda;
-                                        $subtotal = $preco * ($s->quantidade ?: 1);
+                                        $preco = $s->SOS_PRECO ?: $s->precoVenda;
+                                        $subtotal = $preco * ($s->SOS_QUANTIDADE ?: 1);
                                         echo '<tr>';
                                         echo '<td>' . $s->nome . '</td>';
-                                        echo '<td>' . ($s->quantidade ?: 1) . '</td>';
+                                        echo '<td>' . ($s->SOS_QUANTIDADE ?: 1) . '</td>';
                                         echo '<td>R$ ' . $preco . '</td>';
                                         echo '<td>R$ ' . number_format($subtotal, 2, ',', '.') . '</td>';
                                         echo '</tr>';
@@ -313,11 +313,11 @@
                         <?php } ?>
                         <table class="table table-bordered table-condensed">
                             <?php if ($totalProdutos != 0 || $totalServico != 0) {
-                                if ($result->valor_desconto != 0) {
+                                if ($result->ORV_VALOR_DESCONTO != 0) {
                                     echo "<td>";
                                     echo "<h4 style='text-align: right'>SUBTOTAL: R$ " . number_format($totalProdutos + $totalServico, 2, ',', '.') . "</h4>";
-                                    echo $result->valor_desconto != 0 ? "<h4 style='text-align: right'>DESCONTO: R$ " . number_format($result->valor_desconto != 0 ? $result->valor_desconto - ($totalProdutos + $totalServico) : 0.00, 2, ',', '.') . "</h4>" : "";
-                                    echo "<h4 style='text-align: right'>TOTAL: R$ " . number_format($result->valor_desconto, 2, ',', '.') . "</h4>";
+                                    echo $result->ORV_VALOR_DESCONTO != 0 ? "<h4 style='text-align: right'>DESCONTO: R$ " . number_format($result->ORV_VALOR_DESCONTO != 0 ? $result->ORV_VALOR_DESCONTO - ($totalProdutos + $totalServico) : 0.00, 2, ',', '.') . "</h4>" : "";
+                                    echo "<h4 style='text-align: right'>TOTAL: R$ " . number_format($result->ORV_VALOR_DESCONTO, 2, ',', '.') . "</h4>";
                                     echo "</td>";
                                 } else {
                                     echo "<td>";
@@ -370,8 +370,8 @@
                 <img id="qrCodeImage" width="50%" src="<?= $qrCode ?>" alt="QR Code de Pagamento" /></br>
                 <?php echo '<span>Chave PIX: ' . $chaveFormatada . '</span>'; ?></br>
                 <?php if ($totalProdutos != 0 || $totalServico != 0) {
-                    if ($result->valor_desconto != 0) {
-                        echo "Valor Total: R$ " . number_format($result->valor_desconto, 2, ',', '.');
+                    if ($result->ORV_VALOR_DESCONTO != 0) {
+                        echo "Valor Total: R$ " . number_format($result->ORV_VALOR_DESCONTO, 2, ',', '.');
                     } else {
                         echo "Valor Total: R$ " . number_format($totalProdutos + $totalServico, 2, ',', '.');
                     }
@@ -405,7 +405,7 @@
             event.preventDefault();
 
             var link = $(this).attr('link');
-            var idOS = "<?php echo $result->idOs; ?>"
+            var idOS = "<?php echo $result->ORV_ID; ?>"
 
             $('#modal-anexo').modal('hide');
             $("#divAnexos").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");

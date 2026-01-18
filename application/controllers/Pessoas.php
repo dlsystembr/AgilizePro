@@ -430,6 +430,147 @@ class Pessoas extends MY_Controller
             ];
 
             if ($this->Pessoas_model->edit('pessoas', $data, 'PES_ID', $id)) {
+
+                // Processar endereços se houver
+                if ($this->db->table_exists('enderecos')) {
+                    // Primeiro, desmarcar todos os endereços como não padrão
+                    $this->db->where('PES_ID', $id);
+                    $this->db->update('enderecos', ['END_PADRAO' => 0]);
+
+                    // Processar endereços existentes
+                    $enderecoIds = $this->input->post('END_ID') ?: [];
+                    $tiposEnd = $this->input->post('END_TIPO') ?: [];
+                    $ceps = $this->input->post('END_CEP') ?: [];
+                    $logradouros = $this->input->post('END_LOGRADOURO') ?: [];
+                    $numerosEnd = $this->input->post('END_NUMERO') ?: [];
+                    $complementos = $this->input->post('END_COMPLEMENTO') ?: [];
+                    $bairrosTexto = $this->input->post('END_BAIRRO') ?: [];
+                    $cidadesTexto = $this->input->post('END_CIDADE') ?: [];
+                    $ufs = $this->input->post('END_UF') ?: [];
+                    $enderecoPadrao = $this->input->post('endereco_padrao');
+
+                    if (is_array($tiposEnd) && count($tiposEnd) > 0) {
+                        foreach ($tiposEnd as $i => $tipoEnd) {
+                            if (!empty($logradouros[$i])) {
+                                // Verificar se é um endereço existente ou novo
+                                $enderecoId = isset($enderecoIds[$i]) ? $enderecoIds[$i] : null;
+
+                                // Mapear tipos
+                                $tipoEndBanco = $tipoEnd;
+                                if ($tipoEnd == 'Comercial') $tipoEndBanco = 'Geral';
+                                if ($tipoEnd == 'Cobrança') $tipoEndBanco = 'Cobranca';
+                                if ($tipoEnd == 'Entrega') $tipoEndBanco = 'Entrega';
+
+                                // Buscar IDs de estado, município e bairro
+                                $estId = null;
+                                $munId = null;
+                                $baiId = null;
+
+                                // Buscar estado
+                                if (!empty($ufs) && isset($ufs[$i]) && !empty($ufs[$i])) {
+                                    $estado = $this->db->get_where('estados', ['EST_UF' => $ufs[$i]])->row();
+                                    $estId = $estado ? $estado->EST_ID : null;
+                                }
+
+                                // Buscar município - IMPORTANTE: MUN_ID não pode ser NULL devido à constraint
+                                if (!empty($cidadesTexto) && isset($cidadesTexto[$i]) && !empty($cidadesTexto[$i])) {
+                                    $this->db->select('MUN_ID');
+                                    $this->db->from('municipios');
+                                    $this->db->where('MUN_NOME', $cidadesTexto[$i]);
+
+                                    // Se temos estado, filtrar por ele também
+                                    if ($estId) {
+                                        $this->db->where('EST_ID', $estId);
+                                    }
+
+                                    $municipio = $this->db->get()->row();
+                                    $munId = $municipio ? $municipio->MUN_ID : null;
+
+                                    // Se não encontrou e temos estado, tentar buscar qualquer município do estado
+                                    if (!$munId && $estId) {
+                                        $this->db->select('MUN_ID');
+                                        $this->db->from('municipios');
+                                        $this->db->where('EST_ID', $estId);
+                                        $this->db->limit(1);
+                                        $municipio_fallback = $this->db->get()->row();
+                                        $munId = $municipio_fallback ? $municipio_fallback->MUN_ID : null;
+                                    }
+
+                                    // Se ainda não encontrou, buscar o primeiro município disponível (fallback)
+                                    if (!$munId) {
+                                        $this->db->select('MUN_ID');
+                                        $this->db->from('municipios');
+                                        $this->db->limit(1);
+                                        $municipio_fallback = $this->db->get()->row();
+                                        $munId = $municipio_fallback ? $municipio_fallback->MUN_ID : null;
+                                    }
+                                }
+
+                                // Buscar bairro (opcional - pode ser NULL)
+                                if (!empty($bairrosTexto[$i]) && $munId) {
+                                    $bairro = $this->db->get_where('bairros', [
+                                        'BAI_NOME' => $bairrosTexto[$i],
+                                        'MUN_ID' => $munId
+                                    ])->row();
+                                    $baiId = $bairro ? $bairro->BAI_ID : null;
+                                }
+
+                                // Validar se temos os dados essenciais para o endereço
+                                if (!$munId) {
+                                    // Pular este endereço se não conseguir determinar o município
+                                    error_log("Pulando endereço {$i} - município não encontrado para cidade: {$cidadesTexto[$i]}, UF: {$ufs[$i]}");
+                                    continue;
+                                }
+
+                                $enderecoData = [
+                                    'PES_ID' => $id,
+                                    'EST_ID' => $estId,
+                                    'MUN_ID' => $munId, // Este campo é obrigatório devido à constraint
+                                    'BAI_ID' => $baiId,
+                                    'END_TIPO_ENDENRECO' => $tipoEndBanco,
+                                    'END_LOGRADOURO' => $logradouros[$i],
+                                    'END_NUMERO' => isset($numerosEnd[$i]) ? $numerosEnd[$i] : null,
+                                    'END_COMPLEMENTO' => isset($complementos[$i]) ? $complementos[$i] : null,
+                                    'END_CEP' => isset($ceps[$i]) ? preg_replace('/\D/', '', $ceps[$i]) : null,
+                                    'END_SITUACAO' => 1,
+                                    'END_PADRAO' => 0 // Será definido abaixo
+                                ];
+
+                                if ($enderecoId) {
+                                    // Atualizar endereço existente
+                                    $this->db->where('END_ID', $enderecoId);
+                                    $this->db->update('enderecos', $enderecoData);
+                                } else {
+                                    // Inserir novo endereço
+                                    $this->db->insert('enderecos', $enderecoData);
+                                    $enderecoId = $this->db->insert_id();
+                                }
+                            }
+                        }
+
+                        // Marcar endereço padrão
+                        if (!empty($enderecoPadrao)) {
+                            // Se é um endereço novo (valor começa com 'novo_'), usar o ID gerado
+                            if (strpos($enderecoPadrao, 'novo_') === 0) {
+                                // Encontrar o último endereço inserido
+                                $this->db->where('PES_ID', $id);
+                                $this->db->order_by('END_ID', 'desc');
+                                $this->db->limit(1);
+                                $ultimoEndereco = $this->db->get('enderecos')->row();
+                                if ($ultimoEndereco) {
+                                    $this->db->where('END_ID', $ultimoEndereco->END_ID);
+                                    $this->db->update('enderecos', ['END_PADRAO' => 1]);
+                                }
+                            } else {
+                                // É um endereço existente
+                                $this->db->where('END_ID', $enderecoPadrao);
+                                $this->db->where('PES_ID', $id); // Segurança extra
+                                $this->db->update('enderecos', ['END_PADRAO' => 1]);
+                            }
+                        }
+                    }
+                }
+
                 $this->session->set_flashdata('success', 'Pessoa editada com sucesso!');
                 log_info('Alterou uma pessoa. ID ' . $id);
                 redirect(site_url('pessoas/editar/') . $id);

@@ -80,32 +80,6 @@ L<style>
         font-size: 12px;
     }
 
-    /* Hiding the checkbox, but allowing it to be focused */
-    .badgebox {
-        opacity: 0;
-    }
-
-    .badgebox+.badge {
-        /* Move the check mark away when unchecked */
-        text-indent: -999999px;
-        /* Makes the badge's width stay the same checked and unchecked */
-        width: 27px;
-    }
-
-    .badgebox:focus+.badge {
-        /* Set something to make the badge looks focused */
-        /* This really depends on the application, in my case it was: */
-
-        /* Adding a light border */
-        box-shadow: inset 0px 0px 5px;
-        /* Taking the difference out of the padding */
-    }
-
-    .badgebox:checked+.badge {
-        /* Move the check mark back when checked */
-        text-indent: 0;
-    }
-
     /* Estilos para o modal */
     .modal {
         display: flex !important;
@@ -380,14 +354,17 @@ L<style>
                         </div>
                     </div>
                     <div class="control-group field-produto">
-                        <label for="NCMs" class="control-label">NCM<span class="required">*</span></label>
+                        <label for="PRO_NCM" class="control-label">NCM<span class="required">*</span></label>
                         <div class="controls">
                             <div class="input-group" style="display: flex; gap: 5px;">
-                                <input id="NCMs" class="form-control" type="text" name="NCMs" value="<?php echo $result->PRO_NCM; ?>" readonly />
+                                <input id="PRO_NCM" class="form-control" type="text" name="PRO_NCM" 
+                                    value="<?php echo (isset($result->PRO_NCM) && $result->PRO_NCM !== null && $result->PRO_NCM !== '') ? htmlspecialchars($result->PRO_NCM) : ''; ?>" 
+                                    readonly />
                                 <button type="button" class="btn btn-success" id="btnBuscarNcm" style="border-radius: 4px;" data-toggle="modal" data-target="#modalNcm"><i class="fas fa-search"></i></button>
                                 <button type="button" class="btn btn-warning" id="btnDescricaoNcm" style="border-radius: 4px;"><i class="fas fa-info-circle"></i></button>
                             </div>
-                            <input id="ncm_id" class="form-control" type="hidden" name="ncm_id" value="<?php echo $result->NCM_ID; ?>" />
+                            <input id="NCM_ID" class="form-control" type="hidden" name="NCM_ID" 
+                                value="<?php echo (isset($result->NCM_ID) && $result->NCM_ID !== null && $result->NCM_ID !== '') ? htmlspecialchars($result->NCM_ID) : ''; ?>" />
                         </div>
                     </div>
                     <div class="control-group field-servico" style="display: none;">
@@ -410,19 +387,6 @@ L<style>
                             </div>
                         </div>
                     </div>
-                    <div class="control-group field-produto">
-                        <label class="control-label">Tipo de Movimento</label>
-                        <div class="controls">
-                            <label for="entrada" class="btn btn-default" style="margin-top: 5px;">Entrada
-                                <input type="checkbox" id="entrada" name="entrada" class="badgebox" value="1" <?= ($result->PRO_ENTRADA == 1) ? 'checked' : '' ?>>
-                                <span class="badge">&check;</span>
-                            </label>
-                            <label for="saida" class="btn btn-default" style="margin-top: 5px;">Saída
-                                <input type="checkbox" id="saida" name="saida" class="badgebox" value="1" <?= ($result->PRO_SAIDA == 1) ? 'checked' : '' ?>>
-                                <span class="badge">&check;</span>
-                            </label>
-                                </div>
-                            </div>
                             <div class="control-group field-produto">
                                 <label for="unidade" class="control-label">Unidade<span class="required">*</span></label>
                                 <div class="controls">
@@ -664,8 +628,6 @@ L<style>
 
 <script src="<?php echo base_url() ?>assets/js/jquery.validate.js"></script>
 <script src="<?php echo base_url(); ?>assets/js/maskmoney.js"></script>
-<script src="<?php echo base_url(); ?>assets/js/ncm-search.js"></script>
-<script src="<?php echo base_url(); ?>assets/js/modal-ncm.js"></script>
 <script type="text/javascript">
     function calcLucro(precoCompra, Lucro) {
         var lucroTipo = $('#selectLucro').val();
@@ -726,6 +688,25 @@ L<style>
     });
 
     $(document).ready(function() {
+        // Debug: Verificar valores iniciais do NCM antes de qualquer manipulação
+        console.log('=== DEBUG NCM - INÍCIO ===');
+        console.log('PRO_NCM (PHP):', '<?php echo isset($result->PRO_NCM) ? $result->PRO_NCM : "VAZIO"; ?>');
+        console.log('NCM_ID (PHP):', '<?php echo isset($result->NCM_ID) ? $result->NCM_ID : "VAZIO"; ?>');
+        console.log('PRO_NCM (jQuery):', $('#PRO_NCM').val());
+        console.log('NCM_ID (jQuery):', $('#NCM_ID').val());
+        console.log('PRO_TIPO:', $('#PRO_TIPO').val());
+        console.log('=== FIM DEBUG ===');
+        
+        // Limpar valores "undefined" que possam ter sido inseridos incorretamente
+        if ($('#PRO_NCM').val() === 'undefined' || $('#PRO_NCM').val() === 'null') {
+            console.log('Limpando PRO_NCM com valor inválido');
+            $('#PRO_NCM').val('');
+        }
+        if ($('#NCM_ID').val() === 'undefined' || $('#NCM_ID').val() === 'null') {
+            console.log('Limpando NCM_ID com valor inválido');
+            $('#NCM_ID').val('');
+        }
+        
         // Adiciona método personalizado para validar números decimais
         $.validator.addMethod("decimal", function(value, element) {
             if (this.optional(element)) {
@@ -1120,8 +1101,14 @@ L<style>
             carregarUnidadesCampoAntigo();
         }
 
-        function toggleFields() {
+        // Variável para controlar se é o primeiro carregamento
+        var primeiroCarregamento = true;
+        
+        function toggleFields(manualChange) {
             var isService = $('#PRO_TIPO_TOGGLE').is(':checked');
+            
+            console.log('toggleFields chamado - isService:', isService, 'manualChange:', manualChange);
+            
             if (isService) { // Serviço
                 $('.field-produto').hide();
                 $('.field-servico').show();
@@ -1131,14 +1118,19 @@ L<style>
                 // Alterar label do código para "Código do Serviço"
                 $('#codigo-label').text('Código do Serviço');
 
-                // Auto-set NCM for Service
-                $('#NCMs').val('00000000');
-                $('#ncm_id').val('15142');
+                // Auto-set NCM for Service (apenas se for mudança manual)
+                if (manualChange) {
+                    $('#PRO_NCM').val('00000000');
+                    $('#NCM_ID').val('15142');
+                    console.log('NCM definido para serviço: 00000000');
+                }
 
                 // Definir valores padrão para campos obrigatórios de produto que não se aplicam a serviço
-                $('#precoCompra, #estoque, #estoqueMinimo, #codDeBarra').val('');
-                $('#PRO_ORIGEM').val('0');
-                $('#peso_bruto, #peso_liquido, #largura, #altura, #comprimento').val('0.000');
+                if (manualChange) {
+                    $('#precoCompra, #estoque, #estoqueMinimo, #codDeBarra').val('');
+                    $('#PRO_ORIGEM').val('0');
+                    $('#peso_bruto, #peso_liquido, #largura, #altura, #comprimento').val('0.000');
+                }
 
                 // Carregar unidades de serviço
                 carregarUnidadesServico();
@@ -1157,10 +1149,11 @@ L<style>
                 // Alterar label do código de volta para "Código do Produto"
                 $('#codigo-label').text('Código do Produto');
 
-                // Clear NCM if it was the default service NCM
-                if ($('#NCMs').val() === '00000000') {
-                    $('#NCMs').val('');
-                    $('#ncm_id').val('');
+                // Clear NCM apenas se for mudança manual e o NCM for o padrão de serviço
+                if (manualChange && $('#PRO_NCM').val() === '00000000') {
+                    console.log('Limpando NCM de serviço ao mudar para produto');
+                    $('#PRO_NCM').val('');
+                    $('#NCM_ID').val('');
                 }
 
                 // Limpar cClass quando voltar para produto
@@ -1179,14 +1172,180 @@ L<style>
             } else {
                 $('#PRO_TIPO').val('1');
             }
-            toggleFields();
+            toggleFields(true); // true = mudança manual do usuário
         });
 
         // Executa a função no carregamento da página baseado no valor atual
         if ($('#PRO_TIPO').val() == '2') {
             $('#PRO_TIPO_TOGGLE').prop('checked', true);
         }
-        toggleFields();
+        
+        // Debug: mostrar valores do NCM ao carregar
+        console.log('NCM ao carregar:', $('#PRO_NCM').val());
+        console.log('NCM_ID ao carregar:', $('#NCM_ID').val());
+        
+        toggleFields(false); // false = carregamento inicial, não limpar valores
+        
+        // Debug: verificar valores após toggleFields
+        console.log('NCM após toggleFields:', $('#PRO_NCM').val());
+        console.log('NCM_ID após toggleFields:', $('#NCM_ID').val());
+        
+        // Marcar que o primeiro carregamento foi concluído
+        primeiroCarregamento = false;
+
+        // Função para pesquisar NCM no modal
+        function pesquisarNcmModal(termo) {
+            if (!termo || termo.length < 2) {
+                $('#tabelaNcm tbody').html('<tr><td colspan="3" class="text-center">Digite pelo menos 2 caracteres</td></tr>');
+                $('#totalResultados').text('');
+                return;
+            }
+
+            $.ajax({
+                url: '<?php echo base_url(); ?>index.php/ncms/buscar',
+                type: 'GET',
+                data: { termo: termo },
+                dataType: 'json',
+                success: function(response) {
+                    var tbody = $('#tabelaNcm tbody');
+                    tbody.empty();
+
+                    if (response.length > 0) {
+                        $.each(response, function(i, ncm) {
+                            var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
+                            var descricao = ncm.NCM_DESCRICAO || ncm.descricao || ncm.ncm_descricao || '';
+                            var id = ncm.NCM_ID || ncm.id || ncm.ncm_id || '';
+
+                            tbody.append(
+                                '<tr>' +
+                                '<td style="padding: 12px;">' + codigo + '</td>' +
+                                '<td style="padding: 12px;">' + descricao + '</td>' +
+                                '<td style="padding: 12px; text-align: center;">' +
+                                '<button type="button" class="btn btn-success btn-sm selecionarNcm" ' +
+                                'data-codigo="' + codigo + '" ' +
+                                'data-id="' + id + '" ' +
+                                'data-descricao="' + descricao + '">Selecionar</button>' +
+                                '</td>' +
+                                '</tr>'
+                            );
+                        });
+                        $('#totalResultados').text('Total: ' + response.length + ' resultado(s)');
+                    } else {
+                        tbody.append('<tr><td colspan="3" class="text-center">Nenhum NCM encontrado</td></tr>');
+                        $('#totalResultados').text('');
+                    }
+                },
+                error: function() {
+                    $('#tabelaNcm tbody').html('<tr><td colspan="3" class="text-center text-danger">Erro na busca</td></tr>');
+                    $('#totalResultados').text('');
+                }
+            });
+        }
+
+        // Evento de digitação no campo de pesquisa NCM
+        $('#pesquisaNcm').on('input', function() {
+            var termo = $(this).val();
+            if (termo.length >= 2) {
+                pesquisarNcmModal(termo);
+            } else if (termo.length === 0) {
+                $('#tabelaNcm tbody').html('<tr><td colspan="3" class="text-center">Digite algo para pesquisar</td></tr>');
+                $('#totalResultados').text('');
+            }
+        });
+
+        // Evento de clique no botão pesquisar NCM
+        $('#btnPesquisarNcm').on('click', function() {
+            pesquisarNcmModal($('#pesquisaNcm').val());
+        });
+
+        // Evento de seleção do NCM
+        $(document).on('click', '.selecionarNcm', function() {
+            var codigo = $(this).data('codigo');
+            var id = $(this).data('id');
+            var descricao = $(this).data('descricao');
+
+            $('#PRO_NCM').val(codigo);
+            $('#NCM_ID').val(id);
+            $('#btnDescricaoNcm').data('descricao', descricao);
+            $('#modalNcm').modal('hide');
+        });
+
+        $('#modalNcm').on('hidden.bs.modal', function() {
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+            $('input, select, textarea').prop('disabled', false);
+            $('input, select').not('#codigo').prop('readonly', false);
+            $('.field-produto input, .field-produto select').prop('disabled', false).prop('readonly', false);
+            $('.field-servico input, .field-servico select').prop('disabled', false).prop('readonly', false);
+        });
+
+        // Carregar descrição do NCM ao carregar a página
+        function carregarDescricaoNcm() {
+            var ncmCodigo = $('#PRO_NCM').val();
+            var ncmId = $('#NCM_ID').val();
+            
+            if (ncmCodigo && ncmCodigo !== '' && ncmCodigo !== '00000000') {
+                $.ajax({
+                    url: '<?php echo base_url(); ?>index.php/ncms/buscar',
+                    type: 'GET',
+                    data: { termo: ncmCodigo },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response && response.length > 0) {
+                            // Procura pelo NCM com o código exato
+                            var ncmEncontrado = null;
+                            $.each(response, function(i, ncm) {
+                                var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
+                                if (codigo == ncmCodigo) {
+                                    ncmEncontrado = ncm;
+                                    return false; // break
+                                }
+                            });
+                            
+                            if (ncmEncontrado) {
+                                var descricao = ncmEncontrado.NCM_DESCRICAO || ncmEncontrado.descricao || ncmEncontrado.ncm_descricao || '';
+                                $('#btnDescricaoNcm').data('descricao', descricao);
+                            }
+                        }
+                    },
+                    error: function() {
+                        console.log('Erro ao carregar descrição do NCM');
+                    }
+                });
+            }
+        }
+
+        // Carregar a descrição do NCM quando a página estiver pronta
+        carregarDescricaoNcm();
+
+        // Botão para mostrar descrição do NCM
+        $('#btnDescricaoNcm').on('click', function() {
+            var descricao = $(this).data('descricao');
+            if (descricao) {
+                // Mostra a descrição usando SweetAlert ou alert
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Descrição do NCM',
+                        text: descricao,
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    alert('Descrição do NCM:\n\n' + descricao);
+                }
+            } else {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Atenção',
+                        text: 'Nenhum NCM selecionado ou descrição não disponível',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    alert('Nenhum NCM selecionado ou descrição não disponível');
+                }
+            }
+        });
 
     });
 </script>

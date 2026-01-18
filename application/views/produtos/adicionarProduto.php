@@ -1110,8 +1110,8 @@
         // Função para pesquisar NCM
         function pesquisarNcm(termo) {
             $.ajax({
-                url: '<?php echo base_url(); ?>index.php/produtos/pesquisarNcm',
-                type: 'POST',
+                url: '<?php echo base_url(); ?>index.php/ncms/buscar',
+                type: 'GET',
                 data: { termo: termo },
                 dataType: 'json',
                 success: function (response) {
@@ -1120,15 +1120,19 @@
 
                     if (response.length > 0) {
                         $.each(response, function (i, ncm) {
+                            var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
+                            var descricao = ncm.NCM_DESCRICAO || ncm.descricao || ncm.ncm_descricao || '';
+                            var id = ncm.NCM_ID || ncm.id || ncm.ncm_id || '';
+
                             tbody.append(
                                 '<tr>' +
-                                '<td style="padding: 12px;">' + ncm.codigo + '</td>' +
-                                '<td style="padding: 12px;">' + ncm.descricao + '</td>' +
+                                '<td style="padding: 12px;">' + codigo + '</td>' +
+                                '<td style="padding: 12px;">' + descricao + '</td>' +
                                 '<td style="padding: 12px; text-align: center;">' +
                                 '<button type="button" class="btn btn-success btn-sm selecionarNcm" ' +
-                                'data-codigo="' + ncm.codigo + '" ' +
-                                'data-descricao="' + ncm.descricao + '" ' +
-                                'data-id="' + ncm.id + '">' +
+                                'data-codigo="' + codigo + '" ' +
+                                'data-descricao="' + descricao + '" ' +
+                                'data-id="' + id + '">' +
                                 '<i class="fas fa-check"></i> Selecionar</button>' +
                                 '</td>' +
                                 '</tr>'
@@ -1164,6 +1168,14 @@
             $('#PRO_NCM').val(codigo);
             $('#NCM_ID').val(id);
             $('#modalNcm').modal('hide');
+        });
+
+        $('#modalNcm').on('hidden.bs.modal', function () {
+            // Garantir que os campos do formulário estejam liberados após o modal fechar
+            $('input, select, textarea').prop('disabled', false).prop('readonly', false);
+            $('#PRO_PRECO_COMPRA, #PRO_PRECO_VENDA, #Lucro, #PRO_ESTOQUE, #estoqueMinimo, #PRO_ORIGEM').prop('disabled', false).prop('readonly', false);
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
         });
 
         // Limpar pesquisa ao abrir modal

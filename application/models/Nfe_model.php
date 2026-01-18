@@ -377,37 +377,41 @@ class Nfe_model extends CI_Model
 
     public function getEmit()
     {
-        $this->db->select('config.*, usuarios.*');
-        $this->db->from('config');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = config.idUsuarios', 'left');
-        $this->db->where('config.idUsuarios', $this->session->userdata('id'));
+        $this->db->select('EMP_RAZAO_SOCIAL as nome, EMP_CNPJ as cnpj, EMP_IE as ie, EMP_LOGRADOURO as rua, EMP_NUMERO as numero, EMP_COMPLEMENTO as complemento, EMP_BAIRRO as bairro, EMP_CIDADE as cidade, EMP_UF as uf, EMP_CEP as cep, EMP_TELEFONE as telefone, EMP_EMAIL as email, EMP_REGIME_TRIBUTARIO as regime_tributario, EMP_LOGO_PATH as url_logo');
+        $this->db->from('empresas');
+        // Como normalmente há apenas uma empresa emitente, buscamos a primeira
         $this->db->limit(1);
-        $config = $this->db->get()->row();
+        $empresa = $this->db->get()->row();
 
-        // Define CRT based on regime tributário
-        $crt = 3; // Default for Regime Normal or Lucro Presumido
-        if (strtolower($config->regime_tributario) === 'simples nacional') {
+        if (!$empresa) {
+            return false; // Retorna falso se nenhuma empresa for encontrada
+        }
+
+        // Define CRT com base no regime tributário da empresa
+        $crt = 3; // Padrão para Regime Normal ou Lucro Presumido
+        if (isset($empresa->regime_tributario) && strtolower($empresa->regime_tributario) === 'simples nacional') {
             $crt = 1;
         }
 
         $emit = [
-            'CNPJ' => preg_replace('/[^0-9]/', '', $config->cnpj),
-            'xNome' => $config->nome,
+            'CNPJ' => preg_replace('/[^0-9]/', '', $empresa->cnpj),
+            'xNome' => $empresa->nome,
             'enderEmit' => [
-                'xLgr' => $config->rua,
-                'nro' => $config->numero,
-                'xCpl' => $config->complemento,
-                'xBairro' => $config->bairro,
-                'cMun' => $config->cidade,
-                'xMun' => $config->cidade,
-                'UF' => $config->uf,
-                'CEP' => preg_replace('/[^0-9]/', '', $config->cep),
+                'xLgr' => $empresa->rua,
+                'nro' => $empresa->numero,
+                'xCpl' => $empresa->complemento,
+                'xBairro' => $empresa->bairro,
+                'cMun' => $empresa->cidade,
+                'xMun' => $empresa->cidade,
+                'UF' => $empresa->uf,
+                'CEP' => preg_replace('/[^0-9]/', '', $empresa->cep),
                 'cPais' => '1058',
                 'xPais' => 'BRASIL',
-                'fone' => preg_replace('/[^0-9]/', '', $config->telefone)
+                'fone' => preg_replace('/[^0-9]/', '', $empresa->telefone)
             ],
-            'IE' => $config->ie,
-            'CRT' => $crt
+            'IE' => $empresa->ie,
+            'CRT' => $crt,
+            'url_logo' => $empresa->url_logo // Adiciona a URL do logo
         ];
 
         return $emit;

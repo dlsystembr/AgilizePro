@@ -117,7 +117,9 @@ class Produtos extends MY_Controller
                 'PRO_PESO_LIQUIDO' => $this->input->post('PRO_PESO_LIQUIDO') ? str_replace(',', '.', $this->input->post('PRO_PESO_LIQUIDO')) : null,
                 'PRO_LARGURA' => $this->input->post('PRO_LARGURA') ? str_replace(',', '.', $this->input->post('PRO_LARGURA')) : null,
                 'PRO_ALTURA' => $this->input->post('PRO_ALTURA') ? str_replace(',', '.', $this->input->post('PRO_ALTURA')) : null,
-                'PRO_COMPRIMENTO' => $this->input->post('PRO_COMPRIMENTO') ? str_replace(',', '.', $this->input->post('PRO_COMPRIMENTO')) : null
+                'PRO_COMPRIMENTO' => $this->input->post('PRO_COMPRIMENTO') ? str_replace(',', '.', $this->input->post('PRO_COMPRIMENTO')) : null,
+                'PRO_ENTRADA' => $this->input->post('PRO_ENTRADA') ?: 0,
+                'PRO_SAIDA' => $this->input->post('PRO_SAIDA') ?: 0
             ];
 
             if ($this->produtos_model->add('produtos', $data) == true) {
@@ -153,33 +155,33 @@ class Produtos extends MY_Controller
         $tipo = $this->input->post('PRO_TIPO');
 
         if ($tipo == '2') { // Serviço
-            $_POST['PRO_PRECO_COMPRA'] = $_POST['PRO_PRECO_COMPRA'] ?: '0';
-            $_POST['PRO_PRECO_VENDA'] = $_POST['PRO_PRECO_VENDA'] ?: '0';
-            $_POST['PRO_ESTOQUE'] = $_POST['PRO_ESTOQUE'] ?: '0';
-            $_POST['PRO_ESTOQUE_MINIMO'] = $_POST['PRO_ESTOQUE_MINIMO'] ?: '0';
+            $_POST['precoCompra'] = $_POST['precoCompra'] ?: '0';
+            $_POST['precoVenda'] = $_POST['precoVenda'] ?: '0';
+            $_POST['estoque'] = $_POST['estoque'] ?: '0';
+            $_POST['estoqueMinimo'] = $_POST['estoqueMinimo'] ?: '0';
             $_POST['PRO_ORIGEM'] = $_POST['PRO_ORIGEM'] ?: '0';
-            $_POST['PRO_PESO_BRUTO'] = '0.000';
-            $_POST['PRO_PESO_LIQUIDO'] = '0.000';
-            $_POST['PRO_LARGURA'] = '0.000';
-            $_POST['PRO_ALTURA'] = '0.000';
-            $_POST['PRO_COMPRIMENTO'] = '0.000';
+            $_POST['peso_bruto'] = '0.000';
+            $_POST['peso_liquido'] = '0.000';
+            $_POST['largura'] = '0.000';
+            $_POST['altura'] = '0.000';
+            $_POST['comprimento'] = '0.000';
 
             // Regras de validação para serviços
-            $this->form_validation->set_rules('PRO_DESCRICAO', 'Descrição', 'required|trim');
+            $this->form_validation->set_rules('descricao', 'Descrição', 'required|trim');
             $this->form_validation->set_rules('PRO_UNID_MEDIDA', 'Unidade', 'required|trim');
             $this->form_validation->set_rules('PRO_CCLASS_SERV', 'cClass', 'required|trim');
         } else { // Produto
             // Regras de validação para produtos (usando a configuração padrão)
-            $this->form_validation->set_rules('PRO_DESCRICAO', 'Descrição', 'required|trim');
-            $this->form_validation->set_rules('PRO_UNID_MEDIDA', 'Unidade', 'required|trim');
-            $this->form_validation->set_rules('PRO_PRECO_COMPRA', 'Preço de Compra', 'required|trim');
-            $this->form_validation->set_rules('PRO_PRECO_VENDA', 'Preço de Venda', 'required|trim');
-            $this->form_validation->set_rules('PRO_ESTOQUE', 'Estoque', 'required|trim');
+            $this->form_validation->set_rules('descricao', 'Descrição', 'required|trim');
+            $this->form_validation->set_rules('unidade', 'Unidade', 'required|trim');
+            $this->form_validation->set_rules('precoCompra', 'Preço de Compra', 'required|trim');
+            $this->form_validation->set_rules('precoVenda', 'Preço de Venda', 'required|trim');
+            $this->form_validation->set_rules('estoque', 'Estoque', 'required|trim');
             $this->form_validation->set_rules('PRO_ORIGEM', 'Origem do Produto', 'required|trim|integer|greater_than_equal_to[0]|less_than_equal_to[8]');
         }
 
         // Sanitiza campos decimais para validação (substitui vírgula por ponto)
-        $decimalFields = ['PRO_PESO_BRUTO', 'PRO_PESO_LIQUIDO', 'PRO_LARGURA', 'PRO_ALTURA', 'PRO_COMPRIMENTO'];
+        $decimalFields = ['peso_bruto', 'peso_liquido', 'largura', 'altura', 'comprimento'];
         foreach ($decimalFields as $field) {
             if (isset($_POST[$field])) {
                 $_POST[$field] = str_replace(',', '.', $_POST[$field]);
@@ -189,28 +191,30 @@ class Produtos extends MY_Controller
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="form_error">' . validation_errors() . '</div>' : false);
         } else {
-            $precoCompra = $this->input->post('PRO_PRECO_COMPRA');
+            $precoCompra = $this->input->post('precoCompra');
             $precoCompra = str_replace(',', '.', $precoCompra);
-            $precoVenda = $this->input->post('PRO_PRECO_VENDA');
+            $precoVenda = $this->input->post('precoVenda');
             $precoVenda = str_replace(',', '.', $precoVenda);
             $data = [
-                'PRO_COD_BARRA' => $this->input->post('PRO_COD_BARRA'),
-                'PRO_DESCRICAO' => $this->input->post('PRO_DESCRICAO'),
-                'PRO_UNID_MEDIDA' => $this->input->post('PRO_UNID_MEDIDA'),
+                'PRO_COD_BARRA' => $this->input->post('codDeBarra'),
+                'PRO_DESCRICAO' => $this->input->post('descricao'),
+                'PRO_UNID_MEDIDA' => $this->input->post('unidade') ?: $this->input->post('PRO_UNID_MEDIDA'),
                 'PRO_PRECO_COMPRA' => $precoCompra,
                 'PRO_PRECO_VENDA' => $precoVenda,
-                'PRO_ESTOQUE' => $this->input->post('PRO_ESTOQUE'),
-                'PRO_ESTOQUE_MINIMO' => $this->input->post('PRO_ESTOQUE_MINIMO'),
+                'PRO_ESTOQUE' => $this->input->post('estoque'),
+                'PRO_ESTOQUE_MINIMO' => $this->input->post('estoqueMinimo'),
                 'PRO_NCM' => $this->input->post('PRO_NCM'),
                 'NCM_ID' => $this->input->post('NCM_ID'),
                 'PRO_ORIGEM' => $this->input->post('PRO_ORIGEM'),
                 'PRO_TIPO' => $this->input->post('PRO_TIPO') ?: 1,
                 'PRO_CCLASS_SERV' => $this->input->post('PRO_CCLASS_SERV'),
-                'PRO_PESO_BRUTO' => $this->input->post('PRO_PESO_BRUTO') ? str_replace(',', '.', $this->input->post('PRO_PESO_BRUTO')) : null,
-                'PRO_PESO_LIQUIDO' => $this->input->post('PRO_PESO_LIQUIDO') ? str_replace(',', '.', $this->input->post('PRO_PESO_LIQUIDO')) : null,
-                'PRO_LARGURA' => $this->input->post('PRO_LARGURA') ? str_replace(',', '.', $this->input->post('PRO_LARGURA')) : null,
-                'PRO_ALTURA' => $this->input->post('PRO_ALTURA') ? str_replace(',', '.', $this->input->post('PRO_ALTURA')) : null,
-                'PRO_COMPRIMENTO' => $this->input->post('PRO_COMPRIMENTO') ? str_replace(',', '.', $this->input->post('PRO_COMPRIMENTO')) : null
+                'PRO_PESO_BRUTO' => $this->input->post('peso_bruto') ? str_replace(',', '.', $this->input->post('peso_bruto')) : null,
+                'PRO_PESO_LIQUIDO' => $this->input->post('peso_liquido') ? str_replace(',', '.', $this->input->post('peso_liquido')) : null,
+                'PRO_LARGURA' => $this->input->post('largura') ? str_replace(',', '.', $this->input->post('largura')) : null,
+                'PRO_ALTURA' => $this->input->post('altura') ? str_replace(',', '.', $this->input->post('altura')) : null,
+                'PRO_COMPRIMENTO' => $this->input->post('comprimento') ? str_replace(',', '.', $this->input->post('comprimento')) : null,
+                'PRO_ENTRADA' => $this->input->post('entrada') ?: 0,
+                'PRO_SAIDA' => $this->input->post('saida') ?: 0
             ];
 
             if ($this->produtos_model->edit('produtos', $data, 'PRO_ID', $this->input->post('PRO_ID')) == true) {
@@ -223,6 +227,49 @@ class Produtos extends MY_Controller
         }
 
         $this->data['result'] = $this->produtos_model->getById($this->uri->segment(3));
+        
+        // Normalizar NCM para exibição (alguns registros antigos podem ter apenas NCM_ID ou apenas PRO_NCM)
+        if ($this->data['result']) {
+            // Debug: ver o que vem do banco
+            log_message('debug', 'PRO_NCM do banco: ' . ($this->data['result']->PRO_NCM ?? 'NULL'));
+            log_message('debug', 'NCM_ID do banco: ' . ($this->data['result']->NCM_ID ?? 'NULL'));
+            log_message('debug', 'PRO_TIPO: ' . ($this->data['result']->PRO_TIPO ?? 'NULL'));
+            
+            // Se for produto e tiver NCM de serviço (00000000), buscar o NCM correto pelo NCM_ID
+            if ($this->data['result']->PRO_TIPO == '1' && $this->data['result']->PRO_NCM == '00000000' && !empty($this->data['result']->NCM_ID)) {
+                $ncmRow = $this->db->select('NCM_CODIGO')->from('ncms')->where('NCM_ID', $this->data['result']->NCM_ID)->get()->row();
+                if ($ncmRow && !empty($ncmRow->NCM_CODIGO) && $ncmRow->NCM_CODIGO != '00000000') {
+                    $this->data['result']->PRO_NCM = $ncmRow->NCM_CODIGO;
+                    log_message('debug', 'PRO_NCM corrigido de NCM_ID para produto: ' . $ncmRow->NCM_CODIGO);
+                } else {
+                    // Se não encontrou NCM válido, limpar
+                    $this->data['result']->PRO_NCM = '';
+                    $this->data['result']->NCM_ID = '';
+                    log_message('debug', 'NCM inválido limpo para produto');
+                }
+            }
+            
+            // Se tiver NCM_ID mas PRO_NCM vazio, busca o código do NCM
+            if (!empty($this->data['result']->NCM_ID) && empty($this->data['result']->PRO_NCM)) {
+                $ncmRow = $this->db->select('NCM_CODIGO')->from('ncms')->where('NCM_ID', $this->data['result']->NCM_ID)->get()->row();
+                if ($ncmRow && !empty($ncmRow->NCM_CODIGO)) {
+                    $this->data['result']->PRO_NCM = $ncmRow->NCM_CODIGO;
+                    log_message('debug', 'PRO_NCM atualizado de NCM_ID: ' . $ncmRow->NCM_CODIGO);
+                }
+            }
+            // Se tiver PRO_NCM mas NCM_ID vazio, tenta buscar o ID do NCM
+            if (empty($this->data['result']->NCM_ID) && !empty($this->data['result']->PRO_NCM)) {
+                $ncmRow = $this->db->select('NCM_ID')->from('ncms')->where('NCM_CODIGO', $this->data['result']->PRO_NCM)->get()->row();
+                if ($ncmRow && !empty($ncmRow->NCM_ID)) {
+                    $this->data['result']->NCM_ID = $ncmRow->NCM_ID;
+                    log_message('debug', 'NCM_ID atualizado de PRO_NCM: ' . $ncmRow->NCM_ID);
+                }
+            }
+            
+            // Debug final
+            log_message('debug', 'PRO_NCM final: ' . ($this->data['result']->PRO_NCM ?? 'NULL'));
+            log_message('debug', 'NCM_ID final: ' . ($this->data['result']->NCM_ID ?? 'NULL'));
+        }
         $this->data['tributacoes'] = $this->TributacaoProduto_model->get();
         $this->data['view'] = 'produtos/editarProduto';
 
@@ -388,7 +435,7 @@ class Produtos extends MY_Controller
     {
         $termo = $this->input->post('termo');
 
-        $result = $this->Ncm_model->pesquisar($termo);
+        $result = $this->ncm_model->pesquisar($termo);
 
         echo json_encode($result);
     }

@@ -51,7 +51,7 @@ class Os extends MY_Controller
         }
 
         $this->data['configuration']['base_url'] = site_url('os/gerenciar/');
-        $this->data['configuration']['total_rows'] = $this->os_model->count('os');
+        $this->data['configuration']['total_rows'] = $this->os_model->count('ordem_servico');
         if(count($where_array) > 0) {
             $this->data['configuration']['suffix'] = "?pesquisa={$pesquisa}&status={$status}&data={$inputDe}&data2={$inputAte}";
             $this->data['configuration']['first_url'] = base_url("index.php/os/gerenciar")."\?pesquisa={$pesquisa}&status={$status}&data={$inputDe}&data2={$inputAte}";
@@ -60,10 +60,8 @@ class Os extends MY_Controller
         $this->pagination->initialize($this->data['configuration']);
 
         $this->data['results'] = $this->os_model->getOs(
-            'os',
-            'os.*,
-            COALESCE((SELECT SUM(produtos_os.preco * produtos_os.quantidade ) FROM produtos_os WHERE produtos_os.os_id = os.idOs), 0) totalProdutos,
-            COALESCE((SELECT SUM(servicos_os.preco * servicos_os.quantidade ) FROM servicos_os WHERE servicos_os.os_id = os.idOs), 0) totalServicos',
+            'ordem_servico',
+            'ordem_servico.*',
             $where_array,
             $this->data['configuration']['per_page'],
             $this->uri->segment(3)

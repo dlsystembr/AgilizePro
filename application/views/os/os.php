@@ -82,19 +82,19 @@
                         }
 
                         $this->load->model('os_model'); foreach ($results as $r) {
-                                $dataInicial = date(('d/m/Y'), strtotime($r->dataInicial));
-                                if ($r->dataFinal != null) {
-                                    $dataFinal = date(('d/m/Y'), strtotime($r->dataFinal));
+                                $dataInicial = date(('d/m/Y'), strtotime($r->ORV_DATA_INICIAL));
+                                if ($r->ORV_DATA_FINAL != null) {
+                                    $dataFinal = date(('d/m/Y'), strtotime($r->ORV_DATA_FINAL));
                                 } else {
                                     $dataFinal = "";
                                 }
                                 if ($this->input->get('pesquisa') === null && is_array(json_decode($configuration['os_status_list']))) {
-                                    if (in_array($r->status, json_decode($configuration['os_status_list'])) != true) {
+                                    if (in_array($r->ORV_STATUS, json_decode($configuration['os_status_list'])) != true) {
                                         continue;
                                     }
                                 }
 
-                                switch ($r->status) {
+                                switch ($r->ORV_STATUS) {
                                     case 'Aberto':
                                         $cor = '#00cd00';
                                         break;
@@ -128,8 +128,8 @@
                                 }
                                 $vencGarantia = '';
 
-                                if ($r->garantia && is_numeric($r->garantia)) {
-                                    $vencGarantia = dateInterval($r->dataFinal, $r->garantia);
+                                if ($r->ORV_GARANTIA && is_numeric($r->ORV_GARANTIA)) {
+                                    $vencGarantia = dateInterval($r->ORV_DATA_FINAL, $r->ORV_GARANTIA);
                                 }
                                 $corGarantia = '';
                                 if (!empty($vencGarantia)) {
@@ -140,7 +140,7 @@
                                     } else {
                                         $corGarantia = '#f24c6f';
                                     }
-                                } elseif ($r->garantia == "0") {
+                                } elseif ($r->ORV_GARANTIA == "0") {
                                     $vencGarantia = 'Sem Garantia';
                                     $corGarantia = '';
                                 } else {
@@ -149,31 +149,46 @@
                                 }
 
                                 echo '<tr>';
-                                echo '<td>' . $r->idOs . '</td>';
+                                echo '<td>' . $r->ORV_ID . '</td>';
                                 echo '<td class="cli1"><a href="' . base_url() . 'index.php/clientes/visualizar/' . $r->idClientes . '" style="margin-right: 1%">' . $r->nomeCliente . '</a></td>';
                                 echo '<td class="ph1">' . $r->nome . '</td>';
                                 echo '<td>' . $dataInicial . '</td>';
                                 echo '<td class="ph2">' . $dataFinal . '</td>';
                                 echo '<td class="ph3"><span class="badge" style="background-color: ' . $corGarantia . '; border-color: ' . $corGarantia . '">' . $vencGarantia . '</span> </td>';
-                                echo '<td>R$ ' . number_format($r->totalProdutos + $r->totalServicos, 2, ',', '.') . '</td>';                                
-                                echo '<td>R$ ' . number_format(floatval($r->desconto), 2, ',', '.') . '</td>';
-                                echo '<td>R$ ' . number_format(floatval($r->valor_desconto), 2, ',', '.') . '</td>';
-                                echo '<td class="ph4">R$ ' . number_format($r->faturado ? floatval($r->valor_desconto) : 0.00, 2, ',', '.') . '</td>';
-                                echo '<td><span class="badge" style="background-color: ' . $cor . '; border-color: ' . $cor . '">' . $r->status . '</span> </td>';
+                                
+                                // Calcular valores de produtos e serviços
+                                $totalProdutos = 0;
+                                $totalServicos = 0;
+                                if ($produtos = $this->os_model->getProdutos($r->ORV_ID)) {
+                                    foreach ($produtos as $p) {
+                                        $totalProdutos += $p->PRO_OS_SUBTOTAL;
+                                    }
+                                }
+                                if ($servicos = $this->os_model->getServicos($r->ORV_ID)) {
+                                    foreach ($servicos as $s) {
+                                        $totalServicos += $s->SOS_SUBTOTAL;
+                                    }
+                                }
+                                
+                                echo '<td>R$ ' . number_format($totalProdutos + $totalServicos, 2, ',', '.') . '</td>';                                
+                                echo '<td>R$ ' . number_format(floatval($r->ORV_DESCONTO), 2, ',', '.') . '</td>';
+                                echo '<td>R$ ' . number_format(floatval($r->ORV_VALOR_DESCONTO), 2, ',', '.') . '</td>';
+                                echo '<td class="ph4">R$ ' . number_format($r->ORV_FATURADO ? floatval($r->ORV_VALOR_DESCONTO) : 0.00, 2, ',', '.') . '</td>';
+                                echo '<td><span class="badge" style="background-color: ' . $cor . '; border-color: ' . $cor . '">' . $r->ORV_STATUS . '</span> </td>';
                                 echo '<td>';
 
-                                $editavel = $this->os_model->isEditable($r->idOs);
+                                $editavel = $this->os_model->isEditable($r->ORV_ID);
 
                                 if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) {
-                                    echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/os/visualizar/' . $r->idOs . '" class="btn-nwe" title="Ver mais detalhes"><i class="bx bx-show"></i></a>';
-                                    echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/os/imprimir/' . $r->idOs . '" target="_blank" class="btn-nwe6" title="Imprimir A4"><i class="bx bx-printer bx-xs"></i></a>';
-                                    echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/os/imprimirTermica/' . $r->idOs . '" target="_blank" class="btn-nwe6" title="Imprimir Não Fiscal"><i class="bx bx-printer bx-xs"></i></a>';
+                                    echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/os/visualizar/' . $r->ORV_ID . '" class="btn-nwe" title="Ver mais detalhes"><i class="bx bx-show"></i></a>';
+                                    echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/os/imprimir/' . $r->ORV_ID . '" target="_blank" class="btn-nwe6" title="Imprimir A4"><i class="bx bx-printer bx-xs"></i></a>';
+                                    echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/os/imprimirTermica/' . $r->ORV_ID . '" target="_blank" class="btn-nwe6" title="Imprimir Não Fiscal"><i class="bx bx-printer bx-xs"></i></a>';
                                 }
                                 if ($editavel) {
-                                    echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/os/editar/' . $r->idOs . '" class="btn-nwe3" title="Editar OS"><i class="bx bx-edit"></i></a>';
+                                    echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/os/editar/' . $r->ORV_ID . '" class="btn-nwe3" title="Editar OS"><i class="bx bx-edit"></i></a>';
                                 }
                                 if ($this->permission->checkPermission($this->session->userdata('permissao'), 'dOs') && $editavel) {
-                                    echo '<a href="#modal-excluir" role="button" data-toggle="modal" os="' . $r->idOs . '" class="btn-nwe4" title="Excluir OS"><i class="bx bx-trash-alt"></i></a>  ';
+                                    echo '<a href="#modal-excluir" role="button" data-toggle="modal" os="' . $r->ORV_ID . '" class="btn-nwe4" title="Excluir OS"><i class="bx bx-trash-alt"></i></a>  ';
                                 }
                                 echo '</td>';
                                 echo '</tr>';

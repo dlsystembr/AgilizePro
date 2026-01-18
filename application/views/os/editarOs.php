@@ -15,12 +15,12 @@
                 <span class="icon"><i class="fas fa-diagnoses"></i></span>
                 <h5>Editar Ordem de Serviço</h5>
                 <div class="buttons">
-                    <?php if ($result->faturado == 0) { ?>
+                    <?php if ($result->ORV_FATURADO == 0) { ?>
                         <a href="#modal-faturar" id="btn-faturar" role="button" data-toggle="modal" class="button btn btn-mini btn-danger">
                             <span class="button__icon"><i class='bx bx-dollar'></i></span> <span class="button__text">Faturar</span>
                         </a>
                     <?php } ?>
-                    <a title="Visualizar OS" class="button btn btn-primary" href="<?php echo site_url() ?>/os/visualizar/<?php echo $result->idOs; ?>">
+                    <a title="Visualizar OS" class="button btn btn-primary" href="<?php echo site_url() ?>/os/visualizar/<?php echo $result->ORV_ID; ?>">
                         <span class="button__icon"><i class="bx bx-show"></i></span><span class="button__text">Visualizar OS</span>
                     </a>
                     <div class="button-container">
@@ -28,14 +28,14 @@
                             <span class="button__icon"><i class="bx bx-printer"></i></span><span class="button__text">Imprimir</span>
                         </a>
                         <div class="cascading-buttons">
-                            <a target="_blank" title="Impressão em Papel A4" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/os/imprimir/<?php echo $result->idOs; ?>">
+                            <a target="_blank" title="Impressão em Papel A4" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/os/imprimir/<?php echo $result->ORV_ID; ?>">
                                 <span class="button__icon"><i class='bx bx-file'></i></span> <span class="button__text">Papel A4</span>
                             </a>
-                            <a target="_blank" title="Impressão Cupom Não Fical" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/os/imprimirTermica/<?php echo $result->idOs; ?>">
+                            <a target="_blank" title="Impressão Cupom Não Fical" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/os/imprimirTermica/<?php echo $result->ORV_ID; ?>">
                                 <span class="button__icon"><i class='bx bx-receipt'></i></span> <span class="button__text">Cupom 80mm</span>
                             </a>
-                            <?php if ($result->garantias_id) { ?>
-                                <a target="_blank" title="Imprimir Termo de Garantia" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/garantias/imprimirGarantiaOs/<?php echo $result->garantias_id; ?>">
+                            <?php if ($result->ORV_GARANTIAS_ID) { ?>
+                                <a target="_blank" title="Imprimir Termo de Garantia" class="button btn btn-mini btn-inverse" href="<?php echo site_url() ?>/garantias/imprimirGarantiaOs/<?php echo $result->ORV_GARANTIAS_ID; ?>">
                                     <span class="button__icon"><i class="bx bx-paperclip"></i></span> <span class="button__text">Termo Garantia</span>
                                 </a>
                             <?php } ?>
@@ -44,7 +44,7 @@
                     <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eOs')) {
                         $this->load->model('os_model');
                         $zapnumber = preg_replace("/[^0-9]/", "", $result->celular_cliente);
-                        $troca = [$result->nomeCliente, $result->idOs, $result->status, 'R$ ' . ($result->desconto != 0 && $result->valor_desconto != 0 ? number_format($result->valor_desconto, 2, ',', '.') : number_format($totalProdutos + $totalServico, 2, ',', '.')), strip_tags($result->descricaoProduto), ($emitente ? $emitente->nome : ''), ($emitente ? $emitente->telefone : ''), strip_tags($result->observacoes), strip_tags($result->defeito), strip_tags($result->laudoTecnico), date('d/m/Y', strtotime($result->dataFinal)), date('d/m/Y', strtotime($result->dataInicial)), $result->garantia . ' dias'];
+                        $troca = [$result->nomeCliente, $result->ORV_ID, $result->ORV_STATUS, 'R$ ' . ($result->ORV_DESCONTO != 0 && $result->ORV_VALOR_DESCONTO != 0 ? number_format($result->ORV_VALOR_DESCONTO, 2, ',', '.') : number_format($totalProdutos + $totalServico, 2, ',', '.')), strip_tags($result->ORV_DESCRICAO_PRODUTO), ($emitente ? $emitente->nome : ''), ($emitente ? $emitente->telefone : ''), strip_tags($result->ORV_OBSERVACOES), strip_tags($result->ORV_DEFEITO), strip_tags($result->ORV_LAUDO_TECNICO), date('d/m/Y', strtotime($result->ORV_DATA_FINAL)), date('d/m/Y', strtotime($result->ORV_DATA_INICIAL)), $result->ORV_GARANTIA . ' dias'];
                         $texto_de_notificacao = $this->os_model->criarTextoWhats($texto_de_notificacao, $troca);
                         if (!empty($zapnumber)) {
                             echo '<a title="Via WhatsApp" class="button btn btn-mini btn-success" id="enviarWhatsApp" target="_blank" href="https://wa.me/send?phone=55' . $zapnumber . '&text=' . $texto_de_notificacao . '" ' . ($zapnumber == '' ? 'disabled' : '') . '>
@@ -52,7 +52,7 @@
                             </a>';
                         }
                     } ?>
-                    <a title="Enviar por E-mail" class="button btn btn-mini btn-warning" href="<?php echo site_url() ?>/os/enviar_email/<?php echo $result->idOs; ?>">
+                    <a title="Enviar por E-mail" class="button btn btn-mini btn-warning" href="<?php echo site_url() ?>/os/enviar_email/<?php echo $result->ORV_ID; ?>">
                         <span class="button__icon"><i class="bx bx-envelope"></i></span> <span class="button__text">Via E-mail</span>
                     </a>
                 </div>
@@ -71,13 +71,13 @@
                         <div class="tab-pane active" id="tab1">
                             <div class="span12" id="divCadastrarOs">
                                 <form action="<?php echo current_url(); ?>" method="post" id="formOs">
-                                    <?php echo form_hidden('idOs', $result->idOs) ?>
+                                    <?php echo form_hidden('idOs', $result->ORV_ID) ?>
                                     <div class="span12" style="padding: 1%; margin-left: 0">
-                                        <h3>N° OS: <?php echo $result->idOs; ?></h3>
+                                        <h3>N° OS: <?php echo $result->ORV_ID; ?></h3>
                                         <div class="span6" style="margin-left: 0">
                                             <label for="cliente">Cliente<span class="required">*</span></label>
                                             <input id="cliente" class="span12" type="text" name="cliente" value="<?php echo $result->nomeCliente ?>" />
-                                            <input id="clientes_id" class="span12" type="hidden" name="clientes_id" value="<?php echo $result->clientes_id ?>" />
+                                            <input id="clientes_id" class="span12" type="hidden" name="clientes_id" value="<?php echo $result->ORV_PESS_ID ?>" />
                                             <input id="valor" type="hidden" name="valor" value="" />
                                         </div>
                                         <div class="span6">
@@ -90,49 +90,49 @@
                                         <div class="span3">
                                             <label for="status">Status<span class="required">*</span></label>
                                             <select class="span12" name="status" id="status" value="">
-                                                <option <?php if ($result->status == 'Aberto') { echo 'selected'; } ?> value="Aberto">Aberto</option>
-                                                <option <?php if ($result->status == 'Orçamento') { echo 'selected'; } ?> value="Orçamento">Orçamento</option>
-                                                <option <?php if ($result->status == 'Negociação') { echo 'selected'; } ?> value="Negociação">Negociação</option>
-                                                <option <?php if ($result->status == 'Aprovado') { echo 'selected'; } ?> value="Aprovado">Aprovado</option>
-                                                <option <?php if ($result->status == 'Aguardando Peças') { echo 'selected'; } ?> value="Aguardando Peças">Aguardando Peças</option>
-                                                <option <?php if ($result->status == 'Em Andamento') { echo 'selected'; } ?> value="Em Andamento">Em Andamento</option>
-                                                <option <?php if ($result->status == 'Finalizado') { echo 'selected'; } ?> value="Finalizado">Finalizado</option>
-                                                <option <?php if ($result->status == 'Faturado') { echo 'selected'; } ?> value="Faturado">Faturado</option>
-                                                <option <?php if ($result->status == 'Cancelado') { echo 'selected'; } ?> value="Cancelado">Cancelado</option>                                                          
+                                                <option <?php if ($result->ORV_STATUS == 'Aberto') { echo 'selected'; } ?> value="Aberto">Aberto</option>
+                                                <option <?php if ($result->ORV_STATUS == 'Orçamento') { echo 'selected'; } ?> value="Orçamento">Orçamento</option>
+                                                <option <?php if ($result->ORV_STATUS == 'Negociação') { echo 'selected'; } ?> value="Negociação">Negociação</option>
+                                                <option <?php if ($result->ORV_STATUS == 'Aprovado') { echo 'selected'; } ?> value="Aprovado">Aprovado</option>
+                                                <option <?php if ($result->ORV_STATUS == 'Aguardando Peças') { echo 'selected'; } ?> value="Aguardando Peças">Aguardando Peças</option>
+                                                <option <?php if ($result->ORV_STATUS == 'Em Andamento') { echo 'selected'; } ?> value="Em Andamento">Em Andamento</option>
+                                                <option <?php if ($result->ORV_STATUS == 'Finalizado') { echo 'selected'; } ?> value="Finalizado">Finalizado</option>
+                                                <option <?php if ($result->ORV_STATUS == 'Faturado') { echo 'selected'; } ?> value="Faturado">Faturado</option>
+                                                <option <?php if ($result->ORV_STATUS == 'Cancelado') { echo 'selected'; } ?> value="Cancelado">Cancelado</option>                                                          
                                             </select>
                                         </div>
                                         <div class="span3">
                                             <label for="dataInicial">Data Inicial<span class="required">*</span></label>
-                                            <input id="dataInicial" autocomplete="off" class="span12 datepicker" type="text" name="dataInicial" value="<?php echo date('d/m/Y', strtotime($result->dataInicial)); ?>" />
+                                            <input id="dataInicial" autocomplete="off" class="span12 datepicker" type="text" name="dataInicial" value="<?php echo date('d/m/Y', strtotime($result->ORV_DATA_INICIAL)); ?>" />
                                         </div>
                                         <div class="span3">
                                             <label for="dataFinal">Data Final<span class="required">*</span></label>
-                                            <input id="dataFinal" autocomplete="off" class="span12 datepicker" type="text" name="dataFinal" value="<?php echo date('d/m/Y', strtotime($result->dataFinal)); ?>" />
+                                            <input id="dataFinal" autocomplete="off" class="span12 datepicker" type="text" name="dataFinal" value="<?php echo date('d/m/Y', strtotime($result->ORV_DATA_FINAL)); ?>" />
                                         </div>
                                         <div class="span3">
                                             <label for="garantia">Garantia (dias)</label>
-                                            <input id="garantia" type="number" placeholder="Status s/g inserir nº/0" min="0" max="9999" class="span12" name="garantia" value="<?php echo $result->garantia ?>" />
+                                            <input id="garantia" type="number" placeholder="Status s/g inserir nº/0" min="0" max="9999" class="span12" name="garantia" value="<?php echo $result->ORV_GARANTIA ?>" />
                                             <?php echo form_error('garantia'); ?>
                                             <label for="termoGarantia">Termo Garantia</label>
                                             <input id="termoGarantia" class="span12" type="text" name="termoGarantia" value="<?php echo $result->refGarantia ?>" />
-                                            <input id="garantias_id" class="span12" type="hidden" name="garantias_id" value="<?php echo $result->garantias_id ?>" />
+                                            <input id="garantias_id" class="span12" type="hidden" name="garantias_id" value="<?php echo $result->ORV_GARANTIAS_ID ?>" />
                                         </div>
                                     </div>
                                     <div class="span6" style="padding: 1%; margin-left: 0">
                                         <label for="descricaoProduto"><h4>Descrição Produto/Serviço</h4></label>
-                                        <textarea class="span12 editor" name="descricaoProduto" id="descricaoProduto" cols="30" rows="5"><?php echo $result->descricaoProduto ?></textarea>
+                                        <textarea class="span12 editor" name="descricaoProduto" id="descricaoProduto" cols="30" rows="5"><?php echo $result->ORV_DESCRICAO_PRODUTO ?></textarea>
                                     </div>
                                     <div class="span6" style="padding: 1%; margin-left: 0">
                                         <label for="defeito"><h4>Defeito</h4></label>
-                                        <textarea class="span12 editor" name="defeito" id="defeito" cols="30" rows="5"><?php echo $result->defeito ?></textarea>
+                                        <textarea class="span12 editor" name="defeito" id="defeito" cols="30" rows="5"><?php echo $result->ORV_DEFEITO ?></textarea>
                                     </div>
                                     <div class="span6" style="padding: 1%; margin-left: 0">
                                         <label for="observacoes"><h4>Observações</h4></label>
-                                        <textarea class="span12 editor" name="observacoes" id="observacoes" cols="30" rows="5"><?php echo $result->observacoes ?></textarea>
+                                        <textarea class="span12 editor" name="observacoes" id="observacoes" cols="30" rows="5"><?php echo $result->ORV_OBSERVACOES ?></textarea>
                                     </div>
                                     <div class="span6" style="padding: 1%; margin-left: 0">
                                         <label for="laudoTecnico"><h4>Laudo Técnico</h4></label>
-                                        <textarea class="span12 editor" name="laudoTecnico" id="laudoTecnico" cols="30" rows="5"><?php echo $result->laudoTecnico ?></textarea>
+                                        <textarea class="span12 editor" name="laudoTecnico" id="laudoTecnico" cols="30" rows="5"><?php echo $result->ORV_LAUDO_TECNICO ?></textarea>
                                     </div>
                                     <div class="span12" style="padding: 0; margin-left: 0">
                                         <div class="span6 offset3" style="display:flex;justify-content: center">
@@ -145,8 +145,8 @@
                         </div>
 
                         <!--Desconto-->
-                        <?php $total = 0; foreach ($produtos as $p) {$total = $total + $p->subTotal;}?>
-                        <?php $totals = 0; foreach ($servicos as $s) { $preco = $s->preco ?: $s->precoVenda; $subtotals = $preco * ($s->quantidade ?: 1); $totals = $totals + $subtotals;}?>
+                        <?php $total = 0; foreach ($produtos as $p) {$total = $total + $p->PRO_OS_SUBTOTAL;}?>
+                        <?php $totals = 0; foreach ($servicos as $s) { $preco = $s->SOS_PRECO ?: $s->precoVenda; $subtotals = $preco * ($s->SOS_QUANTIDADE ?: 1); $totals = $totals + $subtotals;}?>
                         <div class="tab-pane" id="tab2">
                             <div class="span12 well" style="padding: 1%; margin-left: 0">
                                 <form id="formDesconto" action="<?php echo base_url(); ?>index.php/os/adicionarDesconto" method="POST">
@@ -160,21 +160,21 @@
                                         <label for="">Tipo Desc.</label>
                                         <select style="width: 4em;" name="tipoDesconto" id="tipoDesconto">
                                             <option value="real">R$</option>
-                                            <option value="porcento" <?= $result->tipo_desconto == "porcento" ? "selected" : "" ?>>%</option>
+                                            <option value="porcento" <?= $result->ORV_TIPO_DESCONTO == "porcento" ? "selected" : "" ?>>%</option>
                                         </select>
                                         <strong><span style="color: red" id="errorAlert"></span></strong>
                                     </div>
                                     <div class="span3">
                                         <input type="hidden" name="idOs" id="idOs"
-                                            value="<?php echo $result->idOs; ?>" />
+                                            value="<?php echo $result->ORV_ID; ?>" />
                                         <label for="">Desconto</label>
                                         <input style="width: 4em;" id="desconto" name="desconto" type="text"
-                                            placeholder="" maxlength="6" size="2" value="<?= $result->desconto ?>" />
+                                            placeholder="" maxlength="6" size="2" value="<?= $result->ORV_DESCONTO ?>" />
                                         <strong><span style="color: red" id="errorAlert"></span></strong>
                                     </div>
                                     <div class="span2">
                                         <label for="">Total com Desconto</label>
-                                        <input class="span12 money" id="resultado" type="text" data-affixes-stay="true" data-thousands="" data-decimal="." name="resultado" value="<?php echo $result->valor_desconto ?>" readonly />
+                                        <input class="span12 money" id="resultado" type="text" data-affixes-stay="true" data-thousands="" data-decimal="." name="resultado" value="<?php echo $result->ORV_VALOR_DESCONTO ?>" readonly />
                                     </div>
                                     <div class="span2">
                                         <label for="">&nbsp;</label>
@@ -192,7 +192,7 @@
                                 <form id="formProdutos" action="<?php echo base_url() ?>index.php/os/adicionarProduto" method="post">
                                     <div class="span6">
                                         <input type="hidden" name="idProduto" id="idProduto" />
-                                        <input type="hidden" name="idOsProduto" id="idOsProduto" value="<?php echo $result->idOs; ?>" />
+                                        <input type="hidden" name="idOsProduto" id="idOsProduto" value="<?php echo $result->ORV_ID; ?>" />
                                         <input type="hidden" name="estoque" id="estoque" value="" />
                                         <label for="">Produto</label>
                                         <input type="text" class="span12" name="produto" id="produto" placeholder="Digite o nome do produto" />
@@ -230,13 +230,13 @@
                                             <?php
                                             $total = 0;
                                             foreach ($produtos as $p) {
-                                                $total = $total + $p->subTotal;
+                                                $total = $total + $p->PRO_OS_SUBTOTAL;
                                                 echo '<tr>';
-                                                echo '<td>' . $p->descricao . '</td>';
-                                                echo '<td><div align="center">' . $p->quantidade . '</td>';
-                                                echo '<td><div align="center">R$: ' . ($p->preco ?: $p->precoVenda) . '</td>';
-                                                echo (strtolower($result->status) != "cancelado") ? '<td><div align="center"><a href="" idAcao="' . $p->idProdutos_os . '" prodAcao="' . $p->idProdutos . '" quantAcao="' . $p->quantidade . '" title="Excluir Produto" class="btn-nwe4"><i class="bx bx-trash-alt"></i></a></td>' : '<td></td>';
-                                                echo '<td><div align="center">R$: ' . number_format($p->subTotal, 2, ',', '.') . '</td>';
+                                                echo '<td>' . $p->PRO_OS_DESCRICAO . '</td>';
+                                                echo '<td><div align="center">' . $p->PRO_OS_QUANTIDADE . '</td>';
+                                                echo '<td><div align="center">R$: ' . ($p->PRO_OS_PRECO ?: $p->precoVenda) . '</td>';
+                                                echo (strtolower($result->ORV_STATUS) != "cancelado") ? '<td><div align="center"><a href="" idAcao="' . $p->PRO_OS_ID . '" prodAcao="' . $p->PRO_ID . '" quantAcao="' . $p->PRO_OS_QUANTIDADE . '" title="Excluir Produto" class="btn-nwe4"><i class="bx bx-trash-alt"></i></a></td>' : '<td></td>';
+                                                echo '<td><div align="center">R$: ' . number_format($p->PRO_OS_SUBTOTAL, 2, ',', '.') . '</td>';
                                                 echo '</tr>';
                                             } ?>
                                         </tbody>
@@ -266,7 +266,7 @@
                                     <div class="span6">
                                         <input type="hidden" name="idServico" id="idServico" />
                                         <input type="hidden" name="idOsServico" id="idOsServico"
-                                            value="<?php echo $result->idOs; ?>" />
+                                            value="<?php echo $result->ORV_ID; ?>" />
                                         <label for="">Serviço</label>
                                         <input type="text" class="span12" name="servico" id="servico"
                                             placeholder="Digite o nome do serviço" />
@@ -306,14 +306,14 @@
                                             <?php
                                             $totals = 0;
                                             foreach ($servicos as $s) {
-                                                $preco = $s->preco ?: $s->precoVenda;
-                                                $subtotals = $preco * ($s->quantidade ?: 1);
+                                                $preco = $s->SOS_PRECO ?: $s->precoVenda;
+                                                $subtotals = $preco * ($s->SOS_QUANTIDADE ?: 1);
                                                 $totals = $totals + $subtotals;
                                                 echo '<tr>';
                                                 echo '<td>' . $s->nome . '</td>';
-                                                echo '<td><div align="center">' . ($s->quantidade ?: 1) . '</div></td>';
+                                                echo '<td><div align="center">' . ($s->SOS_QUANTIDADE ?: 1) . '</div></td>';
                                                 echo '<td><div align="center">R$ ' . $preco . '</div></td>';
-                                                echo '<td><div align="center"><span idAcao="' . $s->idServicos_os . '" title="Excluir Serviço" class="btn-nwe4 servico"><i class="bx bx-trash-alt"></i></span></div></td>';
+                                                echo '<td><div align="center"><span idAcao="' . $s->SOS_ID . '" title="Excluir Serviço" class="btn-nwe4 servico"><i class="bx bx-trash-alt"></i></span></div></td>';
                                                 echo '<td><div align="center">R$: ' . number_format($subtotals, 2, ',', '.') . '</div></td>';
                                                 echo '</tr>';
                                             } ?>
@@ -344,7 +344,7 @@
                                         accept-charset="utf-8" s method="post">
                                         <div class="span10">
                                             <input type="hidden" name="idOsServico" id="idOsServico"
-                                                value="<?php echo $result->idOs; ?>" />
+                                                value="<?php echo $result->ORV_ID; ?>" />
                                             <label for="">Anexo</label>
                                             <input type="file" class="span12" name="userfile[]" multiple="multiple"
                                                 size="20" />
@@ -460,7 +460,7 @@
             <div class="span12" style="margin-left: 0">
                 <label for="anotacao">Anotação</label>
                 <textarea class="span12" name="anotacao" id="anotacao" cols="30" rows="3"></textarea>
-                <input type="hidden" name="os_id" value="<?php echo $result->idOs; ?>">
+                <input type="hidden" name="os_id" value="<?php echo $result->ORV_ID; ?>">
             </div>
         </div>
         <div class="modal-footer" style="display:flex;justify-content: center">
@@ -484,17 +484,17 @@
             <div class="span12" style="margin-left: 0">
                 <label for="descricao">Descrição</label>
                 <input class="span12" id="descricao" type="text" name="descricao"
-                    value="Fatura de OS Nº: <?php echo $result->idOs; ?> " />
+                    value="Fatura de OS Nº: <?php echo $result->ORV_ID; ?> " />
             </div>
             <div class="span12" style="margin-left: 0">
                 <div class="span12" style="margin-left: 0">
                     <label for="cliente">Cliente*</label>
                     <input class="span12" id="cliente" type="text" name="cliente"
                         value="<?php echo $result->nomeCliente ?>" />
-                    <input type="hidden" name="clientes_id" id="clientes_id" value="<?php echo $result->clientes_id ?>">
-                    <input type="hidden" name="os_id" id="os_id" value="<?php echo $result->idOs; ?>">
+                    <input type="hidden" name="clientes_id" id="clientes_id" value="<?php echo $result->ORV_PESS_ID ?>">
+                    <input type="hidden" name="os_id" id="os_id" value="<?php echo $result->ORV_ID; ?>">
                     <input type="hidden" name="tipoDesconto" id="tipoDesconto"
-                        value="<?php echo $result->tipo_desconto; ?>">
+                        value="<?php echo $result->ORV_TIPO_DESCONTO; ?>">
                 </div>
             </div>
             <div class="span12" style="margin-left: 0">
@@ -508,7 +508,7 @@
                 <div class="span6" style="margin-left: 2;">
                     <label for="valor">Valor Com Desconto*</label>
                     <input class="span12 money" id="faturar-desconto" type="text" name="faturar-desconto"
-                        value="<?php echo number_format($result->valor_desconto, 2, '.', ''); ?> " />
+                        value="<?php echo number_format($result->ORV_VALOR_DESCONTO, 2, '.', ''); ?> " />
                     <strong><span style="color: red" id="resultado"></span></strong>
                 </div>
             </div>
@@ -741,7 +741,7 @@
                             text: response.messages
                         });
                         setTimeout(function () {
-                            window.location.href = window.BaseUrl + 'index.php/os/editar/' + <?php echo $result->idOs ?>;
+                            window.location.href = window.BaseUrl + 'index.php/os/editar/' + <?php echo $result->ORV_ID ?>;
                         }, 2000);
                     } else {
                         Swal.fire({
@@ -1106,7 +1106,7 @@
             var idProduto = $(this).attr('idAcao');
             var quantidade = $(this).attr('quantAcao');
             var produto = $(this).attr('prodAcao');
-            var idOS = "<?php echo $result->idOs ?>"
+            var idOS = "<?php echo $result->ORV_ID ?>"
             if ((idProduto % 1) == 0) {
                 $("#divProdutos").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");
                 $.ajax({
@@ -1137,7 +1137,7 @@
 
         $(document).on('click', '.servico', function (event) {
             var idServico = $(this).attr('idAcao');
-            var idOS = "<?php echo $result->idOs ?>"
+            var idOS = "<?php echo $result->ORV_ID ?>"
             if ((idServico % 1) == 0) {
                 $("#divServicos").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");
                 $.ajax({
@@ -1180,7 +1180,7 @@
         $(document).on('click', '#excluir-anexo', function (event) {
             event.preventDefault();
             var link = $(this).attr('link');
-            var idOS = "<?php echo $result->idOs ?>"
+            var idOS = "<?php echo $result->ORV_ID ?>"
             $('#modal-anexo').modal('hide');
             $("#divAnexos").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");
 
@@ -1205,7 +1205,7 @@
 
         $(document).on('click', '.anotacao', function (event) {
             var idAnotacao = $(this).attr('idAcao');
-            var idOS = "<?php echo $result->idOs ?>"
+            var idOS = "<?php echo $result->ORV_ID ?>"
             if ((idAnotacao % 1) == 0) {
                 $("#divAnotacoes").html("<div class='progress progress-info progress-striped active'><div class='bar' style='width: 100%'></div></div>");
                 $.ajax({

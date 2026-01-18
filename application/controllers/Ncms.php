@@ -61,7 +61,7 @@ class Ncms extends MY_Controller
         // Busca informações de tributação para cada NCM
         foreach ($this->data['ncms'] as $ncm) {
             // Verifica tributação federal
-            $tributacao_federal = $this->ncms_model->verificarDadosInseridos($ncm->ncm_id);
+            $tributacao_federal = $this->ncms_model->verificarDadosInseridos($ncm->NCM_ID);
             $ncm->tributacao_federal = !empty($tributacao_federal) && 
                                      ($tributacao_federal->tbf_cst_ipi_entrada != '' || 
                                       $tributacao_federal->tbf_cst_pis_cofins_entrada != '' || 
@@ -69,7 +69,7 @@ class Ncms extends MY_Controller
                                       $tributacao_federal->tbf_cst_pis_cofins_saida != '');
             
             // Verifica tributação estadual
-            $tributacao_estadual = $this->ncms_model->getTributacaoEstadual($ncm->ncm_id);
+            $tributacao_estadual = $this->ncms_model->getTributacaoEstadual($ncm->NCM_ID);
             $ncm->tributacao_estadual = !empty($tributacao_estadual);
         }
 

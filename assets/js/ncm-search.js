@@ -1,7 +1,7 @@
 $(document).ready(function() {
     var $ncmInput = $('#NCMs');
     var $ncmId = $('#ncm_id');
-    var baseUrl = window.location.origin + '/mapos/';
+    var baseUrl = '<?php echo base_url(); ?>';
 
     // Busca o NCM inicial se houver um código
     if ($ncmInput.val()) {
