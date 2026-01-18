@@ -19,7 +19,13 @@ class CertificateHandler
     public function loadCertificate($certificatePath, $password)
     {
         log_message('debug', 'CertificateHandler: Tentando carregar certificado de ' . $certificatePath);
-        
+
+        // Fix for OpenSSL 3 legacy certificates
+        if (file_exists('C:/xampp/php/extras/ssl/openssl.cnf')) {
+            putenv('OPENSSL_CONF=C:/xampp/php/extras/ssl/openssl.cnf');
+            putenv('OPENSSL_MODULES=C:/xampp/php/extras/ssl');
+        }
+
         if (!file_exists($certificatePath)) {
             log_message('error', 'CertificateHandler: Arquivo do certificado não encontrado em ' . $certificatePath);
             throw new Exception('Arquivo do certificado não encontrado');
@@ -41,7 +47,7 @@ class CertificateHandler
     {
         log_message('debug', 'CertificateHandler: Extraindo informações do certificado');
         $cert = openssl_x509_parse($this->certificate['cert']);
-        
+
         $this->certInfo = [
             'commonName' => $cert['subject']['CN'] ?? '',
             'issuerName' => $cert['issuer']['CN'] ?? '',
@@ -50,7 +56,7 @@ class CertificateHandler
             'validFrom' => date('Y-m-d H:i:s', $cert['validFrom_time_t']),
             'validTo' => date('Y-m-d H:i:s', $cert['validTo_time_t'])
         ];
-        
+
         log_message('debug', 'CertificateHandler: Informações extraídas: ' . json_encode($this->certInfo));
     }
 
@@ -112,4 +118,4 @@ class CertificateHandler
     {
         return $this->certInfo['validTo'] ?? '';
     }
-} 
+}

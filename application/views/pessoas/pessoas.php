@@ -66,6 +66,9 @@
                         echo '<td>' . ($r->PES_FISICO_JURIDICO === 'F' ? 'Física' : 'Jurídica') . '</td>';
                         echo '<td>' . ((int)$r->PES_SITUACAO === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>') . '</td>';
                         echo '<td>';
+                        if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vPessoa')) {
+                            echo '<a href="' . base_url() . 'index.php/pessoas/visualizar/' . $r->PES_ID . '" style="margin-right: 1%" class="btn-nwe" title="Visualizar Pessoa"><i class="bx bx-show bx-xs"></i></a>';
+                        }
                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'ePessoa')) {
                             echo '<a href="' . base_url() . 'index.php/pessoas/editar/' . $r->PES_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Editar Pessoa"><i class="bx bx-edit bx-xs"></i></a>';
                         }

@@ -486,7 +486,15 @@
 
                                                 foreach ($tipos_pessoa as $tipo):
                                                     $checked = in_array($tipo->id, $tipos_vinculados_ids) ? 'checked' : '';
-                                                    error_log('Tipo ' . $tipo->id . ' (' . $tipo->nome . '): ' . ($checked ? 'MARCADO' : 'NÃO MARCADO'));
+                                                    
+                                                    // Fallback/Verificação direta: se for Cliente ou Vendedor, verificar as tabelas específicas
+                                                    if (!$checked) {
+                                                        if (strtolower($tipo->nome) == 'cliente' && isset($cliente) && $cliente) {
+                                                            $checked = 'checked';
+                                                        } elseif (strtolower($tipo->nome) == 'vendedor' && isset($vendedor) && $vendedor) {
+                                                            $checked = 'checked';
+                                                        }
+                                                    }
                                                     ?>
                                                     <label class="checkbox"
                                                         style="display:block; margin-bottom:8px; width: 100%;">
@@ -497,6 +505,7 @@
                                                         <?php echo $tipo->nome; ?>
                                                     </label>
                                                 <?php endforeach; ?>
+
                                             </div>
                                         </div>
                                     </div>
@@ -1121,25 +1130,35 @@
 
                         // Adicionar endereço principal inline
                         if (estab.logradouro) {
+                            const isPrimeiro = $('#enderecos-container .endereco-row').length === 0;
+                            const checkedAttr = isPrimeiro ? 'checked' : '';
+
                             const enderecoRow = `
                             <div class="endereco-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
                                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                                    <select name="END_TIPO[]" class="form-control" style="width: 120px;">
+                                    <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 3;" value="${estab.logradouro || ''}" />
+                                    <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 80px;" value="${estab.numero || ''}" />
+                                    <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 2;" value="${estab.complemento || ''}" />
+                                </div>
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                    <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 110px;" value="${estab.cep || ''}" />
+                                    <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="${estab.bairro || ''}" />
+                                    <input type="text" name="END_CIDADE[]" placeholder="Cidade" class="form-control" style="flex: 1;" value="${estab.cidade ? estab.cidade.nome : ''}" />
+                                    <input type="text" name="END_UF[]" placeholder="UF" class="form-control" style="width: 50px;" maxlength="2" value="${estab.estado ? estab.estado.sigla : ''}" />
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <select name="END_TIPO[]" class="form-control" style="width: 150px;">
                                         <option value="Comercial" selected>Comercial</option>
                                         <option value="Residencial">Residencial</option>
                                         <option value="Cobrança">Cobrança</option>
                                         <option value="Entrega">Entrega</option>
                                         <option value="Outros">Outros</option>
                                     </select>
-                                    <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 120px;" value="${estab.cep || ''}" />
-                                    <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 2;" value="${estab.logradouro || ''}" />
-                                    <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 100px;" value="${estab.numero || ''}" />
-                                </div>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 1;" value="${estab.complemento || ''}" />
-                                    <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="${estab.bairro || ''}" />
-                                    <input type="text" name="END_CIDADE[]" placeholder="Cidade" class="form-control" style="flex: 1;" value="${estab.cidade ? estab.cidade.nome : ''}" />
-                                    <input type="text" name="END_UF[]" placeholder="UF" class="form-control" style="width: 60px;" maxlength="2" value="${estab.estado ? estab.estado.sigla : ''}" />
+                                    <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
+                                        <input type="radio" name="endereco_padrao" value="novo_${enderecoIndex}" ${checkedAttr} />
+                                        <strong>Endereço Padrão</strong>
+                                    </label>
+                                    <div style="flex: 1;"></div>
                                     <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -1546,31 +1565,35 @@
 
         // Adicionar endereço inline
         $('#btnAdicionarEndereco').on('click', function () {
+            const isPrimeiro = $('#enderecos-container .endereco-row').length === 0;
+            const checkedAttr = isPrimeiro ? 'checked' : '';
+
             const enderecoRow = `
             <div class="endereco-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <select name="END_TIPO[]" class="form-control" style="width: 120px;">
+                    <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 3;" />
+                    <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 80px;" />
+                    <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 2;" />
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 110px;" />
+                    <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" />
+                    <input type="text" name="END_CIDADE[]" placeholder="Cidade *" class="form-control" style="flex: 1;" title="Campo obrigatório - necessário para determinar o município" />
+                    <input type="text" name="END_UF[]" placeholder="UF *" class="form-control" style="width: 50px;" maxlength="2" title="Campo obrigatório - necessário para determinar o estado" />
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select name="END_TIPO[]" class="form-control" style="width: 150px;">
                         <option value="Comercial">Comercial</option>
                         <option value="Residencial">Residencial</option>
                         <option value="Cobrança">Cobrança</option>
                         <option value="Entrega">Entrega</option>
                         <option value="Outros">Outros</option>
                     </select>
-                    <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 120px;" />
-                    <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 2;" />
-                    <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 100px;" />
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-                    <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 1;" />
-                    <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" />
-                    <input type="text" name="END_CIDADE[]" placeholder="Cidade *" class="form-control" style="flex: 1;" title="Campo obrigatório - necessário para determinar o município" />
-                    <input type="text" name="END_UF[]" placeholder="UF *" class="form-control" style="width: 60px;" maxlength="2" title="Campo obrigatório - necessário para determinar o estado" />
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <label class="checkbox" style="margin: 0;">
-                        <input type="radio" name="endereco_padrao" value="novo_${enderecoIndex}" style="margin-right: 5px;" />
+                    <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" name="endereco_padrao" value="novo_${enderecoIndex}" ${checkedAttr} style="margin-right: 5px;" />
                         <strong>Endereço Padrão</strong>
                     </label>
+                    <div style="flex: 1;"></div>
                     <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -1616,7 +1639,14 @@
 
         // Remover endereço
         $(document).on('click', '.remove-endereco', function () {
+            var eraPadrao = $(this).closest('.endereco-row').find('input[name="endereco_padrao"]').is(':checked');
             $(this).closest('.endereco-row').remove();
+            
+            // Se removeu o padrão, marcar o primeiro disponível
+            if (eraPadrao) {
+                $('input[name="endereco_padrao"]').first().prop('checked', true);
+            }
+            
             atualizarOpcoesEndereco();
         });
 
@@ -1826,28 +1856,29 @@
                 <div class="endereco-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
                     <input type="hidden" name="END_ID[]" value="<?php echo $end->END_ID; ?>" />
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <select name="END_TIPO[]" class="form-control" style="width: 120px;">
+                        <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 3;" value="<?php echo isset($end->END_LOGRADOURO) ? $end->END_LOGRADOURO : ''; ?>" />
+                        <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 80px;" value="<?php echo isset($end->END_NUMERO) ? $end->END_NUMERO : ''; ?>" />
+                        <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 2;" value="<?php echo isset($end->END_COMPLEMENTO) ? $end->END_COMPLEMENTO : ''; ?>" />
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 110px;" value="<?php echo isset($end->END_CEP) ? $end->END_CEP : ''; ?>" />
+                        <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="<?php echo isset($end->BAI_NOME) ? $end->BAI_NOME : ''; ?>" />
+                        <input type="text" name="END_CIDADE[]" placeholder="Cidade *" class="form-control" style="flex: 1;" value="<?php echo isset($end->MUN_NOME) ? $end->MUN_NOME : ''; ?>" title="Campo obrigatório - necessário para determinar o município" />
+                        <input type="text" name="END_UF[]" placeholder="UF *" class="form-control" style="width: 50px;" maxlength="2" value="<?php echo isset($end->EST_UF) ? $end->EST_UF : ''; ?>" title="Campo obrigatório - necessário para determinar o estado" />
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select name="END_TIPO[]" class="form-control" style="width: 150px;">
                             <option value="Comercial" <?php echo $end->END_TIPO_ENDENRECO == 'Geral' || $end->END_TIPO_ENDENRECO == 'Comercial' ? 'selected' : ''; ?>>Comercial</option>
                             <option value="Residencial" <?php echo $end->END_TIPO_ENDENRECO == 'Residencial' ? 'selected' : ''; ?>>Residencial</option>
                             <option value="Cobrança" <?php echo $end->END_TIPO_ENDENRECO == 'Cobranca' ? 'selected' : ''; ?>>Cobrança</option>
                             <option value="Entrega" <?php echo $end->END_TIPO_ENDENRECO == 'Entrega' ? 'selected' : ''; ?>>Entrega</option>
                             <option value="Outros" <?php echo $end->END_TIPO_ENDENRECO == 'Outros' ? 'selected' : ''; ?>>Outros</option>
                         </select>
-                        <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 120px;" value="<?php echo isset($end->END_CEP) ? $end->END_CEP : ''; ?>" />
-                        <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 2;" value="<?php echo isset($end->END_LOGRADOURO) ? $end->END_LOGRADOURO : ''; ?>" />
-                        <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 100px;" value="<?php echo isset($end->END_NUMERO) ? $end->END_NUMERO : ''; ?>" />
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-                        <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 1;" value="<?php echo isset($end->END_COMPLEMENTO) ? $end->END_COMPLEMENTO : ''; ?>" />
-                        <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="<?php echo isset($end->BAI_NOME) ? $end->BAI_NOME : ''; ?>" />
-                        <input type="text" name="END_CIDADE[]" placeholder="Cidade *" class="form-control" style="flex: 1;" value="<?php echo isset($end->MUN_NOME) ? $end->MUN_NOME : ''; ?>" title="Campo obrigatório - necessário para determinar o município" />
-                        <input type="text" name="END_UF[]" placeholder="UF *" class="form-control" style="width: 60px;" maxlength="2" value="<?php echo isset($end->EST_UF) ? $end->EST_UF : ''; ?>" title="Campo obrigatório - necessário para determinar o estado" />
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <label class="checkbox" style="margin: 0;">
-                            <input type="radio" name="endereco_padrao" value="<?php echo $end->END_ID; ?>" <?php echo (isset($end->END_PADRAO) && $end->END_PADRAO == 1) ? 'checked' : ''; ?> style="margin-right: 5px;" />
+                        <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="endereco_padrao" value="<?php echo $end->END_ID; ?>" <?php echo ($end->END_PADRAO == 1) ? 'checked' : ''; ?> />
                             <strong>Endereço Padrão</strong>
                         </label>
+                        <div style="flex: 1;"></div>
                         <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <i class="fas fa-trash"></i>
                         </button>

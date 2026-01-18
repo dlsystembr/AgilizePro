@@ -1,0 +1,7 @@
+Falha Exec: Ret: 1. Output: Array
+(
+    [0] => Error reading password from BIO
+    [1] => Error getting passwords
+    [2] => Error reading password from BIO
+    [3] => Error getting passwords
+)

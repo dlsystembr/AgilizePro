@@ -104,10 +104,16 @@
                                 echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="DANFE"><i class="bx bx-file"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS < 2) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Gerar XML"><i class="bx bx-code"></i></a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Emitir Nota"><i class="bx bx-paper-plane"></i></a>';
+                            }
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS >= 2) {
+                                echo '<a href="' . base_url() . 'index.php/nfecom/consultar/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Consultar"><i class="bx bx-search"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS == 2) {
                                 echo '<a href="' . base_url() . 'index.php/nfecom/autorizar/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Autorizar"><i class="bx bx-check"></i></a>';
+                            }
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS == 4) {
+                                echo '<a href="' . base_url() . 'index.php/nfecom/reemitir/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Reemitir"><i class="bx bx-refresh"></i></a>';
                             }
                             echo '</td>';
                             echo '</tr>';
@@ -120,6 +126,86 @@
 </div>
 
 <?php echo $this->pagination->create_links(); ?>
+
+<!-- Modal de Resposta da SEFAZ -->
+<div class="modal fade nfe-modal" id="nfecomModal" tabindex="-1" role="dialog" aria-labelledby="nfecomModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="nfecomModalLabel">
+                    <i class="fas fa-file-invoice"></i> Resposta da SEFAZ
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <?php if ($this->session->flashdata('nfecom_modal')): 
+                    $nfecom_modal = $this->session->flashdata('nfecom_modal');
+                ?>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    <label><strong>Número NFeCOM:</strong></label>
+                                    <div class="text-break"><?php echo $nfecom_modal['numero_nfcom']; ?></div>
+                                </td>
+                                <td>
+                                    <label><strong>Chave NFeCOM:</strong></label>
+                                    <div class="text-break"><?php echo $nfecom_modal['chave_nfcom']; ?></div>
+                                </td>
+                                <td>
+                                    <label><strong>Status:</strong></label>
+                                    <div class="nfe-status <?php echo ($nfecom_modal['status'] == 'Autorizado') ? 'success' : 'error'; ?>">
+                                        <?php echo $nfecom_modal['status']; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="mt-3">
+                        <label><strong>Motivo:</strong></label>
+                        <div class="text-break"><?php echo $nfecom_modal['motivo']; ?></div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label><strong>Protocolo:</strong></label>
+                        <div class="well">
+                            <pre><?php echo htmlspecialchars($nfecom_modal['protocolo']); ?></pre>
+                        </div>
+                    </div>
+
+                    <?php if (!empty($nfecom_modal['retorno'])): ?>
+                        <div class="mt-3">
+                            <label><strong>Retorno SEFAZ:</strong></label>
+                            <div class="well">
+                                <pre><?php echo htmlspecialchars($nfecom_modal['retorno']); ?></pre>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Nenhuma resposta da SEFAZ disponível.
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="nfe-button" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    <?php if ($this->session->flashdata('nfecom_modal')): ?>
+        $('#nfecomModal').modal('show');
+    <?php endif; ?>
+});
+</script>
 
 <!-- Modal -->
 <div id="modal-nfecom" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

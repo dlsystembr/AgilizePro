@@ -81,11 +81,29 @@ class Nfe_model extends CI_Model
 
     public function getCertificate()
     {
-        $this->db->select('id, certificado_digital, senha_certificado, data_validade, nome_certificado, created_at, updated_at');
-        $this->db->from('nfe_certificates');
-        $this->db->order_by('id', 'DESC');
+        // Busca o certificado ativo configurado para NFe
+        $this->db->select('cer.CER_ARQUIVO, cer.CER_SENHA, cer.CER_VALIDADE_FIM, cer.CER_TIPO, cer.CER_CNPJ');
+        $this->db->from('configuracoes_fiscais cfg');
+        $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'inner');
+        $this->db->where('cfg.CFG_TIPO_DOCUMENTO', 'NFE');
+        $this->db->where('cfg.CFG_ATIVO', 1);
+        $this->db->where('cer.CER_ATIVO', 1);
+        $this->db->order_by('cer.CER_DATA_UPLOAD', 'DESC');
         $this->db->limit(1);
-        return $this->db->get()->row();
+        
+        $result = $this->db->get()->row();
+        
+        // Se não encontrar certificado para NFe, tenta buscar qualquer certificado ativo
+        if (!$result) {
+            $this->db->select('CER_ARQUIVO, CER_SENHA, CER_VALIDADE_FIM, CER_TIPO, CER_CNPJ');
+            $this->db->from('certificados_digitais');
+            $this->db->where('CER_ATIVO', 1);
+            $this->db->order_by('CER_DATA_UPLOAD', 'DESC');
+            $this->db->limit(1);
+            $result = $this->db->get()->row();
+        }
+        
+        return $result;
     }
 
     public function getConfigurations()

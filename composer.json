@@ -19,6 +19,8 @@
         "codephix/asaas-sdk": "^2.0.10",
         "nfephp-org/sped-nfe": "^5.0.0",
         "nfephp-org/sped-da": "^1.0.0",
+        "nfephp-org/sp-nfcom": "^1.0",
+        "tecnickcom/tc-lib-barcode": "^1.15",
         "chillerlan/php-qrcode": "^3.4",
         "setasign/fpdf": "^1.8"
     },

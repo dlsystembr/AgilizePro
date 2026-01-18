@@ -385,6 +385,18 @@
                         </div>
                     </div>
 
+                                    <!-- Linha 2.1: Contato do Cliente -->
+                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                        <div class="span12">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="contatoCliente" class="control-label">Contato</label>
+                        <div class="controls">
+                            <input type="text" name="contatoCliente" id="contatoCliente" readonly>
+                        </div>
+                    </div>
+                                        </div>
+                                    </div>
+
 
                                     <!-- Linha 3: Número do Contrato -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
@@ -624,6 +636,8 @@
     </div>
 </div>
 
+<link rel="stylesheet" href="<?php echo base_url(); ?>assets/js/jquery-ui/css/smoothness/jquery-ui-1.9.2.custom.min.css">
+<script src="<?php echo base_url(); ?>assets/js/jquery-ui/js/jquery-ui-1.9.2.custom.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
     // Configurar Select2 para busca de clientes (opções iniciais + busca AJAX)
@@ -688,6 +702,26 @@ $(document).ready(function(){
     $('#cliente').change(function(){
         var clienteId = $(this).val();
         if(clienteId) {
+            // Buscar telefones do cliente
+            $.ajax({
+                url: '<?php echo base_url(); ?>index.php/nfecom/getTelefonesCliente/' + clienteId,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.error) {
+                        $('#contatoCliente').val('');
+                        return;
+                    }
+                    const telefone = data.telefone || '';
+                    const celular = data.celular || '';
+                    const contato = telefone && celular ? `${telefone} / ${celular}` : (telefone || celular);
+                    $('#contatoCliente').val(contato);
+                },
+                error: function() {
+                    $('#contatoCliente').val('');
+                }
+            });
+
             // Buscar endereços do cliente
             $.ajax({
                 url: '<?php echo base_url(); ?>index.php/nfecom/getEnderecosCliente/' + clienteId,
@@ -719,31 +753,21 @@ $(document).ready(function(){
                     });
                     $('#enderecoClienteSelect').html(options);
 
-                    // Selecionar automaticamente o endereço padrão se existir
-                    if (enderecoPadrao) {
-                        console.log('✅ Selecionando endereço padrão automaticamente...');
-
-                        // Pequeno delay para garantir que as opções foram carregadas
+                    // Selecionar automaticamente o primeiro endereço
+                    if (data.length > 0) {
+                        var primeiroEndereco = data[0];
+                        console.log('✅ Selecionando primeiro endereço automaticamente...');
                         setTimeout(function() {
-                            $('#enderecoClienteSelect').val(enderecoPadrao.id);
-                            console.log('🔄 Disparando change event...');
-                            $('#enderecoClienteSelect').trigger('change');
-                            console.log('🏠 Endereço padrão selecionado automaticamente:', enderecoPadrao.enderecoCompleto);
-
-                            // Verificar se foi selecionado corretamente
-                            setTimeout(function() {
-                                var selectedValue = $('#enderecoClienteSelect').val();
-                                console.log('📋 Valor selecionado no dropdown:', selectedValue);
-                                if (selectedValue == enderecoPadrao.id) {
-                                    console.log('✅ Seleção confirmada com sucesso!');
-                                } else {
-                                    console.log('❌ Falha na seleção - valor esperado:', enderecoPadrao.id, 'valor atual:', selectedValue);
-                                }
-                            }, 100);
+                            $('#enderecoClienteSelect').val(primeiroEndereco.id).trigger('change');
+                            console.log('🏠 Primeiro endereço selecionado automaticamente:', primeiroEndereco.enderecoCompleto);
+                        }, 100);
+                    } else if (enderecoPadrao) {
+                        console.log('✅ Selecionando endereço padrão automaticamente...');
+                        setTimeout(function() {
+                            $('#enderecoClienteSelect').val(enderecoPadrao.id).trigger('change');
                         }, 100);
                     } else {
-                        console.log('⚠️  Nenhum endereço padrão encontrado para este cliente');
-                        // Limpar campos ocultos se não houver endereço padrão
+                        console.log('⚠️  Nenhum endereço encontrado para este cliente');
                         $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
                     }
                 },
@@ -756,8 +780,24 @@ $(document).ready(function(){
             // Limpar campos quando nenhum cliente selecionado
             $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
             $('#enderecoClienteSelect').prop('disabled', true).html('<option value="">Selecione um cliente primeiro</option>');
+            $('#contatoCliente').val('');
         }
     });
+
+    // Preencher datas com a data atual (exceto período fim)
+    const hoje = new Date().toISOString().split('T')[0];
+    if (!$('#dataEmissao').val()) {
+        $('#dataEmissao').val(hoje);
+    }
+    if (!$('#dataContratoIni').val()) {
+        $('#dataContratoIni').val(hoje);
+    }
+    if (!$('#dataVencimento').val()) {
+        $('#dataVencimento').val(hoje);
+    }
+    if (!$('#dataPeriodoIni').val()) {
+        $('#dataPeriodoIni').val(hoje);
+    }
 
     // Função para processar seleção de endereço
     $('#enderecoClienteSelect').change(function(){
@@ -806,7 +846,7 @@ $(document).ready(function(){
     });
 
     $("#servicoNfecom").autocomplete({
-        source: "<?php echo base_url(); ?>index.php/os/autoCompleteServico",
+        source: "<?php echo base_url(); ?>index.php/nfecom/autoCompleteServico",
         minLength: 2,
         select: function (event, ui) {
             $("#idServicoNfecom").val(ui.item.id);
@@ -818,6 +858,30 @@ $(document).ready(function(){
     $("#servicoNfecom").on('input', function () {
         if (!$(this).val()) {
             $("#idServicoNfecom").val('');
+        }
+    });
+
+    // Evitar submit com Enter e navegar entre campos do item
+    $(document).on('keydown', '#servicoNfecom, #precoServicoNfecom, #quantidadeServicoNfecom, #btnAdicionarServicoNfecom', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+
+            const fields = ['#servicoNfecom', '#precoServicoNfecom', '#quantidadeServicoNfecom', '#btnAdicionarServicoNfecom'];
+            const currentIndex = fields.indexOf('#' + e.target.id);
+            const nextIndex = Math.min(currentIndex + 1, fields.length - 1);
+
+            if (nextIndex === fields.length - 1) {
+                $('#btnAdicionarServicoNfecom').focus();
+            } else {
+                $(fields[nextIndex]).focus();
+            }
+        }
+    });
+
+    // Impedir submit do formulário principal via Enter no bloco de serviços
+    $('#formNfecom').on('keydown', function (e) {
+        if (e.key === 'Enter' && $(e.target).closest('.form-section').length) {
+            e.preventDefault();
         }
     });
 
@@ -894,6 +958,14 @@ $(document).ready(function(){
     // Botão para adicionar serviço
     $('#btnAdicionarServicoNfecom').on('click', function() {
         adicionarServicoNfecom();
+    });
+
+    // Enter no botão adiciona o item sem submit
+    $('#btnAdicionarServicoNfecom').on('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            adicionarServicoNfecom();
+        }
     });
 
     // Remover serviço

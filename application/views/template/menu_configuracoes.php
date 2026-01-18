@@ -33,3 +33,21 @@
         </a>
     </li>
 <?php } ?>
+
+<?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vCertificado')) { ?>
+    <li <?php if (isset($menuCertificados))
+        echo 'class="active"'; ?>>
+        <a href="<?php echo base_url('certificados'); ?>">
+            <i class="fas fa-certificate"></i> Certificados
+        </a>
+    </li>
+<?php } ?>
+
+<?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vConfigFiscal')) { ?>
+    <li <?php if (isset($menuConfigFiscais))
+        echo 'class="active"'; ?>>
+        <a href="<?php echo base_url('configuracoesfiscais'); ?>">
+            <i class="fas fa-file-invoice-dollar"></i> Configurações Fiscais
+        </a>
+    </li>
+<?php } ?>

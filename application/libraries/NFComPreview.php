@@ -24,18 +24,21 @@ class NFComPreview
         $ano = date('y');
         $mes = date('m');
 
-        // Gerar chave de acesso da NFCom
-        $chave = $this->buildChave(
-            $cUF,
-            $ano,
-            $mes,
-            $cnpj,
-            '62',
-            str_pad((string) $serie, 3, '0', STR_PAD_LEFT),
-            str_pad((string) $numero, 9, '0', STR_PAD_LEFT),
-            '1',
-            $nSiteAutoriz
-        );
+        // Gerar ou usar chave de acesso existente da NFCom
+        $chave = $dados['chave'] ?? null;
+        if (empty($chave)) {
+            $chave = $this->buildChave(
+                $cUF,
+                $ano,
+                $mes,
+                $cnpj,
+                '62',
+                str_pad((string) $serie, 3, '0', STR_PAD_LEFT),
+                str_pad((string) $numero, 9, '0', STR_PAD_LEFT),
+                '1',
+                $nSiteAutoriz
+            );
+        }
 
         $pdf = new LocalFpdf('P', 'mm', 'A4');
         $pdf->SetCompression(false);

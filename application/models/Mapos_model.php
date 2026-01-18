@@ -246,10 +246,10 @@ class Mapos_model extends CI_Model
     {
         $this->db->select(
             'ordem_servico.*,
-            pessoas.pes_nome as nomeCliente'
+            pessoas.PES_NOME as nomeCliente'
         );
         $this->db->from('ordem_servico');
-        $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.ORV_PESS_ID');
+        $this->db->join('pessoas', 'pessoas.PES_ID = ordem_servico.ORV_PESS_ID');
         $this->db->where('ordem_servico.ORV_DATA_FINAL >=', $start);
         $this->db->where('ordem_servico.ORV_DATA_FINAL <=', $end);
         $this->db->group_by('ordem_servico.ORV_ID');

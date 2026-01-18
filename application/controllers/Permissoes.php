@@ -176,6 +176,15 @@ class Permissoes extends MY_Controller
                 'aNfecom' => $this->input->post('aNfecom'),
                 'eNfecom' => $this->input->post('eNfecom'),
                 'dNfecom' => $this->input->post('dNfecom'),
+
+                // Certificados Digitais
+                'vCertificado' => $this->input->post('vCertificado'),
+                'aCertificado' => $this->input->post('aCertificado'),
+                'dCertificado' => $this->input->post('dCertificado'),
+
+                // Configurações Fiscais
+                'vConfigFiscal' => $this->input->post('vConfigFiscal'),
+                'eConfigFiscal' => $this->input->post('eConfigFiscal'),
             ];
             $permissoes = serialize($permissoes);
 
@@ -333,6 +342,15 @@ class Permissoes extends MY_Controller
                 'aNfecom' => $this->input->post('aNfecom'),
                 'eNfecom' => $this->input->post('eNfecom'),
                 'dNfecom' => $this->input->post('dNfecom'),
+
+                // Certificados Digitais
+                'vCertificado' => $this->input->post('vCertificado'),
+                'aCertificado' => $this->input->post('aCertificado'),
+                'dCertificado' => $this->input->post('dCertificado'),
+
+                // Configurações Fiscais
+                'vConfigFiscal' => $this->input->post('vConfigFiscal'),
+                'eConfigFiscal' => $this->input->post('eConfigFiscal'),
             ];
             $permissoes = serialize($permissoes);
 

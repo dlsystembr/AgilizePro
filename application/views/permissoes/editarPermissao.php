@@ -557,8 +557,8 @@
                                                                         if ($permissoes['vVenda'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="vVenda" class="marcar" type="checkbox"
-                                                                        value="1" />
+                                                                    } ?> name="vVenda" class="marcar"
+                                                                        type="checkbox" value="1" />
                                                                     <span class="lbl"> Visualizar Venda</span>
                                                                 </label>
                                                             </td>
@@ -568,8 +568,8 @@
                                                                         if ($permissoes['aVenda'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="aVenda" class="marcar" type="checkbox"
-                                                                        value="1" />
+                                                                    } ?> name="aVenda" class="marcar"
+                                                                        type="checkbox" value="1" />
                                                                     <span class="lbl"> Adicionar Venda</span>
                                                                 </label>
                                                             </td>
@@ -579,8 +579,8 @@
                                                                         if ($permissoes['eVenda'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="eVenda" class="marcar" type="checkbox"
-                                                                        value="1" />
+                                                                    } ?> name="eVenda" class="marcar"
+                                                                        type="checkbox" value="1" />
                                                                     <span class="lbl"> Editar Venda</span>
                                                                 </label>
                                                             </td>
@@ -590,8 +590,8 @@
                                                                         if ($permissoes['dVenda'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="dVenda" class="marcar" type="checkbox"
-                                                                        value="1" />
+                                                                    } ?> name="dVenda" class="marcar"
+                                                                        type="checkbox" value="1" />
                                                                     <span class="lbl"> Excluir Venda</span>
                                                                 </label>
                                                             </td>
@@ -625,8 +625,8 @@
                                                                         if ($permissoes['vCobranca'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="vCobranca" class="marcar"
-                                                                        type="checkbox" value="1" />
+                                                                    } ?> name="vCobranca"
+                                                                        class="marcar" type="checkbox" value="1" />
                                                                     <span class="lbl"> Visualizar Cobranças</span>
                                                                 </label>
                                                             </td>
@@ -636,8 +636,8 @@
                                                                         if ($permissoes['aCobranca'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="aCobranca" class="marcar"
-                                                                        type="checkbox" value="1" />
+                                                                    } ?> name="aCobranca"
+                                                                        class="marcar" type="checkbox" value="1" />
                                                                     <span class="lbl"> Adicionar Cobranças</span>
                                                                 </label>
                                                             </td>
@@ -647,8 +647,8 @@
                                                                         if ($permissoes['eCobranca'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="eCobranca" class="marcar"
-                                                                        type="checkbox" value="1" />
+                                                                    } ?> name="eCobranca"
+                                                                        class="marcar" type="checkbox" value="1" />
                                                                     <span class="lbl"> Editar Cobranças</span>
                                                                 </label>
                                                             </td>
@@ -658,8 +658,8 @@
                                                                         if ($permissoes['dCobranca'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="dCobranca" class="marcar"
-                                                                        type="checkbox" value="1" />
+                                                                    } ?> name="dCobranca"
+                                                                        class="marcar" type="checkbox" value="1" />
                                                                     <span class="lbl"> Excluir Cobranças</span>
                                                                 </label>
                                                             </td>
@@ -693,8 +693,8 @@
                                                                         if ($permissoes['vGarantia'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="vGarantia" class="marcar"
-                                                                        type="checkbox" value="1" />
+                                                                    } ?> name="vGarantia"
+                                                                        class="marcar" type="checkbox" value="1" />
                                                                     <span class="lbl"> Visualizar Garantia</span>
                                                                 </label>
                                                             </td>
@@ -704,8 +704,8 @@
                                                                         if ($permissoes['aGarantia'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="aGarantia" class="marcar"
-                                                                        type="checkbox" value="1" />
+                                                                    } ?> name="aGarantia"
+                                                                        class="marcar" type="checkbox" value="1" />
                                                                     <span class="lbl"> Adicionar Garantia</span>
                                                                 </label>
                                                             </td>
@@ -715,8 +715,8 @@
                                                                         if ($permissoes['eGarantia'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="eGarantia" class="marcar"
-                                                                        type="checkbox" value="1" />
+                                                                    } ?> name="eGarantia"
+                                                                        class="marcar" type="checkbox" value="1" />
                                                                     <span class="lbl"> Editar Garantia</span>
                                                                 </label>
                                                             </td>
@@ -726,8 +726,8 @@
                                                                         if ($permissoes['dGarantia'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="dGarantia" class="marcar"
-                                                                        type="checkbox" value="1" />
+                                                                    } ?> name="dGarantia"
+                                                                        class="marcar" type="checkbox" value="1" />
                                                                     <span class="lbl"> Excluir Garantia</span>
                                                                 </label>
                                                             </td>
@@ -943,8 +943,8 @@
                                                                         if ($permissoes['rVenda'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="rVenda" class="marcar" type="checkbox"
-                                                                        value="1" />
+                                                                    } ?> name="rVenda" class="marcar"
+                                                                        type="checkbox" value="1" />
                                                                     <span class="lbl"> Relatório Venda</span>
                                                                 </label>
                                                             </td>
@@ -1012,8 +1012,8 @@
                                                                         if ($permissoes['cEmitente'] == '1') {
                                                                             echo 'checked';
                                                                         }
-                                                                    } ?> name="cEmitente" class="marcar"
-                                                                        type="checkbox" value="1" />
+                                                                    } ?> name="cEmitente"
+                                                                        class="marcar" type="checkbox" value="1" />
                                                                     <span class="lbl"> Configurar Emitente</span>
                                                                 </label>
                                                             </td>
@@ -1603,6 +1603,115 @@
                                                                     <span class="lbl"> Excluir NFECom</span>
                                                                 </label>
                                                             </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Certificados Digitais -->
+                                        <div class="accordion-group widget-box">
+                                            <div class="accordion-heading">
+                                                <div class="widget-title">
+                                                    <a data-parent="#collapse-group" href="#collapseGCertificados"
+                                                        data-toggle="collapse">
+                                                        <span><i class='bx bx-certification icon-cli'></i></span>
+                                                        <h5 style="padding-left: 28px">Certificados Digitais</h5>
+                                                        <span><i class='bx bx-chevron-right icon-clic'></i></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="collapse accordion-body" id="collapseGCertificados">
+                                                <div class="widget-content">
+                                                    <table class="table table-bordered">
+                                                        <tr>
+                                                            <td colspan="4"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <label>
+                                                                    <input <?php if (isset($permissoes['vCertificado'])) {
+                                                                        if ($permissoes['vCertificado'] == '1') {
+                                                                            echo 'checked';
+                                                                        }
+                                                                    } ?> name="vCertificado"
+                                                                        class="marcar" type="checkbox" value="1" />
+                                                                    <span class="lbl"> Visualizar Certificados</span>
+                                                                </label>
+                                                            </td>
+                                                            <td>
+                                                                <label>
+                                                                    <input <?php if (isset($permissoes['aCertificado'])) {
+                                                                        if ($permissoes['aCertificado'] == '1') {
+                                                                            echo 'checked';
+                                                                        }
+                                                                    } ?> name="aCertificado"
+                                                                        class="marcar" type="checkbox" value="1" />
+                                                                    <span class="lbl"> Adicionar/Ativar
+                                                                        Certificados</span>
+                                                                </label>
+                                                            </td>
+                                                            <td>
+                                                                <label>
+                                                                    <input <?php if (isset($permissoes['dCertificado'])) {
+                                                                        if ($permissoes['dCertificado'] == '1') {
+                                                                            echo 'checked';
+                                                                        }
+                                                                    } ?> name="dCertificado"
+                                                                        class="marcar" type="checkbox" value="1" />
+                                                                    <span class="lbl"> Excluir Certificados</span>
+                                                                </label>
+                                                            </td>
+                                                            <td></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Configurações Fiscais -->
+                                        <div class="accordion-group widget-box">
+                                            <div class="accordion-heading">
+                                                <div class="widget-title">
+                                                    <a data-parent="#collapse-group" href="#collapseGConfigFiscais"
+                                                        data-toggle="collapse">
+                                                        <span><i class='bx bx-cog icon-cli'></i></span>
+                                                        <h5 style="padding-left: 28px">Configurações Fiscais</h5>
+                                                        <span><i class='bx bx-chevron-right icon-clic'></i></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="collapse accordion-body" id="collapseGConfigFiscais">
+                                                <div class="widget-content">
+                                                    <table class="table table-bordered">
+                                                        <tr>
+                                                            <td colspan="4"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <label>
+                                                                    <input <?php if (isset($permissoes['vConfigFiscal'])) {
+                                                                        if ($permissoes['vConfigFiscal'] == '1') {
+                                                                            echo 'checked';
+                                                                        }
+                                                                    } ?> name="vConfigFiscal"
+                                                                        class="marcar" type="checkbox" value="1" />
+                                                                    <span class="lbl"> Visualizar Configurações</span>
+                                                                </label>
+                                                            </td>
+                                                            <td>
+                                                                <label>
+                                                                    <input <?php if (isset($permissoes['eConfigFiscal'])) {
+                                                                        if ($permissoes['eConfigFiscal'] == '1') {
+                                                                            echo 'checked';
+                                                                        }
+                                                                    } ?> name="eConfigFiscal"
+                                                                        class="marcar" type="checkbox" value="1" />
+                                                                    <span class="lbl"> Editar Configurações</span>
+                                                                </label>
+                                                            </td>
+                                                            <td></td>
+                                                            <td></td>
                                                         </tr>
                                                     </table>
                                                 </div>

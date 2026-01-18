@@ -119,13 +119,19 @@
             <li><a href="<?= site_url('mapos/emitente') ?>">Emitente</a></li>
             <li><a href="<?= site_url('permissoes') ?>">Permissões</a></li>
             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vEmpresa')) { ?>
-                  <li><a href="<?= site_url('empresas') ?>">Empresas</a></li>
+              <li><a href="<?= site_url('empresas') ?>">Empresas</a></li>
             <?php } ?>
             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vTributacaoProduto')) { ?>
               <li><a href="<?= site_url('tributacaoproduto') ?>">Tributação Produto</a></li>
             <?php } ?>
             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOperacaoComercial')) { ?>
               <li><a href="<?= site_url('operacaocomercial') ?>">Operação Comercial</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vCertificado')) { ?>
+              <li><a href="<?= site_url('certificados') ?>">Certificados</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vConfigFiscal')) { ?>
+              <li><a href="<?= site_url('configuracoesfiscais') ?>">Configurações Fiscais</a></li>
             <?php } ?>
             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vClassificacaoFiscal')) { ?>
               <li><a href="<?= site_url('classificacaofiscal') ?>">Classificação Fiscal</a></li>
@@ -152,18 +158,19 @@
       style="padding-right:45px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;">
       <div class="user-names userT0">
         <?php
-        function saudacao()
-        {
-          $hora = date('H');
-          if ($hora >= 00 && $hora < 12) {
-            return 'Bom dia, ';
-          } elseif ($hora >= 12 && $hora < 18) {
-            return 'Boa tarde, ';
-          } else {
-            return 'Boa noite, ';
+        if (!function_exists('saudacao')) {
+          function saudacao()
+          {
+            $hora = date('H');
+            if ($hora >= 00 && $hora < 12) {
+              return 'Bom dia, ';
+            } elseif ($hora >= 12 && $hora < 18) {
+              return 'Boa tarde, ';
+            } else {
+              return 'Boa noite, ';
+            }
           }
         }
-
         $login = '';
         echo saudacao($login); // Irá retornar conforme o horário
         ?>

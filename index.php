@@ -1,4 +1,10 @@
 <?php
+// Fix for OpenSSL 3 legacy certificates in Windows/XAMPP
+if (file_exists('C:/xampp/php/extras/ssl/openssl.cnf')) {
+    putenv('OPENSSL_CONF=C:/xampp/php/extras/ssl/openssl.cnf');
+    putenv('OPENSSL_MODULES=C:/xampp/php/extras/ssl');
+}
+
 /**
  * CodeIgniter
  *
@@ -77,7 +83,7 @@ if (ENVIRONMENT === 'pre_installation') {
     $domain = $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
 
     $domain = preg_replace('/index.php.*/', '', $domain); //remove everything after index.php
-    if (! empty($_SERVER['HTTPS'])) {
+    if (!empty($_SERVER['HTTPS'])) {
         $domain = 'https://' . $domain;
     } else {
         $domain = 'http://' . $domain;
@@ -231,7 +237,7 @@ if (($_temp = realpath($system_path)) !== false) {
 }
 
 // Is the system path correct?
-if (! is_dir($system_path)) {
+if (!is_dir($system_path)) {
     header('HTTP/1.1 503 Service Unavailable.', true, 503);
     echo 'Sua instalação está incompleta, por favor instale as dependências utilizando o composer. A pasta system não foi localizada.';
     exit(3); // EXIT_CONFIG
@@ -280,7 +286,7 @@ if (is_dir($application_folder)) {
 define('APPPATH', $application_folder . DIRECTORY_SEPARATOR);
 
 // The path to the "views" directory
-if (! isset($view_folder[0]) && is_dir(APPPATH . 'views' . DIRECTORY_SEPARATOR)) {
+if (!isset($view_folder[0]) && is_dir(APPPATH . 'views' . DIRECTORY_SEPARATOR)) {
     $view_folder = APPPATH . 'views';
 } elseif (is_dir($view_folder)) {
     if (($_temp = realpath($view_folder)) !== false) {

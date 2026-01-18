@@ -1,6 +1,6 @@
 <?php
 
-if (! defined('BASEPATH')) {
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
@@ -20,7 +20,7 @@ class Pessoas extends MY_Controller
 
     public function gerenciar()
     {
-        if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'vPessoa')) {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'vPessoa')) {
             $this->session->set_flashdata('error', 'Você não tem permissão para visualizar pessoas.');
             redirect(base_url());
         }
@@ -33,7 +33,7 @@ class Pessoas extends MY_Controller
         $this->data['configuration']['total_rows'] = $this->Pessoas_model->count('pessoas');
         if ($pesquisa) {
             $this->data['configuration']['suffix'] = "?pesquisa={$pesquisa}";
-            $this->data['configuration']['first_url'] = base_url('index.php/pessoas')."?pesquisa={$pesquisa}";
+            $this->data['configuration']['first_url'] = base_url('index.php/pessoas') . "?pesquisa={$pesquisa}";
         }
 
         $this->pagination->initialize($this->data['configuration']);
@@ -47,19 +47,19 @@ class Pessoas extends MY_Controller
     public function verificarCpfCnpj()
     {
         $cpfCnpj = $this->input->post('cpfcnpj');
-        
+
         if (!$cpfCnpj) {
             echo json_encode(['exists' => false]);
             return;
         }
-        
+
         // Remover formatação
         $cpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
-        
+
         // Buscar pessoa com este CPF/CNPJ
         $this->db->where('PES_CPFCNPJ', $cpfCnpj);
         $pessoa = $this->db->get('pessoas')->row();
-        
+
         if ($pessoa) {
             echo json_encode([
                 'exists' => true,
@@ -82,13 +82,13 @@ class Pessoas extends MY_Controller
         $this->db->where('p.PES_SITUACAO', 1);
         $this->db->order_by('p.PES_NOME', 'ASC');
         $vendedores = $this->db->get()->result();
-        
+
         echo json_encode($vendedores);
     }
 
     public function adicionar()
     {
-        if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'aPessoa')) {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'aPessoa')) {
             $this->session->set_flashdata('error', 'Você não tem permissão para adicionar pessoas.');
             redirect(base_url());
         }
@@ -145,7 +145,7 @@ class Pessoas extends MY_Controller
                         $ddd = isset($ddds[$i]) ? preg_replace('/\D/', '', $ddds[$i]) : '';
                         $numero = isset($numeros[$i]) ? preg_replace('/\D/', '', $numeros[$i]) : '';
                         $obst = isset($obs[$i]) ? $obs[$i] : null;
-                        if ($ddd !== '' && $numero !== '' && in_array($tipo, ['Celular','Comercial','Residencial','Whatsapp','Outros'])) {
+                        if ($ddd !== '' && $numero !== '' && in_array($tipo, ['Celular', 'Comercial', 'Residencial', 'Whatsapp', 'Outros'])) {
                             $this->db->insert('telefones', [
                                 'PES_ID' => $pessoaId,
                                 'TEL_TIPO' => $tipo,
@@ -187,7 +187,7 @@ class Pessoas extends MY_Controller
                 $bairrosTexto = $this->input->post('END_BAIRRO');
                 $cidadesTexto = $this->input->post('END_CIDADE');
                 $ufs = $this->input->post('END_UF');
-                
+
                 if (is_array($logradouros)) {
                     $count = count($logradouros);
                     $insertedEnderecoIds = [];
@@ -198,11 +198,11 @@ class Pessoas extends MY_Controller
                             $uf = isset($ufs[$i]) ? trim($ufs[$i]) : '';
                             $cidadeNome = isset($cidadesTexto[$i]) ? trim($cidadesTexto[$i]) : '';
                             $bairroNome = isset($bairrosTexto[$i]) ? trim($bairrosTexto[$i]) : '';
-                            
+
                             $estId = null;
                             $munId = null;
                             $baiId = null;
-                            
+
                             // Buscar estado pela UF
                             if ($uf !== '') {
                                 $estado = $this->db->select('EST_ID')->where('EST_UF', $uf)->get('estados')->row();
@@ -210,7 +210,7 @@ class Pessoas extends MY_Controller
                                     $estId = (int) $estado->EST_ID;
                                 }
                             }
-                            
+
                             // Buscar município pelo nome e estado
                             if ($cidadeNome !== '' && $estId) {
                                 $municipio = $this->db->select('MUN_ID')->where(['MUN_NOME' => $cidadeNome, 'EST_ID' => $estId])->get('municipios')->row();
@@ -218,7 +218,7 @@ class Pessoas extends MY_Controller
                                     $munId = (int) $municipio->MUN_ID;
                                 }
                             }
-                            
+
                             // Buscar/criar bairro
                             if ($bairroNome !== '' && $munId) {
                                 $bairro = $this->db->select('BAI_ID')->where(['BAI_NOME' => $bairroNome, 'MUN_ID' => $munId])->get('bairros')->row();
@@ -230,14 +230,17 @@ class Pessoas extends MY_Controller
                                     $baiId = (int) $this->db->insert_id();
                                 }
                             }
-                            
+
                             // Mapear tipo de endereço
                             $tipoEnd = isset($tiposEnd[$i]) ? $tiposEnd[$i] : 'Comercial';
                             $tipoEndBanco = 'Geral'; // Padrão
-                            if ($tipoEnd == 'Cobrança') $tipoEndBanco = 'Cobranca';
-                            else if ($tipoEnd == 'Entrega') $tipoEndBanco = 'Entrega';
-                            else if ($tipoEnd == 'Faturamento') $tipoEndBanco = 'Faturamento';
-                            
+                            if ($tipoEnd == 'Cobrança')
+                                $tipoEndBanco = 'Cobranca';
+                            else if ($tipoEnd == 'Entrega')
+                                $tipoEndBanco = 'Entrega';
+                            else if ($tipoEnd == 'Faturamento')
+                                $tipoEndBanco = 'Faturamento';
+
                             $dataEnd = [
                                 'PES_ID' => $pessoaId,
                                 'EST_ID' => $estId,
@@ -291,7 +294,7 @@ class Pessoas extends MY_Controller
                                 'ENDEID' => $endeId,
                                 'DOC_ORGAO_EXPEDIDOR' => $orgao !== '' ? mb_substr($orgao, 0, 60) : null,
                                 'DOC_NUMERO' => mb_substr($numero, 0, 60),
-                                'DOC_NATUREZA_CONTRIBUINTE' => in_array($natureza, ['Contribuinte','Não Contribuinte']) ? $natureza : null,
+                                'DOC_NATUREZA_CONTRIBUINTE' => in_array($natureza, ['Contribuinte', 'Não Contribuinte']) ? $natureza : null,
                             ]);
                         }
                     }
@@ -303,20 +306,20 @@ class Pessoas extends MY_Controller
                     $cliente = [
                         'PES_ID' => $pessoaId,
                         'CLN_LIMITE_CREDITO' => $this->input->post('CLN_LIMITE_CREDITO') !== null ? str_replace([','], ['.'], $this->input->post('CLN_LIMITE_CREDITO')) : null,
-                        'CLN_SITUACAO' => $this->input->post('CLN_SITUACAO') !== null ? (int)$this->input->post('CLN_SITUACAO') : 1,
+                        'CLN_SITUACAO' => $this->input->post('CLN_SITUACAO') !== null ? (int) $this->input->post('CLN_SITUACAO') : 1,
                         'CLN_COMPRAR_APRAZO' => $this->input->post('CLN_COMPRAR_APRAZO') ? 1 : 0,
                         'CLN_BLOQUEIO_FINANCEIRO' => $this->input->post('CLN_BLOQUEIO_FINANCEIRO') ? 1 : 0,
-                        'CLN_DIAS_CARENCIA' => $this->input->post('CLN_DIAS_CARENCIA') !== null ? (int)$this->input->post('CLN_DIAS_CARENCIA') : null,
+                        'CLN_DIAS_CARENCIA' => $this->input->post('CLN_DIAS_CARENCIA') !== null ? (int) $this->input->post('CLN_DIAS_CARENCIA') : null,
                         'CLN_EMITIR_NFE' => $this->input->post('CLN_EMITIR_NFE') ? 1 : 0,
                         'CLN_DATA_CADASTRO' => date('Y-m-d H:i:s'),
                     ];
                     $this->db->insert('clientes', $cliente);
                     $clienteId = $this->db->insert_id();
-                    
+
                     // Salvar vendedores permitidos para este cliente
                     $vendedoresPermitidosPesId = $this->input->post('CLV_VEN_PES_ID');
                     $vendedorPadraoPesId = $this->input->post('CLV_PADRAO');
-                    
+
                     if (is_array($vendedoresPermitidosPesId)) {
                         foreach ($vendedoresPermitidosPesId as $vendedorPesId) {
                             if ($vendedorPesId) {
@@ -324,10 +327,10 @@ class Pessoas extends MY_Controller
                                 $this->db->select('VEN_ID');
                                 $this->db->where('PES_ID', $vendedorPesId);
                                 $vendedor = $this->db->get('vendedores')->row();
-                                
+
                                 if ($vendedor) {
                                     $isPadrao = ($vendedorPadraoPesId && $vendedorPadraoPesId == $vendedorPesId) ? 1 : 0;
-                                    
+
                                     $this->db->insert('clientes_vendedores', [
                                         'CLN_ID' => $clienteId,
                                         'VEN_ID' => $vendedor->VEN_ID,
@@ -352,6 +355,17 @@ class Pessoas extends MY_Controller
                     $this->db->insert('vendedores', $vendedor);
                 }
 
+                // Salvar tipos de pessoa
+                $tiposPessoa = $this->input->post('TIPOS_PESSOA');
+                if (is_array($tiposPessoa)) {
+                    foreach ($tiposPessoa as $tipoId) {
+                        $this->db->insert('pessoa_tipos', [
+                            'pessoa_id' => $pessoaId,
+                            'tipo_id' => $tipoId
+                        ]);
+                    }
+                }
+
                 $this->session->set_flashdata('success', 'Pessoa adicionada com sucesso!');
                 log_info('Adicionou uma pessoa.');
                 redirect(site_url('pessoas/'));
@@ -370,7 +384,7 @@ class Pessoas extends MY_Controller
     public function getMunicipios()
     {
         $estId = (int) $this->input->get('est_id');
-        if (! $estId) {
+        if (!$estId) {
             return $this->output->set_content_type('application/json')->set_output(json_encode([]));
         }
         $rows = $this->db->select('MUN_ID, MUN_NOME')->from('municipios')->where('EST_ID', $estId)->order_by('MUN_NOME', 'ASC')->get()->result();
@@ -381,7 +395,7 @@ class Pessoas extends MY_Controller
     public function getBairros()
     {
         $munId = (int) $this->input->get('mun_id');
-        if (! $munId) {
+        if (!$munId) {
             return $this->output->set_content_type('application/json')->set_output(json_encode([]));
         }
         $rows = $this->db->select('BAI_ID, BAI_NOME')->from('bairros')->where('MUN_ID', $munId)->order_by('BAI_NOME', 'ASC')->get()->result();
@@ -395,7 +409,7 @@ class Pessoas extends MY_Controller
             redirect(base_url('index.php/pessoas'));
         }
 
-        if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'ePessoa')) {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'ePessoa')) {
             $this->session->set_flashdata('error', 'Você não tem permissão para editar pessoas.');
             redirect(base_url());
         }
@@ -457,9 +471,12 @@ class Pessoas extends MY_Controller
 
                                 // Mapear tipos
                                 $tipoEndBanco = $tipoEnd;
-                                if ($tipoEnd == 'Comercial') $tipoEndBanco = 'Geral';
-                                if ($tipoEnd == 'Cobrança') $tipoEndBanco = 'Cobranca';
-                                if ($tipoEnd == 'Entrega') $tipoEndBanco = 'Entrega';
+                                if ($tipoEnd == 'Comercial')
+                                    $tipoEndBanco = 'Geral';
+                                if ($tipoEnd == 'Cobrança')
+                                    $tipoEndBanco = 'Cobranca';
+                                if ($tipoEnd == 'Entrega')
+                                    $tipoEndBanco = 'Entrega';
 
                                 // Buscar IDs de estado, município e bairro
                                 $estId = null;
@@ -571,6 +588,104 @@ class Pessoas extends MY_Controller
                     }
                 }
 
+
+
+                // Salvar dados de Cliente (se marcado)
+                $isCliente = (bool) $this->input->post('CLN_ENABLE');
+                if ($this->db->table_exists('clientes')) {
+                    if ($isCliente) {
+                        $clienteData = [
+                            'PES_ID' => $id,
+                            'CLN_LIMITE_CREDITO' => $this->input->post('CLN_LIMITE_CREDITO') !== null ? str_replace([','], ['.'], $this->input->post('CLN_LIMITE_CREDITO')) : null,
+                            'CLN_SITUACAO' => $this->input->post('CLN_SITUACAO') !== null ? (int) $this->input->post('CLN_SITUACAO') : 1,
+                            'CLN_COMPRAR_APRAZO' => $this->input->post('CLN_COMPRAR_APRAZO') ? 1 : 0,
+                            'CLN_BLOQUEIO_FINANCEIRO' => $this->input->post('CLN_BLOQUEIO_FINANCEIRO') ? 1 : 0,
+                            'CLN_DIAS_CARENCIA' => $this->input->post('CLN_DIAS_CARENCIA') !== null ? (int) $this->input->post('CLN_DIAS_CARENCIA') : null,
+                            'CLN_EMITIR_NFE' => $this->input->post('CLN_EMITIR_NFE') ? 1 : 0,
+                        ];
+
+                        // Verificar se já existe registro de cliente
+                        $existente = $this->db->get_where('clientes', ['PES_ID' => $id])->row();
+                        if ($existente) {
+                            $this->db->where('PES_ID', $id);
+                            $this->db->update('clientes', $clienteData);
+                            $clienteId = $existente->CLN_ID;
+                        } else {
+                            $clienteData['CLN_DATA_CADASTRO'] = date('Y-m-d H:i:s');
+                            $this->db->insert('clientes', $clienteData);
+                            $clienteId = $this->db->insert_id();
+                        }
+
+                        // Atualizar vendedores permitidos
+                        if ($this->db->table_exists('clientes_vendedores')) {
+                            $this->db->where('CLN_ID', $clienteId);
+                            $this->db->delete('clientes_vendedores');
+
+                            $vendedoresPermitidosPesId = $this->input->post('CLV_VEN_PES_ID');
+                            $vendedorPadraoPesId = $this->input->post('CLV_PADRAO');
+
+                            if (is_array($vendedoresPermitidosPesId)) {
+                                foreach ($vendedoresPermitidosPesId as $vendedorPesId) {
+                                    if ($vendedorPesId) {
+                                        $this->db->select('VEN_ID');
+                                        $this->db->where('PES_ID', $vendedorPesId);
+                                        $vendedor = $this->db->get('vendedores')->row();
+
+                                        if ($vendedor) {
+                                            $isPadrao = ($vendedorPadraoPesId && $vendedorPadraoPesId == $vendedorPesId) ? 1 : 0;
+                                            $this->db->insert('clientes_vendedores', [
+                                                'CLN_ID' => $clienteId,
+                                                'VEN_ID' => $vendedor->VEN_ID,
+                                                'CLV_PADRAO' => $isPadrao
+                                            ]);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Se desmarcou cliente, opcionalmente remover ou inativar. 
+                        // Aqui manteremos os dados mas o checkbox controla o acesso.
+                    }
+                }
+
+                // Salvar dados de Vendedor (se marcado)
+                $isVendedor = (bool) $this->input->post('VEN_ENABLE');
+                if ($this->db->table_exists('vendedores')) {
+                    if ($isVendedor) {
+                        $vendedorData = [
+                            'PES_ID' => $id,
+                            'VEN_PERCENTUAL_COMISSAO' => $this->input->post('VEN_PERCENTUAL_COMISSAO') !== null ? str_replace([','], ['.'], $this->input->post('VEN_PERCENTUAL_COMISSAO')) : null,
+                            'VEN_TIPO_COMISSAO' => $this->input->post('VEN_TIPO_COMISSAO'),
+                            'VEN_META_MENSAL' => $this->input->post('VEN_META_MENSAL') !== null ? str_replace([','], ['.'], $this->input->post('VEN_META_MENSAL')) : null,
+                        ];
+
+                        $existente = $this->db->get_where('vendedores', ['PES_ID' => $id])->row();
+                        if ($existente) {
+                            $this->db->where('PES_ID', $id);
+                            $this->db->update('vendedores', $vendedorData);
+                        } else {
+                            $vendedorData['VEN_SITUACAO'] = 1;
+                            $this->db->insert('vendedores', $vendedorData);
+                        }
+                    }
+                }
+
+                // Salvar tipos de pessoa
+                $tiposPessoa = $this->input->post('TIPOS_PESSOA');
+                if (is_array($tiposPessoa)) {
+                    // Remover tipos antigos
+                    $this->db->where('pessoa_id', $id);
+                    $this->db->delete('pessoa_tipos');
+
+                    foreach ($tiposPessoa as $tipoId) {
+                        $this->db->insert('pessoa_tipos', [
+                            'pessoa_id' => $id,
+                            'tipo_id' => $tipoId
+                        ]);
+                    }
+                }
+
                 $this->session->set_flashdata('success', 'Pessoa editada com sucesso!');
                 log_info('Alterou uma pessoa. ID ' . $id);
                 redirect(site_url('pessoas/editar/') . $id);
@@ -580,21 +695,21 @@ class Pessoas extends MY_Controller
         }
 
         $this->data['result'] = $this->Pessoas_model->getById($id);
-        
+
         // Buscar telefones (se tabela existir)
         if ($this->db->table_exists('telefones')) {
             $this->data['telefones'] = $this->db->where('PES_ID', $id)->get('telefones')->result();
         } else {
             $this->data['telefones'] = [];
         }
-        
+
         // Buscar emails (se tabela existir)
         if ($this->db->table_exists('emails')) {
             $this->data['emails'] = $this->db->where('PES_ID', $id)->get('emails')->result();
         } else {
             $this->data['emails'] = [];
         }
-        
+
         // Buscar endereços (se tabela existir)
         if ($this->db->table_exists('enderecos')) {
             $this->db->select('e.*, est.EST_UF, mun.MUN_NOME, bai.BAI_NOME');
@@ -604,7 +719,7 @@ class Pessoas extends MY_Controller
             $this->db->join('bairros bai', 'bai.BAI_ID = e.BAI_ID', 'left');
             $this->db->where('e.PES_ID', $id);
             $this->data['enderecos'] = $this->db->get()->result();
-            
+
             // Debug temporário
             error_log('Endereços encontrados: ' . count($this->data['enderecos']));
             if (!empty($this->data['enderecos'])) {
@@ -614,19 +729,19 @@ class Pessoas extends MY_Controller
             $this->data['enderecos'] = [];
             error_log('Tabela enderecos não existe');
         }
-        
+
         // Buscar documentos (se tabela existir)
         if ($this->db->table_exists('documentos')) {
             $this->data['documentos'] = $this->db->where('PES_ID', $id)->get('documentos')->result();
         } else {
             $this->data['documentos'] = [];
         }
-        
+
         // Buscar tipos de pessoa vinculados (se tabela existir)
         if ($this->db->table_exists('pessoa_tipos')) {
             // Tentar diferentes estruturas de colunas
             $query = $this->db->get_where('pessoa_tipos', ['PES_ID' => $id]);
-            
+
             // Se não encontrou com PES_ID, tentar com pessoa_id ou pt_pessoa_id
             if ($query->num_rows() == 0) {
                 $query = $this->db->get_where('pessoa_tipos', ['pessoa_id' => $id]);
@@ -634,38 +749,38 @@ class Pessoas extends MY_Controller
             if ($query->num_rows() == 0) {
                 $query = $this->db->get_where('pessoa_tipos', ['pt_pessoa_id' => $id]);
             }
-            
+
             $tiposVinculados = $query->result();
-            
+
             error_log('Tipos vinculados encontrados: ' . count($tiposVinculados));
             if (!empty($tiposVinculados)) {
                 error_log('Primeiro tipo: ' . print_r($tiposVinculados[0], true));
             }
-            
+
             // Extrair IDs de tipos, tentando diferentes nomes de colunas
             $this->data['tipos_vinculados'] = [];
             foreach ($tiposVinculados as $vinculo) {
                 if (isset($vinculo->TPP_ID)) {
-                    $this->data['tipos_vinculados'][] = (object)['TPP_ID' => $vinculo->TPP_ID];
+                    $this->data['tipos_vinculados'][] = (object) ['TPP_ID' => $vinculo->TPP_ID];
                 } elseif (isset($vinculo->tipo_id)) {
-                    $this->data['tipos_vinculados'][] = (object)['TPP_ID' => $vinculo->tipo_id];
+                    $this->data['tipos_vinculados'][] = (object) ['TPP_ID' => $vinculo->tipo_id];
                 } elseif (isset($vinculo->pt_tipo_id)) {
-                    $this->data['tipos_vinculados'][] = (object)['TPP_ID' => $vinculo->pt_tipo_id];
+                    $this->data['tipos_vinculados'][] = (object) ['TPP_ID' => $vinculo->pt_tipo_id];
                 } elseif (isset($vinculo->TP_ID)) {
-                    $this->data['tipos_vinculados'][] = (object)['TPP_ID' => $vinculo->TP_ID];
+                    $this->data['tipos_vinculados'][] = (object) ['TPP_ID' => $vinculo->TP_ID];
                 }
             }
-            
+
             error_log('Tipos vinculados processados: ' . print_r($this->data['tipos_vinculados'], true));
         } else {
             $this->data['tipos_vinculados'] = [];
             error_log('Tabela pessoa_tipos não existe');
         }
-        
+
         // Buscar dados de cliente (se tabela existir)
         if ($this->db->table_exists('clientes')) {
             $this->data['cliente'] = $this->db->where('PES_ID', $id)->get('clientes')->row();
-            
+
             // Se for cliente, buscar vendedores permitidos
             if ($this->data['cliente'] && $this->db->table_exists('clientes_vendedores')) {
                 $this->db->select('cv.*, v.PES_ID as VEN_PES_ID, p.PES_NOME as VEN_NOME');
@@ -681,21 +796,117 @@ class Pessoas extends MY_Controller
             $this->data['cliente'] = null;
             $this->data['vendedores_permitidos'] = [];
         }
-        
+
         // Buscar dados de vendedor (se tabela existir)
         if ($this->db->table_exists('vendedores')) {
             $this->data['vendedor'] = $this->db->where('PES_ID', $id)->get('vendedores')->row();
         } else {
             $this->data['vendedor'] = null;
         }
-        
+
         $this->data['view'] = 'pessoas/editarPessoa';
+        return $this->layout();
+    }
+
+    public function visualizar($id = null)
+    {
+        if ($id == null) {
+            $this->session->set_flashdata('error', 'Pessoa não encontrada.');
+            redirect(base_url('index.php/pessoas'));
+        }
+
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'vPessoa')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para visualizar pessoas.');
+            redirect(base_url());
+        }
+
+        $this->data['result'] = $this->Pessoas_model->getById($id);
+
+        if ($this->db->table_exists('telefones')) {
+            $this->data['telefones'] = $this->db->where('PES_ID', $id)->get('telefones')->result();
+        } else {
+            $this->data['telefones'] = [];
+        }
+
+        if ($this->db->table_exists('emails')) {
+            $this->data['emails'] = $this->db->where('PES_ID', $id)->get('emails')->result();
+        } else {
+            $this->data['emails'] = [];
+        }
+
+        if ($this->db->table_exists('enderecos')) {
+            $this->db->select('e.*, est.EST_UF, mun.MUN_NOME, bai.BAI_NOME');
+            $this->db->from('enderecos e');
+            $this->db->join('estados est', 'est.EST_ID = e.EST_ID', 'left');
+            $this->db->join('municipios mun', 'mun.MUN_ID = e.MUN_ID', 'left');
+            $this->db->join('bairros bai', 'bai.BAI_ID = e.BAI_ID', 'left');
+            $this->db->where('e.PES_ID', $id);
+            $this->data['enderecos'] = $this->db->get()->result();
+        } else {
+            $this->data['enderecos'] = [];
+        }
+
+        if ($this->db->table_exists('documentos')) {
+            $this->data['documentos'] = $this->db->where('PES_ID', $id)->get('documentos')->result();
+        } else {
+            $this->data['documentos'] = [];
+        }
+
+        if ($this->db->table_exists('pessoa_tipos')) {
+            $query = $this->db->get_where('pessoa_tipos', ['PES_ID' => $id]);
+            if ($query->num_rows() == 0) {
+                $query = $this->db->get_where('pessoa_tipos', ['pessoa_id' => $id]);
+            }
+            if ($query->num_rows() == 0) {
+                $query = $this->db->get_where('pessoa_tipos', ['pt_pessoa_id' => $id]);
+            }
+            $tiposVinculados = $query->result();
+            $this->data['tipos_vinculados'] = [];
+            foreach ($tiposVinculados as $vinculo) {
+                if (isset($vinculo->TPP_ID)) {
+                    $this->data['tipos_vinculados'][] = (object) ['TPP_ID' => $vinculo->TPP_ID];
+                } elseif (isset($vinculo->tipo_id)) {
+                    $this->data['tipos_vinculados'][] = (object) ['TPP_ID' => $vinculo->tipo_id];
+                } elseif (isset($vinculo->pt_tipo_id)) {
+                    $this->data['tipos_vinculados'][] = (object) ['TPP_ID' => $vinculo->pt_tipo_id];
+                } elseif (isset($vinculo->TP_ID)) {
+                    $this->data['tipos_vinculados'][] = (object) ['TPP_ID' => $vinculo->TP_ID];
+                }
+            }
+        } else {
+            $this->data['tipos_vinculados'] = [];
+        }
+
+        if ($this->db->table_exists('clientes')) {
+            $this->data['cliente'] = $this->db->where('PES_ID', $id)->get('clientes')->row();
+            if ($this->data['cliente'] && $this->db->table_exists('clientes_vendedores')) {
+                $this->db->select('cv.*, v.PES_ID as VEN_PES_ID, p.PES_NOME as VEN_NOME');
+                $this->db->from('clientes_vendedores cv');
+                $this->db->join('vendedores v', 'v.VEN_ID = cv.VEN_ID');
+                $this->db->join('pessoas p', 'p.PES_ID = v.PES_ID');
+                $this->db->where('cv.CLN_ID', $this->data['cliente']->CLN_ID);
+                $this->data['vendedores_permitidos'] = $this->db->get()->result();
+            } else {
+                $this->data['vendedores_permitidos'] = [];
+            }
+        } else {
+            $this->data['cliente'] = null;
+            $this->data['vendedores_permitidos'] = [];
+        }
+
+        if ($this->db->table_exists('vendedores')) {
+            $this->data['vendedor'] = $this->db->where('PES_ID', $id)->get('vendedores')->row();
+        } else {
+            $this->data['vendedor'] = null;
+        }
+
+        $this->data['view'] = 'pessoas/visualizarPessoa';
         return $this->layout();
     }
 
     public function excluir()
     {
-        if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'dPessoa')) {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'dPessoa')) {
             $this->session->set_flashdata('error', 'Você não tem permissão para excluir pessoas.');
             redirect(base_url());
         }
@@ -709,7 +920,7 @@ class Pessoas extends MY_Controller
         $this->Pessoas_model->delete('pessoas', 'PES_ID', $id);
         log_info('Removeu uma pessoa. ID ' . $id);
 
-            $this->session->set_flashdata('success', 'Pessoa excluída com sucesso!');
+        $this->session->set_flashdata('success', 'Pessoa excluída com sucesso!');
         redirect(site_url('pessoas/gerenciar/'));
     }
-} 
+}

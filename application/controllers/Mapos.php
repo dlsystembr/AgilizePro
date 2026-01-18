@@ -515,7 +515,7 @@ class Mapos extends MY_Controller {
             $status
         );
         $events = array_map(function ($os) {
-            switch ($os->status) {
+            switch ($os->ORV_STATUS) {
                 case 'Aberto':
                     $cor = '#00cd00';
                     break;
@@ -548,26 +548,49 @@ class Mapos extends MY_Controller {
                     break;
             }
 
+            $totalProdutos = 0;
+            $totalServicos = 0;
+
+            $produtos = $this->os_model->getProdutos($os->ORV_ID);
+            foreach ($produtos as $p) {
+                $subtotal = isset($p->PRO_OS_SUBTOTAL)
+                    ? (float) $p->PRO_OS_SUBTOTAL
+                    : (float) (($p->PRO_OS_PRECO ?? 0) * ($p->PRO_OS_QUANTIDADE ?? 0));
+                $totalProdutos += $subtotal;
+            }
+
+            $servicos = $this->os_model->getServicos($os->ORV_ID);
+            foreach ($servicos as $s) {
+                $subtotal = isset($s->SOS_SUBTOTAL)
+                    ? (float) $s->SOS_SUBTOTAL
+                    : (float) (($s->SOS_PRECO ?? 0) * ($s->SOS_QUANTIDADE ?? 0));
+                $totalServicos += $subtotal;
+            }
+
+            $subtotalGeral = $totalProdutos + $totalServicos;
+            $valorDesconto = (float) ($os->ORV_VALOR_DESCONTO ?? 0);
+            $valorDescontoExibicao = (float) ($os->ORV_DESCONTO ?? 0);
+
             return [
-                'title' => "OS: {$os->idOs}, Cliente: {$os->nomeCliente}",
-                'start' => $os->dataFinal,
-                'end' => $os->dataFinal,
+                'title' => "OS: {$os->ORV_ID}, Cliente: {$os->nomeCliente}",
+                'start' => $os->ORV_DATA_FINAL,
+                'end' => $os->ORV_DATA_FINAL,
                 'color' => $cor,
                 'extendedProps' => [
-                    'id' => $os->idOs,
+                    'id' => $os->ORV_ID,
                     'cliente' => '<b>Cliente:</b> ' . $os->nomeCliente,
-                    'dataInicial' => '<b>Data Inicial:</b> ' . date('d/m/Y', strtotime($os->dataInicial)),
-                    'dataFinal' => '<b>Data Final:</b> ' . date('d/m/Y', strtotime($os->dataFinal)),
-                    'garantia' => '<b>Garantia:</b> ' . $os->garantia . ' dias',
-                    'status' => '<b>Status da OS:</b> ' . $os->status,
-                    'description' => '<b>Descrição/Produto:</b> ' . strip_tags(html_entity_decode($os->descricaoProduto)),
-                    'defeito' => '<b>Defeito:</b> ' . strip_tags(html_entity_decode($os->defeito)),
-                    'observacoes' => '<b>Observações:</b> ' . strip_tags(html_entity_decode($os->observacoes)),
-                    'subtotal' => '<br><b>Subtotal:</b> R$ ' . number_format($os->totalProdutos + $os->totalServicos, 2, ',', '.'),
-                    'desconto' => '<b>Desconto:</b> -R$ ' . ($os->desconto > 0 ? number_format(($os->totalProdutos + $os->totalServicos) - $os->valor_desconto, 2, ',', '.') : number_format($os->desconto, 2, ',', '.')),
-                    'total' => '<b>Total:</b> R$ ' . ($os->valor_desconto == 0 ? number_format($os->totalProdutos + $os->totalServicos, 2, ',', '.') : number_format($os->valor_desconto, 2, ',', '.')),
-                    'faturado' => '<br><b>Faturado:</b> ' . ($os->faturado ? 'SIM' : 'PENDENTE'),
-                    'editar' => $this->os_model->isEditable($os->idOs),
+                    'dataInicial' => '<b>Data Inicial:</b> ' . date('d/m/Y', strtotime($os->ORV_DATA_INICIAL)),
+                    'dataFinal' => '<b>Data Final:</b> ' . date('d/m/Y', strtotime($os->ORV_DATA_FINAL)),
+                    'garantia' => '<b>Garantia:</b> ' . $os->ORV_GARANTIA . ' dias',
+                    'status' => '<b>Status da OS:</b> ' . $os->ORV_STATUS,
+                    'description' => '<b>Descrição/Produto:</b> ' . strip_tags(html_entity_decode($os->ORV_DESCRICAO_PRODUTO)),
+                    'defeito' => '<b>Defeito:</b> ' . strip_tags(html_entity_decode($os->ORV_DEFEITO)),
+                    'observacoes' => '<b>Observações:</b> ' . strip_tags(html_entity_decode($os->ORV_OBSERVACOES)),
+                    'subtotal' => '<br><b>Subtotal:</b> R$ ' . number_format($subtotalGeral, 2, ',', '.'),
+                    'desconto' => '<b>Desconto:</b> -R$ ' . ($valorDescontoExibicao > 0 ? number_format($subtotalGeral - $valorDesconto, 2, ',', '.') : number_format($valorDescontoExibicao, 2, ',', '.')),
+                    'total' => '<b>Total:</b> R$ ' . ($valorDesconto == 0 ? number_format($subtotalGeral, 2, ',', '.') : number_format($valorDesconto, 2, ',', '.')),
+                    'faturado' => '<br><b>Faturado:</b> ' . ($os->ORV_FATURADO ? 'SIM' : 'PENDENTE'),
+                    'editar' => $this->os_model->isEditable($os->ORV_ID),
                 ],
             ];
         }, $allOs);

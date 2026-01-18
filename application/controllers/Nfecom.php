@@ -14,7 +14,14 @@ class Nfecom extends MY_Controller
         $this->load->model('Nfecom_model');
         $this->load->model('Nfe_model');
         $this->load->model('Clientes_model');
+        $this->load->model('ConfiguracoesFiscais_model');
         $this->data['menuNfecom'] = 'NFECom';
+
+        // Fix for OpenSSL 3 legacy certificates
+        if (file_exists('C:/xampp/php/extras/ssl/openssl.cnf')) {
+            putenv('OPENSSL_CONF=C:/xampp/php/extras/ssl/openssl.cnf');
+            putenv('OPENSSL_MODULES=C:/xampp/php/extras/ssl');
+        }
     }
 
     public function index()
@@ -269,25 +276,33 @@ class Nfecom extends MY_Controller
 
             $nomeServico = implode('; ', $nomesServicos);
 
-            // Buscar dados completos do cliente incluindo endereço
-            $this->db->select('p.*, e.END_LOGRADOURO as logradouro, e.END_NUMERO as numero, e.END_COMPLEMENTO as complemento, e.END_CEP as cep, m.MUN_NOME as municipio_nome, m.MUN_IBGE, es.EST_UF as estado_uf');
+            // Buscar dados completos do cliente incluindo endereço selecionado
+            $enderecoId = $data['enderecoClienteSelect'] ?? null;
+            $this->db->select('p.PES_CPFCNPJ, p.PES_NOME, p.PES_RAZAO_SOCIAL, p.PES_FISICO_JURIDICO, e.END_LOGRADOURO as logradouro, e.END_NUMERO as numero, e.END_COMPLEMENTO as complemento, e.END_CEP as cep, b.BAI_NOME as bairro, m.MUN_NOME as municipio_nome, m.MUN_IBGE, es.EST_UF as estado_uf');
             $this->db->from('clientes c');
             $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID');
-            $this->db->join('enderecos e', 'e.PES_ID = p.PES_ID AND e.END_PADRAO = 1', 'left'); // Endereço padrão
+            $this->db->join('enderecos e', 'e.PES_ID = p.PES_ID', 'left');
+            $this->db->join('bairros b', 'b.BAI_ID = e.BAI_ID', 'left');
             $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
             $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
             $this->db->where('c.CLN_ID', $data['clientes_id']);
+            if (!empty($enderecoId)) {
+                $this->db->where('e.END_ID', $enderecoId);
+            } else {
+                $this->db->where('e.END_PADRAO', 1);
+            }
+            $this->db->limit(1);
             $cliente_query = $this->db->get();
             $cliente = $cliente_query->row();
 
             if ($cliente) {
                 $data['nomeCliente'] = $cliente->PES_FISICO_JURIDICO == 'F' ? $cliente->PES_NOME : ($cliente->PES_RAZAO_SOCIAL ?: $cliente->PES_NOME);
-                $data['cnpjCliente'] = $cliente->PES_CPFCNPJ;
+                $data['cnpjCliente'] = $cliente->PES_CPFCNPJ ?? '';
                 $data['logradouroCliente'] = $cliente->logradouro ?? '';
                 $data['numeroCliente'] = $cliente->numero ?? '';
-                $data['bairroCliente'] = ''; // Bairro não disponível sem tabela bairros
+                $data['bairroCliente'] = $cliente->bairro ?? '';
                 $data['municipioCliente'] = $cliente->municipio_nome ?? '';
-                $data['codMunCliente'] = $cliente->codigo_ibge ?? '';
+                $data['codMunCliente'] = $cliente->MUN_IBGE ?? '';
                 $data['cepCliente'] = $cliente->cep ?? '';
                 $data['ufCliente'] = $cliente->estado_uf ?? '';
             }
@@ -304,13 +319,16 @@ class Nfecom extends MY_Controller
             // ... busca de cliente ...
 
             // Dados da NFCom
+            $cnpjSemMascara = preg_replace('/\D/', '', $data['cnpjCliente'] ?? '');
+            $configFiscal = $this->getConfiguracaoNfcom();
+            $codigoUf = $this->getCodigoUf($emit['enderEmit']['UF'] ?? '');
             $nfecomData = [
-                'NFC_CUF' => $emit['enderEmit']['UF'],
+                'NFC_CUF' => $codigoUf ?: ($emit['enderEmit']['UF'] ?? ''),
                 'NFC_TIPO_AMBIENTE' => $this->data['configuration']['ambiente'],
                 'NFC_MOD' => '62',
-                'NFC_SERIE' => $data['serie'],
-                'NFC_NNF' => $this->Nfecom_model->getNextNumero(),
-                'NFC_CNF' => str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT),
+                'NFC_SERIE' => $configFiscal ? $configFiscal->CFG_SERIE : $data['serie'],
+                'NFC_NNF' => 0,
+                'NFC_CNF' => str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT),
                 'NFC_DHEMI' => $data['dataEmissao'] . ' ' . date('H:i:s'),
                 'NFC_TP_EMIS' => 1,
                 'NFC_N_SITE_AUTORIZ' => 0,
@@ -333,7 +351,7 @@ class Nfecom extends MY_Controller
                 'NFC_UF_EMIT' => $emit['enderEmit']['UF'],
                 'NFC_FONE_EMIT' => $emit['enderEmit']['fone'],
                 'NFC_X_NOME_DEST' => $data['nomeCliente'],
-                'NFC_CNPJ_DEST' => $data['cnpjCliente'],
+                'NFC_CNPJ_DEST' => $cnpjSemMascara,
                 'NFC_IND_IE_DEST' => 9,
                 'NFC_X_LGR_DEST' => $data['logradouroCliente'],
                 'NFC_NRO_DEST' => $data['numeroCliente'],
@@ -342,7 +360,7 @@ class Nfecom extends MY_Controller
                 'NFC_X_MUN_DEST' => $data['municipioCliente'],
                 'NFC_CEP_DEST' => $data['cepCliente'],
                 'NFC_UF_DEST' => $data['ufCliente'],
-                'NFC_I_COD_ASSINANTE' => $data['cnpjCliente'],
+                'NFC_I_COD_ASSINANTE' => $cnpjSemMascara,
                 'NFC_TP_ASSINANTE' => 3,
                 'NFC_TP_SERV_UTIL' => 6,
                 'NFC_N_CONTRATO' => $data['numeroContrato'],
@@ -366,7 +384,8 @@ class Nfecom extends MY_Controller
                 'NFC_D_PER_USO_FIM' => $data['dataPeriodoFim'],
                 'NFC_COD_BARRAS' => '1',
                 'NFC_INF_CPL' => $this->buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido),
-                'NFC_STATUS' => 1 // Salvo
+                'NFC_STATUS' => 1, // Salvo
+                'CLN_ID' => $data['clientes_id']
             ];
 
             // Calcular CDV e Chave
@@ -413,7 +432,7 @@ class Nfecom extends MY_Controller
                             'NFC_ID' => $idNfecom,
                             'NFI_N_ITEM' => $itemNumero,
                             'NFI_C_PROD' => $servico['id'],
-                            'NFI_X_PROD' => $nomeServicoItem . ' - Qtd: ' . $quantidade . ' - ' . $data['observacoes'],
+                            'NFI_X_PROD' => $nomeServicoItem,
                             'NFI_C_CLASS' => '0600402',
                             'NFI_CFOP' => $cfop,
                             'NFI_U_MED' => $unidade,
@@ -454,7 +473,7 @@ class Nfecom extends MY_Controller
                         'NFC_ID' => $idNfecom,
                         'NFI_N_ITEM' => 1,
                         'NFI_C_PROD' => '1',
-                        'NFI_X_PROD' => 'Serviços diversos - ' . $data['observacoes'],
+                        'NFI_X_PROD' => 'Serviços diversos',
                         'NFI_C_CLASS' => '0600402',
                         'NFI_CFOP' => '5307',
                         'NFI_U_MED' => '4',
@@ -534,6 +553,39 @@ class Nfecom extends MY_Controller
             redirect(site_url('nfecom'));
         }
 
+        // Atualizar dados fiscais a partir das configurações antes do XML
+        $configFiscal = $this->getConfiguracaoNfcom();
+        if ($configFiscal) {
+            // Calcular cUF a partir da UF do emitente, não do destinatário
+            $ufEmit = $nfecom->NFC_UF_EMIT ?? 'GO';
+            $codigoUf = $this->get_cUF($ufEmit);
+            
+            $atualizacao = [
+                'NFC_TIPO_AMBIENTE' => $configFiscal->CFG_AMBIENTE,
+                'NFC_SERIE' => $configFiscal->CFG_SERIE,
+                'NFC_NNF' => $configFiscal->CFG_NUMERO_ATUAL,
+                'NFC_CUF' => $codigoUf,
+            ];
+
+            $chaveData = [
+                'NFC_CUF' => $atualizacao['NFC_CUF'],
+                'NFC_DHEMI' => $nfecom->NFC_DHEMI,
+                'NFC_CNPJ_EMIT' => $nfecom->NFC_CNPJ_EMIT,
+                'NFC_MOD' => $nfecom->NFC_MOD,
+                'NFC_SERIE' => $atualizacao['NFC_SERIE'],
+                'NFC_NNF' => $atualizacao['NFC_NNF'],
+                'NFC_TP_EMIS' => $nfecom->NFC_TP_EMIS,
+                'NFC_CNF' => $nfecom->NFC_CNF,
+            ];
+
+            $atualizacao['NFC_CDV'] = $this->calculateDV($chaveData);
+            $chaveData['NFC_CDV'] = $atualizacao['NFC_CDV'];
+            $atualizacao['NFC_CH_NFCOM'] = $this->generateChave($chaveData);
+
+            $this->Nfecom_model->edit('nfecom_capa', $atualizacao, 'NFC_ID', $id);
+            $nfecom = $this->Nfecom_model->getById($id);
+        }
+
         // Gerar XML
         $xml = $this->generateNfecomXml($nfecom, $itens);
 
@@ -545,6 +597,100 @@ class Nfecom extends MY_Controller
         header('Content-Disposition: attachment; filename="nfecom_' . $nfecom->NFC_CH_NFCOM . '.xml"');
         echo $xml;
         exit;
+    }
+
+    public function consultar()
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para consultar NFECom.');
+            redirect(base_url());
+        }
+
+        $id = $this->uri->segment(3);
+        $nfecom = $this->Nfecom_model->getById($id);
+
+        if ($nfecom == null) {
+            $this->session->set_flashdata('error', 'NFECom não encontrada.');
+            redirect(site_url('nfecom'));
+        }
+
+        $configFiscal = $this->getConfiguracaoNfcom();
+        if (!$configFiscal || empty($configFiscal->CER_ARQUIVO) || empty($configFiscal->CER_SENHA)) {
+            $this->session->set_flashdata('error', 'Nenhum certificado válido configurado para NFCOM.');
+            redirect(site_url('nfecom/visualizar/' . $id));
+        }
+
+        try {
+            $this->load->library('NFComService');
+            $nfcomService = new NFComService([
+                'ambiente' => $configFiscal->CFG_AMBIENTE,
+                'disable_cert_validation' => true
+            ]);
+            $nfcomService->setCertificate($configFiscal->CER_ARQUIVO, $configFiscal->CER_SENHA);
+
+            // Consulta Real na SEFAZ
+            $retorno = $nfcomService->consult($nfecom->NFC_CH_NFCOM, $configFiscal->CFG_AMBIENTE);
+
+            if (isset($retorno['error'])) {
+                throw new Exception($retorno['error']);
+            }
+
+            $statusTexto = 'Rejeitado / Outros';
+            $cStat = $retorno['cStat'];
+            $xMotivo = $retorno['xMotivo'];
+
+            if ($cStat == '100') { // Autorizado
+                $statusTexto = 'Autorizado';
+                $protocolo = $retorno['protocolo']['nProt'];
+                $dhRecbto = $retorno['protocolo']['dhRecbto'];
+
+                $dadosAtu = [
+                    'NFC_STATUS' => 3, // Autorizado
+                    'NFC_C_STAT' => $cStat,
+                    'NFC_X_MOTIVO' => $xMotivo,
+                    'NFC_N_PROT' => $protocolo,
+                    'NFC_DH_RECBTO' => $dhRecbto
+                ];
+
+                $this->Nfecom_model->updateStatus($id, $dadosAtu);
+                $this->registrarProtocolo($id, $protocolo, 'AUTORIZACAO', $xMotivo, $dhRecbto);
+
+                $this->session->set_flashdata('success', 'NFCom consultada e Autorizada! Status: ' . $xMotivo);
+            } else {
+                // Outros status ou rejeição
+                $dadosAtu = [
+                    'NFC_C_STAT' => $cStat,
+                    'NFC_X_MOTIVO' => $xMotivo
+                ];
+                $this->Nfecom_model->updateStatus($id, $dadosAtu);
+                $this->session->set_flashdata('info', 'Status da NFCom: ' . $cStat . ' - ' . $xMotivo);
+            }
+
+            // Para exibir no modal
+            $retornoSefaz = json_encode([
+                'cStat' => $cStat,
+                'xMotivo' => $xMotivo,
+                'nProt' => $retorno['protocolo']['nProt'] ?? '',
+                'dhRecbto' => $retorno['protocolo']['dhRecbto'] ?? '',
+                'xml' => $retorno['xml'] ?? ''
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+            $modalData = [
+                'numero_nfcom' => $nfecom->NFC_NNF,
+                'chave_nfcom' => $nfecom->NFC_CH_NFCOM,
+                'status' => $statusTexto,
+                'motivo' => $xMotivo,
+                'protocolo' => $retorno['protocolo']['nProt'] ?? '',
+                'retorno' => $retornoSefaz
+            ];
+
+            $this->session->set_flashdata('nfecom_modal', $modalData);
+
+        } catch (Exception $e) {
+            $this->session->set_flashdata('error', 'Erro ao consultar SEFAZ: ' . $e->getMessage());
+        }
+
+        redirect(site_url('nfecom'));
     }
 
     public function danfe()
@@ -680,6 +826,7 @@ class Nfecom extends MY_Controller
         // Preparar dados completos
         $dados = [
             'numero' => $nfecom->NFC_NNF,
+            'chave' => $nfecom->NFC_CH_NFCOM,
             'destinatario' => $destinatario,
             'assinante' => $assinante,
             'faturamento' => $faturamento,
@@ -730,6 +877,50 @@ class Nfecom extends MY_Controller
         }
     }
 
+    public function reemitir()
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para reemitir NFECom.');
+            redirect(base_url());
+        }
+
+        $id = $this->uri->segment(3);
+        $nfecom = $this->Nfecom_model->getById($id);
+
+        if ($nfecom == null) {
+            $this->session->set_flashdata('error', 'NFECom não encontrada.');
+            redirect(site_url('nfecom'));
+        }
+
+        // Verificar se a NFCom está rejeitada
+        if ($nfecom->NFC_STATUS != 4) {
+            $this->session->set_flashdata('error', 'Apenas NFCom rejeitadas podem ser reemitidas.');
+            redirect(site_url('nfecom/visualizar/' . $id));
+        }
+
+        try {
+            // Resetar apenas o status, mantendo a mesma chave de acesso
+            $dadosAtualizacao = [
+                'NFC_STATUS' => 1, // Voltar para status "Salvo"
+                'NFC_XML' => null, // Limpar XML antigo
+                'NFC_C_STAT' => null,
+                'NFC_X_MOTIVO' => null,
+                'NFC_N_PROT' => null,
+                'NFC_DH_RECBTO' => null
+            ];
+
+            $this->Nfecom_model->edit('nfecom_capa', $dadosAtualizacao, 'NFC_ID', $id);
+
+            $this->session->set_flashdata('success', 'NFCom preparada para reemissão com a mesma chave: ' . $nfecom->NFC_CH_NFCOM);
+
+        } catch (Exception $e) {
+            $this->session->set_flashdata('error', 'Erro ao preparar reemissão: ' . $e->getMessage());
+            log_message('error', 'Erro na reemissão NFCom: ' . $e->getMessage());
+        }
+
+        redirect(site_url('nfecom/visualizar/' . $id));
+    }
+
     public function autorizar()
     {
         if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
@@ -745,21 +936,152 @@ class Nfecom extends MY_Controller
             redirect(site_url('nfecom'));
         }
 
-        // Aqui seria implementada a integração com a SEFAZ
-        // Por enquanto, apenas simular autorização
-        $updateData = [
-            'NFC_STATUS' => 3, // 3 = Autorizado
-            'NFC_N_PROT' => '3522600005524308',
-            'NFC_DH_RECBTO' => date('Y-m-d H:i:s'),
-            'NFC_C_STAT' => '100',
-            'NFC_X_MOTIVO' => 'Autorizado o uso da NFCom'
-        ];
+        // Validar se o XML foi gerado
+        if (empty($nfecom->NFC_XML)) {
+            $this->session->set_flashdata('error', 'XML da NFCom não foi gerado. Gere o XML antes de autorizar.');
+            redirect(site_url('nfecom/visualizar/' . $id));
+        }
 
-        $this->Nfecom_model->updateStatus($id, $updateData);
+        // Validar certificado configurado para NFCOM
+        $configFiscal = $this->getConfiguracaoNfcom();
+        if (!$configFiscal || empty($configFiscal->CER_ARQUIVO) || empty($configFiscal->CER_SENHA)) {
+            $this->session->set_flashdata('error', 'Nenhum certificado válido configurado para NFCOM.');
+            redirect(site_url('nfecom/visualizar/' . $id));
+        }
 
-        $this->session->set_flashdata('success', 'NFECom autorizada com sucesso!');
+        // Integração Real com SEFAZ
+        try {
+            $this->load->library('NFComMake');
+            $this->load->library('NFComService');
+
+            // 1. Preparar dados completos para o XML
+            $dados = $this->prepararDadosEnvio($id);
+
+            // 2. Gerar XML
+            $nfcomMake = new NFComMake();
+            $xml = $nfcomMake->build($dados);
+
+            // Debug do XML gerado
+            file_put_contents('debug_nfcom_generated.xml', $xml);
+
+            // 3. Configurar Serviço (Certificado e Ambiente)
+            $nfcomService = new NFComService([
+                'ambiente' => $dados['ide']['tpAmb'],
+                'disable_cert_validation' => true
+            ]);
+            $nfcomService->setCertificate($configFiscal->CER_ARQUIVO, $configFiscal->CER_SENHA);
+
+            // 4. Assinar XML
+            $xmlSigned = $nfcomService->sign($xml);
+
+            // 5. Enviar para SEFAZ
+            $retorno = $nfcomService->send($xmlSigned);
+
+            // 6. Processar Retorno
+            if (isset($retorno['error'])) {
+                throw new Exception($retorno['error']);
+            }
+
+            if ($retorno['cStat'] == '100') {
+                $protocolo = $retorno['protocolo']['nProt'];
+                $dhRecbto = $retorno['protocolo']['dhRecbto'];
+                $motivo = $retorno['xMotivo'];
+                $chaveAcesso = $retorno['protocolo']['chNFCom'];
+
+                $dadosAtu = [
+                    'NFC_STATUS' => 3, // Autorizado
+                    'NFC_TIPO_AMBIENTE' => $dados['ide']['tpAmb'],
+                    'NFC_CH_NFCOM' => $chaveAcesso,
+                    'NFC_C_STAT' => $retorno['cStat'],
+                    'NFC_X_MOTIVO' => $motivo,
+                    'NFC_N_PROT' => $protocolo,
+                    'NFC_DH_RECBTO' => $dhRecbto,
+                    'NFC_XML' => $xmlSigned // Salva o assinado
+                ];
+
+                $this->Nfecom_model->updateStatus($id, $dadosAtu);
+                $this->registrarProtocolo($id, $protocolo, 'AUTORIZACAO', $motivo, $dhRecbto);
+                $this->incrementarSequenciaNfcom();
+
+                log_info('NFCom Autorizada Real (ID: ' . $id . ', Chave: ' . $chaveAcesso . ')');
+                $this->session->set_flashdata('success', 'NFCom autorizada com sucesso no SEFAZ! Chave: ' . $chaveAcesso);
+            } else {
+                // Rejeição
+                $dadosAtu = [
+                    'NFC_STATUS' => 4, // Rejeitado
+                    'NFC_C_STAT' => $retorno['cStat'] ?? '999',
+                    'NFC_X_MOTIVO' => $retorno['xMotivo'] ?? 'Erro desconhecido'
+                ];
+                $this->Nfecom_model->updateStatus($id, $dadosAtu);
+
+                log_message('error', 'NFCom Rejeitada (ID: ' . $id . '): ' . ($retorno['cStat'] ?? '999') . ' - ' . ($retorno['xMotivo'] ?? 'Erro desconhecido'));
+                $this->session->set_flashdata('error', 'NFCom Rejeitada pelo SEFAZ: ' . ($retorno['cStat'] ?? '999') . ' - ' . ($retorno['xMotivo'] ?? 'Erro desconhecido'));
+            }
+
+        } catch (Exception $e) {
+            log_message('error', 'Erro na autorização NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            
+            // Mensagem mais detalhada para o usuário
+            $mensagemErro = 'Erro ao autorizar: ' . $e->getMessage();
+            if (strpos($e->getMessage(), 'Resposta vazia') !== false) {
+                $mensagemErro .= '. Verifique: 1) Certificado digital válido e configurado, 2) Conexão com internet, 3) Serviço SEFAZ disponível.';
+            }
+            
+            $this->session->set_flashdata('error', $mensagemErro);
+        }
+
         redirect(site_url('nfecom/visualizar/' . $id));
     }
+
+    private function registrarProtocolo($nfecomId, $numeroProtocolo, $tipo, $motivo = null, $data = null)
+    {
+        if (empty($nfecomId) || empty($numeroProtocolo) || empty($tipo)) {
+            return;
+        }
+
+        $this->Nfecom_model->add('protocolos', [
+            'NFC_ID' => $nfecomId,
+            'PRT_NUMERO_PROTOCOLO' => $numeroProtocolo,
+            'PRT_TIPO' => $tipo,
+            'PRT_MOTIVO' => $motivo,
+            'PRT_DATA' => $data ?: date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    private function getConfiguracaoNfcom()
+    {
+        $empresa = $this->db->limit(1)->get('empresas')->row();
+        if (!$empresa) {
+            return null;
+        }
+
+        return $this->ConfiguracoesFiscais_model->getByTipo($empresa->EMP_ID, 'NFCOM');
+    }
+
+    private function incrementarSequenciaNfcom()
+    {
+        $empresa = $this->db->limit(1)->get('empresas')->row();
+        if (!$empresa) {
+            return;
+        }
+
+        $this->ConfiguracoesFiscais_model->incrementarNumero($empresa->EMP_ID, 'NFCOM');
+    }
+
+    private function getCodigoUf($uf)
+    {
+        if (empty($uf)) {
+            return null;
+        }
+
+        $this->db->select('EST_CODIGO_UF');
+        $this->db->from('estados');
+        $this->db->where('EST_UF', $uf);
+        $row = $this->db->get()->row();
+
+        return $row ? $row->EST_CODIGO_UF : null;
+    }
+
 
     private function buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido)
     {
@@ -784,20 +1106,30 @@ class Nfecom extends MY_Controller
 
     private function calculateDV($data)
     {
-        // Implementação simplificada do cálculo do DV
-        // Em produção, deve seguir as regras oficiais da SEFAZ
+        // Cálculo do dígito verificador usando módulo 11 (padrão SEFAZ)
         $chave = $data['NFC_CUF'] . date('ym', strtotime($data['NFC_DHEMI'])) .
-            $data['NFC_CNPJ_EMIT'] . $data['NFC_MOD'] . $data['NFC_SERIE'] .
+            $data['NFC_CNPJ_EMIT'] . $data['NFC_MOD'] .
+            str_pad($data['NFC_SERIE'], 3, '0', STR_PAD_LEFT) .
             str_pad($data['NFC_NNF'], 9, '0', STR_PAD_LEFT) .
-            $data['NFC_TP_EMIS'] . $data['NFC_CNF'];
+            $data['NFC_TP_EMIS'] . str_pad($data['NFC_CNF'], 7, '0', STR_PAD_LEFT);
 
-        // Cálculo simples para exemplo
+        // Algoritmo módulo 11
+        $multiplicador = 2;
         $soma = 0;
-        for ($i = 0; $i < strlen($chave); $i++) {
-            $soma += intval($chave[$i]);
+
+        // Percorre a chave de trás para frente
+        for ($i = strlen($chave) - 1; $i >= 0; $i--) {
+            $soma += intval($chave[$i]) * $multiplicador;
+            $multiplicador = ($multiplicador == 9) ? 2 : $multiplicador + 1;
         }
 
-        return $soma % 10;
+        $resto = $soma % 11;
+
+        if ($resto == 0 || $resto == 1) {
+            return 0;
+        }
+
+        return 11 - $resto;
     }
 
     private function generateChave($data)
@@ -810,7 +1142,7 @@ class Nfecom extends MY_Controller
             str_pad($data['NFC_SERIE'], 3, '0', STR_PAD_LEFT) .
             str_pad($data['NFC_NNF'], 9, '0', STR_PAD_LEFT) .
             $data['NFC_TP_EMIS'] .
-            str_pad($data['NFC_CNF'], 8, '0', STR_PAD_LEFT) .
+            str_pad($data['NFC_CNF'], 7, '0', STR_PAD_LEFT) .
             $data['NFC_CDV'];
 
         return $chave;
@@ -1072,6 +1404,65 @@ class Nfecom extends MY_Controller
         }
     }
 
+    public function getTelefonesCliente()
+    {
+        $clienteId = $this->uri->segment(3);
+
+        if (!$clienteId) {
+            echo json_encode(['error' => 'ID do cliente não informado']);
+            return;
+        }
+
+        try {
+            // Buscar PES_ID do cliente
+            $this->db->select('PES_ID');
+            $this->db->from('clientes');
+            $this->db->where('CLN_ID', $clienteId);
+            $clienteQuery = $this->db->get();
+
+            if ($clienteQuery->num_rows() == 0) {
+                echo json_encode(['error' => 'Cliente ID ' . $clienteId . ' não encontrado']);
+                return;
+            }
+
+            $cliente = $clienteQuery->row();
+            $pesId = $cliente->PES_ID;
+
+            // Buscar telefones por tipo
+            $this->db->select('TEL_TIPO, TEL_DDD, TEL_NUMERO');
+            $this->db->from('telefones');
+            $this->db->where('PES_ID', $pesId);
+            $query = $this->db->get();
+
+            $telefone = '';
+            $celular = '';
+
+            if ($query->num_rows() > 0) {
+                foreach ($query->result_array() as $tel) {
+                    $numero = trim(($tel['TEL_DDD'] ?? '') . ' ' . ($tel['TEL_NUMERO'] ?? ''));
+                    if (!$numero) {
+                        continue;
+                    }
+                    if ($tel['TEL_TIPO'] === 'Celular' || $tel['TEL_TIPO'] === 'Whatsapp') {
+                        if (!$celular) {
+                            $celular = $numero;
+                        }
+                    } elseif (!$telefone) {
+                        $telefone = $numero;
+                    }
+                }
+            }
+
+            echo json_encode([
+                'telefone' => $telefone,
+                'celular' => $celular,
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'Erro ao buscar telefones do cliente: ' . $e->getMessage());
+            echo json_encode(['error' => 'Erro interno do servidor: ' . $e->getMessage()]);
+        }
+    }
+
     public function buscarClientes()
     {
         try {
@@ -1160,7 +1551,7 @@ class Nfecom extends MY_Controller
                 foreach ($query->result_array() as $row) {
                     $preco = $row['PRO_PRECO_VENDA'] ?? 0;
                     $row_set[] = [
-                        'label' => $row['PRO_DESCRICAO'] . ' | Preço: R$ ' . number_format($preco, 2, ',', '.'),
+                        'label' => 'Serviço: ' . $row['PRO_DESCRICAO'] . ' | Preço: R$ ' . number_format($preco, 2, ',', '.'),
                         'id' => $row['PRO_ID'],
                         'preco' => $preco
                     ];
@@ -1170,5 +1561,259 @@ class Nfecom extends MY_Controller
             header('Content-Type: application/json');
             echo json_encode($row_set);
         }
+    }
+
+    private function gerarQRCodeNFCom($nfecom, $configFiscal)
+    {
+        // NFCom usa apenas URL simples, sem CSC (diferente do NFCe)
+        return 'https://dfe-portal.svrs.rs.gov.br/NFCom/QRCode?chNFCom=' . preg_replace('/\D/', '', $nfecom->NFC_CH_NFCOM) . '&tpAmb=' . $nfecom->NFC_TIPO_AMBIENTE;
+    }
+
+    public function get_cUF($uf)
+    {
+        $ufs = [
+            'AC' => '12',
+            'AL' => '27',
+            'AP' => '16',
+            'AM' => '13',
+            'BA' => '29',
+            'CE' => '23',
+            'DF' => '53',
+            'ES' => '32',
+            'GO' => '52',
+            'MA' => '21',
+            'MT' => '51',
+            'MS' => '50',
+            'MG' => '31',
+            'PA' => '15',
+            'PB' => '25',
+            'PR' => '41',
+            'PE' => '26',
+            'PI' => '22',
+            'RJ' => '33',
+            'RN' => '24',
+            'RS' => '43',
+            'RO' => '11',
+            'RR' => '14',
+            'SC' => '42',
+            'SP' => '35',
+            'SE' => '28',
+            'TO' => '17'
+        ];
+        return $ufs[$uf] ?? '43';
+    }
+
+    private function prepararDadosEnvio($id)
+    {
+        $nfecom = $this->Nfecom_model->getById($id);
+        if (!$nfecom)
+            throw new Exception("NFCom não encontrada.");
+
+        $configFiscal = $this->getConfiguracaoNfcom();
+        $emitente = $this->Nfe_model->getEmit();
+
+        // Buscar cliente/destinatário completo com endereço e documentos (IE)
+        $this->db->select('c.*, p.*, e.END_LOGRADOURO, e.END_NUMERO, e.END_COMPLEMENTO, e.END_CEP, b.BAI_NOME, m.MUN_NOME, m.MUN_IBGE, es.EST_UF, d.DOC_NUMERO as PES_IE, d.DOC_NATUREZA_CONTRIBUINTE');
+        $this->db->from('clientes c');
+        $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID');
+        $this->db->join('enderecos e', 'e.PES_ID = p.PES_ID AND e.END_PADRAO = 1', 'left');
+        $this->db->join('bairros b', 'b.BAI_ID = e.BAI_ID', 'left');
+        $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
+        $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
+        $this->db->join('documentos d', "d.PES_ID = p.PES_ID AND d.DOC_TIPO_DOCUMENTO = 'Inscrição Estadual'", 'left');
+
+        // Se CLN_ID estiver disponível, usar ele (mais preciso)
+        if (!empty($nfecom->CLN_ID)) {
+            $this->db->where('c.CLN_ID', $nfecom->CLN_ID);
+        } else {
+            // Fallback por CNPJ/CPF se for uma nota antiga sem CLN_ID
+            $cnpjLimpo = preg_replace('/\D/', '', $nfecom->NFC_CNPJ_DEST);
+            $this->db->where('p.PES_CPFCNPJ', $cnpjLimpo);
+        }
+
+        $cliente = $this->db->get()->row();
+
+        if (!$cliente)
+            throw new Exception("Cliente não encontrado.");
+
+        // Usar a UF do emitente para gerar o cUF correto
+        $ufEmit = $emitente['enderEmit']['UF'] ?? $nfecom->NFC_UF_EMIT ?? 'GO';
+        $cUF = $this->get_cUF($ufEmit);
+        
+        // Fallback manual se cUF ainda não for válido (deve ser 52 para GO, por exemplo)
+        if (empty($cUF) || !is_numeric($cUF)) {
+            $cUF = '52'; // Default para Goiás conforme solicitado
+        }
+
+        $listaItens = [];
+        $itens = $this->Nfecom_model->get('nfecom_itens', '*', ['NFC_ID' => $id]);
+        foreach ($itens as $it) {
+            $listaItens[] = [
+                'nItem' => $it->NFI_N_ITEM,
+                'codigo' => $it->NFI_C_PROD,
+                'descricao' => $it->NFI_X_PROD,
+                'classificacao_item' => $it->NFI_C_CLASS,
+                'cfop' => $it->NFI_CFOP,
+                'unidade' => $it->NFI_U_MED,
+                'quantidade' => $it->NFI_Q_FATURADA,
+                'valor_unitario' => $it->NFI_V_ITEM,
+                'valor_total' => $it->NFI_V_PROD,
+                'desconto' => $it->NFI_V_DESC,
+                'outros' => $it->NFI_V_OUTRO,
+                'imposto' => [
+                    'icms' => [
+                        'cst' => $it->NFI_CST_ICMS
+                        // Para ICMS40 (isenção), não incluir vBC, pICMS, vICMS
+                    ],
+                    'pis' => [
+                        'cst' => $it->NFI_CST_PIS,
+                        'vBC' => $it->NFI_V_BC_PIS,
+                        'pPIS' => $it->NFI_P_PIS,
+                        'vPIS' => $it->NFI_V_PIS
+                    ],
+                    'cofins' => [
+                        'cst' => $it->NFI_CST_COFINS,
+                        'vBC' => $it->NFI_V_BC_COFINS,
+                        'pCOFINS' => $it->NFI_P_COFINS,
+                        'vCOFINS' => $it->NFI_V_COFINS
+                    ]
+                ]
+            ];
+        }
+
+        $cMunFG = $nfecom->NFC_C_MUN_FG;
+        $cMunDest = $nfecom->NFC_C_MUN_DEST;
+
+        $indicador_ie = ($cliente->DOC_NATUREZA_CONTRIBUINTE == 'Contribuinte') ? '1' : '9';
+
+        // Converter cMunFG se for texto (nome da cidade)
+        if (!is_numeric($cMunFG) || strlen($cMunFG) != 7) {
+            $cMunFG = $this->getCodMunIBGE($cMunFG, $nfecom->NFC_UF_EMIT);
+        }
+
+        // Converter cMun do emitente se for texto
+        $cMunEmit = $nfecom->NFC_C_MUN_EMIT;
+        if (!is_numeric($cMunEmit) || strlen($cMunEmit) != 7) {
+            $cMunEmit = $this->getCodMunIBGE($cMunEmit, $nfecom->NFC_UF_EMIT);
+        }
+
+        // Converter cMun do destinatário se for texto
+        $cMunDest = $nfecom->NFC_C_MUN_DEST;
+        if (!is_numeric($cMunDest) || strlen($cMunDest) != 7) {
+            $cMunDest = $this->getCodMunIBGE($cMunDest, $nfecom->NFC_UF_DEST);
+        }
+
+        return [
+            'chave' => preg_replace('/\D/', '', $nfecom->NFC_CH_NFCOM),
+            'ide' => [
+                'cUF' => $cUF,
+                'tpAmb' => 2, // FORÇADO PARA AMBIENTE 2 (Homologação) conforme pedido
+                'serie' => $nfecom->NFC_SERIE ?: '1', // Fallback série
+                'nNF' => $nfecom->NFC_NNF,
+                'cNF' => $nfecom->NFC_CNF ?: str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT), // Fallback cNF
+                'cDV' => $nfecom->NFC_CDV ?: 0,
+                'dhEmi' => date('c', strtotime($nfecom->NFC_DHEMI ?: 'now')),
+                'tpEmis' => $nfecom->NFC_TP_EMIS ?: 1,
+                'nSiteAutoriz' => 0,
+                'cMunFG' => $cMunFG ?: '5218300', // Fallback Posse
+                'finNFCom' => 0,
+                'tpFat' => 0
+            ],
+            'emitente' => [
+                'cnpj' => $nfecom->NFC_CNPJ_EMIT,
+                'ie' => $nfecom->NFC_IE_EMIT,
+                'crt' => $nfecom->NFC_CRT_EMIT,
+                'razao_social' => $nfecom->NFC_X_NOME_EMIT,
+                'nome_fantasia' => $nfecom->NFC_X_FANT_EMIT,
+                'endereco' => [
+                    'logradouro' => $nfecom->NFC_X_LGR_EMIT,
+                    'numero' => $nfecom->NFC_NRO_EMIT,
+                    'complemento' => $nfecom->NFC_X_CPL_EMIT,
+                    'bairro' => $nfecom->NFC_X_BAIRRO_EMIT,
+                    'codigo_municipio' => $cMunEmit,
+                    'municipio' => $nfecom->NFC_X_MUN_EMIT,
+                    'cep' => $nfecom->NFC_CEP_EMIT,
+                    'uf' => $nfecom->NFC_UF_EMIT
+                ],
+                'telefone' => $nfecom->NFC_FONE_EMIT
+            ],
+            'destinatario' => [
+                'nome' => $nfecom->NFC_X_NOME_DEST,
+                'cnpj' => $nfecom->NFC_CNPJ_DEST,
+                'indicador_ie' => $nfecom->NFC_IND_IE_DEST,
+                'ie' => $cliente->PES_IE,
+                'endereco' => [
+                    'logradouro' => $nfecom->NFC_X_LGR_DEST,
+                    'numero' => $nfecom->NFC_NRO_DEST,
+                    'complemento' => $nfecom->NFC_X_CPL_DEST ?? '',
+                    'bairro' => $nfecom->NFC_X_BAIRRO_DEST,
+                    'codigo_municipio' => $cMunDest,
+                    'municipio' => $nfecom->NFC_X_MUN_DEST,
+                    'cep' => $nfecom->NFC_CEP_DEST,
+                    'uf' => $nfecom->NFC_UF_DEST
+                ]
+            ],
+            'assinante' => [
+                'codigo' => $nfecom->NFC_I_COD_ASSINANTE,
+                'tipo' => $nfecom->NFC_TP_ASSINANTE,
+                'tipo_servico' => $nfecom->NFC_TP_SERV_UTIL,
+                'numero_contrato' => $nfecom->NFC_N_CONTRATO,
+                'data_inicio_contrato' => $nfecom->NFC_D_CONTRATO_INI
+            ],
+            'itens' => $listaItens,
+            'totais' => [
+                'vProd' => array_sum(array_column($listaItens, 'valor_total')),
+                'icms' => [
+                    'vBC' => 0.00,
+                    'vICMS' => 0.00,
+                    'vICMSDeson' => 0.00,
+                    'vFCP' => 0.00
+                ],
+                'vCOFINS' => array_sum(array_map(function($item) {
+                    return $item['imposto']['cofins']['vCOFINS'];
+                }, $listaItens)),
+                'vPIS' => array_sum(array_map(function($item) {
+                    return $item['imposto']['pis']['vPIS'];
+                }, $listaItens)),
+                'vFUNTTEL' => 0.00, // Valor FUNTTEL
+                'vFUST' => 0.00,    // Valor FUST
+                'retTribTot' => [
+                    'vRetPIS' => 0.00,
+                    'vRetCofins' => 0.00,
+                    'vRetCSLL' => 0.00,
+                    'vIRRF' => 0.00
+                ],
+                'vDesc' => array_sum(array_column($listaItens, 'desconto')),
+                'vOutro' => array_sum(array_column($listaItens, 'outros')),
+                'vNF' => array_sum(array_column($listaItens, 'valor_total')) - array_sum(array_column($listaItens, 'desconto')) + array_sum(array_column($listaItens, 'outros')) - array_sum(array_map(function($item) {
+                    return $item['imposto']['cofins']['vCOFINS'] + $item['imposto']['pis']['vPIS'];
+                }, $listaItens))
+            ],
+            'faturamento' => [
+                'competencia' => $nfecom->NFC_COMPET_FAT,
+                'vencimento' => $nfecom->NFC_D_VENC_FAT,
+                'periodo_inicio' => $nfecom->NFC_D_PER_USO_INI,
+                'periodo_fim' => $nfecom->NFC_D_PER_USO_FIM,
+                'cod_barras' => $nfecom->NFC_COD_BARRAS ?? '1' // Código de barras padrão se não informado
+            ],
+            'informacoes_adicionais' => [
+                'complementar' => $nfecom->NFC_INF_CPL
+            ],
+            'suplementar' => [
+                'qrCode' => $this->gerarQRCodeNFCom($nfecom, $configFiscal)
+            ]
+        ];
+    }
+
+    private function getCodMunIBGE($cidade, $uf)
+    {
+        $this->db->select('m.MUN_IBGE');
+        $this->db->from('municipios m');
+        $this->db->join('estados e', 'e.EST_ID = m.EST_ID');
+        $this->db->like('m.MUN_NOME', $cidade);
+        $this->db->where('e.EST_UF', $uf);
+        $this->db->limit(1);
+        $res = $this->db->get()->row();
+        return $res ? $res->MUN_IBGE : '5218300'; // Fallback Posse-GO (7 dígitos)
     }
 }

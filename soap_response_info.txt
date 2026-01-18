@@ -1,0 +1,8 @@
+HTTP Code: 400
+Response Length: 0
+CURL Error: 
+CURL Errno: 0
+Total Time: 0.61254s
+Connect Time: 0.15091s
+Size Download: 0 bytes
+URL: https://nfcom-homologacao.svrs.rs.gov.br/WS/NFComRecepcao/NFComRecepcao.asmx
