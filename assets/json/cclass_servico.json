@@ -1,0 +1,344 @@
+{
+  "cclass_servico": [
+    {
+      "codigo": "0100101",
+      "descricao": "Assinatura de serviços de telefonia"
+    },
+    {
+      "codigo": "0100201",
+      "descricao": "Assinatura de serviços de comunicação de dados"
+    },
+    {
+      "codigo": "0100301",
+      "descricao": "Assinatura de serviços de TV por Assinatura"
+    },
+    {
+      "codigo": "0100401",
+      "descricao": "Assinatura de serviços de comunicação multimídia"
+    },
+    {
+      "codigo": "0200101",
+      "descricao": "Habilitação de serviços de telefonia"
+    },
+    {
+      "codigo": "0200201",
+      "descricao": "Habilitação de serviços de comunicação de dados"
+    },
+    {
+      "codigo": "0200301",
+      "descricao": "Habilitação de TV por Assinatura"
+    },
+    {
+      "codigo": "0300101",
+      "descricao": "Serviço Medido - Chamadas locais"
+    },
+    {
+      "codigo": "0300102",
+      "descricao": "Serviço Medido - Chamadas longa distância nacional"
+    },
+    {
+      "codigo": "0300103",
+      "descricao": "Serviço Medido - Chamadas longa distância internacionais"
+    },
+    {
+      "codigo": "0300104",
+      "descricao": "Serviço Medido - Chamadas originadas em Roaming"
+    },
+    {
+      "codigo": "0300105",
+      "descricao": "Serviço Medido - Chamadas recebidas em Roaming"
+    },
+    {
+      "codigo": "0300106",
+      "descricao": "Serviço Medido - Adicional de chamada"
+    },
+    {
+      "codigo": "0300107",
+      "descricao": "Serviço Medido - Números Especiais (0300/0500/0600/0800/etc.)"
+    },
+    {
+      "codigo": "0300108",
+      "descricao": "Serviço Medido - Mensagem SMS"
+    },
+    {
+      "codigo": "0300109",
+      "descricao": "Serviço Medido - Mensagem MMS"
+    },
+    {
+      "codigo": "0300201",
+      "descricao": "Serviço Medido - Comunicação de dados"
+    },
+    {
+      "codigo": "0300301",
+      "descricao": "Serviço Medido - Pay-per-view (programação TV)"
+    },
+    {
+      "codigo": "0300401",
+      "descricao": "Serviço Medido - Comunicação multimidia"
+    },
+    {
+      "codigo": "0400101",
+      "descricao": "Serviço Não Medido - Telefonia"
+    },
+    {
+      "codigo": "0400201",
+      "descricao": "Serviço Não Medido - Comunicação de dados"
+    },
+    {
+      "codigo": "0400301",
+      "descricao": "Serviço Não Medido - TV por Assinatura"
+    },
+    {
+      "codigo": "0400401",
+      "descricao": "Serviço Não Medido - Provimento à internet"
+    },
+    {
+      "codigo": "0400501",
+      "descricao": "Serviço Não Medido - Comunicação multimídia"
+    },
+    {
+      "codigo": "0450101",
+      "descricao": "Serviços Combinados (dados, voz, mensagens e outros)"
+    },
+    {
+      "codigo": "0500101",
+      "descricao": "Cartão Telefônico - Telefonia Fixa"
+    },
+    {
+      "codigo": "0500102",
+      "descricao": "Carga / Recarga de Créditos - Telefonia Fixa"
+    },
+    {
+      "codigo": "0500201",
+      "descricao": "Carga / Recarga de Créditos - Telefonia Móvel"
+    },
+    {
+      "codigo": "0500301",
+      "descricao": "Carga / Recarga de Créditos - Serviço de Comunicação Multimídia"
+    },
+    {
+      "codigo": "0500401",
+      "descricao": "Carga / Recarga de Créditos - TV por assinatura"
+    },
+    {
+      "codigo": "0500501",
+      "descricao": "Recarga de Créditos - Antecipação"
+    },
+    {
+      "codigo": "0500601",
+      "descricao": "Repasse de Pré-pago"
+    },
+    {
+      "codigo": "0600101",
+      "descricao": "Facilidades Adicionais (identificador, caixa postal, não-perturbe, etc)"
+    },
+    {
+      "codigo": "0600201",
+      "descricao": "Streaming de vídeo e audio"
+    },
+    {
+      "codigo": "0600301",
+      "descricao": "Serviço de Rastreamento"
+    },
+    {
+      "codigo": "0600401",
+      "descricao": "Veiculação de publicidade e propaganda em qualquer meio"
+    },
+    {
+      "codigo": "0600402",
+      "descricao": "Veiculação de publicidade por rádio e TV de recepção livre e gratuita"
+    },
+    {
+      "codigo": "0600501",
+      "descricao": "Outros Serviços (substituição de número, troca de aparelho, instalação, software, visita técnica, etc.)"
+    },
+    {
+      "codigo": "0600601",
+      "descricao": "Outros serviços de valor adicionado"
+    },
+    {
+      "codigo": "0700101",
+      "descricao": "Interconexão"
+    },
+    {
+      "codigo": "0700201",
+      "descricao": "Roaming"
+    },
+    {
+      "codigo": "0700301",
+      "descricao": "Exploração Industrial de Linha Dedicada - EILD"
+    },
+    {
+      "codigo": "0700401",
+      "descricao": "Lançamento de ICMS proporcional às saídas isentas, não tributadas ou com redução de base de cálculo (§ 1º, Cláusula terceira, Convênio ICMS 17/2013)"
+    },
+    {
+      "codigo": "0700501",
+      "descricao": "Lançamento de ICMS proporcional às cessões de meio destinadas a consumo próprio (§ 1º Cláusula terceira, Convênio ICMS 17/2013)"
+    },
+    {
+      "codigo": "0700601",
+      "descricao": "Lançamento de ICMS complementar, na condição de responsável tributário"
+    },
+    {
+      "codigo": "0800101",
+      "descricao": "Aparelho telefônico"
+    },
+    {
+      "codigo": "0800201",
+      "descricao": "Aparelho Identificador de chamadas"
+    },
+    {
+      "codigo": "0800301",
+      "descricao": "Modem"
+    },
+    {
+      "codigo": "0800401",
+      "descricao": "Rack"
+    },
+    {
+      "codigo": "0800501",
+      "descricao": "Sala/Recinto"
+    },
+    {
+      "codigo": "0800601",
+      "descricao": "Roteador"
+    },
+    {
+      "codigo": "0800701",
+      "descricao": "Servidor"
+    },
+    {
+      "codigo": "0800801",
+      "descricao": "Multiplexador"
+    },
+    {
+      "codigo": "0800901",
+      "descricao": "Decodificador/Conversor"
+    },
+    {
+      "codigo": "0801001",
+      "descricao": "Outros equipamentos"
+    },
+    {
+      "codigo": "0801101",
+      "descricao": "Fibra apagada"
+    },
+    {
+      "codigo": "0801201",
+      "descricao": "Capacidade Satelital"
+    },
+    {
+      "codigo": "0801301",
+      "descricao": "Antenas"
+    },
+    {
+      "codigo": "0801401",
+      "descricao": "Dutos e Postes"
+    },
+    {
+      "codigo": "1000101",
+      "descricao": "Cobrança de seguros"
+    },
+    {
+      "codigo": "1000201",
+      "descricao": "Cobrança de parcelamento"
+    },
+    {
+      "codigo": "1000301",
+      "descricao": "Cobrança de juros de mora"
+    },
+    {
+      "codigo": "1000401",
+      "descricao": "Cobrança de multa de mora"
+    },
+    {
+      "codigo": "1000402",
+      "descricao": "Cobrança de multa por descumprimento de contrato (fidelização)"
+    },
+    {
+      "codigo": "1000501",
+      "descricao": "Cobrança de conta de meses anteriores"
+    },
+    {
+      "codigo": "1000601",
+      "descricao": "Correção monetária"
+    },
+    {
+      "codigo": "1000701",
+      "descricao": "Taxas"
+    },
+    {
+      "codigo": "1000801",
+      "descricao": "Adiantamento relativo a serviços de comunicação por radiodifusão de recepção livre e gratuita"
+    },
+    {
+      "codigo": "1000901",
+      "descricao": "Cobrança por venda de mercadorias"
+    },
+    {
+      "codigo": "1100101",
+      "descricao": "Cobrança de Serviços de Terceiros"
+    },
+    {
+      "codigo": "1100201",
+      "descricao": "Cobrança de Seguros"
+    },
+    {
+      "codigo": "1100301",
+      "descricao": "Cobrança de Juros de Mora"
+    },
+    {
+      "codigo": "1100401",
+      "descricao": "Cobrança de Multa de Mora"
+    },
+    {
+      "codigo": "1100501",
+      "descricao": "Cobrança de Conta de meses anteriores"
+    },
+    {
+      "codigo": "1100601",
+      "descricao": "Correção Monetária"
+    },
+    {
+      "codigo": "1100701",
+      "descricao": "Doações"
+    },
+    {
+      "codigo": "1100801",
+      "descricao": "Cobrança por disponibilização de equipamentos"
+    },
+    {
+      "codigo": "1100901",
+      "descricao": "Cobrança por venda de mercadorias"
+    },
+    {
+      "codigo": "1200101",
+      "descricao": "Item lançado em outra NFCom - Cobrança centralizada"
+    },
+    {
+      "codigo": "1300101",
+      "descricao": "Item lançado em outra NFCom - Cobrança por cofaturamento"
+    },
+    {
+      "codigo": "5900101",
+      "descricao": "Dedução relativa a impugnação de serviços"
+    },
+    {
+      "codigo": "5900201",
+      "descricao": "Dedução referente ajuste de conta"
+    },
+    {
+      "codigo": "5900301",
+      "descricao": "Dedução relativa à multa pela interrupção de fornecimento"
+    },
+    {
+      "codigo": "5900401",
+      "descricao": "Dedução por pagamento em duplicidade"
+    },
+    {
+      "codigo": "5900501",
+      "descricao": "Outras deduções"
+    }
+  ]
+}

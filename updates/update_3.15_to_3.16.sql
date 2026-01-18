@@ -1,0 +1,1 @@
+ALTER TABLE `produtos` ADD `origem` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0-Nacional, 1-Importação direta, 2-Mercado interno, 3-Nacional+70%, 4-Nacional PPB, 5-Nacional até 40%, 6-Importação sem similar, 7-Importação sem similar mercado, 8-Nacional+70%' AFTER `entrada`; 

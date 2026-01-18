@@ -1,0 +1,17 @@
+-- Tabela de Emails
+CREATE TABLE IF NOT EXISTS `emails` (
+    `EML_ID` INT(11) NOT NULL AUTO_INCREMENT,
+    `PES_ID` INT(11) NOT NULL,
+    `EML_TIPO` ENUM('Geral','Comercial','Financeiro','Nota Fiscal') NOT NULL,
+    `EML_EMAIL` VARCHAR(150) NOT NULL,
+    `EML_NOME` VARCHAR(150) NULL,
+    `EML_DATA_INCLUSAO` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `EML_DATA_ATUALIZACAO` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`EML_ID`),
+    KEY `idx_emails_pessoa` (`PES_ID`),
+    KEY `idx_emails_tipo` (`EML_TIPO`),
+    KEY `idx_emails_email` (`EML_EMAIL`),
+    CONSTRAINT `fk_emails_pessoas` FOREIGN KEY (`PES_ID`) REFERENCES `pessoas` (`PES_ID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+

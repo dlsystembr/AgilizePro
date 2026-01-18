@@ -1,0 +1,20 @@
+CREATE TABLE tributacao_federal (
+    tbf_id INT NOT NULL AUTO_INCREMENT,
+    ncm_id INT(11) UNSIGNED NOT NULL,
+    tbf_cst_ipi_entrada VARCHAR(2) DEFAULT NULL,
+    tbf_aliquota_ipi_entrada DECIMAL(10,2) DEFAULT NULL,
+    tbf_cst_ipi_saida VARCHAR(2) DEFAULT NULL,
+    tbf_aliquota_ipi_saida DECIMAL(10,2) DEFAULT NULL,
+    tbf_cst_pis_cofins_entrada VARCHAR(2) DEFAULT NULL,
+    tbf_aliquota_pis_entrada DECIMAL(10,2) DEFAULT NULL,
+    tbf_aliquota_cofins_entrada DECIMAL(10,2) DEFAULT NULL,
+    tbf_cst_pis_cofins_saida VARCHAR(2) DEFAULT NULL,
+    tbf_aliquota_pis_saida DECIMAL(10,2) DEFAULT NULL,
+    tbf_aliquota_cofins_saida DECIMAL(10,2) DEFAULT NULL,
+    tbf_aliquota_ii DECIMAL(10,2) DEFAULT NULL,
+    tbf_data_cadastro DATETIME NOT NULL,
+    tbf_data_alteracao DATETIME DEFAULT NULL,
+    PRIMARY KEY (tbf_id),
+    KEY ncm_id (ncm_id),
+    CONSTRAINT fk_tributacao_federal_ncm FOREIGN KEY (ncm_id) REFERENCES ncms (ncm_id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

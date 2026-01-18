@@ -1,0 +1,1 @@
+SELECT 'Tabela servicos existe' as status, COUNT(*) as total_registros FROM servicos;

@@ -1,0 +1,2 @@
+-- Adicionar permissões da NFECom ao perfil Administrador
+UPDATE `permissoes` SET `permissoes` = CONCAT(`permissoes`, 's:8:"vNfecom";s:1:"1";s:8:"aNfecom";s:1:"1";s:8:"eNfecom";s:1:"1";s:8:"dNfecom";s:1:"1";') WHERE `nome` = 'Administrador';

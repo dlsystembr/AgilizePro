@@ -1,0 +1,34 @@
+{
+  "unidades_servico": [
+    {
+      "codigo": "00",
+      "descricao": "uMed Unidade Básica de Medida",
+      "valor": "1",
+      "detalhe": "1=Minuto; 2=MB; 3=GB; 4=UM"
+    },
+    {
+      "codigo": "01",
+      "descricao": "Minuto",
+      "valor": "1",
+      "detalhe": "Unidade de tempo"
+    },
+    {
+      "codigo": "02",
+      "descricao": "MB",
+      "valor": "2",
+      "detalhe": "Megabyte"
+    },
+    {
+      "codigo": "03",
+      "descricao": "GB",
+      "valor": "3",
+      "detalhe": "Gigabyte"
+    },
+    {
+      "codigo": "04",
+      "descricao": "UM",
+      "valor": "4",
+      "detalhe": "Unidade"
+    }
+  ]
+}

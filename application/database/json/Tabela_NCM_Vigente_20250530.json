@@ -1,0 +1,47 @@
+[
+    {
+        "codigo": "01012100",
+        "descricao": "Cavalos, reprodutores de raça pura",
+        "data_inicio": "2024-01-01",
+        "data_fim": null,
+        "tipo_ato": "Resolução",
+        "numero_ato": "1",
+        "ano_ato": "2024"
+    },
+    {
+        "codigo": "01012900",
+        "descricao": "Cavalos, exceto reprodutores de raça pura",
+        "data_inicio": "2024-01-01",
+        "data_fim": null,
+        "tipo_ato": "Resolução",
+        "numero_ato": "1",
+        "ano_ato": "2024"
+    },
+    {
+        "codigo": "01013000",
+        "descricao": "Asininos e muares",
+        "data_inicio": "2024-01-01",
+        "data_fim": null,
+        "tipo_ato": "Resolução",
+        "numero_ato": "1",
+        "ano_ato": "2024"
+    },
+    {
+        "codigo": "01022100",
+        "descricao": "Bovinos vivos, reprodutores de raça pura",
+        "data_inicio": "2024-01-01",
+        "data_fim": null,
+        "tipo_ato": "Resolução",
+        "numero_ato": "1",
+        "ano_ato": "2024"
+    },
+    {
+        "codigo": "01022900",
+        "descricao": "Bovinos vivos, exceto reprodutores de raça pura",
+        "data_inicio": "2024-01-01",
+        "data_fim": null,
+        "tipo_ato": "Resolução",
+        "numero_ato": "1",
+        "ano_ato": "2024"
+    }
+] 
