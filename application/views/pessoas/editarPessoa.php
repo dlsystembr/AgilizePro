@@ -170,8 +170,15 @@
         padding: 0 !important;
     }
 
-    /* Remover margin do Bootstrap na segunda coluna */
+    .row-flex>.span7 {
+        flex: 7;
+        width: auto !important;
+        margin-left: 0 !important;
+    }
+
     .row-flex>.span5 {
+        flex: 5;
+        width: auto !important;
         margin-left: 0 !important;
     }
 
@@ -181,6 +188,7 @@
         flex-direction: column;
         border-radius: 0;
         margin: 0;
+        height: 100%;
     }
 
     /* Primeira seção (Dados gerais) */
@@ -486,7 +494,7 @@
 
                                                 foreach ($tipos_pessoa as $tipo):
                                                     $checked = in_array($tipo->id, $tipos_vinculados_ids) ? 'checked' : '';
-                                                    
+
                                                     // Fallback/Verificação direta: se for Cliente ou Vendedor, verificar as tabelas específicas
                                                     if (!$checked) {
                                                         if (strtolower($tipo->nome) == 'cliente' && isset($cliente) && $cliente) {
@@ -1630,7 +1638,7 @@
         }
 
         // Controlar endereço padrão (apenas um pode ser marcado)
-        $(document).on('change', 'input[name="endereco_padrao"]', function() {
+        $(document).on('change', 'input[name="endereco_padrao"]', function () {
             if ($(this).is(':checked')) {
                 // Desmarcar todos os outros
                 $('input[name="endereco_padrao"]').not(this).prop('checked', false);
@@ -1641,12 +1649,12 @@
         $(document).on('click', '.remove-endereco', function () {
             var eraPadrao = $(this).closest('.endereco-row').find('input[name="endereco_padrao"]').is(':checked');
             $(this).closest('.endereco-row').remove();
-            
+
             // Se removeu o padrão, marcar o primeiro disponível
             if (eraPadrao) {
                 $('input[name="endereco_padrao"]').first().prop('checked', true);
             }
-            
+
             atualizarOpcoesEndereco();
         });
 

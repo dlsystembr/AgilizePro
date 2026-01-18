@@ -45,6 +45,14 @@ class NFComMake
         $this->addTotal($dados['totais']);
         // gFat
         $this->addGFat($dados['faturamento']);
+        // gSub
+        if (!empty($dados['substituicao'])) {
+            $this->addGSub($dados['substituicao']);
+        }
+        // gAjuste
+        if (!empty($dados['ajuste'])) {
+            $this->addGAjuste($dados['ajuste']);
+        }
         // infAdic
         $this->addInfAdic($dados['informacoes_adicionais']);
         // infNFComSupl
@@ -304,6 +312,20 @@ class NFComMake
         $qrNode->appendChild($this->dom->createCDATASection($supl['qrCode']));
         $node->appendChild($qrNode);
         $this->nfcom->appendChild($node);
+    }
+
+    private function addGSub($sub)
+    {
+        $node = $this->dom->createElement('gSub');
+        $this->append($node, 'chOriginal', $sub['chave_original']);
+        $this->infNFCom->appendChild($node);
+    }
+
+    private function addGAjuste($ajuste)
+    {
+        $node = $this->dom->createElement('gAjuste');
+        $this->append($node, 'chReferenciada', $ajuste['chave_referenciada']);
+        $this->infNFCom->appendChild($node);
     }
 
     private function append($parent, $name, $value)

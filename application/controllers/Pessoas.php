@@ -357,7 +357,7 @@ class Pessoas extends MY_Controller
 
                 // Salvar tipos de pessoa
                 $tiposPessoa = $this->input->post('TIPOS_PESSOA');
-                if (is_array($tiposPessoa)) {
+                if (is_array($tiposPessoa) && $this->db->table_exists('pessoa_tipos')) {
                     foreach ($tiposPessoa as $tipoId) {
                         $this->db->insert('pessoa_tipos', [
                             'pessoa_id' => $pessoaId,
@@ -368,7 +368,7 @@ class Pessoas extends MY_Controller
 
                 $this->session->set_flashdata('success', 'Pessoa adicionada com sucesso!');
                 log_info('Adicionou uma pessoa.');
-                redirect(site_url('pessoas/'));
+                redirect(base_url('index.php/pessoas/visualizar/' . $pessoaId));
             } else {
                 $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro.</p></div>';
             }
@@ -673,7 +673,7 @@ class Pessoas extends MY_Controller
 
                 // Salvar tipos de pessoa
                 $tiposPessoa = $this->input->post('TIPOS_PESSOA');
-                if (is_array($tiposPessoa)) {
+                if (is_array($tiposPessoa) && $this->db->table_exists('pessoa_tipos')) {
                     // Remover tipos antigos
                     $this->db->where('pessoa_id', $id);
                     $this->db->delete('pessoa_tipos');
@@ -688,7 +688,7 @@ class Pessoas extends MY_Controller
 
                 $this->session->set_flashdata('success', 'Pessoa editada com sucesso!');
                 log_info('Alterou uma pessoa. ID ' . $id);
-                redirect(site_url('pessoas/editar/') . $id);
+                redirect(base_url('index.php/pessoas/visualizar/' . $id));
             } else {
                 $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro</p></div>';
             }
@@ -847,7 +847,20 @@ class Pessoas extends MY_Controller
         }
 
         if ($this->db->table_exists('documentos')) {
-            $this->data['documentos'] = $this->db->where('PES_ID', $id)->get('documentos')->result();
+            $documentos = $this->db->where('PES_ID', $id)->get('documentos')->result();
+            foreach ($documentos as $doc) {
+                $doc->DOC_ENDE_IDX = null;
+                $endeId = isset($doc->ENDEID) ? $doc->ENDEID : (isset($doc->END_ID) ? $doc->END_ID : null);
+                if ($endeId) {
+                    foreach ($this->data['enderecos'] as $idx => $ende) {
+                        if ($ende->END_ID == $endeId) {
+                            $doc->DOC_ENDE_IDX = $idx;
+                            break;
+                        }
+                    }
+                }
+            }
+            $this->data['documentos'] = $documentos;
         } else {
             $this->data['documentos'] = [];
         }

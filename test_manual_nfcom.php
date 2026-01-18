@@ -135,7 +135,7 @@ $dados = [
         'complementar' => 'Teste Emissao Manual'
     ],
     'suplementar' => [
-        'qrCode' => 'https://fake-qrcode-url.com' // Should generate real one but keeping simple
+        'qrCode' => 'https://dfe-portal.svrs.rs.gov.br/NFCom/QRCode?chNFCom=52260154314807000128620010000001001000000000&tpAmb=2'
     ]
 ];
 

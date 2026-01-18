@@ -96,24 +96,23 @@
                             echo '<td>' . $dataEmissao . '</td>';
                             echo '<td>R$ ' . $valorTotal . '</td>';
                             echo '<td><span class="badge" style="background-color: ' . $corStatus . '; border-color: ' . $corStatus . '">' . $statusDesc . '</span></td>';
-                            echo '<td style="text-align:center">';
+                            echo '<td style="text-align:center; white-space: nowrap;">';
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Visualizar"><i class="bx bx-show"></i></a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" class="btn btn-mini btn-info" title="Ver dados da nota" style="margin-right: 2px">Ver dados</a>';
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="DANFE"><i class="bx bx-file"></i></a>';
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($r->NFC_STATUS < 2 || $r->NFC_STATUS == 4)) {
+                                $titulo = $r->NFC_STATUS == 4 ? 'Reemitir Nota' : 'Gerar NFCom';
+                                echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="' . $titulo . '" style="margin-right: 2px">' . $titulo . '</a>';
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS < 2) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Emitir Nota"><i class="bx bx-paper-plane"></i></a>';
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && $r->NFC_STATUS == 3) {
+                                echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->NFC_ID . '" class="btn btn-mini btn-inverse" title="Visualizar Danfe" style="margin-right: 2px">Danfe</a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" title="Baixar XML Autorizado" style="margin-right: 2px">XML</a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS >= 2) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/consultar/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Consultar"><i class="bx bx-search"></i></a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/consultar/' . $r->NFC_ID . '" class="btn btn-mini" title="Consultar Status na SEFAZ" style="margin-right: 2px">Consultar</a>';
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS == 2) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/autorizar/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Autorizar"><i class="bx bx-check"></i></a>';
-                            }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS == 4) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/reemitir/' . $r->NFC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Reemitir"><i class="bx bx-refresh"></i></a>';
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS != 3) {
+                                echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->NFC_ID . '" class="btn btn-mini btn-danger" title="Excluir NFCom" style="margin-right: 2px" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')">Excluir</a>';
                             }
                             echo '</td>';
                             echo '</tr>';
@@ -191,6 +190,21 @@
                 <?php endif; ?>
             </div>
             <div class="modal-footer">
+                <?php if ($this->session->flashdata('nfecom_modal')):
+                    $nfecom_modal = $this->session->flashdata('nfecom_modal');
+                    if ($nfecom_modal['status'] == 'Autorizado'):
+                ?>
+                    <a href="<?php echo base_url() ?>index.php/nfecom/gerarXml/<?php echo $nfecom_modal['id']; ?>" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-download"></i> Baixar XML
+                    </a>
+                    <a href="<?php echo base_url() ?>index.php/nfecom/baixarDanfe/<?php echo $nfecom_modal['id']; ?>" class="btn btn-success" target="_blank">
+                        <i class="fas fa-file-pdf"></i> Baixar DANFE
+                    </a>
+                    <a href="<?php echo base_url() ?>index.php/nfecom/danfe/<?php echo $nfecom_modal['id']; ?>" class="btn btn-info" target="_blank">
+                        <i class="fas fa-eye"></i> Visualizar DANFE
+                    </a>
+                <?php endif; ?>
+                <?php endif; ?>
                 <button type="button" class="nfe-button" data-dismiss="modal">
                     <i class="fas fa-times"></i> Fechar
                 </button>
@@ -205,6 +219,126 @@ $(document).ready(function() {
         $('#nfecomModal').modal('show');
     <?php endif; ?>
 });
+
+function gerarNFCom(id) {
+    // Mostrar loading
+    Swal.fire({
+        title: 'Processando NFCom...',
+        text: 'Aguarde enquanto autorizamos a NFCom na SEFAZ',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Fazer chamada AJAX
+    $.ajax({
+        url: '<?php echo base_url(); ?>index.php/nfecom/gerarXml',
+        type: 'POST',
+        data: {
+            id: id,
+            ajax: 'true',
+            '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+        },
+        dataType: 'json',
+        success: function(response) {
+            Swal.close();
+
+            if (response.success) {
+                // Preencher o modal com os dados retornados
+                $('#nfecomModal .modal-body').html(`
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    <label><strong>Número NFeCOM:</strong></label>
+                                    <div class="text-break">${response.modal.numero_nfcom}</div>
+                                </td>
+                                <td>
+                                    <label><strong>Chave NFeCOM:</strong></label>
+                                    <div class="text-break">${response.modal.chave_nfcom}</div>
+                                </td>
+                                <td>
+                                    <label><strong>Status:</strong></label>
+                                    <div class="nfe-status ${response.modal.status == 'Autorizado' ? 'success' : 'error'}">
+                                        ${response.modal.status}
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="mt-3">
+                        <label><strong>Motivo:</strong></label>
+                        <div class="text-break">${response.modal.motivo}</div>
+                    </div>
+
+                    ${response.modal.protocolo ? `
+                    <div class="mt-3">
+                        <label><strong>Protocolo:</strong></label>
+                        <div class="well">
+                            <pre>${response.modal.protocolo}</pre>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${response.modal.retorno ? `
+                    <div class="mt-3">
+                        <label><strong>Retorno SEFAZ:</strong></label>
+                        <div class="well">
+                            <pre>${response.modal.retorno}</pre>
+                        </div>
+                    </div>
+                    ` : ''}
+                `);
+
+                // Adicionar botões se autorizado
+                let footerHtml = '';
+                if (response.modal.status == 'Autorizado') {
+                    footerHtml += `
+                        <a href="<?php echo base_url(); ?>index.php/nfecom/gerarXml/${response.modal.id}" class="btn btn-primary" target="_blank">
+                            <i class="fas fa-download"></i> Baixar XML
+                        </a>
+                        <a href="<?php echo base_url(); ?>index.php/nfecom/baixarDanfe/${response.modal.id}" class="btn btn-success" target="_blank">
+                            <i class="fas fa-file-pdf"></i> Baixar DANFE
+                        </a>
+                        <a href="<?php echo base_url(); ?>index.php/nfecom/danfe/${response.modal.id}" class="btn btn-info" target="_blank">
+                            <i class="fas fa-eye"></i> Visualizar DANFE
+                        </a>
+                    `;
+                }
+                footerHtml += '<button type="button" class="nfe-button" data-dismiss="modal"><i class="fas fa-times"></i> Fechar</button>';
+
+                $('#nfecomModal .modal-footer').html(footerHtml);
+
+                // Mostrar modal
+                $('#nfecomModal').modal('show');
+
+                // Recarregar a página após fechar o modal para atualizar a listagem
+                $('#nfecomModal').on('hidden.bs.modal', function() {
+                    location.reload();
+                });
+
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: response.message
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.close();
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro de Comunicação',
+                text: 'Não foi possível processar a NFCom. Tente novamente.'
+            });
+        }
+    });
+}
 </script>
 
 <!-- Modal -->

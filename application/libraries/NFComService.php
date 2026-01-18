@@ -35,7 +35,7 @@ class NFComService
             $xml,
             'infNFCom',
             'Id',
-            OPENSSL_ALGO_SHA256,
+            OPENSSL_ALGO_SHA1,
             [true, false, null, null]
         );
     }
@@ -123,7 +123,7 @@ class NFComService
 
         try {
             $response = $this->executeCurl($url, $xml, 'nfcomConsulta');
-            
+
             if (empty($response) || trim($response) === '') {
                 log_message('error', 'Resposta vazia do SEFAZ na consulta. URL: ' . $url);
                 return ['error' => 'Resposta vazia do SEFAZ. Verifique: 1) Conexão com internet, 2) Certificado válido, 3) URL do serviço correta'];
@@ -305,7 +305,7 @@ class NFComService
         // Prepara conteúdo da mensagem - remover declaração XML
         $cleanXml = preg_replace('/<\?xml[^>]*\?>/', '', $xmlContent);
         $cleanXml = trim($cleanXml);
-        
+
         // Validar XML antes de enviar
         $domTest = new DOMDocument();
         libxml_use_internal_errors(true);
@@ -320,12 +320,12 @@ class NFComService
             throw new \Exception($errorMsg);
         }
         libxml_use_internal_errors(false);
-        
+
         // Converter XML para string sem formatação (como NFePHP faz)
         $domTest->formatOutput = false;
         $domTest->preserveWhiteSpace = false;
         $cleanXml = $domTest->saveXML($domTest->documentElement);
-        
+
         // Envelope SOAP 1.2 - formato exato como NFePHP usa
         // NFePHP usa SOAP 1.2 com estrutura específica
         $soapEnvelope = '<?xml version="1.0" encoding="UTF-8"?>';
@@ -340,7 +340,7 @@ class NFComService
 
         // Headers exatamente como NFePHP usa
         $soapActionValue = $namespaceMsg . '/' . $soapAction;
-        
+
         $headers = [
             'Content-Type: application/soap+xml; charset=utf-8; action="' . $soapActionValue . '"',
             'SOAPAction: "' . $soapActionValue . '"',
@@ -350,26 +350,26 @@ class NFComService
         $certFile = tempnam(sys_get_temp_dir(), 'cert_');
         $pemFile = tempnam(sys_get_temp_dir(), 'pem_');
         $useP12 = false;
-        
+
         try {
             // Fix for OpenSSL 3 legacy certificates
             if (file_exists('C:/xampp/php/extras/ssl/openssl.cnf')) {
                 putenv('OPENSSL_CONF=C:/xampp/php/extras/ssl/openssl.cnf');
                 putenv('OPENSSL_MODULES=C:/xampp/php/extras/ssl');
             }
-            
+
             // Método 1: Tentar usar openssl_pkcs12_read do PHP
             $certs = [];
             if (openssl_pkcs12_read($this->pfxContent, $certs, $this->password)) {
                 // Extrair certificado e chave privada
                 $certPem = $certs['cert'] ?? '';
                 $keyPem = $certs['pkey'] ?? '';
-                
+
                 if (!empty($certPem) && !empty($keyPem)) {
                     // Combinar certificado e chave em um arquivo PEM
                     $pemContent = $certPem . "\n" . $keyPem;
                     file_put_contents($pemFile, $pemContent);
-                    
+
                     if (file_exists($pemFile) && filesize($pemFile) > 0) {
                         log_message('debug', 'Certificado convertido para PEM via openssl_pkcs12_read');
                     } else {
@@ -383,27 +383,27 @@ class NFComService
             }
         } catch (\Exception $e) {
             log_message('warning', 'Falha ao converter certificado via PHP: ' . $e->getMessage() . '. Tentando OpenSSL CLI.');
-            
+
             // Método 2: Tentar usar OpenSSL via linha de comando
             try {
                 file_put_contents($certFile, $this->pfxContent);
-                
+
                 // Verificar se OpenSSL está disponível
                 $opensslCheck = @shell_exec('openssl version 2>&1');
                 if (empty($opensslCheck) || strpos($opensslCheck, 'OpenSSL') === false) {
                     throw new \Exception('OpenSSL não encontrado no sistema');
                 }
-                
+
                 // Converter PFX para PEM
                 $opensslCmd = "openssl pkcs12 -in \"{$certFile}\" -out \"{$pemFile}\" -nodes -passin pass:\"{$this->password}\" 2>&1";
                 $output = [];
                 $returnVar = 0;
                 exec($opensslCmd, $output, $returnVar);
-                
+
                 if ($returnVar !== 0 || !file_exists($pemFile) || filesize($pemFile) == 0) {
                     throw new \Exception('Falha na conversão OpenSSL: ' . implode("\n", $output));
                 }
-                
+
                 log_message('debug', 'Certificado convertido para PEM via OpenSSL CLI');
             } catch (\Exception $e2) {
                 log_message('error', 'Erro ao converter certificado: ' . $e2->getMessage() . '. Tentando usar PFX diretamente.');
@@ -425,7 +425,7 @@ class NFComService
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         curl_setopt($ch, CURLOPT_USERAGENT, 'NFePHP NFCom');
-        
+
         // Configuração do certificado - usar o mesmo método que NFePHP
         if ($useP12) {
             // Tentar usar PFX diretamente (alguns sistemas suportam)
@@ -448,7 +448,7 @@ class NFComService
         $info = curl_getinfo($ch);
 
         curl_close($ch);
-        
+
         // Limpar arquivos temporários
         @unlink($certFile);
         if ($pemFile != $certFile && file_exists($pemFile)) {
@@ -470,10 +470,10 @@ class NFComService
 
         // Salvar resposta para debug mesmo se houver erro
         file_put_contents('soap_response_debug.xml', $response);
-        
+
         if ($httpCode != 200) {
             log_message('error', 'HTTP Code diferente de 200: ' . $httpCode . ' | Response: ' . substr($response, 0, 1000));
-            
+
             // Tentar extrair mensagem de erro do SOAP Fault se houver
             $errorMsg = "Erro HTTP " . $httpCode . " do SEFAZ";
             if (!empty($response)) {
@@ -493,7 +493,7 @@ class NFComService
                     $errorMsg .= ": " . substr(strip_tags($response), 0, 200);
                 }
             }
-            
+
             throw new \Exception($errorMsg);
         }
 
@@ -516,16 +516,16 @@ class NFComService
     {
         // Remove namespaces for easier parsing
         $xml = preg_replace('/(<\/?)(\\w+):([^>]*>)/', '$1$3', $response);
-        
+
         $dom = new DOMDocument();
         @$dom->loadXML($xml);
 
         // SOAP Fault
         $fault = $dom->getElementsByTagName('Fault')->item(0);
         if ($fault) {
-            $faultString = $fault->getElementsByTagName('reason')->item(0)->nodeValue ?? 
-                           $fault->getElementsByTagName('faultstring')->item(0)->nodeValue ?? 
-                           'Erro SOAP desconhecido';
+            $faultString = $fault->getElementsByTagName('reason')->item(0)->nodeValue ??
+                $fault->getElementsByTagName('faultstring')->item(0)->nodeValue ??
+                'Erro SOAP desconhecido';
             return ['error' => 'Erro SOAP: ' . $faultString, 'raw' => $response];
         }
 
@@ -560,7 +560,7 @@ class NFComService
     private function parseConsultResponse($response)
     {
         $xml = preg_replace('/(<\/?)(\\w+):([^>]*>)/', '$1$3', $response);
-        
+
         $dom = new DOMDocument();
         @$dom->loadXML($xml);
 

@@ -15,7 +15,7 @@ Host: nfcom-homologacao.svrs.rs.gov.br
 Accept: */*
 Content-Type: application/soap+xml; charset=utf-8; action="http://www.portalfiscal.inf.br/nfcom/wsdl/NFComRecepcao/nfcomRecepcao"
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36
-Content-Length: 5133
+Content-Length: 5225
 
 < HTTP/1.1 200 OK
 < Cache-Control: private, max-age=0
@@ -23,7 +23,7 @@ Content-Length: 5133
 < Server: Microsoft-IIS/10.0
 < X-AspNet-Version: 4.0.30319
 < X-Powered-By: ASP.NET
-< Date: Sun, 18 Jan 2026 12:15:47 GMT
+< Date: Sun, 18 Jan 2026 16:14:06 GMT
 < Content-Length: 579
 < 
 * Connection #0 to host nfcom-homologacao.svrs.rs.gov.br left intact
