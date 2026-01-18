@@ -496,71 +496,69 @@
 
                     <!-- Seção Serviços -->
                     <div class="form-section" style="margin-top: 30px;">
-                        <div class="form-section-header"
-                            style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="form-section-header">
                             <div>
                                 <i class="fas fa-tools"></i>
                                 <span>Serviços<span class="required">*</span></span>
-                    </div>
-                            <button type="button" id="btnAdicionarServico" class="btn btn-success btn-mini">
-                                <i class="fas fa-plus"></i> Adicionar Serviço
-                            </button>
+                            </div>
                         </div>
                         <div class="form-section-content">
-                            <div id="servicos-container">
-                                <!-- Serviços serão adicionados dinamicamente aqui -->
-                                <div class="servico-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
-                                    <div class="grid-layout">
-                                        <div>
-                                            <label>Serviço *</label>
-                                            <select name="servicos[0][id]" class="form-control servico-select" required>
-                                                <option value="">Selecione um serviço</option>
-                                                <?php foreach ($servicos as $servico) { ?>
-                                                <option value="<?php echo $servico->idServicos; ?>"><?php echo $servico->nome; ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label>CFOP</label>
-                                            <input type="text" name="servicos[0][cfop]" class="form-control cfop-input" value="5307" placeholder="5307">
-                                        </div>
-                                        <div>
-                                            <label>Unid.</label>
-                                            <input type="text" name="servicos[0][unidade]" class="form-control unidade-input" value="4" placeholder="4">
-                                        </div>
-                                        <div>
-                                            <label>Qtd *</label>
-                                            <input type="number" name="servicos[0][quantidade]" class="form-control quantidade-input" step="0.01" value="1" required>
-                                        </div>
-                                        <div>
-                                            <label>V. Unit *</label>
-                                            <input type="number" name="servicos[0][valorUnitario]" class="form-control valor-unitario-input" step="0.01" value="0.01" required>
-                                        </div>
-                                        <div>
-                                            <label>V. Desc</label>
-                                            <input type="number" name="servicos[0][valorDesconto]" class="form-control valor-desconto-input" step="0.01" value="0">
-                                        </div>
-                                        <div>
-                                            <label>V. Outros</label>
-                                            <input type="number" name="servicos[0][valorOutros]" class="form-control valor-outros-input" step="0.01" value="0">
-                                        </div>
-                                        <div>
-                                            <label>&nbsp;</label>
-                                            <button type="button" class="btn btn-mini btn-danger remove-servico" style="width: 100%; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
+                            <div class="span12 well" style="padding: 1%; margin-left: 0">
+                                <div class="row-fluid">
+                                    <div class="span6">
+                                        <input type="hidden" id="idServicoNfecom" />
+                                        <label for="">Serviço *</label>
+                                        <input type="text" class="span12" id="servicoNfecom"
+                                            placeholder="Digite o nome do serviço" />
                                     </div>
-                                    <div class="valores-calculados">
-                                        <div>
-                                            <strong>Valor Item:</strong> R$ <span class="valor-item-display valor-display">0,00</span>
-                                        </div>
-                                        <div>
-                                            <strong>Valor Produto:</strong> R$ <span class="valor-produto-display valor-display">0,00</span>
-                                        </div>
+                                    <div class="span2">
+                                        <label for="">Preço *</label>
+                                        <input type="text" placeholder="Preço" id="precoServicoNfecom"
+                                            class="span12 money" data-affixes-stay="true" data-thousands=""
+                                            data-decimal="." />
                                     </div>
-                        </div>
-                    </div>
+                                    <div class="span2">
+                                        <label for="">Quantidade *</label>
+                                        <input type="text" placeholder="Quantidade" id="quantidadeServicoNfecom"
+                                            class="span12" />
+                                    </div>
+                                    <div class="span2">
+                                        <label for="">&nbsp;</label>
+                                        <button type="button" id="btnAdicionarServicoNfecom"
+                                            class="button btn btn-success">
+                                            <span class="button__icon"><i class='bx bx-plus-circle'></i></span><span
+                                                class="button__text2">Adicionar</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="widget-box" id="servicos-container">
+                                <div class="widget_content nopadding">
+                                    <table width="100%" class="table table-bordered" id="tblServicosNfecom">
+                                        <thead>
+                                            <tr>
+                                                <th>Serviço</th>
+                                                <th width="8%">Quantidade</th>
+                                                <th width="10%">Preço</th>
+                                                <th width="6%">Ações</th>
+                                                <th width="10%">Sub-totals</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="servicos-list-body"></tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="4" style="text-align: right"><strong>Total:</strong>
+                                                </td>
+                                                <td>
+                                                    <div align="center"><strong>R$
+                                                            <span id="total-servicos-table">0,00</span></strong>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
 
                             <!-- Resumo dos valores calculados -->
                             <div id="servicos-resumo" style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; display: none;">
@@ -791,79 +789,96 @@ $(document).ready(function(){
         }
     });
 
-    // Sistema de Serviços Múltiplos
+    // Sistema de Serviços - padrão OS
     let servicoIndex = 0;
 
-    // Função para adicionar serviço
-    function adicionarServico(servicoData = {}) {
-        const servicoId = servicoData.id || '';
-        const cfop = servicoData.cfop || '5307';
-        const unidade = servicoData.unidade || '4';
-        const quantidade = servicoData.quantidade || 1;
-        const valorUnitario = servicoData.valorUnitario || 0;
-        const valorDesconto = servicoData.valorDesconto || 0;
-        const valorOutros = servicoData.valorOutros || 0;
-
-        const servicoRow = `
-        <div class="servico-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
-            <div class="grid-layout">
-                <div>
-                    <label>Serviço *</label>
-                    <select name="servicos[${servicoIndex}][id]" class="form-control servico-select" required>
-                        <option value="">Selecione um serviço</option>
-                        <?php foreach ($servicos as $servico) { ?>
-                        <option value="<?php echo $servico->idServicos; ?>"><?php echo $servico->nome; ?></option>
-                        <?php } ?>
-                    </select>
-                </div>
-                <div>
-                    <label>CFOP</label>
-                    <input type="text" name="servicos[${servicoIndex}][cfop]" class="form-control cfop-input" value="${cfop}" placeholder="5307">
-                </div>
-                <div>
-                    <label>Unid.</label>
-                    <input type="text" name="servicos[${servicoIndex}][unidade]" class="form-control unidade-input" value="${unidade}" placeholder="4">
-                </div>
-                <div>
-                    <label>Qtd *</label>
-                    <input type="number" name="servicos[${servicoIndex}][quantidade]" class="form-control quantidade-input" step="0.01" value="${quantidade}" required>
-                </div>
-                <div>
-                    <label>V. Unit *</label>
-                    <input type="number" name="servicos[${servicoIndex}][valorUnitario]" class="form-control valor-unitario-input" step="0.01" value="${valorUnitario || 0.01}" required>
-                </div>
-                <div>
-                    <label>V. Desc</label>
-                    <input type="number" name="servicos[${servicoIndex}][valorDesconto]" class="form-control valor-desconto-input" step="0.01" value="${valorDesconto}">
-                </div>
-                <div>
-                    <label>V. Outros</label>
-                    <input type="number" name="servicos[${servicoIndex}][valorOutros]" class="form-control valor-outros-input" step="0.01" value="${valorOutros}">
-                </div>
-                <div>
-                    <label>&nbsp;</label>
-                    <button type="button" class="btn btn-mini btn-danger remove-servico" style="width: 100%; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="valores-calculados">
-                <div>
-                    <strong>Valor Item:</strong> R$ <span class="valor-item-display valor-display">0,00</span>
-                </div>
-                <div>
-                    <strong>Valor Produto:</strong> R$ <span class="valor-produto-display valor-display">0,00</span>
-                </div>
-            </div>
-        </div>
-        `;
-
-        $('#servicos-container').append(servicoRow);
-        servicoIndex++;
-        atualizarValidacaoServicos();
+    function parseNumber(value) {
+        const normalized = String(value || '').replace(',', '.');
+        return parseFloat(normalized) || 0;
     }
 
-    // Já temos um serviço template na view, então não precisamos adicionar automaticamente
+    function formatMoney(value) {
+        return value.toFixed(2).replace('.', ',');
+    }
+
+    $("#quantidadeServicoNfecom").keyup(function () {
+        this.value = this.value.replace(/[^0-9.]/g, '');
+    });
+
+    $("#servicoNfecom").autocomplete({
+        source: "<?php echo base_url(); ?>index.php/os/autoCompleteServico",
+        minLength: 2,
+        select: function (event, ui) {
+            $("#idServicoNfecom").val(ui.item.id);
+            $("#precoServicoNfecom").val(ui.item.preco);
+            $("#quantidadeServicoNfecom").focus();
+        }
+    });
+
+    $("#servicoNfecom").on('input', function () {
+        if (!$(this).val()) {
+            $("#idServicoNfecom").val('');
+        }
+    });
+
+    function limparServicoFormulario() {
+        $("#idServicoNfecom").val('');
+        $("#servicoNfecom").val('').focus();
+        $("#precoServicoNfecom").val('');
+        $("#quantidadeServicoNfecom").val('');
+    }
+
+    function adicionarServicoNfecom() {
+        const servicoId = $("#idServicoNfecom").val();
+        const servicoNome = $("#servicoNfecom").val().trim();
+        const preco = parseNumber($("#precoServicoNfecom").val());
+        const quantidade = parseNumber($("#quantidadeServicoNfecom").val());
+
+        if (!servicoId || !servicoNome || preco <= 0 || quantidade <= 0) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    type: "error",
+                    title: "Atenção",
+                    text: "Informe um serviço válido, preço e quantidade."
+                });
+            } else {
+                alert('Informe um serviço válido, preço e quantidade.');
+            }
+            return;
+        }
+
+        const valorItem = quantidade * preco;
+        const valorProduto = valorItem;
+        const cfop = '5307';
+        const unidade = '4';
+
+        const row = `
+            <tr data-index="${servicoIndex}" data-valor-produto="${valorProduto}">
+                <td>${servicoNome}</td>
+                <td><div align="center">${quantidade}</div></td>
+                <td><div align="center">R$ ${formatMoney(preco)}</div></td>
+                <td>
+                    <div align="center">
+                        <span class="btn-nwe4 servico-remove" title="Excluir Serviço"><i class="bx bx-trash-alt"></i></span>
+                    </div>
+                    <input type="hidden" name="servicos[${servicoIndex}][id]" value="${servicoId}">
+                    <input type="hidden" name="servicos[${servicoIndex}][quantidade]" value="${quantidade}">
+                    <input type="hidden" name="servicos[${servicoIndex}][valorUnitario]" value="${preco}">
+                    <input type="hidden" name="servicos[${servicoIndex}][valorDesconto]" value="0">
+                    <input type="hidden" name="servicos[${servicoIndex}][valorOutros]" value="0">
+                    <input type="hidden" name="servicos[${servicoIndex}][cfop]" value="${cfop}">
+                    <input type="hidden" name="servicos[${servicoIndex}][unidade]" value="${unidade}">
+                </td>
+                <td><div align="center">R$: ${formatMoney(valorProduto)}</div></td>
+            </tr>
+        `;
+
+        $('#servicos-list-body').append(row);
+        servicoIndex++;
+        limparServicoFormulario();
+        atualizarTotais();
+        atualizarValidacaoServicos();
+    }
 
     // Debug: Mostrar informações sobre serviços e clientes
     console.log('🔍 Debug NFECOM:');
@@ -877,21 +892,15 @@ $(document).ready(function(){
     console.log('   🔢 Série - Valor padrão "1" (não controlado na tela)');
 
     // Botão para adicionar serviço
-    $('#btnAdicionarServico').on('click', function() {
-        adicionarServico();
+    $('#btnAdicionarServicoNfecom').on('click', function() {
+        adicionarServicoNfecom();
     });
 
     // Remover serviço
-    $(document).on('click', '.remove-servico', function() {
-        const servicoRow = $(this).closest('.servico-row');
-
-        // Verificar se é o último serviço
-        if ($('#servicos-container .servico-row').length > 1) {
-            servicoRow.remove();
-            atualizarValidacaoServicos();
-        } else {
-            alert('É necessário manter pelo menos um serviço.');
-        }
+    $(document).on('click', '.servico-remove', function() {
+        $(this).closest('tr').remove();
+        atualizarTotais();
+        atualizarValidacaoServicos();
     });
 
     // Função para calcular e atualizar totais
@@ -899,19 +908,18 @@ $(document).ready(function(){
         let totalServicos = 0;
         const comissao = parseFloat($('#comissaoAgencia').val()) || 0;
 
-        // Calcular total de todos os serviços
-        $('.servico-row').each(function() {
-            const quantidade = parseFloat($(this).find('.quantidade-input').val()) || 0;
-            const valorUnitario = parseFloat($(this).find('.valor-unitario-input').val()) || 0;
-            const valorTotal = quantidade * valorUnitario;
-            totalServicos += valorTotal;
+        // Calcular total de todos os serviços adicionados
+        $('#servicos-list-body tr').each(function() {
+            const valorProduto = parseFloat($(this).data('valor-produto')) || 0;
+            totalServicos += valorProduto;
         });
 
         const valorLiquido = totalServicos - comissao;
 
         // Atualizar interface
-        $('#total-servicos').text(totalServicos.toFixed(2).replace('.', ','));
-        $('#valor-liquido').text(valorLiquido.toFixed(2).replace('.', ','));
+        $('#total-servicos').text(formatMoney(totalServicos));
+        $('#total-servicos-table').text(formatMoney(totalServicos));
+        $('#valor-liquido').text(formatMoney(valorLiquido));
         $('#valorBruto').val(totalServicos.toFixed(2));
 
         // Mostrar/esconder resumo
@@ -924,41 +932,14 @@ $(document).ready(function(){
         console.log('💰 Totais atualizados:', { totalServicos, comissao, valorLiquido });
     }
 
-    // Calcular valores quando qualquer campo do serviço muda
-    $(document).on('input', '.quantidade-input, .valor-unitario-input, .valor-desconto-input, .valor-outros-input', function() {
-        const row = $(this).closest('.servico-row');
-        if (row.length > 0) {
-            const quantidade = parseFloat(row.find('.quantidade-input').val()) || 0;
-            const valorUnitario = parseFloat(row.find('.valor-unitario-input').val()) || 0;
-            const valorDesconto = parseFloat(row.find('.valor-desconto-input').val()) || 0;
-            const valorOutros = parseFloat(row.find('.valor-outros-input').val()) || 0;
-
-            // Valor Item = (Quantidade × Valor Unitário)
-            const valorItem = quantidade * valorUnitario;
-
-            // Valor Produto = Valor Item - Desconto + Outros
-            const valorProduto = valorItem - valorDesconto + valorOutros;
-
-            // Atualizar displays visuais
-            row.find('.valor-item-display').text(valorItem.toFixed(2).replace('.', ','));
-            row.find('.valor-produto-display').text(valorProduto.toFixed(2).replace('.', ','));
-
-            // Atualizar campo oculto para compatibilidade
-            row.find('.valor-total-input').val(valorProduto.toFixed(2));
-        }
-
-        // Atualizar totais gerais
+    // Atualizar totais quando comissão muda
+    $('#comissaoAgencia').on('input', function() {
         atualizarTotais();
-    });
-
-    // Atualizar totais quando serviço é removido
-    $(document).on('click', '.remove-servico', function() {
-        setTimeout(atualizarTotais, 100); // Pequeno delay para garantir que o elemento foi removido
     });
 
     // Função para atualizar validação de serviços
     function atualizarValidacaoServicos() {
-        const numServicos = $('#servicos-container .servico-row').length;
+        const numServicos = $('#servicos-list-body tr').length;
         if (numServicos === 0) {
             $('#servicos-error').show();
         } else {
@@ -1007,9 +988,6 @@ $(document).ready(function(){
             numeroContrato: 'Número do contrato é obrigatório',
             dataContratoIni: 'Data de início do contrato é obrigatória',
             dataEmissao: 'Data de emissão é obrigatória',
-            'servicos[0][id]': 'Selecione um serviço',
-            'servicos[0][quantidade]': 'Quantidade deve ser maior que zero',
-            'servicos[0][valorUnitario]': 'Valor unitário deve ser maior que zero',
             comissaoAgencia: 'Comissão deve ser um valor numérico',
             dataVencimento: 'Data de vencimento é obrigatória',
             dataPeriodoIni: 'Data de início do período é obrigatória',
@@ -1020,13 +998,7 @@ $(document).ready(function(){
         },
         submitHandler: function(form) {
             // Validar se há pelo menos um serviço válido
-            const servicosValidos = $('#servicos-container .servico-row').filter(function() {
-                const servicoId = $(this).find('.servico-select').val();
-                const quantidade = parseFloat($(this).find('.quantidade-input').val()) || 0;
-                const valorUnitario = parseFloat($(this).find('.valor-unitario-input').val()) || 0;
-                const valorProduto = parseFloat($(this).find('.valor-produto-display').text().replace(',', '.')) || 0;
-                return servicoId && quantidade > 0 && valorUnitario > 0 && valorProduto > 0;
-            }).length;
+            const servicosValidos = $('#servicos-list-body tr').length;
 
             if (servicosValidos === 0) {
                 $('#servicos-error').show();

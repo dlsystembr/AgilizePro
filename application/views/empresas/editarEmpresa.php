@@ -102,7 +102,7 @@
             <?php if ($custom_error != '') {
                 echo '<div class="alert alert-danger">' . $custom_error . '</div>';
             } ?>
-            <form action="<?php echo current_url(); ?>" id="formEmpresa" method="post" class="form-horizontal">
+            <form action="<?php echo current_url(); ?>" id="formEmpresa" method="post" class="form-horizontal" enctype="multipart/form-data">
                 <div class="widget-content nopadding tab-content">
 
                     <!-- Seção Dados Gerais -->
@@ -337,11 +337,19 @@
                             <div class="row-fluid">
                                 <div class="span12">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_LOGO_PATH" class="control-label">Caminho do Logo</label>
+                                        <label for="userfile" class="control-label">Logo da Empresa</label>
                                         <div class="controls">
-                                            <input id="EMP_LOGO_PATH" type="text" name="EMP_LOGO_PATH"
-                                                value="<?php echo $result->EMP_LOGO_PATH ?? ''; ?>"
-                                                placeholder="Ex: assets/logo.png" />
+                                            <?php if (!empty($result->EMP_LOGO_PATH) && file_exists(FCPATH . $result->EMP_LOGO_PATH)) { ?>
+                                                <div style="margin-bottom: 10px;">
+                                                    <img src="<?php echo base_url($result->EMP_LOGO_PATH); ?>" alt="Logo atual" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd; padding: 5px;">
+                                                    <p style="margin-top: 5px; color: #666; font-size: 12px;">Logo atual</p>
+                                                </div>
+                                            <?php } ?>
+                                            <input id="userfile" type="file" name="userfile" accept="image/*" />
+                                            <span class="help-inline" style="display: inline-block; margin-left: 10px; color: #999;">
+                                                Formatos aceitos: JPG, PNG, GIF (máx. 2MB)
+                                            </span>
+                                            <input type="hidden" name="EMP_LOGO_PATH_ATUAL" value="<?php echo $result->EMP_LOGO_PATH ?? ''; ?>">
                                         </div>
                                     </div>
                                 </div>

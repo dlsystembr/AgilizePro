@@ -1,6 +1,6 @@
 <?php
 
-if (! defined('BASEPATH')) {
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
@@ -10,7 +10,7 @@ class Permissoes extends MY_Controller
     {
         parent::__construct();
 
-        if (! $this->permission->checkPermission($this->session->userdata('permissao'), 'cPermissao')) {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'cPermissao')) {
             $this->session->set_flashdata('error', 'Você não tem permissão para configurar as permissões no sistema.');
             redirect(base_url());
         }
@@ -65,6 +65,12 @@ class Permissoes extends MY_Controller
                 'ePessoa' => $this->input->post('ePessoa'),
                 'dPessoa' => $this->input->post('dPessoa'),
                 'vPessoa' => $this->input->post('vPessoa'),
+
+                // Empresas
+                'aEmpresa' => $this->input->post('aEmpresa'),
+                'eEmpresa' => $this->input->post('eEmpresa'),
+                'dEmpresa' => $this->input->post('dEmpresa'),
+                'vEmpresa' => $this->input->post('vEmpresa'),
 
                 'aProduto' => $this->input->post('aProduto'),
                 'eProduto' => $this->input->post('eProduto'),
@@ -217,6 +223,12 @@ class Permissoes extends MY_Controller
                 'dPessoa' => $this->input->post('dPessoa'),
                 'vPessoa' => $this->input->post('vPessoa'),
 
+                // Empresas
+                'aEmpresa' => $this->input->post('aEmpresa'),
+                'eEmpresa' => $this->input->post('eEmpresa'),
+                'dEmpresa' => $this->input->post('dEmpresa'),
+                'vEmpresa' => $this->input->post('vEmpresa'),
+
                 'aProduto' => $this->input->post('aProduto'),
                 'eProduto' => $this->input->post('eProduto'),
                 'dProduto' => $this->input->post('dProduto'),
@@ -280,7 +292,7 @@ class Permissoes extends MY_Controller
 
                 'vNfe' => $this->input->post('vNfe'),
                 'eNfe' => $this->input->post('eNfe'),
-                
+
                 'vNcm' => $this->input->post('vNcm'),
                 'aNcm' => $this->input->post('aNcm'),
                 'eNcm' => $this->input->post('eNcm'),
@@ -349,7 +361,7 @@ class Permissoes extends MY_Controller
     public function desativar()
     {
         $id = $this->input->post('id');
-        if (! $id) {
+        if (!$id) {
             $this->session->set_flashdata('error', 'Erro ao tentar desativar permissão.');
             redirect(site_url('permissoes/gerenciar/'));
         }

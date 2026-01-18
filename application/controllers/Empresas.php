@@ -45,21 +45,35 @@ class Empresas extends MY_Controller
 
         $this->form_validation->set_rules('EMP_CNPJ', 'CNPJ', 'required|trim');
         $this->form_validation->set_rules('EMP_RAZAO_SOCIAL', 'Razão Social', 'required|trim');
-        $this->form_validation->set_rules('EMP_CODIGO', 'Código', 'trim');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
-            // Gera código automaticamente se vazio
-            $codigo = trim((string) $this->input->post('EMP_CODIGO', true));
-            if ($codigo === '') {
-                $row = $this->db->query("SELECT MAX(CAST(EMP_CODIGO AS UNSIGNED)) AS max_cod FROM empresas WHERE EMP_CODIGO REGEXP '^[0-9]+$'")->row();
-                $next = isset($row->max_cod) && $row->max_cod !== null ? ((int) $row->max_cod) + 1 : 1;
-                $codigo = (string) $next;
+            // Upload de logo
+            $logoPath = '';
+            if (!empty($_FILES['userfile']['name'])) {
+                $this->load->library('upload');
+                $config['upload_path'] = './assets/logos/';
+                $config['allowed_types'] = 'gif|jpg|jpeg|png';
+                $config['max_size'] = 2048; // 2MB
+                $config['encrypt_name'] = true;
+
+                // Cria o diretório se não existir
+                if (!is_dir($config['upload_path'])) {
+                    mkdir($config['upload_path'], 0755, true);
+                }
+
+                $this->upload->initialize($config);
+
+                if ($this->upload->do_upload('userfile')) {
+                    $upload_data = $this->upload->data();
+                    $logoPath = 'assets/logos/' . $upload_data['file_name'];
+                } else {
+                    $this->data['custom_error'] = '<div class="alert alert-danger">Erro no upload: ' . $this->upload->display_errors('', '') . '</div>';
+                }
             }
 
             $data = [
-                'EMP_CODIGO' => $codigo,
                 'EMP_CNPJ' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_CNPJ')),
                 'EMP_RAZAO_SOCIAL' => $this->input->post('EMP_RAZAO_SOCIAL'),
                 'EMP_NOME_FANTASIA' => $this->input->post('EMP_NOME_FANTASIA'),
@@ -74,8 +88,7 @@ class Empresas extends MY_Controller
                 'EMP_TELEFONE' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_TELEFONE')),
                 'EMP_EMAIL' => $this->input->post('EMP_EMAIL'),
                 'EMP_REGIME_TRIBUTARIO' => $this->input->post('EMP_REGIME_TRIBUTARIO'),
-                'EMP_LOGO_PATH' => $this->input->post('EMP_LOGO_PATH'),
-                'EMP_SITUACAO' => $this->input->post('EMP_SITUACAO') !== null ? (int) $this->input->post('EMP_SITUACAO') : 1,
+                'EMP_LOGO_PATH' => $logoPath,
             ];
 
             if ($this->Empresas_model->add('empresas', $data)) {
@@ -112,13 +125,41 @@ class Empresas extends MY_Controller
 
         $this->form_validation->set_rules('EMP_CNPJ', 'CNPJ', 'required|trim');
         $this->form_validation->set_rules('EMP_RAZAO_SOCIAL', 'Razão Social', 'required|trim');
-        $this->form_validation->set_rules('EMP_CODIGO', 'Código', 'required|trim');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
+            // Upload de logo
+            $logoPath = $this->input->post('EMP_LOGO_PATH_ATUAL'); // Mantém o logo atual
+            if (!empty($_FILES['userfile']['name'])) {
+                $this->load->library('upload');
+                $config['upload_path'] = './assets/logos/';
+                $config['allowed_types'] = 'gif|jpg|jpeg|png';
+                $config['max_size'] = 2048; // 2MB
+                $config['encrypt_name'] = true;
+
+                // Cria o diretório se não existir
+                if (!is_dir($config['upload_path'])) {
+                    mkdir($config['upload_path'], 0755, true);
+                }
+
+                $this->upload->initialize($config);
+
+                if ($this->upload->do_upload('userfile')) {
+                    // Remove o logo antigo se existir
+                    $logoAntigo = $this->input->post('EMP_LOGO_PATH_ATUAL');
+                    if ($logoAntigo && file_exists(FCPATH . $logoAntigo)) {
+                        unlink(FCPATH . $logoAntigo);
+                    }
+
+                    $upload_data = $this->upload->data();
+                    $logoPath = 'assets/logos/' . $upload_data['file_name'];
+                } else {
+                    $this->data['custom_error'] = '<div class="alert alert-danger">Erro no upload: ' . $this->upload->display_errors('', '') . '</div>';
+                }
+            }
+
             $data = [
-                'EMP_CODIGO' => $this->input->post('EMP_CODIGO'),
                 'EMP_CNPJ' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_CNPJ')),
                 'EMP_RAZAO_SOCIAL' => $this->input->post('EMP_RAZAO_SOCIAL'),
                 'EMP_NOME_FANTASIA' => $this->input->post('EMP_NOME_FANTASIA'),
@@ -133,8 +174,7 @@ class Empresas extends MY_Controller
                 'EMP_TELEFONE' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_TELEFONE')),
                 'EMP_EMAIL' => $this->input->post('EMP_EMAIL'),
                 'EMP_REGIME_TRIBUTARIO' => $this->input->post('EMP_REGIME_TRIBUTARIO'),
-                'EMP_LOGO_PATH' => $this->input->post('EMP_LOGO_PATH'),
-                'EMP_SITUACAO' => $this->input->post('EMP_SITUACAO') !== null ? (int) $this->input->post('EMP_SITUACAO') : 1,
+                'EMP_LOGO_PATH' => $logoPath,
             ];
 
             if ($this->Empresas_model->edit('empresas', $data, 'EMP_ID', $id)) {

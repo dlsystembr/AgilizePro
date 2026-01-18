@@ -1140,4 +1140,35 @@ class Nfecom extends MY_Controller
             echo json_encode(['error' => 'Erro interno do servidor']);
         }
     }
+
+    public function autoCompleteServico()
+    {
+        if (isset($_GET['term'])) {
+            $q = trim($_GET['term']);
+
+            $this->db->select('PRO_ID, PRO_DESCRICAO, PRO_PRECO_VENDA');
+            $this->db->from('produtos');
+            $this->db->where('PRO_TIPO', 2);
+            if ($q !== '') {
+                $this->db->like('PRO_DESCRICAO', $q);
+            }
+            $this->db->limit(25);
+            $query = $this->db->get();
+
+            $row_set = [];
+            if ($query->num_rows() > 0) {
+                foreach ($query->result_array() as $row) {
+                    $preco = $row['PRO_PRECO_VENDA'] ?? 0;
+                    $row_set[] = [
+                        'label' => $row['PRO_DESCRICAO'] . ' | Preço: R$ ' . number_format($preco, 2, ',', '.'),
+                        'id' => $row['PRO_ID'],
+                        'preco' => $preco
+                    ];
+                }
+            }
+
+            header('Content-Type: application/json');
+            echo json_encode($row_set);
+        }
+    }
 }

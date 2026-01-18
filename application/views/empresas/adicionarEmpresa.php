@@ -102,7 +102,7 @@
             <?php if ($custom_error != '') {
                 echo '<div class="alert alert-danger">' . $custom_error . '</div>';
             } ?>
-            <form action="<?php echo current_url(); ?>" id="formEmpresa" method="post" class="form-horizontal">
+            <form action="<?php echo current_url(); ?>" id="formEmpresa" method="post" class="form-horizontal" enctype="multipart/form-data">
                 <div class="widget-content nopadding tab-content">
 
                     <!-- Seção Dados Gerais -->
@@ -112,19 +112,8 @@
                             <span>Dados Gerais</span>
                         </div>
                         <div class="form-section-content">
-                            <!-- Linha 1: Código e Situação -->
+                            <!-- Linha 1: Situação -->
                             <div class="row-fluid" style="margin-bottom: 15px;">
-                                <div class="span6">
-                                    <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_CODIGO" class="control-label">Código</label>
-                                        <div class="controls">
-                                            <input id="EMP_CODIGO" type="text" name="EMP_CODIGO"
-                                                value="<?php echo set_value('EMP_CODIGO'); ?>"
-                                                placeholder="Em branco = gerar" readonly
-                                                style="width: 150px;" />
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="span6">
                                     <div class="control-group" style="margin-bottom: 0;">
                                         <label for="EMP_SITUACAO" class="control-label">Situação</label>
@@ -338,11 +327,12 @@
                             <div class="row-fluid">
                                 <div class="span12">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_LOGO_PATH" class="control-label">Caminho do Logo</label>
+                                        <label for="userfile" class="control-label">Logo da Empresa</label>
                                         <div class="controls">
-                                            <input id="EMP_LOGO_PATH" type="text" name="EMP_LOGO_PATH"
-                                                value="<?php echo set_value('EMP_LOGO_PATH'); ?>"
-                                                placeholder="Ex: assets/logo.png" />
+                                            <input id="userfile" type="file" name="userfile" accept="image/*" />
+                                            <span class="help-inline" style="display: inline-block; margin-left: 10px; color: #999;">
+                                                Formatos aceitos: JPG, PNG, GIF (máx. 2MB)
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
