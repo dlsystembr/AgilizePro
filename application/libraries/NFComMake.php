@@ -77,7 +77,7 @@ class NFComMake
         $this->append($node, 'cMunFG', $ide['cMunFG']);
         $this->append($node, 'finNFCom', $ide['finNFCom']);
         $this->append($node, 'tpFat', $ide['tpFat']);
-        $this->append($node, 'verProc', '1.0.0');
+        $this->append($node, 'verProc', $ide['verProc'] ?? '1.0.0');
         $this->infNFCom->appendChild($node);
     }
 

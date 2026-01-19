@@ -420,31 +420,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Linha 4: Data Emissão e Data Contrato -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span6">
-                                            <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="dataEmissao" class="control-label">Emissão<span
-                                                        class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input type="date" name="dataEmissao" id="dataEmissao"
-                                                        value="<?php echo set_value('dataEmissao', date('Y-m-d', strtotime($result->NFC_DHEMI))); ?>"
-                                                        required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="span6">
-                                            <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="dataContratoIni" class="control-label">Contrato<span
-                                                        class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input type="date" name="dataContratoIni" id="dataContratoIni"
-                                                        value="<?php echo set_value('dataContratoIni', $result->NFC_D_CONTRATO_INI); ?>"
-                                                        required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
                                     <!-- Linha 5: Observações -->
                                     <div class="row-fluid">
@@ -453,7 +428,7 @@
                                                 <label for="observacoes" class="control-label">Observações<span
                                                         class="required">*</span></label>
                                                 <div class="controls">
-                                                    <textarea name="observacoes" id="observacoes" rows="3"
+                                                    <textarea name="observacoes" id="observacoes" rows="5"
                                                         required><?php echo set_value('observacoes', $result->NFC_INF_CPL); ?></textarea>
                                                 </div>
                                             </div>
@@ -467,29 +442,93 @@
                         <div class="span6">
                             <div class="form-section" style="height: 100%;">
                                 <div class="form-section-header">
-                                    <i class="fas fa-calculator"></i>
-                                    <span>Valores e Períodos</span>
+                                    <i class="fas fa-user-tag"></i>
+                                    <span>Dados do Assinante e Pagamento</span>
                                 </div>
                                 <div class="form-section-content">
 
-                                    <!-- Linha 2: Data Vencimento -->
+                                    <!-- Linha 1: Código Assinante -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="dataVencimento" class="control-label">Vencimento<span
-                                                        class="required">*</span></label>
+                                                <label for="iCodAssinante" class="control-label">Cód. Assinante</label>
                                                 <div class="controls">
-                                                    <input type="date" name="dataVencimento" id="dataVencimento"
-                                                        value="<?php echo set_value('dataVencimento', $result->NFC_D_VENC_FAT); ?>"
-                                                        required>
+                                                    <input type="text" name="iCodAssinante" id="iCodAssinante"
+                                                        value="<?php echo set_value('iCodAssinante', $result->NFC_I_COD_ASSINANTE); ?>"
+                                                        placeholder="Vazio = CPF/CNPJ">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Linha 3: Período Início -->
+                                    <!-- Linha 2: Tipo Assinante e Tipo Serviço -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span12">
+                                        <div class="span6">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="tpAssinante" class="control-label">Tipo Assinante<span
+                                                        class="required">*</span></label>
+                                                <div class="controls">
+                                                    <select name="tpAssinante" id="tpAssinante" required class="span12">
+                                                        <option value="1" <?php echo ($result->NFC_TP_ASSINANTE == 1) ? 'selected' : ''; ?>>1 - Comercial</option>
+                                                        <option value="2" <?php echo ($result->NFC_TP_ASSINANTE == 2) ? 'selected' : ''; ?>>2 - Industrial</option>
+                                                        <option value="3" <?php echo ($result->NFC_TP_ASSINANTE == 3) ? 'selected' : ''; ?>>3 - Residencial/PF</option>
+                                                        <option value="4" <?php echo ($result->NFC_TP_ASSINANTE == 4) ? 'selected' : ''; ?>>4 - Produtor Rural</option>
+                                                        <option value="5" <?php echo ($result->NFC_TP_ASSINANTE == 5) ? 'selected' : ''; ?>>5 - Órgão Público Estadual</option>
+                                                        <option value="6" <?php echo ($result->NFC_TP_ASSINANTE == 6) ? 'selected' : ''; ?>>6 - Prestador de Telecom</option>
+                                                        <option value="7" <?php echo ($result->NFC_TP_ASSINANTE == 7) ? 'selected' : ''; ?>>7 - Missões Diplomáticas</option>
+                                                        <option value="8" <?php echo ($result->NFC_TP_ASSINANTE == 8) ? 'selected' : ''; ?>>8 - Igrejas e Templos</option>
+                                                        <option value="99" <?php echo ($result->NFC_TP_ASSINANTE == 99) ? 'selected' : ''; ?>>99 - Outros</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span6">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="tpServUtil" class="control-label">Tipo Serviço<span
+                                                        class="required">*</span></label>
+                                                <div class="controls">
+                                                    <select name="tpServUtil" id="tpServUtil" required class="span12">
+                                                        <option value="1" <?php echo ($result->NFC_TP_SERV_UTIL == 1) ? 'selected' : ''; ?>>1 - Telefonia</option>
+                                                        <option value="2" <?php echo ($result->NFC_TP_SERV_UTIL == 2) ? 'selected' : ''; ?>>2 - Com. de Dados</option>
+                                                        <option value="3" <?php echo ($result->NFC_TP_SERV_UTIL == 3) ? 'selected' : ''; ?>>3 - TV por Assinatura</option>
+                                                        <option value="4" <?php echo ($result->NFC_TP_SERV_UTIL == 4) ? 'selected' : ''; ?>>4 - Internet</option>
+                                                        <option value="5" <?php echo ($result->NFC_TP_SERV_UTIL == 5) ? 'selected' : ''; ?>>5 - Multimídia</option>
+                                                        <option value="6" <?php echo ($result->NFC_TP_SERV_UTIL == 6) ? 'selected' : ''; ?>>6 - Outros</option>
+                                                        <option value="7" <?php echo ($result->NFC_TP_SERV_UTIL == 7) ? 'selected' : ''; ?>>7 - Vários (Combo)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Linha 3: Datas Contrato -->
+                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                        <div class="span6">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="dataContratoIni" class="control-label">Início Contrato<span
+                                                        class="required">*</span></label>
+                                                <div class="controls">
+                                                    <input type="date" name="dataContratoIni" id="dataContratoIni"
+                                                        value="<?php echo set_value('dataContratoIni', $result->NFC_D_CONTRATO_INI); ?>"
+                                                        required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span6">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="dataContratoFim" class="control-label">Fim Contrato</label>
+                                                <div class="controls">
+                                                    <input type="date" name="dataContratoFim" id="dataContratoFim"
+                                                        value="<?php echo set_value('dataContratoFim', $result->NFC_D_CONTRATO_FIM); ?>">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Linha 5: Período Uso -->
+                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                        <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataPeriodoIni" class="control-label">Período Início<span
                                                         class="required">*</span></label>
@@ -500,11 +539,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <!-- Linha 4: Período Fim -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span12">
+                                        <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataPeriodoFim" class="control-label">Período Fim<span
                                                         class="required">*</span></label>
@@ -512,6 +547,56 @@
                                                     <input type="date" name="dataPeriodoFim" id="dataPeriodoFim"
                                                         value="<?php echo set_value('dataPeriodoFim', $result->NFC_D_PER_USO_FIM); ?>"
                                                         required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-section-header"
+                                        style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; margin-left: -15px; margin-right: -15px; padding-left: 15px;">
+                                        <i class="fas fa-credit-card"></i>
+                                        <span>Forma de Pagamento</span>
+                                    </div>
+
+                                    <!-- Linha 6: Vencimento -->
+                                    <div class="row-fluid" style="margin-bottom: 15px; margin-top: 15px;">
+                                        <div class="span12">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="dataVencimento" class="control-label">Vencimento<span
+                                                         class="required">*</span></label>
+                                                <div class="controls">
+                                                    <input type="date" name="dataVencimento" id="dataVencimento"
+                                                         value="<?php echo set_value('dataVencimento', $result->NFC_D_VENC_FAT); ?>" required class="span12">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Linha 6: Boleto -->
+                                    <div class="row-fluid" style="margin-bottom: 10px; margin-top: 15px;">
+                                        <div class="span12">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="nfc_linha_digitavel" class="control-label">Boleto (Linha
+                                                    Digitável)</label>
+                                                <div class="controls">
+                                                    <input type="text" name="nfc_linha_digitavel"
+                                                        id="nfc_linha_digitavel"
+                                                        value="<?php echo set_value('nfc_linha_digitavel', $result->NFC_LINHA_DIGITAVEL); ?>"
+                                                        placeholder="Linha digitável para pagamento">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Linha 7: Pix -->
+                                    <div class="row-fluid" style="margin-bottom: 10px;">
+                                        <div class="span12">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="nfc_chave_pix" class="control-label">Pix (Chave Pix)</label>
+                                                <div class="controls">
+                                                    <input type="text" name="nfc_chave_pix" id="nfc_chave_pix"
+                                                        value="<?php echo set_value('nfc_chave_pix', $result->NFC_CHAVE_PIX); ?>"
+                                                        placeholder="Chave Pix para o QR Code">
                                                 </div>
                                             </div>
                                         </div>
@@ -936,7 +1021,6 @@
                 observacoes: { required: true },
                 numeroContrato: { required: true },
                 dataContratoIni: { required: true },
-                dataEmissao: { required: true },
                 comissaoAgencia: { number: true },
                 dataVencimento: { required: true },
                 dataPeriodoIni: { required: true },
@@ -948,7 +1032,6 @@
                 observacoes: 'Observações são obrigatórias',
                 numeroContrato: 'Número do contrato é obrigatório',
                 dataContratoIni: 'Data de início do contrato é obrigatória',
-                dataEmissao: 'Data de emissão é obrigatória',
                 comissaoAgencia: 'Comissão deve ser um valor numérico',
                 dataVencimento: 'Data de vencimento é obrigatória',
                 dataPeriodoIni: 'Data de início do período é obrigatória',

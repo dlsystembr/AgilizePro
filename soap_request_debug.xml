@@ -1,4 +1,77 @@
-Content-Type: application/soap+xml; charset=utf-8
-SOAPAction: "http://www.portalfiscal.inf.br/nfcom/wsdl/NFComConsulta/nfcomConsulta"
-
-<?xml version="1.0" encoding="UTF-8"?><soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope"><soap12:Body><nfcomDadosMsg xmlns="http://www.portalfiscal.inf.br/nfcom/wsdl/NFComConsulta"><consSitNFCom xmlns="http://www.portalfiscal.inf.br/nfcom" versao="1.00"><tpAmb>1</tpAmb><xServ>CONSULTAR</xServ><chNFCom>52260154314807000128620020000000011009776304</chNFCom></consSitNFCom></nfcomDadosMsg></soap12:Body></soap12:Envelope>
+<?xml version="1.0" encoding="utf-8"?>
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+  <soap12:Header>
+    <nfcomCabecMsg xmlns="http://www.portalfiscal.inf.br/nfcom/wsdl/NFComRecepcao">
+      <cUF>52</cUF>
+      <versaoDados>1.00</versaoDados>
+    </nfcomCabecMsg>
+  </soap12:Header>
+  <soap12:Body>
+    <nfcomDadosMsg xmlns="http://www.portalfiscal.inf.br/nfcom/wsdl/NFComRecepcao">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
+7+jQ9y7vo/+DdP/e+y8YUlUNoRwAAA==</nfcomDadosMsg>
+  </soap12:Body>
+</soap12:Envelope>

@@ -414,7 +414,7 @@ L<style>
                             <i class="icon-info-sign tip-left" title="Markup: Porcentagem aplicada ao valor de compra | Margem de Lucro: Porcentagem aplicada ao valor de venda"></i>
                         </div>
                     </div>
-                    <div class="control-group field-produto">
+                    <div class="control-group">
                         <label for="precoVenda" class="control-label">Preço de Venda<span class="required">*</span></label>
                         <div class="controls">
                             <input id="precoVenda" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->PRO_PRECO_VENDA; ?>" placeholder="0,00" />

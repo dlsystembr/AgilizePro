@@ -178,8 +178,7 @@
                                         <div class="control-group">
                                             <label class="control-label">Data Emissão:</label>
                                             <div class="controls">
-                                                <span class="view-mode"><?php echo date('d/m/Y H:i', strtotime($result->NFC_DHEMI)); ?></span>
-                                                <input type="datetime-local" name="nfc_dhemi" class="span12 edit-field" value="<?php echo date('Y-m-d\TH:i', strtotime($result->NFC_DHEMI)); ?>" style="display: none;">
+                                                <span><?php echo date('d/m/Y H:i', strtotime($result->NFC_DHEMI)); ?></span>
                                             </div>
                                         </div>
                                     </div>
@@ -199,10 +198,84 @@
                                             </div>
                                         </div>
                                         <div class="control-group">
+                                            <label class="control-label">Cód. Assinante:</label>
+                                            <div class="controls">
+                                                <span class="view-mode"><?php echo $result->NFC_I_COD_ASSINANTE; ?></span>
+                                                <input type="text" name="nfc_i_cod_assinante" class="span12 edit-field" value="<?php echo $result->NFC_I_COD_ASSINANTE; ?>" style="display: none;">
+                                            </div>
+                                        </div>
+                                        <div class="control-group">
+                                            <label class="control-label">Data Fim Contrato:</label>
+                                            <div class="controls">
+                                                <span class="view-mode"><?php echo $result->NFC_D_CONTRATO_FIM ? date('d/m/Y', strtotime($result->NFC_D_CONTRATO_FIM)) : 'Não informado'; ?></span>
+                                                <input type="date" name="nfc_d_contrato_fim" class="span12 edit-field" value="<?php echo $result->NFC_D_CONTRATO_FIM; ?>" style="display: none;">
+                                            </div>
+                                        </div>
+                                        <div class="control-group">
+                                            <label class="control-label">Tipo Assinante:</label>
+                                            <div class="controls">
+                                                <span class="view-mode"><?php echo $result->NFC_TP_ASSINANTE; ?></span>
+                                                <select name="nfc_tp_assinante" class="span12 edit-field" style="display: none;">
+                                                    <option value="1" <?php echo ($result->NFC_TP_ASSINANTE == 1) ? 'selected' : ''; ?>>1 - Comercial</option>
+                                                    <option value="2" <?php echo ($result->NFC_TP_ASSINANTE == 2) ? 'selected' : ''; ?>>2 - Industrial</option>
+                                                    <option value="3" <?php echo ($result->NFC_TP_ASSINANTE == 3) ? 'selected' : ''; ?>>3 - Residencial/PF</option>
+                                                    <option value="4" <?php echo ($result->NFC_TP_ASSINANTE == 4) ? 'selected' : ''; ?>>4 - Produtor Rural</option>
+                                                    <option value="99" <?php echo ($result->NFC_TP_ASSINANTE == 99) ? 'selected' : ''; ?>>99 - Outros</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="control-group">
+                                            <label class="control-label">Tipo Serviço:</label>
+                                            <div class="controls">
+                                                <span class="view-mode"><?php echo $result->NFC_TP_SERV_UTIL; ?></span>
+                                                <select name="nfc_tp_serv_util" class="span12 edit-field" style="display: none;">
+                                                    <option value="1" <?php echo ($result->NFC_TP_SERV_UTIL == 1) ? 'selected' : ''; ?>>1 - Telefonia</option>
+                                                    <option value="2" <?php echo ($result->NFC_TP_SERV_UTIL == 2) ? 'selected' : ''; ?>>2 - Com. de Dados</option>
+                                                    <option value="3" <?php echo ($result->NFC_TP_SERV_UTIL == 3) ? 'selected' : ''; ?>>3 - TV por Assinatura</option>
+                                                    <option value="4" <?php echo ($result->NFC_TP_SERV_UTIL == 4) ? 'selected' : ''; ?>>4 - Internet</option>
+                                                    <option value="5" <?php echo ($result->NFC_TP_SERV_UTIL == 5) ? 'selected' : ''; ?>>5 - Multimídia</option>
+                                                    <option value="6" <?php echo ($result->NFC_TP_SERV_UTIL == 6) ? 'selected' : ''; ?>>6 - Outros</option>
+                                                    <option value="7" <?php echo ($result->NFC_TP_SERV_UTIL == 7) ? 'selected' : ''; ?>>7 - Vários (Combo)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="control-group">
                                             <label class="control-label">Competência:</label>
                                             <div class="controls">
                                                 <span class="view-mode"><?php echo $result->NFC_COMPET_FAT; ?></span>
                                                 <input type="text" name="nfc_compet_fat" class="span12 edit-field" value="<?php echo $result->NFC_COMPET_FAT; ?>" style="display: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Nova linha para Informações de Pagamento -->
+                                <div class="row-fluid" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
+                                    <h5 style="margin-left: 10px; color: #555;"><i class="fas fa-credit-card"></i> Informações de Pagamento</h5>
+                                    <div class="span4">
+                                        <div class="control-group">
+                                            <label class="control-label">Vencimento:</label>
+                                            <div class="controls">
+                                                <span class="view-mode"><?php echo date('d/m/Y', strtotime($result->NFC_D_VENC_FAT)); ?></span>
+                                                <input type="date" name="nfc_d_venc_fat" class="span12 edit-field" value="<?php echo date('Y-m-d', strtotime($result->NFC_D_VENC_FAT)); ?>" style="display: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="span4">
+                                        <div class="control-group">
+                                            <label class="control-label">Boleto (Linha Digitável):</label>
+                                            <div class="controls">
+                                                <span class="view-mode"><?php echo $result->NFC_LINHA_DIGITAVEL ?: '<span class="text-muted">Não informado</span>'; ?></span>
+                                                <input type="text" name="nfc_linha_digitavel" class="span12 edit-field" value="<?php echo $result->NFC_LINHA_DIGITAVEL; ?>" placeholder="Linha digitável" style="display: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="span4">
+                                        <div class="control-group">
+                                            <label class="control-label">Pix (Chave Pix):</label>
+                                            <div class="controls">
+                                                <span class="view-mode"><?php echo $result->NFC_CHAVE_PIX ?: '<span class="text-muted">Não informado</span>'; ?></span>
+                                                <input type="text" name="nfc_chave_pix" class="span12 edit-field" value="<?php echo $result->NFC_CHAVE_PIX; ?>" placeholder="Chave Pix" style="display: none;">
                                             </div>
                                         </div>
                                     </div>
@@ -491,10 +564,6 @@
                                                     <td><?php echo date('d/m/Y H:i', strtotime($result->NFC_DHEMI)); ?></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><strong>Data Vencimento:</strong></td>
-                                                    <td><?php echo date('d/m/Y', strtotime($result->NFC_D_VENC_FAT)); ?></td>
-                                                </tr>
-                                                <tr>
                                                     <td><strong>Período Uso - Início:</strong></td>
                                                     <td><?php echo date('d/m/Y', strtotime($result->NFC_D_PER_USO_INI)); ?></td>
                                                 </tr>
@@ -522,12 +591,6 @@
                                         </div>
 
                                         <div class="edit-field" style="display: none;">
-                                            <div class="control-group">
-                                                <label class="control-label">Data Vencimento:</label>
-                                                <div class="controls">
-                                                    <input type="date" name="nfc_d_venc_fat" class="span12" value="<?php echo date('Y-m-d', strtotime($result->NFC_D_VENC_FAT)); ?>">
-                                                </div>
-                                            </div>
                                             <div class="control-group">
                                                 <label class="control-label">Período Uso - Início:</label>
                                                 <div class="controls">

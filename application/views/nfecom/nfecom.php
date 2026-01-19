@@ -2,6 +2,139 @@
     select {
         width: 70px;
     }
+    
+    /* Modal fixes for Bootstrap 2.3.2 */
+    #nfecomModal {
+        position: fixed !important;
+        width: 90% !important;
+        max-width: 900px !important;
+        margin-left: 0 !important;
+        left: 5% !important;
+        top: 50px !important;
+        z-index: 99999 !important;
+        background-color: white !important;
+        border: 2px solid #333 !important;
+        border-radius: 6px !important;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.7) !important;
+        display: none;
+    }
+
+    @media (min-width: 900px) {
+        #nfecomModal {
+            left: 50%;
+            margin-left: -450px;
+        }
+    }
+
+    #nfecomModal .modal-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 6px 6px 0 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #nfecomModal .modal-header .modal-title {
+        color: white;
+        font-weight: 600;
+        margin: 0;
+        line-height: 30px;
+    }
+
+    #nfecomModal .modal-header .close {
+        color: white;
+        text-shadow: none;
+        opacity: 0.8;
+        padding: 5px;
+    }
+
+
+    /* Status Items Styling */
+    .nfcom-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .nfcom-info-item {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+    }
+
+    .nfcom-info-label {
+        font-weight: bold;
+        color: #495057;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .nfcom-info-value {
+        font-size: 0.95rem;
+        word-break: break-all;
+    }
+
+    .nfcom-status-badge {
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 0.85rem;
+    }
+
+    .nfcom-status-success { background: #d4edda; color: #155724; }
+    .nfcom-status-danger { background: #f8d7da; color: #721c24; }
+    .nfcom-status-warning { background: #fff3cd; color: #856404; }
+
+    /* Technical details */
+    .nfcom-technical pre {
+        background: #272822;
+        color: #f8f8f2;
+        padding: 15px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+
+
+    /* Estilos do modal melhorado de resposta SEFAZ */
+    #nfecomModal .status-header {
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 20px;
+    }
+
+    #nfecomModal .status-icon {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    #nfecomModal .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    #nfecomModal .info-row {
+        display: contents;
+    }
+
+    #nfecomModal .info-item {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+    }
+
 </style>
 
 <div class="new122">
@@ -54,12 +187,12 @@
                 <thead>
                     <tr>
                         <th>Nº NF</th>
-                        <th>Chave</th>
                         <th>Cliente</th>
+                        <th>Estado</th>
+                        <th>Município</th>
                         <th>Data Emissão</th>
                         <th>Valor</th>
                         <th>Status</th>
-                        <th>Motivo</th>
                         <th style="text-align:center">Ações</th>
                     </tr>
                 </thead>
@@ -97,12 +230,13 @@
 
                             echo '<tr>';
                             echo '<td>' . $r->NFC_NNF . '</td>';
-                            echo '<td>' . $r->NFC_CH_NFCOM . '</td>';
                             echo '<td>' . $r->NFC_X_NOME_DEST . '</td>';
+                            echo '<td>' . $r->NFC_UF_DEST . '</td>';
+                            echo '<td>' . $r->NFC_X_MUN_DEST . '</td>';
                             echo '<td>' . $dataEmissao . '</td>';
                             echo '<td>R$ ' . $valorTotal . '</td>';
-                            echo '<td><span class="badge" style="background-color: ' . $corStatus . '; border-color: ' . $corStatus . '">' . $statusDesc . '</span></td>';
-                            echo '<td>' . (!empty($r->NFC_X_MOTIVO) ? htmlspecialchars(substr($r->NFC_X_MOTIVO, 0, 50)) . (strlen($r->NFC_X_MOTIVO) > 50 ? '...' : '') : '-') . '</td>';
+                            $motivo = !empty($r->NFC_X_MOTIVO) ? htmlspecialchars($r->NFC_X_MOTIVO) : 'Sem retorno da SEFAZ';
+                            echo '<td><span class="badge" style="background-color: ' . $corStatus . '; border-color: ' . $corStatus . '; cursor: help;" data-toggle="tooltip" title="' . $motivo . '">' . $statusDesc . '</span></td>';
                             echo '<td style="text-align:center; white-space: nowrap;">';
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
                                 echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" class="btn btn-mini btn-info" title="Ver dados da nota" style="margin-right: 2px">Ver dados</a>';
@@ -143,92 +277,77 @@
 <?php echo $this->pagination->create_links(); ?>
 
 <!-- Modal de Resposta da SEFAZ -->
-<div class="modal fade nfe-modal" id="nfecomModal" tabindex="-1" role="dialog" aria-labelledby="nfecomModalLabel">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="nfecomModalLabel">
-                    <i class="fas fa-file-invoice"></i> Resposta da SEFAZ
-                </h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<div id="nfecomModal" class="modal" role="dialog" data-backdrop="static" data-keyboard="false" tabindex="-1">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 class="modal-title" id="nfecomModalLabel">
+            <i class="fas fa-file-invoice"></i> <span id="modalTitle">Resposta da SEFAZ</span>
+        </h3>
+    </div>
+    <div class="modal-body">
+        <div id="modalContent">
+            <?php if ($this->session->flashdata('nfecom_modal')):
+                $m = $this->session->flashdata('nfecom_modal');
+                $isSuccess = strpos(strtolower($m['status']), 'autorizado') !== false || ($m['cstat'] ?? '') == '100';
+                $statusClass = $isSuccess ? 'success' : (strpos(strtolower($m['status']), 'rejeitada') !== false ? 'danger' : 'warning');
+            ?>
+            <div class="text-center mb-4">
+                <i class="fas <?php echo $isSuccess ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-danger'; ?> fa-4x mb-2"></i>
+                <h3 class="text-<?php echo $statusClass; ?>"><?php echo $m['status']; ?></h3>
             </div>
-            <div class="modal-body">
-                <?php if ($this->session->flashdata('nfecom_modal')): 
-                    $nfecom_modal = $this->session->flashdata('nfecom_modal');
-                ?>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <tr>
-                                <td>
-                                    <label><strong>Número NFeCOM:</strong></label>
-                                    <div class="text-break"><?php echo $nfecom_modal['numero_nfcom']; ?></div>
-                                </td>
-                                <td>
-                                    <label><strong>Chave NFeCOM:</strong></label>
-                                    <div class="text-break"><?php echo $nfecom_modal['chave_nfcom']; ?></div>
-                                </td>
-                                <td>
-                                    <label><strong>Status:</strong></label>
-                                    <div class="nfe-status <?php echo ($nfecom_modal['status'] == 'Autorizado') ? 'success' : 'error'; ?>">
-                                        <?php echo $nfecom_modal['status']; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
 
-                    <div class="mt-3">
-                        <label><strong>Motivo:</strong></label>
-                        <div class="text-break"><?php echo $nfecom_modal['motivo']; ?></div>
-                    </div>
-
-                    <div class="mt-3">
-                        <label><strong>Protocolo:</strong></label>
-                        <div class="well">
-                            <pre><?php echo htmlspecialchars($nfecom_modal['protocolo']); ?></pre>
-                        </div>
-                    </div>
-
-                    <?php if (!empty($nfecom_modal['retorno'])): ?>
-                        <div class="mt-3">
-                            <label><strong>Retorno SEFAZ:</strong></label>
-                            <div class="well">
-                                <pre><?php echo htmlspecialchars($nfecom_modal['retorno']); ?></pre>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Nenhuma resposta da SEFAZ disponível.
-                    </div>
-                <?php endif; ?>
+            <div class="nfcom-info-grid">
+                <div class="nfcom-info-item">
+                    <span class="nfcom-info-label">Número NFCom</span>
+                    <span class="nfcom-info-value"><?php echo $m['numero_nfcom']; ?></span>
+                </div>
+                <div class="nfcom-info-item">
+                    <span class="nfcom-info-label">Código SEFAZ</span>
+                    <span class="nfcom-info-value"><?php echo $m['cstat'] ?? '-'; ?></span>
+                </div>
+                <div class="nfcom-info-item" style="grid-row: span 1; grid-column: span 2;">
+                    <span class="nfcom-info-label">Chave de Acesso</span>
+                    <span class="nfcom-info-value" style="font-size: 0.85rem;"><?php echo $m['chave_nfcom']; ?></span>
+                </div>
             </div>
-            <div class="modal-footer">
-                <?php
-                if ($this->session->flashdata('nfecom_modal')) {
-                    $nfecom_modal = $this->session->flashdata('nfecom_modal');
-                    if ($nfecom_modal['status'] == 'Autorizado') {
-                ?>
-                    <a href="<?php echo base_url() ?>index.php/nfecom/gerarXml/<?php echo $nfecom_modal['id']; ?>" class="btn btn-primary" target="_blank">
-                        <i class="fas fa-download"></i> Baixar XML
-                    </a>
-                    <a href="<?php echo base_url() ?>index.php/nfecom/baixarDanfe/<?php echo $nfecom_modal['id']; ?>" class="btn btn-success" target="_blank">
-                        <i class="fas fa-file-pdf"></i> Baixar DANFE
-                    </a>
-                    <a href="<?php echo base_url() ?>index.php/nfecom/danfe/<?php echo $nfecom_modal['id']; ?>" class="btn btn-info" target="_blank">
-                        <i class="fas fa-eye"></i> Visualizar DANFE
-                    </a>
-                <?php
-                    }
-                }
-                ?>
-                <button type="button" class="nfe-button" data-dismiss="modal">
-                    <i class="fas fa-times"></i> Fechar
-                </button>
+
+            <div class="alert alert-<?php echo $statusClass; ?>">
+                <strong>Mensagem:</strong> <?php echo $m['motivo']; ?>
             </div>
+
+            <?php if (!empty($m['protocolo'])): ?>
+            <div class="nfcom-info-item mb-3">
+                <span class="nfcom-info-label">Protocolo</span>
+                <span class="nfcom-info-value"><?php echo $m['protocolo']; ?></span>
+            </div>
+            <?php endif; ?>
+
+            <?php if (!empty($m['retorno'])): ?>
+            <div class="nfcom-technical">
+                <span class="nfcom-info-label">Retorno Detalhado</span>
+                <pre><?php echo htmlspecialchars($m['retorno']); ?></pre>
+            </div>
+            <?php endif; ?>
+            <?php else: ?>
+            <div class="text-center py-5">
+                <i class="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+                <p>Aguarde o processamento...</p>
+            </div>
+            <?php endif; ?>
         </div>
+    </div>
+    <div class="modal-footer" id="modalFooter">
+        <?php if ($this->session->flashdata('nfecom_modal')):
+            $m = $this->session->flashdata('nfecom_modal');
+            $id = $m['id'] ?? null;
+            $isAutorizado = strpos(strtolower($m['status']), 'autorizado') !== false;
+        ?>
+            <?php if ($isAutorizado && $id): ?>
+            <a href="<?php echo base_url(); ?>index.php/nfecom/gerarXml/<?php echo $id; ?>" class="btn btn-primary" target="_blank"><i class="fas fa-download"></i> XML</a>
+            <a href="<?php echo base_url(); ?>index.php/nfecom/danfe/<?php echo $id; ?>" class="btn btn-info" target="_blank"><i class="fas fa-eye"></i> DANFE</a>
+            <?php endif; ?>
+        <?php endif; ?>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
     </div>
 </div>
 
@@ -246,280 +365,156 @@ $(document).ready(function() {
     }
 });
 
+function renderModalNfecom(data) {
+    var isSuccess = data.status.toLowerCase().includes('autorizado') || data.cstat == '100';
+    var statusClass = isSuccess ? 'success' : (data.status.toLowerCase().includes('rejeitada') ? 'danger' : 'warning');
+    var statusIcon = isSuccess ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-danger';
+
+    var html = `
+        <div class="text-center mb-4">
+            <i class="fas ${statusIcon} fa-4x mb-2"></i>
+            <h3 class="text-${statusClass}">${data.status}</h3>
+        </div>
+
+        <div class="nfcom-info-grid">
+            <div class="nfcom-info-item">
+                <span class="nfcom-info-label">Número NFCom</span>
+                <span class="nfcom-info-value">${data.numero_nfcom}</span>
+            </div>
+            <div class="nfcom-info-item">
+                <span class="nfcom-info-label">Código SEFAZ</span>
+                <span class="nfcom-info-value">${data.cstat || '-'}</span>
+            </div>
+            <div class="nfcom-info-item" style="grid-column: span 2;">
+                <span class="nfcom-info-label">Chave de Acesso</span>
+                <span class="nfcom-info-value">${data.chave_nfcom}</span>
+            </div>
+        </div>
+
+        <div class="alert alert-${statusClass}">
+            <strong>Mensagem:</strong> ${data.motivo}
+        </div>
+
+        ${data.protocolo ? `
+        <div class="nfcom-info-item mb-3">
+            <span class="nfcom-info-label">Protocolo</span>
+            <span class="nfcom-info-value">${data.protocolo}</span>
+        </div>
+        ` : ''}
+
+        ${data.retorno ? `
+        <div class="nfcom-technical">
+            <span class="nfcom-info-label">Retorno Detalhado</span>
+            <pre>${data.retorno}</pre>
+        </div>
+        ` : ''}
+    `;
+
+    var footer = '';
+    if (isSuccess && data.id) {
+        footer += `
+            <a href="<?php echo base_url(); ?>index.php/nfecom/gerarXml/${data.id}" class="btn btn-primary" target="_blank"><i class="fas fa-download"></i> XML</a>
+            <a href="<?php echo base_url(); ?>index.php/nfecom/danfe/${data.id}" class="btn btn-info" target="_blank"><i class="fas fa-eye"></i> DANFE</a>
+        `;
+    }
+    footer += '<button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>';
+
+    $('#modalTitle').text('Resultado SEFAZ');
+    $('#modalContent').html(html);
+    $('#modalFooter').html(footer);
+    
+    // Garantir visibilidade antes de mostrar
+    $('#nfecomModal').css({
+        'visibility': 'visible',
+        'opacity': '1',
+        'display': 'block',
+        'pointer-events': 'auto'
+    }).modal('show');
+}
+
 function consultarNFCom(id) {
-    /* Verificar se a função está sendo chamada */
-    console.log('consultarNFCom called with id:', id);
+    var btn = event.target.closest('a');
+    var original = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.style.pointerEvents = 'none';
 
-    /* Encontrar o botão clicado e alterar seu texto */
-    var botao = event.target.closest('a');
-    var textoOriginal = botao.innerHTML;
+    // Mostrar loader no modal também
+    $('#modalTitle').text('Consultando SEFAZ...');
+    $('#modalContent').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i><p>Consultando status da NFCom na SEFAZ...</p></div>');
+    $('#modalFooter').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>');
+    
+    // Garantir visibilidade
+    $('#nfecomModal').css({
+        'visibility': 'visible',
+        'opacity': '1',
+        'display': 'block',
+        'pointer-events': 'auto'
+    }).modal('show');
 
-    /* Alterar texto do botão e desabilitar */
-    botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando...';
-    botao.style.pointerEvents = 'none';
-    botao.style.opacity = '0.6';
-
-    /* Fazer chamada AJAX */
     $.ajax({
         url: '<?php echo base_url(); ?>index.php/nfecom/consultar',
         type: 'POST',
-        data: {
-            id: id,
-            ajax: 'true',
-            '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
-        },
+        data: { id: id, ajax: 'true', '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>' },
         dataType: 'json',
-        success: function(response) {
-            /* Reverter alterações do botão */
-            botao.innerHTML = textoOriginal;
-            botao.style.pointerEvents = 'auto';
-            botao.style.opacity = '1';
-
-            if (response.success) {
-                /* Preencher o modal com os dados retornados */
-                $('#nfecomModal .modal-body').html(`
-                    <div class="table-responsive">
-                        <table class="table">
-                            <tr>
-                                <td>
-                                    <label><strong>Número NFeCOM:</strong></label>
-                                    <div class="text-break">${response.modal.numero_nfcom}</div>
-                                </td>
-                                <td>
-                                    <label><strong>Chave NFeCOM:</strong></label>
-                                    <div class="text-break">${response.modal.chave_nfcom}</div>
-                                </td>
-                                <td>
-                                    <label><strong>Status:</strong></label>
-                                    <div class="nfe-status ${response.modal.status.includes('Rejeitada') ? 'error' : response.modal.status == 'Autorizado' ? 'success' : 'warning'}">
-                                        ${response.modal.status}
-                                    </div>
-                                    ${response.modal.cstat ? `
-                                    <div class="mt-2">
-                                        <small><strong>Código SEFAZ:</strong> ${response.modal.cstat}</small>
-                                    </div>
-                                    ` : ''}
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div class="mt-3">
-                        <label><strong>Motivo:</strong></label>
-                        <div class="text-break">${response.modal.motivo}</div>
-                    </div>
-
-                    ${response.modal.protocolo ? `
-                    <div class="mt-3">
-                        <label><strong>Protocolo:</strong></label>
-                        <div class="well">
-                            <pre>${response.modal.protocolo}</pre>
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    ${response.modal.retorno ? `
-                    <div class="mt-3">
-                        <label><strong>Retorno SEFAZ:</strong></label>
-                        <div class="well">
-                            <pre>${response.modal.retorno}</pre>
-                        </div>
-                    </div>
-                    ` : ''}
-                `);
-
-                /* Adicionar botões se autorizado */
-                let footerHtml = '';
-                if (response.modal.status == 'Autorizado') {
-                    footerHtml += `
-                        <a href="<?php echo base_url(); ?>index.php/nfecom/gerarXml/${response.modal.id}" class="btn btn-primary" target="_blank">
-                            <i class="fas fa-download"></i> Baixar XML
-                        </a>
-                        <a href="<?php echo base_url(); ?>index.php/nfecom/baixarDanfe/${response.modal.id}" class="btn btn-success" target="_blank">
-                            <i class="fas fa-file-pdf"></i> Baixar DANFE
-                        </a>
-                        <a href="<?php echo base_url(); ?>index.php/nfecom/danfe/${response.modal.id}" class="btn btn-info" target="_blank">
-                            <i class="fas fa-eye"></i> Visualizar DANFE
-                        </a>
-                    `;
-                }
-                footerHtml += '<button type="button" class="btn btn-default" data-dismiss="modal"><i class="fas fa-times"></i> Fechar</button>';
-
-                $('#nfecomModal .modal-footer').html(footerHtml);
-
-                /* Mostrar modal */
-                $('#nfecomModal').modal('show');
-
+        success: function(res) {
+            btn.innerHTML = original;
+            btn.style.pointerEvents = 'auto';
+            if (res.success) {
+                renderModalNfecom(res.modal);
             } else {
-                /* Mostrar erro no modal */
-                $('#nfecomModal .modal-body').html(`
-                    <div class="alert alert-danger">
-                        <h4><i class="fas fa-exclamation-triangle"></i> Erro na Consulta</h4>
-                        <p>${response.message}</p>
-                    </div>
-                `);
-                $('#nfecomModal .modal-footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>');
-                $('#nfecomModal').modal('show');
+                $('#modalContent').html('<div class="alert alert-danger"><strong>Erro:</strong> ' + res.message + '</div>');
             }
         },
-        error: function(xhr, status, error) {
-            /* Reverter alterações do botão */
-            botao.innerHTML = textoOriginal;
-            botao.style.pointerEvents = 'auto';
-            botao.style.opacity = '1';
-
-            /* Mostrar erro no modal */
-            $('#nfecomModal .modal-body').html(`
-                <div class="alert alert-danger">
-                    <h4><i class="fas fa-exclamation-triangle"></i> Erro de Comunicação</h4>
-                    <p>Não foi possível consultar a NFCom. Tente novamente.</p>
-                    <small>Detalhes: ${error}</small>
-                </div>
-            `);
-            $('#nfecomModal .modal-footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>');
-            $('#nfecomModal').modal('show');
+        error: function() {
+            btn.innerHTML = original;
+            btn.style.pointerEvents = 'auto';
+            $('#modalContent').html('<div class="alert alert-danger"><strong>Erro:</strong> Não foi possível comunicar com o servidor.</div>');
         }
     });
 }
 
 function gerarNFCom(id) {
-    /* Verificar se a função está sendo chamada */
-    console.log('gerarNFCom called with id:', id);
+    var btn = event.target.closest('a');
+    var original = btn.innerHTML;
+    var isReemitir = original.includes('Reemitir');
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.style.pointerEvents = 'none';
 
-    /* Encontrar o botão clicado e alterar seu texto */
-    var botao = event.target.closest('a');
-    var textoOriginal = botao.innerHTML;
-    var isReemitir = textoOriginal.includes('Reemitir');
+    // Mostrar loader no modal
+    $('#modalTitle').text(isReemitir ? 'Reemitindo NFCom...' : 'Transmitindo NFCom...');
+    $('#modalContent').html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i><p>Aguarde a resposta da SEFAZ...</p></div>');
+    $('#modalFooter').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>');
+    
+    // Garantir visibilidade
+    $('#nfecomModal').css({
+        'visibility': 'visible',
+        'opacity': '1',
+        'display': 'block',
+        'pointer-events': 'auto'
+    }).modal('show');
 
-    /* Alterar texto do botão e desabilitar */
-    botao.innerHTML = isReemitir ? '<i class="fas fa-spinner fa-spin"></i> Reemitindo...' : '<i class="fas fa-spinner fa-spin"></i> Emitindo...';
-    botao.style.pointerEvents = 'none';
-    botao.style.opacity = '0.6';
-
-    /* Fazer chamada AJAX */
     $.ajax({
         url: '<?php echo base_url(); ?>index.php/nfecom/gerarXml',
         type: 'POST',
-        data: {
-            id: id,
-            ajax: 'true',
-            '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
-        },
+        data: { id: id, ajax: 'true', '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>' },
         dataType: 'json',
-        success: function(response) {
-            /* Reverter alterações do botão */
-            botao.innerHTML = textoOriginal;
-            botao.style.pointerEvents = 'auto';
-            botao.style.opacity = '1';
-
-            if (response.success) {
-                /* Preencher o modal com os dados retornados */
-                $('#nfecomModal .modal-body').html(`
-                    <div class="table-responsive">
-                        <table class="table">
-                            <tr>
-                                <td>
-                                    <label><strong>Número NFeCOM:</strong></label>
-                                    <div class="text-break">${response.modal.numero_nfcom}</div>
-                                </td>
-                                <td>
-                                    <label><strong>Chave NFeCOM:</strong></label>
-                                    <div class="text-break">${response.modal.chave_nfcom}</div>
-                                </td>
-                                <td>
-                                    <label><strong>Status:</strong></label>
-                                    <div class="nfe-status ${response.modal.status.includes('Rejeitada') ? 'error' : response.modal.status == 'Autorizado' ? 'success' : 'warning'}">
-                                        ${response.modal.status}
-                                    </div>
-                                    ${response.modal.cstat ? `
-                                    <div class="mt-2">
-                                        <small><strong>Código SEFAZ:</strong> ${response.modal.cstat}</small>
-                                    </div>
-                                    ` : ''}
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div class="mt-3">
-                        <label><strong>Motivo:</strong></label>
-                        <div class="text-break">${response.modal.motivo}</div>
-                    </div>
-
-                    ${response.modal.protocolo ? `
-                    <div class="mt-3">
-                        <label><strong>Protocolo:</strong></label>
-                        <div class="well">
-                            <pre>${response.modal.protocolo}</pre>
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    ${response.modal.retorno ? `
-                    <div class="mt-3">
-                        <label><strong>Retorno SEFAZ:</strong></label>
-                        <div class="well">
-                            <pre>${response.modal.retorno}</pre>
-                        </div>
-                    </div>
-                    ` : ''}
-                `);
-
-                /* Adicionar botões se autorizado */
-                let footerHtml = '';
-                if (response.modal.status == 'Autorizado') {
-                    footerHtml += `
-                        <a href="<?php echo base_url(); ?>index.php/nfecom/gerarXml/${response.modal.id}" class="btn btn-primary" target="_blank">
-                            <i class="fas fa-download"></i> Baixar XML
-                        </a>
-                        <a href="<?php echo base_url(); ?>index.php/nfecom/baixarDanfe/${response.modal.id}" class="btn btn-success" target="_blank">
-                            <i class="fas fa-file-pdf"></i> Baixar DANFE
-                        </a>
-                        <a href="<?php echo base_url(); ?>index.php/nfecom/danfe/${response.modal.id}" class="btn btn-info" target="_blank">
-                            <i class="fas fa-eye"></i> Visualizar DANFE
-                        </a>
-                    `;
-                }
-                footerHtml += '<button type="button" class="nfe-button" data-dismiss="modal"><i class="fas fa-times"></i> Fechar</button>';
-
-                $('#nfecomModal .modal-footer').html(footerHtml);
-
-                /* Mostrar modal */
-                $('#nfecomModal').modal('show');
-
-                /* Recarregar a página após fechar o modal para atualizar a listagem */
-                $('#nfecomModal').on('hidden.bs.modal', function() {
-                    location.reload();
-                });
-
+        success: function(res) {
+            btn.innerHTML = original;
+            btn.style.pointerEvents = 'auto';
+            if (res.success) {
+                renderModalNfecom(res.modal);
+                // Atualizar listagem ao fechar
+                $('#nfecomModal').off('hidden.bs.modal').on('hidden.bs.modal', function() { location.reload(); });
             } else {
-                /* Mostrar erro no modal */
-                $('#nfecomModal .modal-body').html(`
-                    <div class="alert alert-danger">
-                        <h4><i class="fas fa-exclamation-triangle"></i> Erro na Emissão</h4>
-                        <p>${response.message}</p>
-                    </div>
-                `);
-                $('#nfecomModal .modal-footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>');
-                $('#nfecomModal').modal('show');
+                $('#modalContent').html('<div class="alert alert-danger"><strong>Erro:</strong> ' + res.message + '</div>');
             }
         },
-        error: function(xhr, status, error) {
-            /* Reverter alterações do botão */
-            botao.innerHTML = textoOriginal;
-            botao.style.pointerEvents = 'auto';
-            botao.style.opacity = '1';
-
-            /* Mostrar erro no modal */
-            $('#nfecomModal .modal-body').html(`
-                <div class="alert alert-danger">
-                    <h4><i class="fas fa-exclamation-triangle"></i> Erro de Comunicação</h4>
-                    <p>Não foi possível processar a NFCom. Tente novamente.</p>
-                    <small>Detalhes: ${error}</small>
-                </div>
-            `);
-            $('#nfecomModal .modal-footer').html('<button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>');
-            $('#nfecomModal').modal('show');
+        error: function() {
+            btn.innerHTML = original;
+            btn.style.pointerEvents = 'auto';
+            $('#modalContent').html('<div class="alert alert-danger"><strong>Erro:</strong> Não foi possível comunicar com o servidor.</div>');
         }
     });
 }
@@ -706,5 +701,98 @@ $(document).ready(function(){
             });
         }
     });
+});
+
+// Limpeza completa dos modais NFCOM para evitar bloqueios na tela
+$(document).ready(function() {
+    console.log('NFCOM: Inicializando limpeza de modais');
+
+    // Função para limpar completamente os modais
+    function limparModaisNfcom() {
+        console.log('NFCOM: Executando limpeza completa de modais');
+
+        // Remover todos os backdrops residuais
+        $('.modal-backdrop').remove();
+        $('.modal-backdrop.show').remove();
+        $('.modal-backdrop.in').remove();
+
+        // Resetar classes do body
+        $('body').removeClass('modal-open');
+        $('body').css({
+            'overflow': 'auto',
+            'padding-right': '0',
+            'pointer-events': 'auto'
+        });
+
+        // Garantir que os modais estão completamente fechados
+        $('#nfecomModal').removeClass('in show').hide();
+        $('#modal-nfecom').removeClass('in show').hide();
+
+        // Resetar estilos dos modais de forma segura
+        $('#nfecomModal, #modal-nfecom').css({
+            'display': 'none',
+            'pointer-events': 'none'
+        });
+        
+        // Apenas remover classes de visibilidade ativa
+        $('#nfecomModal, #modal-nfecom').removeClass('in show');
+
+        // Liberar todos os elementos clicáveis
+        $('input, select, textarea, button, a, .btn').each(function() {
+            var $element = $(this);
+            $element.prop('disabled', false).prop('readonly', false);
+            $element.removeAttr('disabled').removeAttr('readonly');
+            $element.css({
+                'pointer-events': 'auto',
+                'cursor': 'auto',
+                'z-index': 'auto'
+            });
+        });
+
+        // Resetar containers principais
+        $('.widget-box, .widget-content, form, .row-fluid, .span6, .span12, .table, tbody, tr, td').css({
+            'pointer-events': 'auto',
+            'position': 'static',
+            'z-index': 'auto'
+        });
+
+        // Verificar e corrigir qualquer elemento com pointer-events bloqueante
+        $('*').each(function() {
+            var $el = $(this);
+            var pointerEvents = $el.css('pointer-events');
+            if (pointerEvents === 'none') {
+                $el.css('pointer-events', 'auto');
+            }
+        });
+
+        console.log('NFCOM: Limpeza completa dos modais finalizada');
+    }
+
+    // Executar limpeza na carga da página
+    setTimeout(limparModaisNfcom, 100);
+
+    // Limpeza quando o modal principal é fechado
+    $('#nfecomModal').on('hidden.bs.modal', function() {
+        console.log('NFCOM: Modal principal fechado, executando limpeza');
+        setTimeout(limparModaisNfcom, 200);
+    });
+
+    // Limpeza quando o modal de cadastro é fechado
+    $('#modal-nfecom').on('hidden.bs.modal', function() {
+        console.log('NFCOM: Modal de cadastro fechado, executando limpeza');
+        setTimeout(limparModaisNfcom, 200);
+    });
+
+    // Limpeza periódica removida pois estava interferindo na exibição dos modais
+
+    // Função global para emergência - pode ser chamada via console
+    window.forcarLimpezaModaisNfcom = function() {
+        console.log('NFCOM: Limpeza forçada executada manualmente');
+        limparModaisNfcom();
+        alert('Limpeza de modais NFCOM executada. A tela deve estar liberada agora.');
+    };
+
+    // Inicializar tooltips
+    $('[data-toggle="tooltip"]').tooltip();
 });
 </script>

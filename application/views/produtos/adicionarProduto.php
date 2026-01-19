@@ -600,12 +600,12 @@
 </div>
 
 <!-- Modal de Pesquisa NCM -->
-<div class="modal fade" id="modalNcm" role="dialog" data-backdrop="false">
-    <div class="modal-dialog modal-lg" style="width: 95%; max-width: 1200px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">×</button>
-                <h4 class="modal-title"><i class="fas fa-search"></i> Pesquisar NCM</h4>
+<div class="modal fade" id="modalNcm" tabindex="-1" role="dialog" aria-labelledby="modalNcmLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" id="modalNcmDialog">
+        <div class="modal-content" id="modalNcmContent">
+            <div class="modal-header" id="modalNcmHeader">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="modalNcmLabel"><i class="fas fa-search"></i> Pesquisar NCM</h4>
             </div>
             <div class="modal-body" style="max-height: 600px;">
                 <div class="row-fluid">

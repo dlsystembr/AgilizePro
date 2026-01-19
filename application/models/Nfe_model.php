@@ -90,9 +90,9 @@ class Nfe_model extends CI_Model
         $this->db->where('cer.CER_ATIVO', 1);
         $this->db->order_by('cer.CER_DATA_UPLOAD', 'DESC');
         $this->db->limit(1);
-        
+
         $result = $this->db->get()->row();
-        
+
         // Se não encontrar certificado para NFe, tenta buscar qualquer certificado ativo
         if (!$result) {
             $this->db->select('CER_ARQUIVO, CER_SENHA, CER_VALIDADE_FIM, CER_TIPO, CER_CNPJ');
@@ -102,7 +102,7 @@ class Nfe_model extends CI_Model
             $this->db->limit(1);
             $result = $this->db->get()->row();
         }
-        
+
         return $result;
     }
 
@@ -110,14 +110,14 @@ class Nfe_model extends CI_Model
     {
         try {
             $query = $this->db->get('configuracoes_nfe');
-            
+
             if (!$query) {
                 log_message('error', 'Database error in getConfigurations: ' . $this->db->error()['message']);
                 return [];
             }
-            
+
             $result = $query->row();
-            
+
             // Se não houver configurações, cria as padrão
             if (!$result) {
                 $defaultConfigs = [
@@ -131,26 +131,26 @@ class Nfe_model extends CI_Model
                     'csc' => null,
                     'csc_id' => null
                 ];
-                
+
                 $defaultConfigs['created_at'] = date('Y-m-d H:i:s');
                 $defaultConfigs['updated_at'] = date('Y-m-d H:i:s');
-                
+
                 $result = $this->db->insert('configuracoes_nfe', $defaultConfigs);
-                
+
                 if (!$result) {
                     log_message('error', 'Database error creating default configuration: ' . $this->db->error()['message']);
                     return $defaultConfigs;
                 }
-                
+
                 return $defaultConfigs;
             }
-            
+
             // Converte o objeto para array
-            $configs = (array)$result;
-            
+            $configs = (array) $result;
+
             // Garante que o ambiente seja um inteiro
-            $configs['ambiente'] = (int)$configs['ambiente'];
-            
+            $configs['ambiente'] = (int) $configs['ambiente'];
+
             return $configs;
         } catch (Exception $e) {
             log_message('error', 'Exception in getConfigurations: ' . $e->getMessage());
@@ -164,23 +164,23 @@ class Nfe_model extends CI_Model
         try {
             // Inicia a transação
             $this->db->trans_start();
-            
+
             // Verifica se já existe uma configuração
             $this->db->where('idConfiguracao', $id);
             $query = $this->db->get('configuracoes_nfe');
-            
+
             if (!$query) {
                 log_message('error', 'Database error checking configuration existence: ' . $this->db->error()['message']);
                 $this->db->trans_rollback();
                 return false;
             }
-            
+
             $exists = $query->num_rows() > 0;
-            
+
             // Prepara os dados para inserção/atualização
             $configData = [
                 'tipo_documento' => $data['tipo_documento'] ?? 'NFe',
-                'ambiente' => isset($data['ambiente']) ? (int)$data['ambiente'] : 2, // 1 = Produção, 2 = Homologação
+                'ambiente' => isset($data['ambiente']) ? (int) $data['ambiente'] : 2, // 1 = Produção, 2 = Homologação
                 'versao_nfe' => $data['versao_nfe'] ?? '4.00',
                 'tipo_impressao_danfe' => $data['tipo_impressao_danfe'] ?? 1,
                 'orientacao_danfe' => $data['orientacao_danfe'] ?? 'P',
@@ -190,7 +190,7 @@ class Nfe_model extends CI_Model
                 'csc_id' => $data['csc_id'] ?? null,
                 'updated_at' => date('Y-m-d H:i:s')
             ];
-            
+
             if ($exists) {
                 // Atualiza a configuração existente
                 $this->db->where('idConfiguracao', $id);
@@ -200,21 +200,21 @@ class Nfe_model extends CI_Model
                 $configData['created_at'] = date('Y-m-d H:i:s');
                 $result = $this->db->insert('configuracoes_nfe', $configData);
             }
-            
+
             if (!$result) {
                 log_message('error', 'Database error in updateConfigurations: ' . $this->db->error()['message']);
                 $this->db->trans_rollback();
                 return false;
             }
-            
+
             // Finaliza a transação
             $this->db->trans_complete();
-            
+
             if ($this->db->trans_status() === FALSE) {
                 log_message('error', 'Database transaction failed in updateConfigurations');
                 return false;
             }
-            
+
             return true;
         } catch (Exception $e) {
             log_message('error', 'Exception in updateConfigurations: ' . $e->getMessage());
@@ -230,11 +230,11 @@ class Nfe_model extends CI_Model
             // Adiciona as datas de criação e atualização
             $data['created_at'] = date('Y-m-d H:i:s');
             $data['updated_at'] = date('Y-m-d H:i:s');
-            
+
             // Verifica se já existe uma configuração
             $this->db->where('idConfiguracao', 1);
             $exists = $this->db->get('configuracoes_nfe')->row();
-            
+
             if ($exists) {
                 // Atualiza a configuração existente
                 $this->db->where('idConfiguracao', 1);
@@ -244,12 +244,12 @@ class Nfe_model extends CI_Model
                 $data['idConfiguracao'] = 1;
                 $result = $this->db->insert('configuracoes_nfe', $data);
             }
-            
+
             if (!$result) {
                 log_message('error', 'Database error in saveConfigurations: ' . $this->db->error()['message']);
                 return false;
             }
-            
+
             return true;
         } catch (Exception $e) {
             log_message('error', 'Exception in saveConfigurations: ' . $e->getMessage());
@@ -272,15 +272,15 @@ class Nfe_model extends CI_Model
     public function updateCertificate($data)
     {
         $this->db->trans_start();
-        
+
         // Remove previous configuration if exists
         $this->db->truncate('nfe_certificates');
-        
+
         // Insert new configuration
         $this->db->insert('nfe_certificates', $data);
-        
+
         $this->db->trans_complete();
-        
+
         return $this->db->trans_status();
     }
 
@@ -291,7 +291,7 @@ class Nfe_model extends CI_Model
             if (!$config || !isset($config['sequencia_nota'])) {
                 return 1;
             }
-            return (int)$config['sequencia_nota'];
+            return (int) $config['sequencia_nota'];
         } catch (Exception $e) {
             log_message('error', 'Exception in getNextNFNumber: ' . $e->getMessage());
             return 1;
@@ -306,8 +306,8 @@ class Nfe_model extends CI_Model
                 return false;
             }
 
-            $nextNumber = ((int)$config['sequencia_nota']) + 1;
-            
+            $nextNumber = ((int) $config['sequencia_nota']) + 1;
+
             $data = [
                 'sequencia_nota' => $nextNumber,
                 'updated_at' => date('Y-m-d H:i:s')
@@ -344,33 +344,34 @@ class Nfe_model extends CI_Model
         $this->db->join('operacao_comercial', 'operacao_comercial.OPC_ID = vendas.operacao_comercial_id');
         $this->db->join('classificacao_fiscal', 'classificacao_fiscal.operacao_comercial_id = operacao_comercial.OPC_ID');
         $this->db->where('vendas.idVendas', $venda_id);
-        
+
         // Check if client is Estadual or Interestadual
-        $this->db->where('classificacao_fiscal.destinacao', 
+        $this->db->where(
+            'classificacao_fiscal.destinacao',
             $this->db->case()
                 ->when('clientes.estado = "SP"', 'Estadual')
                 ->else('Interestadual')
                 ->end()
         );
-        
+
         // Check commercial objective
         $this->db->where('classificacao_fiscal.objetivo_comercial', 'clientes.objetivo_comercial');
-        
+
         $query = $this->db->get();
-        
+
         if ($query->num_rows() > 0) {
             $result = $query->row();
-            
+
             // Handle tax regime
             if ($regime && $regime->regime_tributario == 'Simples Nacional') {
                 $result->cst = null; // Remove CST for Simples Nacional
             } else {
                 $result->csosn = null; // Remove CSOSN for Lucro Presumido/Real
             }
-            
+
             return $result;
         }
-        
+
         return null;
     }
 
@@ -382,9 +383,9 @@ class Nfe_model extends CI_Model
         $this->db->where('vendas.emitida_nfe', 0);
         $this->db->like('vendas.idVendas', $q);
         $this->db->limit(25);
-        
+
         $query = $this->db->get();
-        
+
         if ($query->num_rows() > 0) {
             foreach ($query->result_array() as $row) {
                 $row_set[] = $row;
@@ -395,7 +396,7 @@ class Nfe_model extends CI_Model
 
     public function getEmit()
     {
-        $this->db->select('EMP_RAZAO_SOCIAL as nome, EMP_CNPJ as cnpj, EMP_IE as ie, EMP_LOGRADOURO as rua, EMP_NUMERO as numero, EMP_COMPLEMENTO as complemento, EMP_BAIRRO as bairro, EMP_CIDADE as cidade, EMP_UF as uf, EMP_CEP as cep, EMP_TELEFONE as telefone, EMP_EMAIL as email, EMP_REGIME_TRIBUTARIO as regime_tributario, EMP_LOGO_PATH as url_logo');
+        $this->db->select('EMP_RAZAO_SOCIAL as nome, EMP_NOME_FANTASIA as fantasia, EMP_CNPJ as cnpj, EMP_IE as ie, EMP_LOGRADOURO as rua, EMP_NUMERO as numero, EMP_COMPLEMENTO as complemento, EMP_BAIRRO as bairro, EMP_CIDADE as cidade, EMP_UF as uf, EMP_CEP as cep, EMP_IBGE as ibge, EMP_TELEFONE as telefone, EMP_EMAIL as email, EMP_REGIME_TRIBUTARIO as regime_tributario, EMP_LOGO_PATH as url_logo');
         $this->db->from('empresas');
         // Como normalmente há apenas uma empresa emitente, buscamos a primeira
         $this->db->limit(1);
@@ -414,12 +415,13 @@ class Nfe_model extends CI_Model
         $emit = [
             'CNPJ' => preg_replace('/[^0-9]/', '', $empresa->cnpj),
             'xNome' => $empresa->nome,
+            'xFant' => $empresa->fantasia,
             'enderEmit' => [
                 'xLgr' => $empresa->rua,
                 'nro' => $empresa->numero,
                 'xCpl' => $empresa->complemento,
                 'xBairro' => $empresa->bairro,
-                'cMun' => $empresa->cidade,
+                'cMun' => $empresa->ibge,
                 'xMun' => $empresa->cidade,
                 'UF' => $empresa->uf,
                 'CEP' => preg_replace('/[^0-9]/', '', $empresa->cep),
@@ -522,4 +524,4 @@ class Nfe_model extends CI_Model
             $itens[] = $item;
         }
     }
-} 
+}
