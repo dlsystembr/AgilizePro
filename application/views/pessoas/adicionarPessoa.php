@@ -698,7 +698,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Nova Linha: Objetivo Comercial -->
+                                <!-- Nova Linha: Objetivo Comercial e Tipo de Cliente -->
                                 <div class="span4">
                                     <div class="control-group">
                                         <label for="CLN_OBJETIVO_COMERCIAL" class="control-label">Objetivo
@@ -714,6 +714,22 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <?php if (!empty($tipos_clientes)): ?>
+                                    <div class="span4">
+                                        <div class="control-group">
+                                            <label for="TPC_ID" class="control-label">Tipo de Cliente</label>
+                                            <div class="controls">
+                                                <select id="TPC_ID" name="TPC_ID" class="span12">
+                                                    <option value="">Selecione um tipo</option>
+                                                    <?php foreach ($tipos_clientes as $tc): ?>
+                                                        <option value="<?php echo $tc->TPC_ID; ?>"><?php echo $tc->TPC_NOME; ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

@@ -573,21 +573,22 @@
                                         <table class="table table-bordered table-striped">
                                             <thead>
                                                 <tr>
-                                                    <th>Item</th>
                                                     <th>Código</th>
                                                     <th>Descrição</th>
-                                                    <th>CFOP</th>
-                                                    <th style="text-align: center;">Quantidade</th>
-                                                    <th style="text-align: right;">Valor Unitário</th>
-                                                    <th style="text-align: right;">Valor Total</th>
+                                                    <th>cClass</th>
+                                                    <th>Unid</th>
+                                                    <th style="text-align: center;">Qtd</th>
+                                                    <th style="text-align: right;">Vlr Unit.</th>
+                                                    <th style="text-align: right;">Vlr Desc.</th>
+                                                    <th style="text-align: right;">Vlr Outros</th>
+                                                    <th style="text-align: right;">Vlr Final</th>
+                                                    <th style="text-align: center;">CST ICMS</th>
+                                                    <th style="text-align: center;">CFOP</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php foreach ($itens as $item): ?>
                                                     <tr>
-                                                        <td>
-                                                            <?php echo $item->NFI_N_ITEM; ?>
-                                                        </td>
                                                         <td>
                                                             <?php echo $item->NFI_C_PROD; ?>
                                                         </td>
@@ -595,17 +596,32 @@
                                                             <?php echo $item->NFI_X_PROD; ?>
                                                         </td>
                                                         <td>
-                                                            <?php echo $item->NFI_CFOP; ?>
+                                                            <?php echo $item->NFI_C_CLASS; ?>
+                                                        </td>
+                                                        <td>
+                                                            <?php echo $item->NFI_U_MED; ?>
                                                         </td>
                                                         <td style="text-align: center;">
                                                             <?php echo number_format($item->NFI_Q_FATURADA, 4, ',', '.'); ?>
                                                         </td>
-                                                        <td style="text-align: right;">R$
+                                                        <td style="text-align: right;">
                                                             <?php echo number_format($item->NFI_V_ITEM, 2, ',', '.'); ?>
                                                         </td>
-                                                        <td style="text-align: right;"><strong>R$
+                                                        <td style="text-align: right;">
+                                                            <?php echo number_format($item->NFI_V_DESC, 2, ',', '.'); ?>
+                                                        </td>
+                                                        <td style="text-align: right;">
+                                                            <?php echo number_format($item->NFI_V_OUTRO, 2, ',', '.'); ?>
+                                                        </td>
+                                                        <td style="text-align: right;"><strong>
                                                                 <?php echo number_format($item->NFI_V_PROD, 2, ',', '.'); ?>
                                                             </strong></td>
+                                                        <td style="text-align: center;">
+                                                            <?php echo $item->NFI_CST_ICMS; ?>
+                                                        </td>
+                                                        <td style="text-align: center;">
+                                                            <?php echo $item->NFI_CFOP; ?>
+                                                        </td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
@@ -633,21 +649,72 @@
                                                         <input type="text" name="itens[<?php echo $itemCount; ?>][c_prod]"
                                                             value="<?php echo $item->NFI_C_PROD; ?>" class="span12">
                                                     </div>
-                                                    <div class="span3">
+                                                    <div class="span4">
                                                         <label>Descrição:</label>
                                                         <input type="text" name="itens[<?php echo $itemCount; ?>][x_prod]"
                                                             value="<?php echo $item->NFI_X_PROD; ?>" class="span12">
                                                     </div>
-                                                    <div class="span1">
-                                                        <label>CFOP:</label>
-                                                        <input type="text" name="itens[<?php echo $itemCount; ?>][cfop]"
-                                                            value="<?php echo $item->NFI_CFOP; ?>" class="span12">
+                                                    <div class="span2">
+                                                        <label>cClass:</label>
+                                                        <span><?php echo $item->NFI_C_CLASS; ?></span>
+                                                        <input type="hidden"
+                                                            name="itens[<?php echo $itemCount; ?>][c_class]"
+                                                            value="<?php echo $item->NFI_C_CLASS; ?>">
                                                     </div>
                                                     <div class="span2">
-                                                        <label>Quantidade:</label>
+                                                        <label>CST ICMS:</label>
+                                                        <select name="itens[<?php echo $itemCount; ?>][cst_icms]"
+                                                            class="span12">
+                                                            <option value="00" <?php echo ($item->NFI_CST_ICMS == '00') ? 'selected' : ''; ?>>00 - Tribut. Integral</option>
+                                                            <option value="20" <?php echo ($item->NFI_CST_ICMS == '20') ? 'selected' : ''; ?>>20 - Red. Base Calc.</option>
+                                                            <option value="40" <?php echo ($item->NFI_CST_ICMS == '40') ? 'selected' : ''; ?>>40 - Isenta</option>
+                                                            <option value="41" <?php echo ($item->NFI_CST_ICMS == '41') ? 'selected' : ''; ?>>41 - Não Tributada</option>
+                                                            <option value="50" <?php echo ($item->NFI_CST_ICMS == '50') ? 'selected' : ''; ?>>50 - Suspensão</option>
+                                                            <option value="51" <?php echo ($item->NFI_CST_ICMS == '51') ? 'selected' : ''; ?>>51 - Diferimento</option>
+                                                            <option value="90" <?php echo ($item->NFI_CST_ICMS == '90') ? 'selected' : ''; ?>>90 - Outras</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="span1">
+                                                        <label>CFOP:</label>
+                                                        <select name="itens[<?php echo $itemCount; ?>][cfop]"
+                                                            class="span12">
+                                                            <option value="5303" <?php echo ($item->NFI_CFOP == '5303') ? 'selected' : ''; ?>>5303 - Com. Não Contribuinte</option>
+                                                            <option value="5307" <?php echo ($item->NFI_CFOP == '5307') ? 'selected' : ''; ?>>5307 - Com. Isenta Não Contrib.</option>
+                                                            <option value="6303" <?php echo ($item->NFI_CFOP == '6303') ? 'selected' : ''; ?>>6303 - Interstate Não Contrib.</option>
+                                                            <option value="6307" <?php echo ($item->NFI_CFOP == '6307') ? 'selected' : ''; ?>>6307 - Interstate Isenta</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="span1">
+                                                        <label>Unid:</label>
+                                                        <span><?php echo $item->NFI_U_MED; ?></span>
+                                                        <input type="hidden" name="itens[<?php echo $itemCount; ?>][u_med]"
+                                                            value="<?php echo $item->NFI_U_MED; ?>">
+                                                    </div>
+                                                    <div class="span2">
+                                                        <label>Qtd:</label>
                                                         <input type="text"
                                                             name="itens[<?php echo $itemCount; ?>][q_faturada]"
                                                             value="<?php echo number_format($item->NFI_Q_FATURADA, 4, ',', '.'); ?>"
+                                                            class="span12">
+                                                    </div>
+                                                    <div class="span2">
+                                                        <label>Vlr Unit:</label>
+                                                        <input type="text" name="itens[<?php echo $itemCount; ?>][v_item]"
+                                                            value="<?php echo number_format($item->NFI_V_ITEM, 2, ',', '.'); ?>"
+                                                            class="span12">
+                                                    </div>
+                                                    <div class="span2">
+                                                        <label>Vlr Desc:</label>
+                                                        <input type="text" name="itens[<?php echo $itemCount; ?>][v_desc]"
+                                                            value="<?php echo number_format($item->NFI_V_DESC, 2, ',', '.'); ?>"
+                                                            class="span12">
+                                                    </div>
+                                                    <div class="span2">
+                                                        <label>Vlr Outros:</label>
+                                                        <input type="text" name="itens[<?php echo $itemCount; ?>][v_outro]"
+                                                            value="<?php echo number_format($item->NFI_V_OUTRO, 2, ',', '.'); ?>"
                                                             class="span12">
                                                     </div>
                                                     <div class="span2">
@@ -987,32 +1054,69 @@
 
     function adicionarItem() {
         itemCount++;
-        var itemHtml = `
-        <div class="item-row" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; background: #f9f9f9;">
-            <div class="row-fluid">
-                <div class="span1">
-                    <label>Item:</label>
-                    <input type="text" name="itens[` + itemCount + `][n_item]" value="` + itemCount + `" class="span12" readonly>
+        const row = `
+            <div class="item-row" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; background: #f9f9f9;">
+                <div class="row-fluid">
+                   <div class="span1">
+                       <label>Item:</label>
+                       <input type="text" name="itens[${itemCount}][n_item]" value="${itemCount}" class="span12" readonly>
+                   </div>
+                   <div class="span2">
+                       <label>Código:</label>
+                       <input type="text" name="itens[${itemCount}][c_prod]" value="" class="span12">
+                   </div>
+                   <div class="span4">
+                       <label>Descrição:</label>
+                       <input type="text" name="itens[${itemCount}][x_prod]" value="" class="span12">
+                   </div>
+                   <div class="span2">
+                       <label>cClass:</label>
+                       <span></span>
+                       <input type="hidden" name="itens[${itemCount}][c_class]" value="">
+                   </div>
+                   <div class="span2">
+                        <label>CST ICMS:</label>
+                        <select name="itens[${itemCount}][cst_icms]" class="span12">
+                            <option value="00">00 - Tribut. Integral</option>
+                            <option value="20">20 - Red. Base Calc.</option>
+                            <option value="40">40 - Isenta</option>
+                            <option value="41">41 - Não Tributada</option>
+                            <option value="50">50 - Suspensão</option>
+                            <option value="51">51 - Diferimento</option>
+                            <option value="90">90 - Outras</option>
+                        </select>
+                   </div>
+                   <div class="span1">
+                       <label>CFOP:</label>
+                       <select name="itens[${itemCount}][cfop]" class="span12">
+                            <option value="5303">5303 - Com. Não Contribuinte</option>
+                            <option value="5307">5307 - Com. Isenta Não Contrib.</option>
+                            <option value="6303">6303 - Interstate Não Contrib.</option>
+                            <option value="6307">6307 - Interstate Isenta</option>
+                       </select>
+                   </div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span1">
+                       <label>Unid:</label>
+                       <span>UN</span>
+                       <input type="hidden" name="itens[${itemCount}][u_med]" value="UN">
+                    </div>
+                <div class="span2">
+                    <label>Qtd:</label>
+                    <input type="text" name="itens[${itemCount}][q_faturada]" value="1,0000" class="span12">
                 </div>
                 <div class="span2">
-                    <label>Código:</label>
-                    <input type="text" name="itens[` + itemCount + `][c_prod]" class="span12">
-                </div>
-                <div class="span3">
-                    <label>Descrição:</label>
-                    <input type="text" name="itens[` + itemCount + `][x_prod]" class="span12">
-                </div>
-                <div class="span1">
-                    <label>CFOP:</label>
-                    <input type="text" name="itens[` + itemCount + `][cfop]" value="5301" class="span12">
+                    <label>Vlr Unit:</label>
+                    <input type="text" name="itens[${itemCount}][v_item]" class="span12">
                 </div>
                 <div class="span2">
-                    <label>Quantidade:</label>
-                    <input type="text" name="itens[` + itemCount + `][q_faturada]" value="1,0000" class="span12">
+                    <label>Vlr Desc:</label>
+                    <input type="text" name="itens[${itemCount}][v_desc]" value="0,00" class="span12">
                 </div>
                 <div class="span2">
-                    <label>Valor Unitário:</label>
-                    <input type="text" name="itens[` + itemCount + `][v_item]" class="span12">
+                    <label>Vlr Outros:</label>
+                    <input type="text" name="itens[${itemCount}][v_outro]" value="0,00" class="span12">
                 </div>
                 <div class="span1">
                     <button type="button" class="btn btn-danger btn-mini" onclick="removerItem(this)" style="margin-top: 20px;">
@@ -1022,7 +1126,7 @@
             </div>
         </div>
     `;
-        $('#itens-container').append(itemHtml);
+        $('#itens-container').append(row);
     }
 
     function removerItem(button) {

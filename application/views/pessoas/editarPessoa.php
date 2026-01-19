@@ -726,7 +726,7 @@
                                 </div>
                             </div>
 
-                            <!-- Nova Linha: Objetivo Comercial -->
+                            <!-- Nova Linha: Objetivo Comercial e Tipo de Cliente -->
                             <div class="row-fluid" style="margin-top: 20px;">
                                 <div class="span4">
                                     <div class="control-group">
@@ -735,14 +735,32 @@
                                         <div class="controls">
                                             <select id="CLN_OBJETIVO_COMERCIAL" name="CLN_OBJETIVO_COMERCIAL"
                                                 class="span12">
-                                                <option value="Consumo">Consumo</option>
-                                                <option value="Revenda">Revenda</option>
-                                                <option value="Industrialização">Industrialização</option>
-                                                <option value="Orgão Público">Orgão Público</option>
+                                                <option value="Consumo" <?php echo (isset($cliente) && $cliente->CLN_OBJETIVO_COMERCIAL == 'Consumo') ? 'selected' : ''; ?>>Consumo</option>
+                                                <option value="Revenda" <?php echo (isset($cliente) && $cliente->CLN_OBJETIVO_COMERCIAL == 'Revenda') ? 'selected' : ''; ?>>Revenda</option>
+                                                <option value="Industrialização" <?php echo (isset($cliente) && $cliente->CLN_OBJETIVO_COMERCIAL == 'Industrialização') ? 'selected' : ''; ?>>Industrialização</option>
+                                                <option value="Orgão Público" <?php echo (isset($cliente) && $cliente->CLN_OBJETIVO_COMERCIAL == 'Orgão Público') ? 'selected' : ''; ?>>Orgão Público</option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
+
+                                <?php if (!empty($tipos_clientes)): ?>
+                                    <div class="span4">
+                                        <div class="control-group">
+                                            <label for="TPC_ID" class="control-label">Tipo de Cliente</label>
+                                            <div class="controls">
+                                                <select id="TPC_ID" name="TPC_ID" class="span12">
+                                                    <option value="">Selecione um tipo</option>
+                                                    <?php foreach ($tipos_clientes as $tc): ?>
+                                                        <option value="<?php echo $tc->TPC_ID; ?>" <?php echo (isset($cliente) && $cliente->TPC_ID == $tc->TPC_ID) ? 'selected' : ''; ?>>
+                                                            <?php echo $tc->TPC_NOME; ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

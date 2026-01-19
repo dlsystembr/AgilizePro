@@ -529,6 +529,15 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label class="control-label">Tipo de Cliente</label>
+                                        <div class="controls">
+                                            <input type="text" readonly value="<?php echo isset($cliente->TPC_NOME) ? $cliente->TPC_NOME : 'Não definido'; ?>" class="span12">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

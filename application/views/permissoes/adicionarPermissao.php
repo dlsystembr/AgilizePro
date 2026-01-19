@@ -965,6 +965,55 @@
                         </div>
                     </div>
 
+                    <div class="accordion-group widget-box">
+                        <div class="accordion-heading">
+                            <div class="widget-title">
+                                <a data-parent="#collapse-group" href="#collapseGTiposClientesAdd" data-toggle="collapse">
+                                    <span><i class='bx bx-user icon-cli'></i></span>
+                                    <h5 style="padding-left: 28px">Tipos de Clientes</h5>
+                                    <span><i class='bx bx-chevron-right icon-clic'></i></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="collapse accordion-body" id="collapseGTiposClientesAdd">
+                            <div class="widget-content">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="4"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label>
+                                                    <input name="vTipoCliente" class="marcar" type="checkbox" value="1" />
+                                                    <span class="lbl"> Visualizar Tipo Cliente</span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label>
+                                                    <input name="aTipoCliente" class="marcar" type="checkbox" value="1" />
+                                                    <span class="lbl"> Adicionar Tipo Cliente</span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label>
+                                                    <input name="eTipoCliente" class="marcar" type="checkbox" value="1" />
+                                                    <span class="lbl"> Editar Tipo Cliente</span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label>
+                                                    <input name="dTipoCliente" class="marcar" type="checkbox" value="1" />
+                                                    <span class="lbl"> Excluir Tipo Cliente</span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-actions">
                         <div class="span12">
                             <div class="span6 offset3" style="display:flex;justify-content: center">

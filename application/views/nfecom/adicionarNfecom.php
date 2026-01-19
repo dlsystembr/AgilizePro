@@ -359,7 +359,7 @@
                                                     <select name="opc_id" id="opc_id" required style="width: 100%;">
                                                         <option value="">Selecione uma operação...</option>
                                                         <?php foreach ($operacoes as $index => $op): ?>
-                                                            <option value="<?php echo $op->OPC_ID; ?>" <?php echo ( (isset($_POST['opc_id']) && $_POST['opc_id'] == $op->OPC_ID) || (!isset($_POST['opc_id']) && $index === 0) ) ? 'selected' : ''; ?>>
+                                                            <option value="<?php echo $op->OPC_ID; ?>" <?php echo ((isset($_POST['opc_id']) && $_POST['opc_id'] == $op->OPC_ID) || (!isset($_POST['opc_id']) && $index === 0)) ? 'selected' : ''; ?>>
                                                                 <?php echo $op->OPC_NOME; ?>
                                                             </option>
                                                         <?php endforeach; ?>
@@ -665,28 +665,38 @@
                         </div>
                         <div class="form-section-content">
                             <div class="span12 well" style="padding: 1%; margin-left: 0">
-                                <div class="row-fluid">
-                                    <div class="span6">
-                                        <input type="hidden" id="idServicoNfecom" />
-                                        <label for="">Serviço *</label>
-                                        <input type="text" class="span12" id="servicoNfecom"
-                                            placeholder="Digite o nome do serviço" />
+                                <div class="span12" style="margin-left: 0">
+                                    <div class="span4">
+                                        <label for="">Serviço/Produto:<span class="required">*</span></label>
+                                        <input type="hidden" id="idServicoNfecom">
+                                        <input type="hidden" id="cClassServicoNfecom">
+                                        <input type="hidden" id="uMedServicoNfecom">
+                                        <input type="text" class="span12" id="servicoNfecom" data-pro-id=""
+                                            placeholder="Digite o nome do serviço">
                                     </div>
                                     <div class="span2">
-                                        <label for="">Preço *</label>
+                                        <label for="">Preço:<span class="required">*</span></label>
                                         <input type="text" placeholder="Preço" id="precoServicoNfecom"
-                                            class="span12 money" data-affixes-stay="true" data-thousands=""
-                                            data-decimal="." />
+                                            class="span12 money">
                                     </div>
                                     <div class="span2">
-                                        <label for="">Quantidade *</label>
+                                        <label for="">Quantidade:<span class="required">*</span></label>
                                         <input type="text" placeholder="Quantidade" id="quantidadeServicoNfecom"
-                                            class="span12" />
+                                            class="span12">
                                     </div>
                                     <div class="span2">
-                                        <label for="">&nbsp;</label>
-                                        <button type="button" id="btnAdicionarServicoNfecom"
-                                            class="button btn btn-success">
+                                        <label for="">Desconto:</label>
+                                        <input type="text" placeholder="0,00" id="descontoServicoNfecom"
+                                            class="span12 money">
+                                    </div>
+                                    <div class="span2">
+                                        <label for="">Outros:</label>
+                                        <input type="text" placeholder="0,00" id="outrosServicoNfecom"
+                                            class="span12 money">
+                                    </div>
+                                    <div class="span12"
+                                        style="margin-left: 0; margin-top: 10px; display: flex; justify-content: flex-end;">
+                                        <button type="button" class="btn btn-success" id="btnAdicionarServicoNfecom">
                                             <span class="button__icon"><i class='bx bx-plus-circle'></i></span><span
                                                 class="button__text2">Adicionar</span></button>
                                     </div>
@@ -698,17 +708,23 @@
                                     <table width="100%" class="table table-bordered" id="tblServicosNfecom">
                                         <thead>
                                             <tr>
-                                                <th>Serviço</th>
+                                                <th>Produto/Serviço</th>
+                                                <th width="8%">cClass</th>
+                                                <th width="6%">Unid</th>
                                                 <th width="8%">Quantidade</th>
                                                 <th width="10%">Preço</th>
+                                                <th width="8%">Desconto</th>
+                                                <th width="8%">Outros</th>
+                                                <th width="8%">CST ICMS</th>
+                                                <th width="8%">CFOP</th>
                                                 <th width="6%">Ações</th>
-                                                <th width="10%">Sub-totals</th>
+                                                <th width="12%">Total</th>
                                             </tr>
                                         </thead>
                                         <tbody id="servicos-list-body"></tbody>
                                         <tfoot>
                                             <tr>
-                                                <td colspan="4" style="text-align: right"><strong>Total:</strong>
+                                                <td colspan="10" style="text-align: right"><strong>Total:</strong>
                                                 </td>
                                                 <td>
                                                     <div align="center"><strong>R$
@@ -1010,13 +1026,19 @@
             select: function (event, ui) {
                 $("#idServicoNfecom").val(ui.item.id);
                 $("#precoServicoNfecom").val(ui.item.preco);
+                $("#cClassServicoNfecom").val(ui.item.cClass);
+                $("#uMedServicoNfecom").val(ui.item.uMed);
                 $("#quantidadeServicoNfecom").focus();
             }
         });
 
         $("#servicoNfecom").on('input', function () {
+            // Se alterar o nome, limpamos o ID para garantir que seja tratado como texto livre ou novo
+            // Mas mantemos os outros dados preenchidos pelo autocomplete caso seja apenas uma correção de nome
+            // Se o usuário apagar tudo, aí limpamos tudo
             if (!$(this).val()) {
                 $("#idServicoNfecom").val('');
+                limparServicoFormulario();
             }
         });
 
@@ -1046,16 +1068,24 @@
 
         function limparServicoFormulario() {
             $("#idServicoNfecom").val('');
-            $("#servicoNfecom").val('').focus();
+            $("#servicoNfecom").val('');
             $("#precoServicoNfecom").val('');
             $("#quantidadeServicoNfecom").val('');
+            $("#descontoServicoNfecom").val('');
+            $("#outrosServicoNfecom").val('');
+            $("#cClassServicoNfecom").val('');
+            $("#uMedServicoNfecom").val('');
         }
 
         function adicionarServicoNfecom() {
             const servicoId = $("#idServicoNfecom").val();
             const servicoNome = $("#servicoNfecom").val().trim();
+            const cClass = $("#cClassServicoNfecom").val();
+            const unidade = $("#uMedServicoNfecom").val();
             const preco = parseNumber($("#precoServicoNfecom").val());
             const quantidade = parseNumber($("#quantidadeServicoNfecom").val());
+            const vDesc = parseNumber($("#descontoServicoNfecom").val());
+            const vOutros = parseNumber($("#outrosServicoNfecom").val());
 
             if (!servicoId || !servicoNome || preco <= 0 || quantidade <= 0) {
                 if (typeof Swal !== 'undefined') {
@@ -1071,26 +1101,63 @@
             }
 
             const valorItem = quantidade * preco;
-            const valorProduto = valorItem;
-            const cfop = '5307';
-            const unidade = '4';
+            const valorProduto = valorItem - vDesc + vOutros;
+
+            // Valores padrão temporários
+            const defaultCfop = '5303';
+            const defaultCst = '00';
 
             const row = `
             <tr data-index="${servicoIndex}" data-valor-produto="${valorProduto}">
-                <td>${servicoNome}</td>
-                <td><div align="center">${quantidade}</div></td>
-                <td><div align="center">R$ ${formatMoney(preco)}</div></td>
+                <td>
+                    <input type="text" name="servicos[${servicoIndex}][nome]" value="${servicoNome}" class="span12">
+                    <input type="hidden" name="servicos[${servicoIndex}][id]" value="${servicoId}">
+                </td>
+                <td>
+                    ${cClass}
+                    <input type="hidden" name="servicos[${servicoIndex}][c_class]" value="${cClass}">
+                </td>
+                <td>
+                    ${unidade}
+                    <input type="hidden" name="servicos[${servicoIndex}][u_med]" value="${unidade}">
+                </td>
+                <td><div align="center">${quantidade}</div>
+                    <input type="hidden" name="servicos[${servicoIndex}][quantidade]" value="${quantidade}">
+                </td>
+                <td><div align="center">R$ ${formatMoney(preco)}</div>
+                    <input type="hidden" name="servicos[${servicoIndex}][valorUnitario]" value="${preco}">
+                </td>
+                <td>
+                    R$ ${formatMoney(vDesc)}
+                    <input type="hidden" name="servicos[${servicoIndex}][v_desc]" value="${formatMoney(vDesc)}">
+                </td>
+                <td>
+                    R$ ${formatMoney(vOutros)}
+                    <input type="hidden" name="servicos[${servicoIndex}][v_outro]" value="${formatMoney(vOutros)}">
+                </td>
+                <td>
+                    <select name="servicos[${servicoIndex}][cst_icms]" class="span12" style="margin:0; width: 100%;">
+                        <option value="00" ${defaultCst == '00' ? 'selected' : ''}>00 - Tribut. Integral</option>
+                        <option value="20" ${defaultCst == '20' ? 'selected' : ''}>20 - Red. Base Calc.</option>
+                        <option value="40" ${defaultCst == '40' ? 'selected' : ''}>40 - Isenta</option>
+                        <option value="41" ${defaultCst == '41' ? 'selected' : ''}>41 - Não Tributada</option>
+                        <option value="50" ${defaultCst == '50' ? 'selected' : ''}>50 - Suspensão</option>
+                        <option value="51" ${defaultCst == '51' ? 'selected' : ''}>51 - Diferimento</option>
+                        <option value="90" ${defaultCst == '90' ? 'selected' : ''}>90 - Outras</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="servicos[${servicoIndex}][cfop]" class="span12" style="margin:0; width: 100%;">
+                        <option value="5303" ${defaultCfop == '5303' ? 'selected' : ''}>5303 - Com. Não Contribuinte</option>
+                        <option value="5307" ${defaultCfop == '5307' ? 'selected' : ''}>5307 - Com. Isenta Não Contrib.</option>
+                        <option value="6303" ${defaultCfop == '6303' ? 'selected' : ''}>6303 - Interstate Não Contrib.</option>
+                        <option value="6307" ${defaultCfop == '6307' ? 'selected' : ''}>6307 - Interstate Isenta</option>
+                    </select>
+                </td>
                 <td>
                     <div align="center">
                         <span class="btn-nwe4 servico-remove" title="Excluir Serviço"><i class="bx bx-trash-alt"></i></span>
                     </div>
-                    <input type="hidden" name="servicos[${servicoIndex}][id]" value="${servicoId}">
-                    <input type="hidden" name="servicos[${servicoIndex}][quantidade]" value="${quantidade}">
-                    <input type="hidden" name="servicos[${servicoIndex}][valorUnitario]" value="${preco}">
-                    <input type="hidden" name="servicos[${servicoIndex}][valorDesconto]" value="0">
-                    <input type="hidden" name="servicos[${servicoIndex}][valorOutros]" value="0">
-                    <input type="hidden" name="servicos[${servicoIndex}][cfop]" value="${cfop}">
-                    <input type="hidden" name="servicos[${servicoIndex}][unidade]" value="${unidade}">
                 </td>
                 <td><div align="center">R$: ${formatMoney(valorProduto)}</div></td>
             </tr>

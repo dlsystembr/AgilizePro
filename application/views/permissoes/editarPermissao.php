@@ -1786,6 +1786,70 @@
                                             </div>
                                         </div>
 
+                                        <div class="accordion-group widget-box">
+                                            <div class="accordion-heading">
+                                                <div class="widget-title">
+                                                    <a data-parent="#collapse-group" href="#collapseGTiposClientesEditar"
+                                                        data-toggle="collapse">
+                                                        <span><i class='bx bx-user icon-cli'></i></span>
+                                                        <h5 style="padding-left: 28px">Tipos de Clientes</h5>
+                                                        <span><i class='bx bx-chevron-right icon-clic'></i></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="collapse accordion-body" id="collapseGTiposClientesEditar">
+                                                <div class="widget-content">
+                                                    <table class="table table-bordered">
+                                                        <tr>
+                                                            <td colspan="4"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <label>
+                                                                    <input <?php if (isset($permissoes['vTipoCliente'])) {
+    if ($permissoes['vTipoCliente'] == '1') {
+        echo 'checked';
+    }
+} ?> name="vTipoCliente" class="marcar" type="checkbox" value="1" />
+                                                                    <span class="lbl"> Visualizar Tipo Cliente</span>
+                                                                </label>
+                                                            </td>
+                                                            <td>
+                                                                <label>
+                                                                    <input <?php if (isset($permissoes['aTipoCliente'])) {
+    if ($permissoes['aTipoCliente'] == '1') {
+        echo 'checked';
+    }
+} ?> name="aTipoCliente" class="marcar" type="checkbox" value="1" />
+                                                                    <span class="lbl"> Adicionar Tipo Cliente</span>
+                                                                </label>
+                                                            </td>
+                                                            <td>
+                                                                <label>
+                                                                    <input <?php if (isset($permissoes['eTipoCliente'])) {
+    if ($permissoes['eTipoCliente'] == '1') {
+        echo 'checked';
+    }
+} ?> name="eTipoCliente" class="marcar" type="checkbox" value="1" />
+                                                                    <span class="lbl"> Editar Tipo Cliente</span>
+                                                                </label>
+                                                            </td>
+                                                            <td>
+                                                                <label>
+                                                                    <input <?php if (isset($permissoes['dTipoCliente'])) {
+    if ($permissoes['dTipoCliente'] == '1') {
+        echo 'checked';
+    }
+} ?> name="dTipoCliente" class="marcar" type="checkbox" value="1" />
+                                                                    <span class="lbl"> Excluir Tipo Cliente</span>
+                                                                </label>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div class="form-actions">
                                             <div class="span12">
                                                 <div class="span6 offset3" style="display:flex;justify-content: center">

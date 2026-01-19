@@ -61,6 +61,18 @@
                     </li>
                 <?php } ?>
 
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vTipoCliente')) { ?>
+                    <li class="<?php if (isset($menuTiposClientes)) {
+                        echo 'active';
+                    }
+                    ; ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('tipos_clientes') ?>"><i class='bx bx-user-pin iconX'></i>
+                            <span class="title">Tipos de Clientes</span>
+                            <span class="title-tooltip">Tipos de Clientes</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
                 <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vContrato')) { ?>
                     <li class="<?php if (isset($menuContratos)) {
                         echo 'active';

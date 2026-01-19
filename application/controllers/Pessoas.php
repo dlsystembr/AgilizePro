@@ -10,6 +10,7 @@ class Pessoas extends MY_Controller
     {
         parent::__construct();
         $this->load->model('Pessoas_model');
+        $this->load->model('Tipos_clientes_model');
         $this->data['menuPessoas'] = 'pessoas';
     }
 
@@ -312,6 +313,8 @@ class Pessoas extends MY_Controller
                         'CLN_BLOQUEIO_FINANCEIRO' => $this->input->post('CLN_BLOQUEIO_FINANCEIRO') ? 1 : 0,
                         'CLN_DIAS_CARENCIA' => $this->input->post('CLN_DIAS_CARENCIA') !== null ? (int) $this->input->post('CLN_DIAS_CARENCIA') : null,
                         'CLN_EMITIR_NFE' => $this->input->post('CLN_EMITIR_NFE') ? 1 : 0,
+                        'CLN_OBJETIVO_COMERCIAL' => $this->input->post('CLN_OBJETIVO_COMERCIAL'),
+                        'TPC_ID' => $this->input->post('TPC_ID') ?: null,
                         'CLN_DATA_CADASTRO' => date('Y-m-d H:i:s'),
                     ];
                     $this->db->insert('clientes', $cliente);
@@ -386,6 +389,7 @@ class Pessoas extends MY_Controller
         // Carrega estados para o modal de endereço
         $this->data['estados'] = $this->db->order_by('EST_UF', 'ASC')->get('estados')->result();
 
+        $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('TIPOS_CLIENTES', 'TPC_ID, TPC_NOME');
         $this->data['view'] = 'pessoas/adicionarPessoa';
         return $this->layout();
     }
@@ -612,6 +616,8 @@ class Pessoas extends MY_Controller
                             'CLN_BLOQUEIO_FINANCEIRO' => $this->input->post('CLN_BLOQUEIO_FINANCEIRO') ? 1 : 0,
                             'CLN_DIAS_CARENCIA' => $this->input->post('CLN_DIAS_CARENCIA') !== null ? (int) $this->input->post('CLN_DIAS_CARENCIA') : null,
                             'CLN_EMITIR_NFE' => $this->input->post('CLN_EMITIR_NFE') ? 1 : 0,
+                            'CLN_OBJETIVO_COMERCIAL' => $this->input->post('CLN_OBJETIVO_COMERCIAL'),
+                            'TPC_ID' => $this->input->post('TPC_ID') ?: null,
                         ];
 
                         // Verificar se já existe registro de cliente
@@ -823,6 +829,7 @@ class Pessoas extends MY_Controller
             $this->data['vendedor'] = null;
         }
 
+        $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('TIPOS_CLIENTES', 'TPC_ID, TPC_NOME');
         $this->data['view'] = 'pessoas/editarPessoa';
         return $this->layout();
     }
@@ -910,7 +917,12 @@ class Pessoas extends MY_Controller
         }
 
         if ($this->db->table_exists('clientes')) {
-            $this->data['cliente'] = $this->db->where('PES_ID', $id)->get('clientes')->row();
+            $this->db->select('c.*, tc.TPC_NOME');
+            $this->db->from('clientes c');
+            $this->db->join('TIPOS_CLIENTES tc', 'tc.TPC_ID = c.TPC_ID', 'left');
+            $this->db->where('c.PES_ID', $id);
+            $this->data['cliente'] = $this->db->get()->row();
+
             if ($this->data['cliente'] && $this->db->table_exists('clientes_vendedores')) {
                 $this->db->select('cv.*, v.PES_ID as VEN_PES_ID, p.PES_NOME as VEN_NOME');
                 $this->db->from('clientes_vendedores cv');

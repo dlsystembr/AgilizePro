@@ -646,5 +646,17 @@ $config = [
             'label' => 'Frete',
             'rules' => 'numeric'
         ]
-    ]
+    ],
+    'tipos_clientes' => [
+        [
+            'field' => 'nome',
+            'label' => 'Nome',
+            'rules' => 'required|trim',
+        ],
+        [
+            'field' => 'codigoCliente',
+            'label' => 'Código Cliente',
+            'rules' => 'trim',
+        ],
+    ],
 ];

@@ -427,10 +427,12 @@ class Nfecom extends MY_Controller
                     if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
                         $quantidade = floatval($servico['quantidade']);
                         $valorUnitario = floatval($servico['valorUnitario']);
-                        $valorDesconto = floatval($servico['valorDesconto'] ?? 0);
-                        $valorOutros = floatval($servico['valorOutros'] ?? 0);
+                        $valorDesconto = floatval($servico['v_desc'] ?? 0);
+                        $valorOutros = floatval($servico['v_outro'] ?? 0);
                         $cfop = $servico['cfop'] ?? '5307';
-                        $unidade = $servico['unidade'] ?? '4';
+                        $unidade = $servico['u_med'] ?? 'UN';
+                        $cClass = $servico['c_class'] ?? '0600402';
+                        $cstIcms = $servico['cst_icms'] ?? '00';
 
                         // Valor Item = Quantidade × Valor Unitário
                         $valorItem = $quantidade * $valorUnitario;
@@ -439,15 +441,19 @@ class Nfecom extends MY_Controller
                         $valorProduto = $valorItem - $valorDesconto + $valorOutros;
 
                         // Buscar nome do serviço
-                        $this->db->select('PRO_DESCRICAO as descricao');
-                        $this->db->from('produtos');
-                        $this->db->where($produtos_primary_key, $servico['id']);
-                        $servico_query = $this->db->get();
-                        $servico_info = $servico_query->row();
-                        $nomeServicoItem = $servico_info ? $servico_info->descricao : 'Serviço não encontrado';
+                        if (!empty($servico['nome'])) {
+                            $nomeServicoItem = $servico['nome'];
+                        } else {
+                            $this->db->select('PRO_DESCRICAO as descricao');
+                            $this->db->from('produtos');
+                            $this->db->where($produtos_primary_key, $servico['id']);
+                            $servico_query = $this->db->get();
+                            $servico_info = $servico_query->row();
+                            $nomeServicoItem = $servico_info ? $servico_info->descricao : 'Serviço não encontrado';
+                        }
 
                         // Calcular tributos proporcionais para este item
-                        $proporcao = $valorProduto / $valorBruto;
+                        $proporcao = ($valorBruto > 0) ? ($valorProduto / $valorBruto) : 0;
                         $pisItem = $pis * $proporcao;
                         $cofinsItem = $cofins * $proporcao;
                         $irrfItem = $irrf * $proporcao;
@@ -457,7 +463,7 @@ class Nfecom extends MY_Controller
                             'NFI_N_ITEM' => $itemNumero,
                             'NFI_C_PROD' => $servico['id'],
                             'NFI_X_PROD' => $nomeServicoItem,
-                            'NFI_C_CLASS' => '0600402',
+                            'NFI_C_CLASS' => $cClass,
                             'NFI_CFOP' => $cfop,
                             'NFI_U_MED' => $unidade,
                             'NFI_Q_FATURADA' => $quantidade,
@@ -465,7 +471,7 @@ class Nfecom extends MY_Controller
                             'NFI_V_DESC' => $valorDesconto,
                             'NFI_V_OUTRO' => $valorOutros,
                             'NFI_V_PROD' => $valorProduto,
-                            'NFI_CST_ICMS' => '41',
+                            'NFI_CST_ICMS' => $cstIcms,
                             'NFI_CST_PIS' => '01',
                             'NFI_V_BC_PIS' => $valorProduto,
                             'NFI_P_PIS' => 0.65,
@@ -646,9 +652,14 @@ class Nfecom extends MY_Controller
                             'nfi_n_item' => $item['n_item'] ?? 1,
                             'nfi_c_prod' => $item['c_prod'] ?? '',
                             'nfi_x_prod' => $item['x_prod'] ?? '',
+                            'nfi_c_class' => $item['c_class'] ?? '',
                             'nfi_cfop' => $item['cfop'] ?? '5301',
+                            'nfi_u_med' => $item['u_med'] ?? '',
                             'nfi_q_faturada' => str_replace(',', '.', $item['q_faturada'] ?? '1.0000'),
                             'nfi_v_item' => str_replace(',', '.', $item['v_item'] ?? '0.00'),
+                            'nfi_v_desc' => str_replace(',', '.', $item['v_desc'] ?? '0.00'),
+                            'nfi_v_outro' => str_replace(',', '.', $item['v_outro'] ?? '0.00'),
+                            'nfi_cst_icms' => $item['cst_icms'] ?? '',
                         ];
 
                         // Calcular valor total
@@ -2230,7 +2241,7 @@ class Nfecom extends MY_Controller
         if (isset($_GET['term'])) {
             $q = trim($_GET['term']);
 
-            $this->db->select('PRO_ID, PRO_DESCRICAO, PRO_PRECO_VENDA');
+            $this->db->select('PRO_ID, PRO_DESCRICAO, PRO_PRECO_VENDA, PRO_CCLASS_SERV, PRO_UNID_MEDIDA');
             $this->db->from('produtos');
             $this->db->where('PRO_TIPO', 2);
             if ($q !== '') {
@@ -2244,9 +2255,11 @@ class Nfecom extends MY_Controller
                 foreach ($query->result_array() as $row) {
                     $preco = $row['PRO_PRECO_VENDA'] ?? 0;
                     $row_set[] = [
-                        'label' => 'Serviço: ' . $row['PRO_DESCRICAO'] . ' | Preço: R$ ' . number_format($preco, 2, ',', '.'),
+                        'label' => $row['PRO_DESCRICAO'],
                         'id' => $row['PRO_ID'],
-                        'preco' => $preco
+                        'preco' => $preco,
+                        'cClass' => $row['PRO_CCLASS_SERV'],
+                        'uMed' => $row['PRO_UNID_MEDIDA']
                     ];
                 }
             }
