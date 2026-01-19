@@ -361,7 +361,7 @@ L<style>
                                     value="<?php echo (isset($result->PRO_NCM) && $result->PRO_NCM !== null && $result->PRO_NCM !== '') ? htmlspecialchars($result->PRO_NCM) : ''; ?>" 
                                     readonly />
                                 <button type="button" class="btn btn-success" id="btnBuscarNcm" style="border-radius: 4px;" data-toggle="modal" data-target="#modalNcm"><i class="fas fa-search"></i></button>
-                                <button type="button" class="btn btn-warning" id="btnDescricaoNcm" style="border-radius: 4px;"><i class="fas fa-info-circle"></i></button>
+                                <button type="button" class="btn btn-warning" id="btnDescricaoNcm" style="border-radius: 4px;" title="Nomenclatura Comum do Mercosul - Código de 8 dígitos que classifica produtos para fins fiscais e aduaneiros"><i class="fas fa-info-circle"></i></button>
                             </div>
                             <input id="NCM_ID" class="form-control" type="hidden" name="NCM_ID" 
                                 value="<?php echo (isset($result->NCM_ID) && $result->NCM_ID !== null && $result->NCM_ID !== '') ? htmlspecialchars($result->NCM_ID) : ''; ?>" />
@@ -383,8 +383,15 @@ L<style>
                                     style="border-radius: 4px;" data-toggle="modal" data-target="#modalCClass"><i
                                         class="fas fa-search"></i></button>
                                 <button type="button" class="btn btn-warning" id="btnDescricaoCClass"
-                                    style="border-radius: 4px;"><i class="fas fa-info-circle"></i></button>
+                                    style="border-radius: 4px;" title="Código de Classificação de Serviços - Código de 7 dígitos usado para classificar serviços de telecomunicações"><i class="fas fa-info-circle"></i></button>
                             </div>
+                        </div>
+                    </div>
+                    <!-- Preço de Venda para Serviços (aparece na coluna esquerda) -->
+                    <div class="control-group field-servico" style="display: none;">
+                        <label for="precoVenda" class="control-label">Preço Serviço<span class="required">*</span></label>
+                        <div class="controls">
+                            <input id="precoVenda" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->PRO_PRECO_VENDA; ?>" placeholder="0,00" />
                         </div>
                     </div>
                             <div class="control-group field-produto">
@@ -414,10 +421,11 @@ L<style>
                             <i class="icon-info-sign tip-left" title="Markup: Porcentagem aplicada ao valor de compra | Margem de Lucro: Porcentagem aplicada ao valor de venda"></i>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label for="precoVenda" class="control-label">Preço de Venda<span class="required">*</span></label>
+                    <!-- Preço de Venda para Produtos (aparece na coluna direita) -->
+                    <div class="control-group field-produto">
+                        <label for="precoVenda_produto" class="control-label">Preço de Venda<span class="required">*</span></label>
                         <div class="controls">
-                            <input id="precoVenda" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->PRO_PRECO_VENDA; ?>" placeholder="0,00" />
+                            <input id="precoVenda_produto" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->PRO_PRECO_VENDA; ?>" placeholder="0,00" />
                         </div>
                     </div>
                     <div class="control-group field-produto">
@@ -452,13 +460,13 @@ L<style>
                         </div>
                     </div>
 
-                    <div class="row-fluid">
+                    <div class="row-fluid field-produto">
                         <div class="span12">
                             <h5 style="margin: 20px 0 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; padding-left: 20px;">Dimensões e Peso</h5>
                         </div>
                     </div>
 
-                    <div class="row-fluid" style="margin-left: 0;">
+                    <div class="row-fluid field-produto" style="margin-left: 0;">
                         <div class="span2">
                             <div class="control-group field-produto">
                                 <label for="peso_bruto" class="control-label">Peso Bruto (kg)</label>

@@ -369,7 +369,9 @@
                             <div class="control-group">
                                 <label for="codigo" class="control-label">Código do Produto</label>
                                 <div class="controls">
-                                    <input id="codigo" type="text" name="codigo" value="" readonly />
+                                    <input id="codigo" type="text" name="codigo" value="" placeholder="Deixe vazio para gerar automaticamente" />
+                                    <span class="help-inline" style="color: #666; font-size: 11px;"><i class="fas fa-info-circle"></i> Se deixar vazio, será gerado automaticamente</span>
+                                    <span id="codigoHint" class="help-inline" style="color: #ff9800; font-size: 11px; display: none;"><i class="fas fa-exclamation-triangle"></i> É necessário código para gerar um código de barras manual</span>
                                 </div>
                             </div>
                             <div class="control-group field-produto">
@@ -415,7 +417,7 @@
                                             style="border-radius: 4px;" data-toggle="modal" data-target="#modalNcm"><i
                                                 class="fas fa-search"></i></button>
                                         <button type="button" class="btn btn-warning" id="btnDescricaoNcm"
-                                            style="border-radius: 4px;"><i class="fas fa-info-circle"></i></button>
+                                            style="border-radius: 4px;" title="Nomenclatura Comum do Mercosul - Código de 8 dígitos que classifica produtos para fins fiscais e aduaneiros"><i class="fas fa-info-circle"></i></button>
                                     </div>
                                     <input id="NCM_ID" class="form-control" type="hidden" name="NCM_ID"
                                         value="<?php echo set_value('NCM_ID'); ?>" />
@@ -431,7 +433,7 @@
                                             style="border-radius: 4px;" data-toggle="modal" data-target="#modalCClass"><i
                                                 class="fas fa-search"></i></button>
                                         <button type="button" class="btn btn-warning" id="btnDescricaoCClass"
-                                            style="border-radius: 4px;"><i class="fas fa-info-circle"></i></button>
+                                            style="border-radius: 4px;" title="Código de Classificação de Serviços - Código de 7 dígitos usado para classificar serviços de telecomunicações"><i class="fas fa-info-circle"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -440,6 +442,15 @@
                                         class="required">*</span></label>
                                 <div class="controls">
                                     <select id="PRO_UNID_MEDIDA" name="PRO_UNID_MEDIDA"></select>
+                                </div>
+                            </div>
+                            <!-- Preço de Venda para Serviços (aparece na coluna esquerda) -->
+                            <div class="control-group field-servico" style="display: none;">
+                                <label for="PRO_PRECO_VENDA" class="control-label" id="label-preco-venda">Preço Serviço<span
+                                        class="required">*</span></label>
+                                <div class="controls">
+                                    <input id="PRO_PRECO_VENDA" class="preco-simples" type="text" name="PRO_PRECO_VENDA"
+                                        value="<?php echo set_value('PRO_PRECO_VENDA'); ?>" placeholder="0,00" />
                                 </div>
                             </div>
                         </div>
@@ -468,11 +479,12 @@
                                         title="Markup: Porcentagem aplicada ao valor de compra | Margem de Lucro: Porcentagem aplicada ao valor de venda"></i>
                                 </div>
                             </div>
-                            <div class="control-group">
-                                <label for="PRO_PRECO_VENDA" class="control-label">Preço de Venda<span
+                            <!-- Preço de Venda para Produtos (aparece na coluna direita) -->
+                            <div class="control-group field-produto">
+                                <label for="PRO_PRECO_VENDA_PRODUTO" class="control-label">Preço de Venda<span
                                         class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="PRO_PRECO_VENDA" class="preco-simples" type="text" name="PRO_PRECO_VENDA"
+                                    <input id="PRO_PRECO_VENDA_PRODUTO" class="preco-simples" type="text" name="PRO_PRECO_VENDA"
                                         value="<?php echo set_value('PRO_PRECO_VENDA'); ?>" placeholder="0,00" />
                                 </div>
                             </div>
@@ -738,10 +750,14 @@
 
         if (precoCompra > 0 && lucro >= 0 && !isNaN(precoCompra)) {
             var precoCalculado = calcLucro(precoCompra, lucro);
+            // Atualiza ambos os campos de preço
             $('#PRO_PRECO_VENDA').val(precoCalculado.toString().replace('.', ','));
+            $('#PRO_PRECO_VENDA_PRODUTO').val(precoCalculado.toString().replace('.', ','));
         }
     }
 
+    // Atualizar quando mudar preço de compra também
+    $("#PRO_PRECO_COMPRA").on('input change', atualizarPrecoVenda);
     $("#Lucro, #selectLucro").on('input change', atualizarPrecoVenda);
 
     // Removido: Não limpar preço de venda automaticamente quando editando preço de compra
@@ -752,6 +768,7 @@
             $('#errorAlert').text('Preencher valor da compra primeiro.').css("display", "inline").fadeOut(5000);
             $('#Lucro').val('');
             $('#PRO_PRECO_VENDA').val('');
+            $('#PRO_PRECO_VENDA_PRODUTO').val('');
             $("#PRO_PRECO_COMPRA").focus();
 
         } else if (Number($("#Lucro").val()) >= 0) {
@@ -759,10 +776,12 @@
             var precoCompra = parseFloat(precoCompraStr.replace(',', '.'));
             var precoCalculado = calcLucro(precoCompra, Number($("#Lucro").val()));
             $('#PRO_PRECO_VENDA').val(precoCalculado.toString().replace('.', ','));
+            $('#PRO_PRECO_VENDA_PRODUTO').val(precoCalculado.toString().replace('.', ','));
         } else {
             $('#errorAlert').text('Não é permitido número negativo.').css("display", "inline").fadeOut(5000);
             $('#Lucro').val('');
             $('#PRO_PRECO_VENDA').val('');
+            $('#PRO_PRECO_VENDA_PRODUTO').val('');
         }
     });
 
@@ -782,6 +801,15 @@
     // Auto-selecionar conteúdo ao clicar ou focar nos campos de preço, decimais e lucro
     $(document).on('focus click', '.preco-simples, .decimal, #Lucro', function() {
         $(this).select();
+    });
+
+    // Sincronizar os dois campos de preço (serviço e produto)
+    $('#PRO_PRECO_VENDA').on('input', function() {
+        $('#PRO_PRECO_VENDA_PRODUTO').val($(this).val());
+    });
+    
+    $('#PRO_PRECO_VENDA_PRODUTO').on('input', function() {
+        $('#PRO_PRECO_VENDA').val($(this).val());
     });
 
 
@@ -917,9 +945,9 @@
                 // Carregar unidades de serviço
                 carregarUnidadesServico();
 
-                // Preencher cClass automaticamente com primeiro código disponível
+                // Deixar cClass vazio por padrão para serviços
                 if (!$('#PRO_CCLASS_SERV').val()) {
-                    $('#PRO_CCLASS_SERV').val('0100101'); // Primeiro código disponível
+                    $('#PRO_CCLASS_SERV').val(''); // Vazio por padrão
                 }
 
             } else { // Produto
@@ -1090,6 +1118,18 @@
         // Validar ao digitar
         $('#PRO_COD_BARRA').on('input', function () {
             validarCodigoBarra();
+        });
+
+        // Monitorar campo código para habilitar/desabilitar botão Gerar
+        $('#codigo').on('input', function () {
+            var codigo = $(this).val().trim();
+            if (codigo) {
+                $('#btnGerarCodigo').prop('disabled', false);
+                $('#codigoHint').hide();
+            } else {
+                $('#btnGerarCodigo').prop('disabled', true);
+                $('#codigoHint').show();
+            }
         });
 
         // Gerar código de barra

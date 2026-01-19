@@ -1,12 +1,6 @@
 {
   "unidades_servico": [
     {
-      "codigo": "00",
-      "descricao": "uMed Unidade Básica de Medida",
-      "valor": "1",
-      "detalhe": "1=Minuto; 2=MB; 3=GB; 4=UM"
-    },
-    {
       "codigo": "01",
       "descricao": "Minuto",
       "valor": "1",
