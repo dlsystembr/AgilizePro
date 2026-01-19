@@ -21,7 +21,8 @@
                                 <option value="">Selecione</option>
                                 <?php foreach ($operacoes as $o) { ?>
                                     <option value="<?= $o->OPC_ID ?>" <?= (set_value('operacao_comercial_id', $result->operacao_comercial_id) == $o->OPC_ID) ? 'selected' : '' ?>>
-                                        <?= $o->OPC_NOME ?></option>
+                                        <?= $o->OPC_NOME ?>
+                                    </option>
                                 <?php } ?>
                             </select>
                         </div>
@@ -90,6 +91,13 @@
                                 <option value="normal" <?= set_value('tipo_icms', $result->tipo_icms ?? 'normal') == 'normal' ? 'selected' : '' ?>>Normal</option>
                                 <option value="st" <?= set_value('tipo_icms', $result->tipo_icms ?? '') == 'st' ? 'selected' : '' ?>>Substituição Tributária (ST)</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="mensagem_fiscal" class="control-label">Mensagem Fiscal</label>
+                        <div class="controls">
+                            <textarea name="mensagem_fiscal" id="mensagem_fiscal" rows="3"
+                                style="width: 100%"><?= set_value('mensagem_fiscal', $result->mensagem_fiscal ?? '') ?></textarea>
                         </div>
                     </div>
                     <div class="control-group">

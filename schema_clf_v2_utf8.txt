@@ -1,0 +1,18 @@
+﻿Field	Type	Null	Key	Default	Extra
+CLF_ID	int(11)	NO	PRI	NULL	auto_increment
+OPC_ID	int(11)	NO	MUL	NULL	
+CLF_CST	varchar(2)	YES		NULL	
+CLF_CSOSN	varchar(3)	YES		NULL	
+CLF_NATUREZA_CONTRIB	enum('Contribuinte','NÒo Contribuinte')	NO		NÒo Contribuinte	
+CLF_CFOP	varchar(4)	NO		NULL	
+CLF_DESTINACAO	varchar(100)	NO		NULL	
+CLF_OBJETIVO_COMERCIAL	enum('Consumo','Revenda','Industrialização','Orgão Público')	NO		Consumo	
+CLF_TIPO_ICMS	enum('ICMS Normal','Substituição Tributaria','Serviço')	NO		ICMS Normal	
+CLF_CCLASSTRIB	varchar(6)	YES		NULL	
+CLF_CST_IBS	varchar(3)	YES		NULL	
+CLF_ALIQ_IBS	decimal(10,2)	YES		NULL	
+CLF_CST_CBS	varchar(3)	YES		NULL	
+CLF_ALIQ_CBS	decimal(10,2)	YES		NULL	
+CLF_DATA_INCLUSAO	datetime	YES		NULL	
+CLF_DATA_ALTERACAO	datetime	YES		NULL	
+CLF_SITUACAO	tinyint(1)	NO		1	

@@ -1,33 +1,34 @@
-<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
 
 class ClassificacaoFiscal extends MY_Controller
 {
     public function __construct()
     {
         parent::__construct();
-        
+
         if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'vClassificacaoFiscal')) {
             $this->session->set_flashdata('error', 'Você não tem permissão para acessar o módulo de Classificação Fiscal.');
             redirect(base_url());
         }
-        
+
         $this->load->model('ClassificacaoFiscal_model');
         $this->load->model('OperacaoComercial_model');
         $this->load->helper('form');
         $this->data['menuConfiguracoes'] = 'Configurações';
         $this->data['menuClassificacaoFiscal'] = 'Classificação Fiscal';
     }
-    
+
     public function index()
     {
         $this->data['view'] = 'classificacaofiscal/classificacaofiscal';
         $this->data['results'] = $this->ClassificacaoFiscal_model->get();
-        
+
         // Get tax regime from configuration
         $this->load->model('Mapos_model');
         $configuracao = $this->Mapos_model->getConfiguracao();
         $this->data['regime_tributario'] = $configuracao['regime_tributario'];
-        
+
         return $this->layout();
     }
 
@@ -63,6 +64,7 @@ class ClassificacaoFiscal extends MY_Controller
                 'destinacao' => $this->input->post('destinacao'),
                 'objetivo_comercial' => $this->input->post('objetivo_comercial'),
                 'tipo_icms' => $this->input->post('tipo_icms'),
+                'mensagem_fiscal' => $this->input->post('mensagem_fiscal'),
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ];
@@ -123,6 +125,7 @@ class ClassificacaoFiscal extends MY_Controller
                 'destinacao' => $this->input->post('destinacao'),
                 'objetivo_comercial' => $this->input->post('objetivo_comercial'),
                 'tipo_icms' => $this->input->post('tipo_icms'),
+                'mensagem_fiscal' => $this->input->post('mensagem_fiscal'),
                 'updated_at' => date('Y-m-d H:i:s')
             ];
 
@@ -203,10 +206,11 @@ class ClassificacaoFiscal extends MY_Controller
             'cfop' => $orig->cfop,
             'destinacao' => $orig->destinacao,
             'objetivo_comercial' => $orig->objetivo_comercial,
+            'mensagem_fiscal' => $orig->mensagem_fiscal,
             'cst' => isset($orig->cst) ? $orig->cst : '',
             'csosn' => isset($orig->csosn) ? $orig->csosn : ''
         ];
         $this->data['view'] = 'classificacaofiscal/adicionarClassificacaoFiscal';
         return $this->layout();
     }
-} 
+}

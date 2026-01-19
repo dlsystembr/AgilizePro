@@ -105,7 +105,7 @@
                                 <div class="controls">
                                     <div class="input-group" style="display: flex; gap: 5px;">
                                         <input id="NCMs" class="form-control" type="text" name="NCMs" value="<?php echo $result->PRO_NCM; ?>" readonly />
-                                        <button type="button" class="btn btn-warning" id="btnDescricaoNcm" style="border-radius: 4px;"><i class="fas fa-info-circle"></i></button>
+                                        <button type="button" class="btn btn-warning" id="btnDescricaoNcm" style="border-radius: 4px;" title="Nomenclatura Comum do Mercosul - Código de 8 dígitos que classifica produtos para fins fiscais e aduaneiros"><i class="fas fa-info-circle"></i></button>
                                     </div>
                                     <input id="ncm_id" class="form-control" type="hidden" name="ncm_id" value="<?php echo $result->NCM_ID; ?>" />
                                 </div>
@@ -122,6 +122,12 @@
                                     <select id="unidade" name="unidade" style="width: 15em;" disabled></select>
                                 </div>
                             </div>
+                            <div class="control-group field-servico">
+                                <label for="precoVenda_servico" class="control-label">Preço Serviço<span class="required">*</span></label>
+                                <div class="controls">
+                                    <input id="precoVenda_servico" type="text" name="precoVenda_servico" value="<?php echo number_format($result->PRO_PRECO_VENDA, 2, ',', '.'); ?>" readonly />
+                                </div>
+                            </div>
                         </div>
 
                         <div class="span6">
@@ -132,7 +138,7 @@
                                     <input id="precoCompra" type="text" name="precoCompra" value="<?php echo number_format($result->PRO_PRECO_COMPRA, 2, ',', '.'); ?>" readonly />
                                 </div>
                             </div>
-                            <div class="control-group">
+                            <div class="control-group field-produto">
                                 <label for="precoVenda" class="control-label">Preço de Venda<span class="required">*</span></label>
                                 <div class="controls">
                                     <input id="precoVenda" type="text" name="precoVenda" value="<?php echo number_format($result->PRO_PRECO_VENDA, 2, ',', '.'); ?>" readonly />

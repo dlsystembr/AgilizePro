@@ -1,4 +1,6 @@
-<?php if (isset($custom_error) && $custom_error != '') { echo $custom_error; } ?>
+<?php if (isset($custom_error) && $custom_error != '') {
+    echo $custom_error;
+} ?>
 <div class="widget-box">
     <div class="widget-title" style="margin: -20px 0 0">
         <span class="icon">
@@ -49,6 +51,13 @@
             </div>
         </div>
 
+        <div class="control-group">
+            <label for="mensagem_fiscal" class="control-label">Mensagem Fiscal</label>
+            <div class="controls">
+                <textarea class="span12" rows="3" readonly><?php echo $result->mensagem_fiscal; ?></textarea>
+            </div>
+        </div>
+
         <?php if ($regime_tributario === 'Simples Nacional') { ?>
             <div class="control-group">
                 <label for="csosn" class="control-label">CSOSN</label>
@@ -68,7 +77,8 @@
         <div class="control-group">
             <label for="cClassTrib" class="control-label">Classe Tributária</label>
             <div class="controls">
-                <input type="text" class="span3" value="<?php echo $result->cClassTrib ?: 'Não informado'; ?>" readonly />
+                <input type="text" class="span3" value="<?php echo $result->cClassTrib ?: 'Não informado'; ?>"
+                    readonly />
             </div>
         </div>
 
@@ -82,7 +92,8 @@
         <div class="control-group">
             <label for="aliq_ibs" class="control-label">Alíquota IBS (%)</label>
             <div class="controls">
-                <input type="text" class="span2" value="<?php echo $result->aliq_ibs ? $result->aliq_ibs . '%' : 'Não informado'; ?>" readonly />
+                <input type="text" class="span2"
+                    value="<?php echo $result->aliq_ibs ? $result->aliq_ibs . '%' : 'Não informado'; ?>" readonly />
             </div>
         </div>
 
@@ -96,21 +107,24 @@
         <div class="control-group">
             <label for="aliq_cbs" class="control-label">Alíquota CBS (%)</label>
             <div class="controls">
-                <input type="text" class="span2" value="<?php echo $result->aliq_cbs ? $result->aliq_cbs . '%' : 'Não informado'; ?>" readonly />
+                <input type="text" class="span2"
+                    value="<?php echo $result->aliq_cbs ? $result->aliq_cbs . '%' : 'Não informado'; ?>" readonly />
             </div>
         </div>
 
         <div class="control-group">
             <label for="created_at" class="control-label">Data de Criação</label>
             <div class="controls">
-                <input type="text" class="span4" value="<?php echo date('d/m/Y H:i:s', strtotime($result->created_at)); ?>" readonly />
+                <input type="text" class="span4"
+                    value="<?php echo date('d/m/Y H:i:s', strtotime($result->created_at)); ?>" readonly />
             </div>
         </div>
 
         <div class="control-group">
             <label for="updated_at" class="control-label">Última Atualização</label>
             <div class="controls">
-                <input type="text" class="span4" value="<?php echo date('d/m/Y H:i:s', strtotime($result->updated_at)); ?>" readonly />
+                <input type="text" class="span4"
+                    value="<?php echo date('d/m/Y H:i:s', strtotime($result->updated_at)); ?>" readonly />
             </div>
         </div>
 
@@ -127,12 +141,14 @@
             <div class="span12">
                 <div class="span6 offset3" style="display:flex;justify-content: center">
                     <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eClassificacaoFiscal')) { ?>
-                        <a href="<?php echo base_url() ?>index.php/classificacaoFiscal/editar/<?php echo $result->id; ?>" class="button btn btn-success">
+                        <a href="<?php echo base_url() ?>index.php/classificacaoFiscal/editar/<?php echo $result->id; ?>"
+                            class="button btn btn-success">
                             <span class="button__icon"><i class="bx bx-edit-alt"></i></span>
                             <span class="button__text2">Editar</span>
                         </a>
                     <?php } ?>
-                    <a href="<?php echo base_url() ?>index.php/classificacaoFiscal" class="button btn btn-mini btn-warning">
+                    <a href="<?php echo base_url() ?>index.php/classificacaoFiscal"
+                        class="button btn btn-mini btn-warning">
                         <span class="button__icon"><i class="bx bx-arrow-back"></i></span>
                         <span class="button__text2">Voltar</span>
                     </a>

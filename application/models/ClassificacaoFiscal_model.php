@@ -1,4 +1,5 @@
-<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
 
 class ClassificacaoFiscal_model extends CI_Model
 {
@@ -19,6 +20,7 @@ class ClassificacaoFiscal_model extends CI_Model
              classificacao_fiscal.CLF_DESTINACAO as destinacao,
              classificacao_fiscal.CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
              classificacao_fiscal.CLF_TIPO_ICMS as tipo_icms,
+             classificacao_fiscal.CLF_MENSAGEM as mensagem_fiscal,
              classificacao_fiscal.CLF_DATA_INCLUSAO as created_at,
              classificacao_fiscal.CLF_DATA_ALTERACAO as updated_at,
              (SELECT oc.OPC_NOME FROM operacao_comercial oc WHERE oc.OPC_ID = classificacao_fiscal.OPC_ID) as nome_operacao'
@@ -48,6 +50,7 @@ class ClassificacaoFiscal_model extends CI_Model
              classificacao_fiscal.CLF_DESTINACAO as destinacao,
              classificacao_fiscal.CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
              classificacao_fiscal.CLF_TIPO_ICMS as tipo_icms,
+             classificacao_fiscal.CLF_MENSAGEM as mensagem_fiscal,
              classificacao_fiscal.CLF_DATA_INCLUSAO as created_at,
              classificacao_fiscal.CLF_DATA_ALTERACAO as updated_at,
              (SELECT oc.OPC_NOME FROM operacao_comercial oc WHERE oc.OPC_ID = classificacao_fiscal.OPC_ID) as nome_operacao'
@@ -66,7 +69,8 @@ class ClassificacaoFiscal_model extends CI_Model
     {
         if ($table === 'classificacao_fiscal') {
             // Mapear chaves lógicas -> colunas reais existentes na tabela
-            $tableFields = array_map(function ($f) { return $f->name; }, $this->db->field_data('classificacao_fiscal'));
+            $tableFields = array_map(function ($f) {
+                return $f->name; }, $this->db->field_data('classificacao_fiscal'));
 
             $map = [
                 'operacao_comercial_id' => ['OPC_ID', 'OPC_ID', 'operacao_comercial_id'],
@@ -77,6 +81,7 @@ class ClassificacaoFiscal_model extends CI_Model
                 'destinacao' => ['CLF_DESTINACAO', 'destinacao'],
                 'objetivo_comercial' => ['CLF_OBJETIVO_COMERCIAL', 'objetivo_comercial'],
                 'tipo_icms' => ['CLF_TIPO_ICMS', 'tipo_icms'],
+                'mensagem_fiscal' => ['CLF_MENSAGEM', 'mensagem_fiscal'],
                 'created_at' => ['CLF_DATA_INCLUSAO', 'created_at'],
                 'updated_at' => ['CLF_DATA_ALTERACAO', 'updated_at'],
             ];
@@ -115,7 +120,8 @@ class ClassificacaoFiscal_model extends CI_Model
     public function edit($table, $data, $fieldID, $ID)
     {
         if ($table === 'classificacao_fiscal') {
-            $tableFields = array_map(function ($f) { return $f->name; }, $this->db->field_data('classificacao_fiscal'));
+            $tableFields = array_map(function ($f) {
+                return $f->name; }, $this->db->field_data('classificacao_fiscal'));
             $map = [
                 'operacao_comercial_id' => ['OPC_ID', 'OPC_ID', 'operacao_comercial_id'],
                 'cst' => ['CLF_CST', 'cst'],
@@ -125,6 +131,7 @@ class ClassificacaoFiscal_model extends CI_Model
                 'destinacao' => ['CLF_DESTINACAO', 'destinacao'],
                 'objetivo_comercial' => ['CLF_OBJETIVO_COMERCIAL', 'objetivo_comercial'],
                 'tipo_icms' => ['CLF_TIPO_ICMS', 'tipo_icms'],
+                'mensagem_fiscal' => ['CLF_MENSAGEM', 'mensagem_fiscal'],
                 'updated_at' => ['CLF_DATA_ALTERACAO', 'updated_at'],
             ];
             $update = [];
@@ -204,11 +211,11 @@ class ClassificacaoFiscal_model extends CI_Model
             $this->db->where('COALESCE(CLF_NATUREZA_CONTRIB, natureza_contribuinte)', $natureza_contribuinte);
             $this->db->where('COALESCE(CLF_DESTINACAO, destinacao)', $destinacao);
             $this->db->where('COALESCE(CLF_OBJETIVO_COMERCIAL, objetivo_comercial)', $objetivo_comercial);
-            
+
             // Log da query antes da execução
             $query = $this->db->get();
             log_message('debug', 'SQL Query: ' . $this->db->last_query());
-            
+
             // Se não encontrou nenhum resultado, vamos logar os dados existentes para debug
             if ($query->num_rows() == 0) {
                 // Consulta para verificar todas as classificações fiscais desta operação
@@ -216,10 +223,10 @@ class ClassificacaoFiscal_model extends CI_Model
                 $this->db->from('classificacao_fiscal');
                 $this->db->where('COALESCE(OPC_ID, OPC_ID, operacao_comercial_id)', $operacao_id);
                 $check_query = $this->db->get();
-                
+
                 log_message('debug', 'Verificando classificações existentes para operação ' . $operacao_id);
                 log_message('debug', 'Total de classificações encontradas: ' . $check_query->num_rows());
-                
+
                 if ($check_query->num_rows() > 0) {
                     foreach ($check_query->result() as $row) {
                         log_message('debug', 'Classificação encontrada: ' . json_encode([
@@ -235,13 +242,13 @@ class ClassificacaoFiscal_model extends CI_Model
                 } else {
                     log_message('debug', 'Nenhuma classificação fiscal encontrada para a operação ' . $operacao_id);
                 }
-                
+
                 return null;
             }
-            
+
             // Retorna o primeiro resultado encontrado
             return $query->row();
-            
+
         } catch (Exception $e) {
             log_message('error', 'Erro em getTributacao: ' . $e->getMessage());
             return null;
@@ -274,10 +281,10 @@ class ClassificacaoFiscal_model extends CI_Model
             $this->db->from('classificacao_fiscal');
             $this->db->where('COALESCE(OPC_ID, OPC_ID, operacao_comercial_id)', $operacao_id);
             $query = $this->db->get();
-            
+
             log_message('debug', 'SQL Query getByOperacao: ' . $this->db->last_query());
             log_message('debug', 'Registros encontrados: ' . $query->num_rows());
-            
+
             return $query->result();
         } catch (Exception $e) {
             log_message('error', 'Erro em getByOperacao: ' . $e->getMessage());
@@ -313,4 +320,4 @@ class ClassificacaoFiscal_model extends CI_Model
         log_message('debug', 'Nenhuma alíquota encontrada para os parâmetros informados');
         return null;
     }
-} 
+}
