@@ -15,6 +15,7 @@ class Nfecom extends MY_Controller
         $this->load->model('Nfe_model');
         $this->load->model('Clientes_model');
         $this->load->model('ConfiguracoesFiscais_model');
+        $this->load->model('OperacaoComercial_model');
         $this->data['menuNfecom'] = 'NFECom';
 
         // Fix for OpenSSL 3 legacy certificates
@@ -138,6 +139,7 @@ class Nfecom extends MY_Controller
         $this->form_validation->set_rules('dataPeriodoFim', 'Data Período Fim', 'trim|required');
         $this->form_validation->set_rules('tpAssinante', 'Tipo de Assinante', 'trim|required');
         $this->form_validation->set_rules('tpServUtil', 'Tipo de Serviço', 'trim|required');
+        $this->form_validation->set_rules('opc_id', 'Operação Comercial', 'trim|required');
 
         // Carregar alguns clientes iniciais para melhor UX (mais recentes primeiro)
         $this->db->select("c.CLN_ID as id,
@@ -169,6 +171,9 @@ class Nfecom extends MY_Controller
         $this->db->order_by('PRO_DESCRICAO', 'asc');
         $query_servicos = $this->db->get();
         $this->data['servicos'] = $query_servicos ? $query_servicos->result() : [];
+
+        // Carregar Operações Comerciais
+        $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
 
         if ($this->form_validation->run('nfecom') == false) {
             $this->data['custom_error'] = (validation_errors() ? true : false);
@@ -402,6 +407,7 @@ class Nfecom extends MY_Controller
                 'NFC_INF_CPL' => $this->buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido),
                 'NFC_STATUS' => 1, // Salvo
                 'CLN_ID' => $data['clientes_id'],
+                'OPC_ID' => $this->input->post('opc_id'),
                 'NFC_CHAVE_PIX' => $this->input->post('nfc_chave_pix'),
                 'NFC_LINHA_DIGITAVEL' => $this->input->post('nfc_linha_digitavel')
             ];
@@ -543,7 +549,7 @@ class Nfecom extends MY_Controller
             redirect(base_url());
         }
 
-        $this->data['result'] = $this->Nfecom_model->getById($this->uri->segment(3));
+        $this->data['result'] = $this->Nfecom_model->getByIdWithOperation($this->uri->segment(3));
         $this->data['itens'] = $this->Nfecom_model->getItens($this->uri->segment(3));
 
         if ($this->data['result'] == null) {
@@ -579,10 +585,12 @@ class Nfecom extends MY_Controller
         $this->db->trans_begin();
 
         try {
+            // Carregar Operações Comerciais para a tela de edição
+            $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
+
             // Atualizar dados básicos da NFCom (NÃO alterar o número da NFE)
             $dados = [
                 'NFC_SERIE' => $this->input->post('nfc_serie'),
-                'NFC_DHEMI' => $this->input->post('nfc_dhemi'),
                 'NFC_N_CONTRATO' => $this->input->post('nfc_n_contrato'),
                 'NFC_D_CONTRATO_INI' => $this->input->post('nfc_d_contrato_ini'),
                 'NFC_COMPET_FAT' => $this->input->post('nfc_compet_fat'),
@@ -596,6 +604,7 @@ class Nfecom extends MY_Controller
                 'NFC_D_CONTRATO_FIM' => !empty($this->input->post('nfc_d_contrato_fim')) ? $this->input->post('nfc_d_contrato_fim') : null,
                 'NFC_CHAVE_PIX' => $this->input->post('nfc_chave_pix'),
                 'NFC_LINHA_DIGITAVEL' => $this->input->post('nfc_linha_digitavel'),
+                'OPC_ID' => $this->input->post('opc_id'),
             ];
 
             // Atualizar dados do destinatário se fornecidos

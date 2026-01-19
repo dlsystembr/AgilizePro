@@ -350,6 +350,25 @@
                                     <span>Dados Principais</span>
                                 </div>
                                 <div class="form-section-content">
+                                    <!-- Linha 0: Operação Comercial -->
+                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                        <div class="span12">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="opc_id" class="control-label">Operação Comercial<span
+                                                        class="required">*</span></label>
+                                                <div class="controls">
+                                                    <select name="opc_id" id="opc_id" required style="width: 100%;">
+                                                        <option value="">Selecione uma operação...</option>
+                                                        <?php foreach ($operacoes as $index => $op): ?>
+                                                            <option value="<?php echo $op->OPC_ID; ?>" <?php echo ((isset($result->OPC_ID) && $result->OPC_ID == $op->OPC_ID) || (!isset($result->OPC_ID) && !isset($_POST['opc_id']) && $index === 0)) ? 'selected' : ''; ?>>
+                                                                <?php echo $op->OPC_NOME; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <!-- Linha 1: Cliente -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
@@ -419,6 +438,7 @@
                                             </div>
                                         </div>
                                     </div>
+
 
 
                                     <!-- Linha 5: Observações -->
@@ -563,10 +583,11 @@
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataVencimento" class="control-label">Vencimento<span
-                                                         class="required">*</span></label>
+                                                        class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="date" name="dataVencimento" id="dataVencimento"
-                                                         value="<?php echo set_value('dataVencimento', $result->NFC_D_VENC_FAT); ?>" required class="span12">
+                                                        value="<?php echo set_value('dataVencimento', $result->NFC_D_VENC_FAT); ?>"
+                                                        required class="span12">
                                                 </div>
                                             </div>
                                         </div>

@@ -66,6 +66,12 @@ class Permissoes extends MY_Controller
                 'dPessoa' => $this->input->post('dPessoa'),
                 'vPessoa' => $this->input->post('vPessoa'),
 
+                // Contratos
+                'aContrato' => $this->input->post('aContrato'),
+                'eContrato' => $this->input->post('eContrato'),
+                'dContrato' => $this->input->post('dContrato'),
+                'vContrato' => $this->input->post('vContrato'),
+
                 // Empresas
                 'aEmpresa' => $this->input->post('aEmpresa'),
                 'eEmpresa' => $this->input->post('eEmpresa'),
@@ -231,6 +237,12 @@ class Permissoes extends MY_Controller
                 'ePessoa' => $this->input->post('ePessoa'),
                 'dPessoa' => $this->input->post('dPessoa'),
                 'vPessoa' => $this->input->post('vPessoa'),
+
+                // Contratos
+                'aContrato' => $this->input->post('aContrato'),
+                'eContrato' => $this->input->post('eContrato'),
+                'dContrato' => $this->input->post('dContrato'),
+                'vContrato' => $this->input->post('vContrato'),
 
                 // Empresas
                 'aEmpresa' => $this->input->post('aEmpresa'),

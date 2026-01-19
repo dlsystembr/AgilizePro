@@ -1,6 +1,6 @@
 <?php
 
-if (! defined('BASEPATH')) {
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
@@ -58,6 +58,17 @@ class Nfecom_model extends CI_Model
     {
         $this->db->select('*');
         $this->db->from('nfecom_capa');
+        $this->db->where('NFC_ID', $id);
+        $query = $this->db->get();
+
+        return $query->row();
+    }
+
+    public function getByIdWithOperation($id)
+    {
+        $this->db->select('nfecom_capa.*, operacao_comercial.OPC_NOME as operacao_nome');
+        $this->db->from('nfecom_capa');
+        $this->db->join('operacao_comercial', 'operacao_comercial.OPC_ID = nfecom_capa.OPC_ID', 'left');
         $this->db->where('NFC_ID', $id);
         $query = $this->db->get();
 

@@ -157,6 +157,50 @@
                         <div class="accordion-group widget-box">
                             <div class="accordion-heading">
                                 <div class="widget-title">
+                                    <a data-parent="#collapse-group" href="#collapseGContratos" data-toggle="collapse">
+                                      <span><i class='bx bx-file-blank icon-cli'></i></span>
+                                      <h5 style="padding-left: 28px">Contratos</h5>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="collapse accordion-body" id="collapseGContratos">
+                                <div class="widget-content">
+                                    <table class="table table-bordered">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <label>
+                                                    <input name="vContrato" class="marcar" type="checkbox" checked="checked" value="1" />
+                                                    <span class="lbl"> Visualizar Contrato</span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label>
+                                                    <input name="aContrato" class="marcar" type="checkbox" value="1" />
+                                                    <span class="lbl"> Adicionar Contrato</span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label>
+                                                    <input name="eContrato" class="marcar" type="checkbox" value="1" />
+                                                    <span class="lbl"> Editar Contrato</span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <label>
+                                                    <input name="dContrato" class="marcar" type="checkbox" value="1" />
+                                                    <span class="lbl"> Excluir Contrato</span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-group widget-box">
+                            <div class="accordion-heading">
+                                <div class="widget-title">
                                     <a data-parent="#collapse-group" href="#collapseGThree3" data-toggle="collapse">
                                       <span><i class='bx bx-spreadsheet icon-cli'></i></span>
                                       <h5 style="padding-left: 28px">Ordem de Serviços - OS</h5>
