@@ -817,7 +817,8 @@ class Nfecom extends MY_Controller
         }
 
         // Se ainda não foi autorizada, fazer a autorização automática
-        if ($nfecom->NFC_STATUS < 3) {
+        // Inclui reemissões (status 4)
+        if ($nfecom->NFC_STATUS < 3 || $nfecom->NFC_STATUS == 4) {
             $isReemissao = ($nfecom->NFC_STATUS == 4);
             log_message('info', 'NFCom ' . ($isReemissao ? 'Reemissão' : 'Emissão') . ' iniciada - ID: ' . $id . ', Status: ' . $nfecom->NFC_STATUS);
             try {
@@ -827,47 +828,52 @@ class Nfecom extends MY_Controller
                     $ufEmit = $nfecom->NFC_UF_EMIT ?? 'GO';
                     $codigoUf = $this->get_cUF($ufEmit);
 
-                    // Para NFCom rejeitadas (reemissão), manter o número atual
+                    // Para NFCom rejeitadas (reemissão), manter o número, chave e data originais
                     // Para NFCom novas, apenas pegar número atual (incremento será feito no final do processo)
                     if ($nfecom->NFC_STATUS < 2) {
                         $numeroNota = $configFiscal->CFG_NUMERO_ATUAL;
+                        
+                        $atualizacao = [
+                            'NFC_TIPO_AMBIENTE' => $configFiscal->CFG_AMBIENTE,
+                            'NFC_SERIE' => $configFiscal->CFG_SERIE,
+                            'NFC_NNF' => $numeroNota,
+                            'NFC_CUF' => $codigoUf,
+                            'NFC_DHEMI' => date('Y-m-d H:i:s'), // Usar data atual na emissão
+                        ];
+
+                        // Calcular nova chave para NFCom nova
+                        $chaveData = [
+                            'NFC_CUF' => $atualizacao['NFC_CUF'],
+                            'NFC_DHEMI' => $atualizacao['NFC_DHEMI'],
+                            'NFC_CNPJ_EMIT' => $nfecom->NFC_CNPJ_EMIT,
+                            'NFC_MOD' => $nfecom->NFC_MOD,
+                            'NFC_SERIE' => $atualizacao['NFC_SERIE'],
+                            'NFC_NNF' => $atualizacao['NFC_NNF'],
+                            'NFC_TP_EMIS' => $nfecom->NFC_TP_EMIS,
+                            'NFC_CNF' => $nfecom->NFC_CNF,
+                            'NFC_N_SITE_AUTORIZ' => 0,
+                        ];
+
+                        $atualizacao['NFC_CDV'] = $this->calculateDV($chaveData);
+                        $chaveData['NFC_CDV'] = $atualizacao['NFC_CDV'];
+                        $atualizacao['NFC_CH_NFCOM'] = $this->generateChave($chaveData);
                     } else {
-                        // NFCom rejeitada mantém o número atual
-                        $numeroNota = $nfecom->NFC_NNF;
+                        // NFCom rejeitada (reemissão) - manter número, chave, série e data originais
+                        $atualizacao = [
+                            'NFC_TIPO_AMBIENTE' => $configFiscal->CFG_AMBIENTE,
+                            // Manter série original (não atualizar)
+                            // Manter número original (não atualizar)
+                            // Manter chave original (não atualizar)
+                            // Manter data de emissão original (não atualizar)
+                            // Limpar apenas os campos de rejeição
+                            'NFC_X_MOTIVO' => null,
+                            'NFC_C_STAT' => null,
+                            'NFC_N_PROT' => null,
+                            'NFC_DH_RECBTO' => null,
+                            'NFC_XML' => null,
+                        ];
+                        // Não recalcular chave, manter a original
                     }
-
-                    $atualizacao = [
-                        'NFC_TIPO_AMBIENTE' => $configFiscal->CFG_AMBIENTE,
-                        'NFC_SERIE' => $configFiscal->CFG_SERIE,
-                        'NFC_NNF' => $numeroNota,
-                        'NFC_CUF' => $codigoUf,
-                        'NFC_DHEMI' => date('Y-m-d H:i:s'), // Usar data atual na emissão/reemissão
-                    ];
-
-                    // Para reemissão (NFCom rejeitada), limpar o motivo antigo
-                    if ($nfecom->NFC_STATUS == 4) {
-                        $atualizacao['NFC_X_MOTIVO'] = null;
-                        $atualizacao['NFC_C_STAT'] = null;
-                        $atualizacao['NFC_N_PROT'] = null;
-                        $atualizacao['NFC_DH_RECBTO'] = null;
-                        $atualizacao['NFC_XML'] = null;
-                    }
-
-                    $chaveData = [
-                        'NFC_CUF' => $atualizacao['NFC_CUF'],
-                        'NFC_DHEMI' => $nfecom->NFC_DHEMI,
-                        'NFC_CNPJ_EMIT' => $nfecom->NFC_CNPJ_EMIT,
-                        'NFC_MOD' => $nfecom->NFC_MOD,
-                        'NFC_SERIE' => $atualizacao['NFC_SERIE'],
-                        'NFC_NNF' => $atualizacao['NFC_NNF'],
-                        'NFC_TP_EMIS' => $nfecom->NFC_TP_EMIS,
-                        'NFC_CNF' => $nfecom->NFC_CNF,
-                        'NFC_N_SITE_AUTORIZ' => 0,
-                    ];
-
-                    $atualizacao['NFC_CDV'] = $this->calculateDV($chaveData);
-                    $chaveData['NFC_CDV'] = $atualizacao['NFC_CDV'];
-                    $atualizacao['NFC_CH_NFCOM'] = $this->generateChave($chaveData);
 
                     $this->Nfecom_model->edit('nfecom_capa', $atualizacao, 'NFC_ID', $id);
                     $nfecom = $this->Nfecom_model->getById($id);
@@ -996,6 +1002,10 @@ class Nfecom extends MY_Controller
         // Verificar se pode excluir (não autorizada nem cancelada)
         if ($nfecom->NFC_STATUS == 3) {
             $this->session->set_flashdata('error', 'Não é possível excluir NFCom autorizada.');
+            redirect(site_url('nfecom'));
+        }
+        if ($nfecom->NFC_STATUS == 7) {
+            $this->session->set_flashdata('error', 'Não é possível excluir NFCom cancelada.');
             redirect(site_url('nfecom'));
         }
 
@@ -1169,6 +1179,24 @@ class Nfecom extends MY_Controller
                 $this->registrarProtocolo($id, $protocolo, 'AUTORIZACAO', $xMotivo, $dhRecbto);
 
                 $this->session->set_flashdata('success', 'NFCom consultada e Autorizada! Status: ' . $xMotivo);
+            } elseif ($cStat == '101') { // Cancelamento homologado
+                $statusTexto = 'Cancelada';
+                $protocolo = $retorno['protocolo']['nProt'] ?? '';
+                $dhRecbto = $retorno['protocolo']['dhRecbto'] ?? '';
+
+                $dadosAtu = [
+                    'NFC_STATUS' => 7, // Cancelada
+                    'NFC_C_STAT' => $cStat,
+                    'NFC_X_MOTIVO' => $xMotivo,
+                    'NFC_N_PROT_CANC' => $protocolo
+                ];
+
+                $this->Nfecom_model->updateStatus($id, $dadosAtu);
+                if ($protocolo) {
+                    $this->registrarProtocolo($id, $protocolo, 'CANCELAMENTO', $xMotivo, $dhRecbto);
+                }
+
+                $this->session->set_flashdata('info', 'NFCom consultada e identificada como Cancelada! Status: ' . $xMotivo);
             } else {
                 // Outros status ou rejeição
                 $dadosAtu = [
@@ -1650,8 +1678,10 @@ class Nfecom extends MY_Controller
                 $ufEmit = $emitente['enderEmit']['UF'] ?? 'GO';
                 $codigoUf = $this->get_cUF($ufEmit);
 
-                // Para NFCom rejeitadas (reemissão), manter o número atual
+                // Para NFCom rejeitadas (reemissão), manter o número, chave, série e data originais
                 // Para NFCom novas, apenas pegar número atual (incremento será feito no final do processo)
+                $isReemissao = ($nfecom->NFC_STATUS == 4);
+                
                 if ($nfecom->NFC_STATUS < 2) {
                     $numeroNota = $configFiscal->CFG_NUMERO_ATUAL;
                 } else {
@@ -1678,9 +1708,6 @@ class Nfecom extends MY_Controller
 
                 $atualizacao = [
                     'NFC_TIPO_AMBIENTE' => $configFiscal->CFG_AMBIENTE,
-                    'NFC_SERIE' => $configFiscal->CFG_SERIE,
-                    'NFC_NNF' => $numeroNota,
-                    'NFC_CUF' => $codigoUf,
                     // Sincronizar dados do emitente do cadastro de empresas
                     'NFC_CNPJ_EMIT' => $emitente['CNPJ'],
                     'NFC_IE_EMIT' => $emitente['IE'],
@@ -1697,6 +1724,14 @@ class Nfecom extends MY_Controller
                     'NFC_UF_EMIT' => $emitente['enderEmit']['UF'],
                     'NFC_FONE_EMIT' => $emitente['enderEmit']['fone'],
                 ];
+                
+                // Para reemissão, manter série, número, chave e data originais
+                if (!$isReemissao) {
+                    $atualizacao['NFC_SERIE'] = $configFiscal->CFG_SERIE;
+                    $atualizacao['NFC_NNF'] = $numeroNota;
+                    $atualizacao['NFC_CUF'] = $codigoUf;
+                }
+                // Se for reemissão, não atualizar série, número, CUF (mantém originais)
 
                 // Sincronizar dados do destinatário do cadastro de clientes
                 if ($cliente) {
@@ -1713,33 +1748,35 @@ class Nfecom extends MY_Controller
                     $atualizacao['NFC_UF_DEST'] = $cliente->EST_UF;
                 }
 
-                // Para reemissão (NFCom rejeitada), limpar o motivo antigo
-                if ($nfecom->NFC_STATUS == 4) {
+                // Para reemissão (NFCom rejeitada), limpar o motivo antigo e manter chave original
+                if ($isReemissao) {
                     $atualizacao['NFC_X_MOTIVO'] = null;
                     $atualizacao['NFC_C_STAT'] = null;
                     $atualizacao['NFC_N_PROT'] = null;
                     $atualizacao['NFC_DH_RECBTO'] = null;
                     $atualizacao['NFC_XML'] = null;
+                    // Não recalcular chave, manter a original
+                } else {
+                    // Para NFCom nova, calcular nova chave
+                    $chaveData = [
+                        'NFC_CUF' => $atualizacao['NFC_CUF'],
+                        'NFC_DHEMI' => $nfecom->NFC_DHEMI ?? date('Y-m-d H:i:s'),
+                        'NFC_CNPJ_EMIT' => $atualizacao['NFC_CNPJ_EMIT'],
+                        'NFC_MOD' => $nfecom->NFC_MOD,
+                        'NFC_SERIE' => $atualizacao['NFC_SERIE'],
+                        'NFC_NNF' => $atualizacao['NFC_NNF'],
+                        'NFC_TP_EMIS' => $nfecom->NFC_TP_EMIS,
+                        'NFC_CNF' => $nfecom->NFC_CNF,
+                    ];
+
+                    // nSiteAutoriz é necessário para a chave e DV
+                    $nSiteAutoriz = 0; // Default
+                    $chaveData['NFC_N_SITE_AUTORIZ'] = $nSiteAutoriz;
+
+                    $atualizacao['NFC_CDV'] = $this->calculateDV($chaveData);
+                    $chaveData['NFC_CDV'] = $atualizacao['NFC_CDV'];
+                    $atualizacao['NFC_CH_NFCOM'] = $this->generateChave($chaveData);
                 }
-
-                $chaveData = [
-                    'NFC_CUF' => $atualizacao['NFC_CUF'],
-                    'NFC_DHEMI' => $nfecom->NFC_DHEMI,
-                    'NFC_CNPJ_EMIT' => $nfecom->NFC_CNPJ_EMIT,
-                    'NFC_MOD' => $nfecom->NFC_MOD,
-                    'NFC_SERIE' => $atualizacao['NFC_SERIE'],
-                    'NFC_NNF' => $atualizacao['NFC_NNF'],
-                    'NFC_TP_EMIS' => $nfecom->NFC_TP_EMIS,
-                    'NFC_CNF' => $nfecom->NFC_CNF,
-                ];
-
-                // nSiteAutoriz é necessário para a chave e DV
-                $nSiteAutoriz = 0; // Default
-                $chaveData['NFC_N_SITE_AUTORIZ'] = $nSiteAutoriz;
-
-                $atualizacao['NFC_CDV'] = $this->calculateDV($chaveData);
-                $chaveData['NFC_CDV'] = $atualizacao['NFC_CDV'];
-                $atualizacao['NFC_CH_NFCOM'] = $this->generateChave($chaveData);
 
                 $this->Nfecom_model->edit('nfecom_capa', $atualizacao, 'NFC_ID', $id);
                 $nfecom = $this->Nfecom_model->getById($id); // Recarregar a NFCom com os dados atualizados
@@ -1910,6 +1947,230 @@ class Nfecom extends MY_Controller
             redirect(site_url('nfecom/visualizar/' . $id));
         }
         return true;
+    }
+
+    public function cancelar()
+    {
+        // Verificar se é uma requisição AJAX
+        $isAjax = $this->input->is_ajax_request() || $this->input->post('ajax') === 'true';
+        
+        // Configurar headers para JSON
+        if ($isAjax) {
+            $this->output->set_content_type('application/json');
+        }
+
+        try {
+            // Verificar permissão
+            if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
+                throw new Exception('Você não tem permissão para cancelar NFCom.');
+            }
+
+            // Verificar método POST
+            if ($this->input->method() !== 'post') {
+                throw new Exception('Método de requisição inválido. Use POST.');
+            }
+
+            // Obter dados do POST
+            $nfecom_id = $this->input->post('nfecom_id');
+            $justificativa = $this->input->post('justificativa');
+            
+            // Limpar e validar justificativa
+            if (is_string($justificativa)) {
+                $justificativa = trim($justificativa);
+            } else {
+                $justificativa = '';
+            }
+
+            // Validações básicas
+            if (empty($nfecom_id)) {
+                throw new Exception('ID da NFCom não informado.');
+            }
+
+            if (empty($justificativa)) {
+                throw new Exception('Justificativa não informada.');
+            }
+
+            // Validar comprimento mínimo (15 caracteres após trim)
+            $justificativaLimpa = trim($justificativa);
+            if (mb_strlen($justificativaLimpa, 'UTF-8') < 15) {
+                throw new Exception('A justificativa deve ter no mínimo 15 caracteres.');
+            }
+            
+            // Usar justificativa limpa
+            $justificativa = $justificativaLimpa;
+
+            // Buscar NFCom
+            $nfecom = $this->Nfecom_model->getById($nfecom_id);
+            if (!$nfecom) {
+                throw new Exception('NFCom não encontrada.');
+            }
+
+            // Verificar se está autorizada (status 3 ou 5)
+            if ($nfecom->NFC_STATUS != 3 && $nfecom->NFC_STATUS != 5) {
+                throw new Exception('Apenas NFCom autorizadas podem ser canceladas. Status atual: ' . $nfecom->NFC_STATUS);
+            }
+
+            // Verificar se já está cancelada
+            if ($nfecom->NFC_STATUS == 7) {
+                throw new Exception('Esta NFCom já está cancelada.');
+            }
+
+            // Verificar se tem chave de acesso
+            if (empty($nfecom->NFC_CH_NFCOM)) {
+                throw new Exception('Chave de acesso da NFCom não encontrada.');
+            }
+
+            // Verificar se tem protocolo
+            if (empty($nfecom->NFC_N_PROT)) {
+                throw new Exception('Protocolo da NFCom não encontrado. É necessário ter um protocolo de autorização para cancelar.');
+            }
+
+            // Validar certificado configurado
+            $configFiscal = $this->getConfiguracaoNfcom();
+            if (!$configFiscal || empty($configFiscal->CER_ARQUIVO) || empty($configFiscal->CER_SENHA)) {
+                throw new Exception('Nenhum certificado válido configurado para NFCOM.');
+            }
+
+            // Carregar bibliotecas
+            $this->load->library('NFComService');
+
+            // Configurar serviço
+            $nfcomService = new NFComService([
+                'ambiente' => $nfecom->NFC_TIPO_AMBIENTE ?? 2,
+                'disable_cert_validation' => true
+            ]);
+            $nfcomService->setCertificate($configFiscal->CER_ARQUIVO, $configFiscal->CER_SENHA);
+
+            // Gerar evento de cancelamento
+            $eventoCancelamento = $this->gerarEventoCancelamento($nfecom, $justificativa);
+            
+            // Assinar evento usando método específico para eventos (infEvento)
+            $eventoAssinado = $this->assinarEventoNFCom($configFiscal, $eventoCancelamento);
+            
+            // Enviar evento para SEFAZ
+            $retornoCancelamento = $nfcomService->sendEvent($eventoAssinado, $nfecom->NFC_TIPO_AMBIENTE ?? 2);
+            
+            // Processar retorno
+            if (isset($retornoCancelamento['error'])) {
+                throw new Exception('Erro ao cancelar na SEFAZ: ' . $retornoCancelamento['error']);
+            }
+            
+            // Verificar status do cancelamento (cStat = 135 significa cancelamento autorizado)
+            $cStat = $retornoCancelamento['cStat'] ?? '999';
+            
+            if ($cStat == '135') {
+                // Cancelamento autorizado pela SEFAZ
+                $protocoloCancelamento = $retornoCancelamento['nProt'] ?? '';
+                $motivo = $retornoCancelamento['xMotivo'] ?? 'Cancelamento autorizado';
+                
+                // Atualizar status da NFCom
+                $dadosAtualizacao = [
+                    'NFC_STATUS' => 7, // Cancelada
+                    'NFC_X_MOTIVO' => 'Cancelada: ' . $justificativa,
+                    'NFC_C_STAT' => $cStat,
+                    'NFC_N_PROT_CANC' => $protocoloCancelamento
+                ];
+
+                $this->Nfecom_model->edit('nfecom_capa', $dadosAtualizacao, 'NFC_ID', $nfecom_id);
+
+                // Registrar protocolo de cancelamento
+                $this->registrarProtocolo($nfecom_id, $protocoloCancelamento, 'CANCELAMENTO', $motivo);
+
+                log_message('info', 'NFCom cancelada com sucesso na SEFAZ - ID: ' . $nfecom_id . ', Chave: ' . $nfecom->NFC_CH_NFCOM . ', Protocolo: ' . $protocoloCancelamento);
+            } else {
+                // Cancelamento rejeitado pela SEFAZ
+                $motivo = $retornoCancelamento['xMotivo'] ?? 'Erro desconhecido';
+                throw new Exception('Cancelamento rejeitado pela SEFAZ: ' . $cStat . ' - ' . $motivo);
+            }
+
+            if ($isAjax) {
+                $response = [
+                    'success' => true,
+                    'message' => 'NFCom cancelada com sucesso!'
+                ];
+                echo json_encode($response);
+                return;
+            } else {
+                $this->session->set_flashdata('success', 'NFCom cancelada com sucesso!');
+                redirect(site_url('nfecom/visualizar/' . $nfecom_id));
+            }
+
+        } catch (Exception $e) {
+            log_message('error', 'Erro ao cancelar NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+
+            if ($isAjax) {
+                $response = [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+                echo json_encode($response);
+                return;
+            } else {
+                $this->session->set_flashdata('error', 'Erro ao cancelar NFCom: ' . $e->getMessage());
+                redirect(site_url('nfecom'));
+            }
+        }
+    }
+
+    private function gerarEventoCancelamento($nfecom, $justificativa)
+    {
+        // Gerar XML do evento de cancelamento conforme schema evCancNFCom_v1.00.xsd
+        // O Id deve seguir o padrão: "ID" + tpEvento (6 dígitos) + chave NFCom (44 dígitos) + nSeqEvento (3 dígitos)
+        $tpEvento = '110111'; // Código do evento de cancelamento
+        $chaveNFCom = preg_replace('/\D/', '', $nfecom->NFC_CH_NFCOM); // Remover caracteres não numéricos
+        $nSeqEvento = '001'; // Primeiro evento de cancelamento
+        $idEvento = 'ID' . $tpEvento . $chaveNFCom . $nSeqEvento;
+        
+        // Data/hora do evento em formato TDateTimeUTC (horário de Brasília - UTC-3)
+        // Formato esperado: YYYY-MM-DDTHH:MM:SS-03:00 (não pode usar Z, deve ser -03:00 ou +03:00)
+        // O padrão do schema aceita: -00:00 até -11:00 ou +12:00
+        $timezone = new DateTimeZone('America/Sao_Paulo'); // Horário de Brasília (PTBR)
+        $datetime = new DateTime('now', $timezone);
+        // Formato P gera -03:00 ou -02:00 conforme horário de verão do Brasil
+        $dhEvento = $datetime->format('Y-m-d\TH:i:sP');
+        
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<eventoNFCom xmlns="http://www.portalfiscal.inf.br/nfcom" versao="1.00">' . "\n";
+        $xml .= '  <infEvento Id="' . $idEvento . '">' . "\n";
+        $xml .= '    <cOrgao>52</cOrgao>' . "\n"; // Código do órgão (GO = 52)
+        $xml .= '    <tpAmb>' . ($nfecom->NFC_TIPO_AMBIENTE ?? 2) . '</tpAmb>' . "\n";
+        $xml .= '    <CNPJ>' . preg_replace('/\D/', '', $nfecom->NFC_CNPJ_EMIT) . '</CNPJ>' . "\n";
+        $xml .= '    <chNFCom>' . $nfecom->NFC_CH_NFCOM . '</chNFCom>' . "\n";
+        $xml .= '    <dhEvento>' . $dhEvento . '</dhEvento>' . "\n";
+        $xml .= '    <tpEvento>' . $tpEvento . '</tpEvento>' . "\n";
+        $xml .= '    <nSeqEvento>' . $nSeqEvento . '</nSeqEvento>' . "\n";
+        // Garantir que o protocolo tenha exatamente 16 dígitos (padrão TProt)
+        $nProt = preg_replace('/\D/', '', $nfecom->NFC_N_PROT); // Remover caracteres não numéricos
+        $nProt = str_pad($nProt, 16, '0', STR_PAD_LEFT); // Preencher com zeros à esquerda até 16 dígitos
+        
+        $xml .= '    <detEvento versaoEvento="1.00">' . "\n";
+        $xml .= '      <evCancNFCom xmlns="http://www.portalfiscal.inf.br/nfcom">' . "\n";
+        $xml .= '        <descEvento>Cancelamento</descEvento>' . "\n";
+        $xml .= '        <nProt>' . $nProt . '</nProt>' . "\n";
+        $xml .= '        <xJust>' . htmlspecialchars($justificativa, ENT_XML1, 'UTF-8') . '</xJust>' . "\n";
+        $xml .= '      </evCancNFCom>' . "\n";
+        $xml .= '    </detEvento>' . "\n";
+        $xml .= '  </infEvento>' . "\n";
+        $xml .= '</eventoNFCom>';
+
+        return $xml;
+    }
+
+    private function assinarEventoNFCom($configFiscal, $xmlEvento)
+    {
+        // Assinar evento usando Signer diretamente com a tag correta (infEvento)
+        // Usar namespace completo já que use não pode estar dentro de função
+        $certificate = \NFePHP\Common\Certificate::readPfx($configFiscal->CER_ARQUIVO, $configFiscal->CER_SENHA);
+        
+        // Assinar usando a tag infEvento em vez de infNFCom
+        return \NFePHP\Common\Signer::sign(
+            $certificate,
+            $xmlEvento,
+            'infEvento',  // Tag correta para eventos
+            'Id',
+            OPENSSL_ALGO_SHA1,
+            [true, false, null, null]
+        );
     }
 
     private function registrarProtocolo($nfecomId, $numeroProtocolo, $tipo, $motivo = null, $data = null)

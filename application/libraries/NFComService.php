@@ -527,12 +527,16 @@ class NFComService
         if ($ambiente == 1) { // Produção
             if ($service === 'ConsultaProtocolo') {
                 return "https://nfcom.svrs.rs.gov.br/WS/NFComConsulta/NFComConsulta.asmx";
+            } elseif ($service === 'RecepcaoEvento') {
+                return "https://nfcom.svrs.rs.gov.br/WS/NFComRecepcaoEvento/NFComRecepcaoEvento.asmx";
             } else {
                 return "https://nfcom.svrs.rs.gov.br/WS/NFComRecepcao/NFComRecepcao.asmx";
             }
         } else { // Homologação
             if ($service === 'ConsultaProtocolo') {
                 return "https://nfcom-homologacao.svrs.rs.gov.br/WS/NFComConsulta/NFComConsulta.asmx";
+            } elseif ($service === 'RecepcaoEvento') {
+                return "https://nfcom-homologacao.svrs.rs.gov.br/WS/NFComRecepcaoEvento/NFComRecepcaoEvento.asmx";
             } else {
                 return "https://nfcom-homologacao.svrs.rs.gov.br/WS/NFComRecepcao/NFComRecepcao.asmx";
             }
@@ -600,7 +604,8 @@ class NFComService
         $xMotivo = $ret->getElementsByTagName('xMotivo')->item(0)->nodeValue ?? 'Erro desconhecido';
 
         $protocolo = null;
-        if ($cStat == '100') {
+        if ($cStat == '100' || $cStat == '101') {
+            // Para cStat 100 (Autorizado) ou 101 (Cancelado), tentar extrair protocolo
             $prot = $ret->getElementsByTagName('protNFCom')->item(0);
             if ($prot) {
                 $infProt = $prot->getElementsByTagName('infProt')->item(0);
@@ -612,12 +617,317 @@ class NFComService
                     ];
                 }
             }
+            
+            // Se cStat == 101 e não encontrou protocolo no protNFCom, tentar extrair do evento de cancelamento
+            if ($cStat == '101' && (!$protocolo || empty($protocolo['nProt']))) {
+                $procEventoNFCom = $ret->getElementsByTagName('procEventoNFCom')->item(0);
+                if ($procEventoNFCom) {
+                    $evento = $procEventoNFCom->getElementsByTagName('evento')->item(0);
+                    if ($evento) {
+                        $infEvento = $evento->getElementsByTagName('infEvento')->item(0);
+                        if ($infEvento) {
+                            $nProt = $infEvento->getElementsByTagName('nProt')->item(0)->nodeValue ?? '';
+                            $dhRecbto = $infEvento->getElementsByTagName('dhRecbto')->item(0)->nodeValue ?? '';
+                            $chNFCom = $infEvento->getElementsByTagName('chNFCom')->item(0)->nodeValue ?? '';
+                            
+                            if ($nProt) {
+                                $protocolo = [
+                                    'nProt' => $nProt,
+                                    'dhRecbto' => $dhRecbto,
+                                    'chNFCom' => $chNFCom
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return [
             'cStat' => $cStat,
             'xMotivo' => $xMotivo,
             'protocolo' => $protocolo,
+            'xml' => $response
+        ];
+    }
+
+    public function sendEvent($xmlEventoAssinado, $ambiente = 2)
+    {
+        try {
+            $url = $this->getEndpoint($ambiente, 'RecepcaoEvento');
+            
+            // Extrair o conteúdo do evento (remover <?xml e obter apenas o elemento eventoNFCom)
+            $dom = new DOMDocument();
+            @$dom->loadXML($xmlEventoAssinado);
+
+            // Buscar o elemento eventoNFCom
+            $xpath = new DOMXPath($dom);
+            $xpath->registerNamespace('nfcom', 'http://www.portalfiscal.inf.br/nfcom');
+
+            $eventoNode = null;
+            $nodes = $xpath->query('//nfcom:eventoNFCom');
+            if ($nodes->length > 0) {
+                $eventoNode = $nodes->item(0);
+            } else {
+                $nodes = $dom->getElementsByTagName('eventoNFCom');
+                if ($nodes->length > 0) {
+                    $eventoNode = $nodes->item(0);
+                }
+            }
+
+            if (!$eventoNode) {
+                throw new \Exception('Elemento eventoNFCom não encontrado no XML assinado');
+            }
+
+            // Converter para XML string e remover declaração
+            $eventoXml = $dom->saveXML($eventoNode);
+            $eventoXml = preg_replace('/<\?xml[^>]*\?>/', '', $eventoXml);
+            $eventoXml = trim($eventoXml);
+
+            // Validar XML antes de enviar
+            $domTest = new DOMDocument();
+            libxml_use_internal_errors(true);
+            $xmlValid = @$domTest->loadXML($eventoXml);
+            if (!$xmlValid) {
+                $errors = libxml_get_errors();
+                $errorMsg = 'XML do evento inválido: ';
+                foreach ($errors as $error) {
+                    $errorMsg .= trim($error->message) . ' ';
+                }
+                libxml_clear_errors();
+                throw new \Exception($errorMsg);
+            }
+            libxml_clear_errors();
+
+            // Converter XML para string sem formatação (como NFePHP faz)
+            $domTest->formatOutput = false;
+            $domTest->preserveWhiteSpace = false;
+            $cleanXml = $domTest->saveXML($domTest->documentElement);
+
+            // Envelope SOAP 1.2 para eventos - formato similar ao usado em executeCurl
+            $namespaceMsg = 'http://www.portalfiscal.inf.br/nfcom/wsdl/NFComRecepcaoEvento';
+            $soapEnvelope = '<?xml version="1.0" encoding="UTF-8"?>';
+            $soapEnvelope .= '<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">';
+            $soapEnvelope .= '<soap12:Header>';
+            $soapEnvelope .= '<nfcomCabecMsg xmlns="' . $namespaceMsg . '">';
+            $soapEnvelope .= '<cUF>52</cUF>'; // Código da UF do emitente (GO = 52)
+            $soapEnvelope .= '<versaoDados>1.00</versaoDados>';
+            $soapEnvelope .= '</nfcomCabecMsg>';
+            $soapEnvelope .= '</soap12:Header>';
+            $soapEnvelope .= '<soap12:Body>';
+            $soapEnvelope .= '<nfcomDadosMsg xmlns="' . $namespaceMsg . '">';
+            $soapEnvelope .= $cleanXml;
+            $soapEnvelope .= '</nfcomDadosMsg>';
+            $soapEnvelope .= '</soap12:Body>';
+            $soapEnvelope .= '</soap12:Envelope>';
+
+            // Salvar envelope SOAP para debug
+            file_put_contents('debug_evento_nfcom.xml', $soapEnvelope);
+
+            // Headers para evento - formato correto
+            $headers = [
+                'Content-Type: application/soap+xml; charset=utf-8',
+                'SOAPAction: "' . $namespaceMsg . '/nfcomRecepcaoEvento"',
+                'Content-length: ' . strlen($soapEnvelope)
+            ];
+
+            // Enviar via cURL usando o mesmo método que executeCurl
+            $response = $this->executeCurlEvento($url, $soapEnvelope, $headers);
+
+            if (empty($response)) {
+                throw new \Exception('Resposta vazia do SEFAZ ao enviar evento');
+            }
+
+            // Salvar resposta para debug
+            file_put_contents('debug_evento_response_nfcom.xml', $response);
+
+            // Parsear resposta
+            return $this->parseEventResponse($response);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Erro ao enviar evento NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            return ['error' => 'Erro ao enviar evento: ' . $e->getMessage()];
+        }
+    }
+
+    private function executeCurlEvento($url, $soapEnvelope, $headers)
+    {
+        // Converter PFX para PEM para uso no cURL
+        $certFile = tempnam(sys_get_temp_dir(), 'cert_');
+        $pemFile = tempnam(sys_get_temp_dir(), 'pem_');
+        $useP12 = false;
+
+        try {
+            // Fix for OpenSSL 3 legacy certificates
+            if (file_exists('C:/xampp/php/extras/ssl/openssl.cnf')) {
+                putenv('OPENSSL_CONF=C:/xampp/php/extras/ssl/openssl.cnf');
+                putenv('OPENSSL_MODULES=C:/xampp/php/extras/ssl');
+            }
+
+            // Método 1: Tentar usar openssl_pkcs12_read do PHP
+            $certs = [];
+            if (openssl_pkcs12_read($this->pfxContent, $certs, $this->password)) {
+                $certPem = $certs['cert'] ?? '';
+                $keyPem = $certs['pkey'] ?? '';
+
+                if (!empty($certPem) && !empty($keyPem)) {
+                    $pemContent = $certPem . "\n" . $keyPem;
+                    file_put_contents($pemFile, $pemContent);
+                    if (file_exists($pemFile) && filesize($pemFile) > 0) {
+                        log_message('debug', 'Certificado convertido para PEM via openssl_pkcs12_read');
+                    } else {
+                        throw new \Exception('Falha ao escrever arquivo PEM');
+                    }
+                } else {
+                    throw new \Exception('Certificado ou chave privada vazios');
+                }
+            } else {
+                throw new \Exception('Falha ao ler PFX com openssl_pkcs12_read');
+            }
+        } catch (\Exception $e) {
+            log_message('warning', 'Falha ao converter certificado via PHP: ' . $e->getMessage() . '. Tentando OpenSSL CLI.');
+            try {
+                file_put_contents($certFile, $this->pfxContent);
+                $opensslCheck = @shell_exec('openssl version 2>&1');
+                if (empty($opensslCheck) || strpos($opensslCheck, 'OpenSSL') === false) {
+                    throw new \Exception('OpenSSL não encontrado no sistema');
+                }
+                $opensslCmd = "openssl pkcs12 -in \"{$certFile}\" -out \"{$pemFile}\" -nodes -passin pass:\"{$this->password}\" 2>&1";
+                $output = [];
+                $returnVar = 0;
+                exec($opensslCmd, $output, $returnVar);
+                if ($returnVar !== 0 || !file_exists($pemFile) || filesize($pemFile) == 0) {
+                    throw new \Exception('Falha na conversão OpenSSL: ' . implode("\n", $output));
+                }
+                log_message('debug', 'Certificado convertido para PEM via OpenSSL CLI');
+            } catch (\Exception $e2) {
+                log_message('error', 'Erro ao converter certificado: ' . $e2->getMessage() . '. Tentando usar PFX diretamente.');
+                $pemFile = $certFile;
+                $useP12 = true;
+            }
+        }
+
+        // Configuração cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $soapEnvelope);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'NFePHP NFCom');
+
+        // Configuração do certificado
+        if ($useP12) {
+            curl_setopt($ch, CURLOPT_SSLCERT, $certFile);
+            curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $this->password);
+            curl_setopt($ch, CURLOPT_SSLCERTTYPE, "P12");
+        } else {
+            curl_setopt($ch, CURLOPT_SSLCERT, $pemFile);
+            curl_setopt($ch, CURLOPT_SSLKEY, $pemFile);
+            curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $this->password);
+        }
+
+        // Debug
+        file_put_contents('soap_request_evento_debug.xml', implode("\n", $headers) . "\n\n" . $soapEnvelope);
+
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $info = curl_getinfo($ch);
+
+        curl_close($ch);
+
+        // Limpar arquivos temporários
+        @unlink($certFile);
+        if ($pemFile != $certFile && file_exists($pemFile)) {
+            @unlink($pemFile);
+        }
+
+        // Log detalhado
+        log_message('debug', 'cURL Evento Info: HTTP Code=' . $httpCode . ', Error=' . ($error ?: 'Nenhum') . ', Response Length=' . strlen($response ?: ''));
+
+        if ($error) {
+            log_message('error', 'Erro cURL Evento: ' . $error . ' | HTTP Code: ' . $httpCode);
+            throw new \Exception("Erro cURL: " . $error . " (HTTP Code: " . $httpCode . ")");
+        }
+
+        if (empty($response)) {
+            log_message('error', 'Resposta vazia do SEFAZ ao enviar evento. HTTP Code: ' . $httpCode . ' | URL: ' . $url);
+            throw new \Exception("Resposta vazia do SEFAZ. HTTP Code: " . $httpCode . ". Verifique a conexão e o certificado.");
+        }
+
+        // Salvar resposta para debug
+        file_put_contents('soap_response_evento_debug.xml', $response);
+
+        if ($httpCode != 200) {
+            log_message('error', 'HTTP Code diferente de 200 ao enviar evento: ' . $httpCode . ' | Response: ' . substr($response, 0, 1000));
+            $errorMsg = "Erro HTTP " . $httpCode . " do SEFAZ";
+            if (!empty($response)) {
+                $dom = new DOMDocument();
+                @$dom->loadXML($response);
+                $fault = $dom->getElementsByTagName('Fault')->item(0);
+                if ($fault) {
+                    $faultString = $fault->getElementsByTagName('reason')->item(0);
+                    if (!$faultString) {
+                        $faultString = $fault->getElementsByTagName('faultstring')->item(0);
+                    }
+                    if ($faultString) {
+                        $errorMsg .= ": " . $faultString->nodeValue;
+                    }
+                } else {
+                    $errorMsg .= ": " . substr(strip_tags($response), 0, 200);
+                }
+            }
+            throw new \Exception($errorMsg);
+        }
+
+        return $response;
+    }
+
+    private function parseEventResponse($response)
+    {
+        // Remove namespaces for easier parsing
+        $xml = preg_replace('/(<\/?)(\\w+):([^>]*>)/', '$1$3', $response);
+
+        $dom = new DOMDocument();
+        @$dom->loadXML($xml);
+
+        // SOAP Fault
+        $fault = $dom->getElementsByTagName('Fault')->item(0);
+        if ($fault) {
+            $faultString = $fault->getElementsByTagName('reason')->item(0)->nodeValue ??
+                $fault->getElementsByTagName('faultstring')->item(0)->nodeValue ??
+                'Erro SOAP desconhecido';
+            return ['error' => 'Erro SOAP: ' . $faultString, 'raw' => $response];
+        }
+
+        $ret = $dom->getElementsByTagName('retEventoNFCom')->item(0);
+        if (!$ret) {
+            return ['error' => 'Resposta do SEFAZ inválida (retEventoNFCom não encontrado).', 'raw' => substr($response, 0, 1000)];
+        }
+
+        $infEvento = $ret->getElementsByTagName('infEvento')->item(0);
+        if (!$infEvento) {
+            return ['error' => 'Resposta do SEFAZ inválida (infEvento não encontrado).', 'raw' => substr($response, 0, 1000)];
+        }
+
+        $cStat = $infEvento->getElementsByTagName('cStat')->item(0)->nodeValue ?? '999';
+        $xMotivo = $infEvento->getElementsByTagName('xMotivo')->item(0)->nodeValue ?? 'Erro desconhecido';
+        
+        $nProt = null;
+        $nProtNode = $infEvento->getElementsByTagName('nProt')->item(0);
+        if ($nProtNode) {
+            $nProt = $nProtNode->nodeValue;
+        }
+
+        return [
+            'cStat' => $cStat,
+            'xMotivo' => $xMotivo,
+            'nProt' => $nProt,
             'xml' => $response
         ];
     }

@@ -260,10 +260,13 @@
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($r->NFC_STATUS == 3 || $r->NFC_STATUS == 5)) {
                                 echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" title="Baixar XML Autorizado" style="margin-right: 2px">XML</a>';
                             }
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($r->NFC_STATUS == 3 || $r->NFC_STATUS == 5)) {
+                                echo '<a href="#" onclick="abrirModalCancelamento(' . $r->NFC_ID . ')" class="btn btn-mini btn-danger" title="Cancelar NFCom" style="margin-right: 2px"><i class="fas fa-ban"></i> Cancelar</a>';
+                            }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS >= 2) {
                                 echo '<a href="#" onclick="consultarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini" title="Consultar Status na SEFAZ" style="margin-right: 2px"><i class="bx bx-search"></i></a>';
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS != 3) {
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS != 3 && $r->NFC_STATUS != 7) {
                                 echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->NFC_ID . '" class="btn btn-mini btn-danger" title="Excluir NFCom" style="margin-right: 2px" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')">Excluir</a>';
                             }
                             echo '</td>';
@@ -353,6 +356,39 @@
     </div>
 </div>
 
+<!-- Modal de Cancelamento -->
+<div id="modalCancelamento" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modalCancelamentoLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="modalCancelamentoLabel">
+            <i class="fas fa-ban"></i> Cancelar NFCom
+        </h3>
+    </div>
+    <div class="modal-body">
+        <form id="formCancelamento">
+            <input type="hidden" id="nfecom_id_cancelamento" name="nfecom_id" value="">
+            <div class="control-group">
+                <label class="control-label" for="justificativa_cancelamento">
+                    Justificativa do Cancelamento <span class="required">*</span>
+                </label>
+                <div class="controls">
+                    <textarea id="justificativa_cancelamento" name="justificativa" class="span12" rows="5" 
+                              placeholder="Informe a justificativa para o cancelamento (mínimo 15 caracteres)" 
+                              required></textarea>
+                    <span class="help-inline" style="display: none; color: red;" id="erro_justificativa"></span>
+                    <small class="help-block">A justificativa deve ter no mínimo 15 caracteres.</small>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmarCancelamento">
+            <i class="fas fa-ban"></i> Confirmar Cancelamento
+        </button>
+    </div>
+</div>
+
 <script>
 $(document).ready(function() {
     /* Verificar se deve mostrar modal */
@@ -369,8 +405,9 @@ $(document).ready(function() {
 
 function renderModalNfecom(data) {
     var isSuccess = data.status.toLowerCase().includes('autorizado') || data.cstat == '100';
-    var statusClass = isSuccess ? 'success' : (data.status.toLowerCase().includes('rejeitada') ? 'danger' : 'warning');
-    var statusIcon = isSuccess ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-danger';
+    var isCancelado = data.status.toLowerCase().includes('cancelada') || data.cstat == '101';
+    var statusClass = isSuccess ? 'success' : (isCancelado ? 'danger' : (data.status.toLowerCase().includes('rejeitada') ? 'danger' : 'warning'));
+    var statusIcon = isSuccess ? 'fa-check-circle text-success' : (isCancelado ? 'fa-ban text-danger' : 'fa-exclamation-circle text-danger');
 
     var html = `
         <div class="text-center mb-4">
@@ -413,11 +450,17 @@ function renderModalNfecom(data) {
     `;
 
     var footer = '';
-    if (isSuccess && data.id) {
+    if (data.id) {
+        // Sempre mostrar botão XML, mesmo quando cancelado
         footer += `
             <a href="<?php echo base_url(); ?>index.php/nfecom/gerarXml/${data.id}" class="btn btn-primary" target="_blank"><i class="fas fa-download"></i> XML</a>
-            <a href="<?php echo base_url(); ?>index.php/nfecom/danfe/${data.id}" class="btn btn-info" target="_blank"><i class="fas fa-eye"></i> DANFE</a>
         `;
+        // Mostrar DANFE apenas se autorizado
+        if (isSuccess) {
+            footer += `
+                <a href="<?php echo base_url(); ?>index.php/nfecom/danfe/${data.id}" class="btn btn-info" target="_blank"><i class="fas fa-eye"></i> DANFE</a>
+            `;
+        }
     }
     footer += '<button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>';
 
@@ -796,5 +839,75 @@ $(document).ready(function() {
 
     // Inicializar tooltips
     $('[data-toggle="tooltip"]').tooltip();
+});
+
+// Função para abrir modal de cancelamento
+function abrirModalCancelamento(nfecomId) {
+    $('#nfecom_id_cancelamento').val(nfecomId);
+    $('#justificativa_cancelamento').val('');
+    $('#erro_justificativa').hide();
+    $('#modalCancelamento').modal('show');
+}
+
+// Evento de confirmação de cancelamento
+$(document).ready(function() {
+    $('#btnConfirmarCancelamento').on('click', function() {
+        var nfecomId = $('#nfecom_id_cancelamento').val();
+        var justificativa = $('#justificativa_cancelamento').val().trim();
+        
+        // Validação
+        if (!justificativa) {
+            $('#erro_justificativa').text('A justificativa é obrigatória.').show();
+            return;
+        }
+        
+        if (justificativa.length < 15) {
+            $('#erro_justificativa').text('A justificativa deve ter no mínimo 15 caracteres.').show();
+            return;
+        }
+        
+        $('#erro_justificativa').hide();
+        
+        // Desabilitar botão durante processamento
+        var $btn = $(this);
+        var originalText = $btn.html();
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processando...');
+        
+        // Enviar requisição AJAX
+        $.ajax({
+            url: '<?php echo base_url(); ?>index.php/nfecom/cancelar',
+            type: 'POST',
+            data: {
+                nfecom_id: nfecomId,
+                justificativa: justificativa,
+                '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Fechar modal de cancelamento
+                    $('#modalCancelamento').modal('hide');
+                    
+                    // Mostrar mensagem de sucesso
+                    alert('NFCom cancelada com sucesso!');
+                    
+                    // Recarregar página
+                    location.reload();
+                } else {
+                    // Mostrar erro
+                    $('#erro_justificativa').text(response.message || 'Erro ao cancelar NFCom.').show();
+                    $btn.prop('disabled', false).html(originalText);
+                }
+            },
+            error: function(xhr, status, error) {
+                var errorMsg = 'Erro ao processar cancelamento.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                $('#erro_justificativa').text(errorMsg).show();
+                $btn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
 });
 </script>

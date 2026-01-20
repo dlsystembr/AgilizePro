@@ -352,7 +352,7 @@
                                     style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
                                     <h5 style="margin-left: 10px; color: #555;"><i class="fas fa-credit-card"></i>
                                         Informações de Pagamento</h5>
-                                    <div class="span4">
+                                    <div class="span3">
                                         <div class="control-group">
                                             <label class="control-label">Vencimento:</label>
                                             <div class="controls">

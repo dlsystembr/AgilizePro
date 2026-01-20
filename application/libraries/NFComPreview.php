@@ -239,9 +239,9 @@ class NFComPreview
         $qrX = $rightX + 2;
         $qrData = 'https://dfe-portal.svrs.rs.gov.br/nfcom/consulta?chNFCom=' . $chave;
 
-        // Se não for autorizada (3) nem cancelada/encerrada (5), exibe placeholder
+        // Se não for autorizada (3), cancelada/encerrada (5) nem cancelada homologada (7), exibe placeholder
         $status = $dados['status'] ?? 0;
-        if ($status != 3 && $status != 5) {
+        if ($status != 3 && $status != 5 && $status != 7) {
             $this->drawPlaceholder($pdf, $qrX, $qrY, $qrSize, $qrSize, 'CAMPO PARA QRCODE');
         } else {
             $this->drawQrCode($pdf, $qrData, $qrX, $qrY, $qrSize);
@@ -482,11 +482,28 @@ class NFComPreview
         $pdf->MultiCell($w - 4, 3.5, $this->safeText($info), 0, 'L');
 
         // Marca d'água SEM VALOR FISCAL se não autorizado
-        if ($status != 3 && $status != 5) {
+        if ($status != 3 && $status != 5 && $status != 7) {
             $pdf->SetFont('helvetica', 'B', 20);
             $pdf->SetTextColor(200, 200, 200);
             $pdf->SetXY($x, $infoY + $headerInfoH + 4);
             $pdf->Cell($w, 10, $this->safeText('DOCUMENTO SEM VALOR FISCAL'), 0, 0, 'C');
+            $pdf->SetTextColor(0, 0, 0);
+        }
+
+        // Marca d'água CANCELADA se status for 7
+        if ($status == 7) {
+            $pdf->SetFont('helvetica', 'B', 100);
+            $pdf->SetTextColor(255, 200, 200); // Vermelho bem claro
+
+            // Centralizar e rotacionar no meio da página A4 (210x297)
+            $wmX = 25;
+            $wmY = 220;
+            $wmAngle = 45;
+
+            if (method_exists($pdf, 'RotatedText')) {
+                $pdf->RotatedText($wmX, $wmY, $this->safeText('CANCELADA'), $wmAngle);
+            }
+
             $pdf->SetTextColor(0, 0, 0);
         }
 
@@ -524,11 +541,15 @@ class NFComPreview
 
         $pdf->SetFont('helvetica', '', 8);
         $pdf->SetXY($x + 2, $innerY + 5);
-        $linhaDig = $dados['faturamento']['linha_digitavel'] ?? ($dados['faturamento']['cod_barras'] ?? '');
-        if (empty($linhaDig) || $linhaDig === '1') {
-            $linhaDig = str_repeat('0', 48);
+        if ($status == 7) {
+            $pdf->Cell($boxW - 2, 4, $this->safeText('INDISPONIVEL - NF CANCELADA'), 0, 0, 'L');
+        } else {
+            $linhaDig = $dados['faturamento']['linha_digitavel'] ?? ($dados['faturamento']['cod_barras'] ?? '');
+            if (empty($linhaDig) || $linhaDig === '1') {
+                $linhaDig = str_repeat('0', 48);
+            }
+            $pdf->Cell($boxW - 2, 4, $this->safeText($linhaDig), 0, 0, 'L');
         }
-        $pdf->Cell($boxW - 2, 4, $this->safeText($linhaDig), 0, 0, 'L');
 
         $box2X = $x + 1 + $boxW + $gapBox;
         $pdf->Rect($box2X, $innerY, $boxW, $boxH);
@@ -558,9 +579,18 @@ class NFComPreview
 
         $barcodeH = 13;
         $barcodeY = $barY + (($barH - $barcodeH) / 2);
-        $barcodeW = $barAreaW - 22;
-        $barcodeX = $x + 6;
-        $this->drawBarcode($pdf, $codBarras, $barcodeX, $barcodeY, $barcodeW, $barcodeH);
+        $barcodeW = $barAreaW - 10;
+        $barcodeX = $x + 5;
+
+        if ($status == 7) {
+            $pdf->SetFont('helvetica', 'B', 8);
+            $pdf->SetTextColor(150, 0, 0);
+            $pdf->SetXY($barcodeX, $barcodeY + 4);
+            $pdf->Cell($barcodeW, 5, $this->safeText('CODIGO DE BARRAS INDISPONIVEL - NF CANCELADA'), 0, 0, 'L');
+            $pdf->SetTextColor(0, 0, 0);
+        } else {
+            $this->drawBarcode($pdf, $codBarras, $barcodeX, $barcodeY, $barcodeW - 12, $barcodeH);
+        }
 
         // Pix
         $pixPayload = $dados['pix_payload'] ?? null;
@@ -579,27 +609,49 @@ class NFComPreview
             $qrY = $barY + (($barH - $qrSize) / 2);
             $qrX = $x + $w - $qrSize - $pixPadR;
 
-            $this->drawQrCode($pdf, $pixPayload, $qrX, $qrY, $qrSize);
+            if ($status == 7) {
+                // Desenhar o "quadratinho" (box) no campo do PIX
+                $pdf->SetDrawColor(200, 200, 200);
+                $pdf->Rect($qrX, $qrY, $qrSize, $qrSize);
 
-            $textAreaW = $pixAreaW - $qrSize - ($pixPadL + $pixPadR);
-            $textX = $qrX - $textAreaW - $pixPadL;
-            $contentCenterY = $barY + ($barH / 2);
+                // Texto curto dentro do box
+                $pdf->SetFont('helvetica', 'B', 6);
+                $pdf->SetTextColor(150, 150, 150);
+                $pdf->SetXY($qrX, $qrY + 5);
+                $pdf->Cell($qrSize, 4, $this->safeText('PIX'), 0, 0, 'C');
+                $pdf->SetXY($qrX, $qrY + 9);
+                $pdf->Cell($qrSize, 4, $this->safeText('INDISP.'), 0, 0, 'C');
 
-            $pdf->SetFont('helvetica', '', 7);
-            $pdf->SetXY($textX, $contentCenterY - 4);
-            $pdf->MultiCell($textAreaW, 3.5, $this->safeText('Pague também via Pix:'), 0, 'R');
-
-            $logoPath = $this->config['pix_logo'] ?? null;
-            if ($logoPath && file_exists($logoPath)) {
-                $logoW = 16;
-                $logoH = 5;
-                $pdf->Image($logoPath, $textX + ($textAreaW - $logoW), $contentCenterY + 1, $logoW);
-            } else {
-                $pdf->SetXY($textX, $contentCenterY + 1);
-                $pdf->SetFont('helvetica', 'B', 12);
-                $pdf->SetTextColor(50, 188, 173);
-                $pdf->Cell($textAreaW, 5, 'pix', 0, 0, 'R');
+                $textAreaW = $pixAreaW - $pixPadR - $pixPadL;
+                $textX = $x + $w - $textAreaW - $pixPadR;
+                $pdf->SetFont('helvetica', 'B', 8);
+                $pdf->SetTextColor(150, 0, 0);
+                $pdf->SetXY($textX, $qrY + 13); // Descido um pouco para não sobrepor se fosse o caso
+                $pdf->Cell($textAreaW, 5, $this->safeText('PIX INDISPONIVEL - NF CANCELADA'), 0, 0, 'R');
                 $pdf->SetTextColor(0, 0, 0);
+            } else {
+                $this->drawQrCode($pdf, $pixPayload, $qrX, $qrY, $qrSize);
+
+                $textAreaW = $pixAreaW - $qrSize - ($pixPadL + $pixPadR);
+                $textX = $qrX - $textAreaW - $pixPadL;
+                $contentCenterY = $barY + ($barH / 2);
+
+                $pdf->SetFont('helvetica', '', 7);
+                $pdf->SetXY($textX, $contentCenterY - 4);
+                $pdf->MultiCell($textAreaW, 3.5, $this->safeText('Pague também via Pix:'), 0, 'R');
+
+                $logoPath = $this->config['pix_logo'] ?? null;
+                if ($logoPath && file_exists($logoPath)) {
+                    $logoW = 16;
+                    $logoH = 5;
+                    $pdf->Image($logoPath, $textX + ($textAreaW - $logoW), $contentCenterY + 1, $logoW);
+                } else {
+                    $pdf->SetXY($textX, $contentCenterY + 1);
+                    $pdf->SetFont('helvetica', 'B', 12);
+                    $pdf->SetTextColor(50, 188, 173);
+                    $pdf->Cell($textAreaW, 5, 'pix', 0, 0, 'R');
+                    $pdf->SetTextColor(0, 0, 0);
+                }
             }
         }
     }
@@ -674,7 +726,7 @@ class NFComPreview
                 $row = [
                     implode(PHP_EOL, $descLines),
                     $item['cclass'] ?? ($item['cClass'] ?? ($item['classe'] ?? $defaultCClass)),
-                    $item['unidade'] ?? 'UN',
+                    $this->getUnidadeDescricao($item['unidade'] ?? 'UN'),
                     $this->fmtQty($qtd),
                     $this->fmtMoney($vUnit),
                     $this->fmtMoney($item['desconto'] ?? 0.00),
@@ -808,6 +860,18 @@ class NFComPreview
             return preg_replace('/[^\x20-\x7E]/', '', $text);
         }
         return $converted;
+    }
+
+    private function getUnidadeDescricao($unidade): string
+    {
+        $unidades = [
+            '1' => 'Min',
+            '2' => 'MB',
+            '3' => 'GB',
+            '4' => 'UN'
+        ];
+
+        return $unidades[(string) $unidade] ?? (string) $unidade;
     }
 
     private function normalizeCClass(string $value): string
