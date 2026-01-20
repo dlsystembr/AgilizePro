@@ -261,6 +261,29 @@ class Mapos_model extends CI_Model
         return $this->db->get()->result();
     }
 
+    public function calendarioNFCom($start, $end)
+    {
+        $this->db->select('nfecom_capa.*');
+        $this->db->from('nfecom_capa');
+        $this->db->where('nfecom_capa.NFC_DHEMI >=', $start);
+        $this->db->where('nfecom_capa.NFC_DHEMI <=', $end);
+        $this->db->order_by('nfecom_capa.NFC_DHEMI', 'DESC');
+
+        return $this->db->get()->result();
+    }
+
+    public function getNfcomDia()
+    {
+        $hoje = date('Y-m-d');
+        $this->db->select('nfecom_capa.*');
+        $this->db->from('nfecom_capa');
+        $this->db->like('nfecom_capa.NFC_DHEMI', $hoje);
+        $this->db->order_by('nfecom_capa.NFC_DHEMI', 'DESC');
+        $this->db->limit(10);
+
+        return $this->db->get()->result();
+    }
+
     public function getProdutosMinimo()
     {
         $sql = 'SELECT * FROM produtos WHERE PRO_ESTOQUE <= PRO_ESTOQUE_MINIMO AND PRO_ESTOQUE_MINIMO > 0 LIMIT 10';

@@ -26,6 +26,7 @@ class Mapos extends MY_Controller {
         $this->data['financeiro_mes_dia'] = $this->mapos_model->getEstatisticasFinanceiroDia($this->input->get('year'));
         $this->data['financeiro_mes'] = $this->mapos_model->getEstatisticasFinanceiroMes($this->input->get('year'));
         $this->data['financeiro_mesinadipl'] = $this->mapos_model->getEstatisticasFinanceiroMesInadimplencia($this->input->get('year'));
+        $this->data['nfcom_dia'] = $this->mapos_model->getNfcomDia();
         $this->data['menuPainel'] = 'Painel';
         $this->data['view'] = 'mapos/painel';
 
@@ -500,8 +501,9 @@ class Mapos extends MY_Controller {
 
     public function calendario()
     {
-        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) {
-            $this->session->set_flashdata('error', 'Você não tem permissão para visualizar O.S.');
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'vOs') && 
+            !$this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para visualizar a agenda.');
             redirect(base_url());
         }
         $this->load->model('os_model');
@@ -509,11 +511,15 @@ class Mapos extends MY_Controller {
         $start = $this->input->get('start') ?: null;
         $end = $this->input->get('end') ?: null;
 
-        $allOs = $this->mapos_model->calendario(
-            $start,
-            $end,
-            $status
-        );
+        $allOs = [];
+        if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) {
+            $allOs = $this->mapos_model->calendario(
+                $start,
+                $end,
+                $status
+            );
+        }
+        
         $events = array_map(function ($os) {
             switch ($os->ORV_STATUS) {
                 case 'Aberto':
@@ -548,24 +554,15 @@ class Mapos extends MY_Controller {
                     break;
             }
 
-            $totalProdutos = 0;
-            $totalServicos = 0;
-
             $produtos = $this->os_model->getProdutos($os->ORV_ID);
-            foreach ($produtos as $p) {
-                $subtotal = isset($p->PRO_OS_SUBTOTAL)
-                    ? (float) $p->PRO_OS_SUBTOTAL
-                    : (float) (($p->PRO_OS_PRECO ?? 0) * ($p->PRO_OS_QUANTIDADE ?? 0));
-                $totalProdutos += $subtotal;
-            }
+            $totalProdutos = array_reduce($produtos, function ($acc, $p) {
+                return $acc + (isset($p->PRO_OS_SUBTOTAL) ? (float)$p->PRO_OS_SUBTOTAL : (float)(($p->PRO_OS_PRECO ?? 0) * ($p->PRO_OS_QUANTIDADE ?? 0)));
+            }, 0);
 
             $servicos = $this->os_model->getServicos($os->ORV_ID);
-            foreach ($servicos as $s) {
-                $subtotal = isset($s->SOS_SUBTOTAL)
-                    ? (float) $s->SOS_SUBTOTAL
-                    : (float) (($s->SOS_PRECO ?? 0) * ($s->SOS_QUANTIDADE ?? 0));
-                $totalServicos += $subtotal;
-            }
+            $totalServicos = array_reduce($servicos, function ($acc, $s) {
+                return $acc + (isset($s->SOS_SUBTOTAL) ? (float)$s->SOS_SUBTOTAL : (float)(($s->SOS_PRECO ?? 0) * ($s->SOS_QUANTIDADE ?? 0)));
+            }, 0);
 
             $subtotalGeral = $totalProdutos + $totalServicos;
             $valorDesconto = (float) ($os->ORV_VALOR_DESCONTO ?? 0);
@@ -578,6 +575,7 @@ class Mapos extends MY_Controller {
                 'color' => $cor,
                 'extendedProps' => [
                     'id' => $os->ORV_ID,
+                    'tipo' => 'os',
                     'cliente' => '<b>Cliente:</b> ' . $os->nomeCliente,
                     'dataInicial' => '<b>Data Inicial:</b> ' . date('d/m/Y', strtotime($os->ORV_DATA_INICIAL)),
                     'dataFinal' => '<b>Data Final:</b> ' . date('d/m/Y', strtotime($os->ORV_DATA_FINAL)),
@@ -594,6 +592,43 @@ class Mapos extends MY_Controller {
                 ],
             ];
         }, $allOs);
+
+        // Filter out NULL from array_map if OS mapping was skipped (though here $allOs would be empty)
+        $events = array_filter($events);
+
+        // Incluir NFCom se o usuário tiver permissão e não houver status de OS filtrado
+        if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && empty($status)) {
+            $allNfcom = $this->mapos_model->calendarioNFCom($start, $end);
+            foreach ($allNfcom as $nfcom) {
+                // Mapear status de NFCom para texto
+                $statusText = 'Desconhecido';
+                switch ($nfcom->NFC_STATUS) {
+                    case 0: $statusText = 'Rascunho'; break;
+                    case 1: $statusText = 'Pendente'; break;
+                    case 2: $statusText = 'Enviada'; break;
+                    case 3: $statusText = 'Autorizada'; break;
+                    case 4: $statusText = 'Rejeitada'; break;
+                    case 5: $statusText = 'Autorizada'; break;
+                    case 7: $statusText = 'Cancelada'; break;
+                }
+
+                $events[] = [
+                    'title' => "NFCom: {$nfcom->NFC_NNF}, Cliente: {$nfcom->NFC_X_NOME_DEST}",
+                    'start' => date('Y-m-d', strtotime($nfcom->NFC_DHEMI)),
+                    'end' => date('Y-m-d', strtotime($nfcom->NFC_DHEMI)),
+                    'color' => '#3a86ff',
+                    'extendedProps' => [
+                        'id' => $nfcom->NFC_ID,
+                        'tipo' => 'nfcom',
+                        'cliente' => '<b>Cliente:</b> ' . $nfcom->NFC_X_NOME_DEST,
+                        'dataEmissao' => '<b>Emissão:</b> ' . date('d/m/Y H:i', strtotime($nfcom->NFC_DHEMI)),
+                        'status' => '<b>Status NFCom:</b> ' . $statusText,
+                        'valor' => '<b>Total:</b> R$ ' . number_format($nfcom->NFC_V_NF, 2, ',', '.'),
+                        'visualizar' => site_url('nfecom/visualizar/' . $nfcom->NFC_ID)
+                    ],
+                ];
+            }
+        }
 
         return $this->output
             ->set_content_type('application/json')

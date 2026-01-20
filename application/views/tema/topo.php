@@ -47,25 +47,73 @@
   <script type="text/javascript" src="<?= base_url(); ?>assets/js/csrf.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script type="text/javascript">
+    // Permissões do usuário
+    var userPermissions = {
+      vCliente: <?= $this->permission->checkPermission($this->session->userdata('permissao'), 'vCliente') ? 'true' : 'false' ?>,
+      vProduto: <?= $this->permission->checkPermission($this->session->userdata('permissao'), 'vProduto') ? 'true' : 'false' ?>,
+      vServico: <?= $this->permission->checkPermission($this->session->userdata('permissao'), 'vServico') ? 'true' : 'false' ?>,
+      vOs: <?= $this->permission->checkPermission($this->session->userdata('permissao'), 'vOs') ? 'true' : 'false' ?>,
+      vVenda: <?= $this->permission->checkPermission($this->session->userdata('permissao'), 'vVenda') ? 'true' : 'false' ?>,
+      aVenda: <?= $this->permission->checkPermission($this->session->userdata('permissao'), 'aVenda') ? 'true' : 'false' ?>,
+      vLancamento: <?= $this->permission->checkPermission($this->session->userdata('permissao'), 'vLancamento') ? 'true' : 'false' ?>
+    };
+
+    // F1 - Clientes
     shortcut.add("F1", function () {
-      location.href = '<?= site_url('clientes'); ?>';
+      if (userPermissions.vCliente) {
+        location.href = '<?= site_url('clientes'); ?>';
+      } else {
+        console.log('Sem permissão para acessar Clientes');
+      }
     });
+
+    // F2 - Produtos
     shortcut.add("F2", function () {
-      location.href = '<?= site_url('produtos'); ?>';
+      if (userPermissions.vProduto) {
+        location.href = '<?= site_url('produtos'); ?>';
+      } else {
+        console.log('Sem permissão para acessar Produtos');
+      }
     });
+
+    // F3 - Serviços
     shortcut.add("F3", function () {
-      location.href = '<?= site_url('servicos'); ?>';
+      if (userPermissions.vServico) {
+        location.href = '<?= site_url('servicos'); ?>';
+      } else {
+        console.log('Sem permissão para acessar Serviços');
+      }
     });
+
+    // F4 - Ordens de Serviço
     shortcut.add("F4", function () {
-      location.href = '<?= site_url('os'); ?>';
+      if (userPermissions.vOs) {
+        location.href = '<?= site_url('os'); ?>';
+      } else {
+        console.log('Sem permissão para acessar Ordens de Serviço');
+      }
     });
+
     //shortcut.add("F5", function() {});
+
+    // F6 - Adicionar Venda
     shortcut.add("F6", function () {
-      location.href = '<?= site_url('vendas/adicionar'); ?>';
+      if (userPermissions.aVenda) {
+        location.href = '<?= site_url('vendas/adicionar'); ?>';
+      } else {
+        console.log('Sem permissão para adicionar Vendas');
+      }
     });
+
+    // F7 - Lançamentos Financeiros
     shortcut.add("F7", function () {
-      location.href = '<?= site_url('financeiro/lancamentos'); ?>';
+      if (userPermissions.vLancamento) {
+        location.href = '<?= site_url('financeiro/lancamentos'); ?>';
+      } else {
+        console.log('Sem permissão para acessar Lançamentos');
+      }
     });
+
     shortcut.add("F8", function () { });
     shortcut.add("F9", function () { });
     shortcut.add("F10", function () { });

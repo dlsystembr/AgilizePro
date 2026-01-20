@@ -208,6 +208,21 @@
                         </div>
                     </a>
 
+                    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) : ?>
+                        <a href="<?php echo base_url() ?>index.php/nfecom" class="card tip-top" title="NFCom Autorizadas">
+                            <div><i class='bx bxs-file iconBx9'></i></div>
+                            <div>
+                                <?php
+                                // Contar NFCom autorizadas (status 3 ou 5)
+                                $this->db->where_in('NFC_STATUS', [3, 5]);
+                                $nfcom_autorizadas = $this->db->count_all_results('nfecom_capa');
+                                ?>
+                                <div class="cardName2"><?= $nfcom_autorizadas; ?></div>
+                                <div class="cardName">NFCom Autorizadas</div>
+                            </div>
+                        </a>
+                    <?php endif ?>
+
                     <!-- responsavel por fazer complementar a variavel "$financeiro_mes_dia->" de receita e despesa -->
                     <?php if ($estatisticas_financeiro != null) {
                         if ($estatisticas_financeiro->total_receita != null || $estatisticas_financeiro->total_despesa != null || $estatisticas_financeiro->total_receita_pendente != null || $estatisticas_financeiro->total_despesa_pendente != null) {  ?>
@@ -491,6 +506,7 @@
 
 <!-- Start Staus OS -->
 <div class="span12A" style="margin-left: 0">
+    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) : ?>
     <div class="widget-box0 widbox-blak">
         <div>
             <h5 class="cardHeader">Ordens de Serviços Em Orçamento.</h5>
@@ -579,7 +595,9 @@
             </table>
         </div>
     </div>
+    <?php endif ?>
     
+    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) : ?>
     <div class="widget-box0 widbox-blak">
         <div>
             <h5 class="cardHeader">Ordens de Serviços Em Aberto</h5>
@@ -668,8 +686,10 @@
             </table>
         </div>
     </div>
+    <?php endif ?>
 
 
+    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) : ?>
     <div class="widget-box0 widbox-blak">
         <div>
             <h5 class="cardHeader">Ordens de Serviços Aprovadas</h5>
@@ -758,7 +778,9 @@
             </table>
         </div>
     </div>
+    <?php endif ?>
 
+    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) : ?>
     <div class="widget-box0 widbox-blak">
         <div>
             <h5 class="cardHeader">Ordens de Serviços Finalizadas</h5>
@@ -847,7 +869,9 @@
             </table>
         </div>
     </div>
+    <?php endif ?>
 
+    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) : ?>
     <div class="widget-box0 widbox-blak">
         <div>
             <h5 class="cardHeader">Ordens de Serviços Em Andamento e Aguardando Peças</h5>
@@ -934,7 +958,9 @@
             </table>
         </div>
     </div>
+    <?php endif ?>
 
+    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vVenda')) : ?>
     <div class="widget-box0 widbox-blak">
         <div>
             <h5 class="cardHeader">Status de Vendas</h5>
@@ -1020,7 +1046,64 @@
             </table>
         </div>
     </div>
+    <?php endif ?>
+    
+    <div class="widget-box0 widbox-blak">
+        <div>
+            <h5 class="cardHeader">NFCom Emitidas Hoje</h5>
+        </div>
+        <div class="widget-content">
+            <table class="table table-bordered lanc-table">
+                <thead>
+                    <tr>
+                        <th class="numero-col">N°</th>
+                        <th class="cliente-col">Cliente</th>
+                        <th class="data-final-col">Data</th>
+                        <th class="valor-col">Valor</th>
+                        <th class="status-col">Status</th>
+                        <th class="acoes-col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($nfcom_dia != null) : ?>
+                        <?php foreach ($nfcom_dia as $n) : ?>
+                            <?php
+                                    switch ($n->NFC_STATUS) {
+                                        case 0: $cor = '#CDB380'; $status = 'Rascunho'; break;
+                                        case 1: $cor = '#f39c12'; $status = 'Pendente'; break;
+                                        case 2: $cor = '#00cd00'; $status = 'Enviado'; break;
+                                        case 3: $cor = '#4d9c79'; $status = 'Autorizado'; break;
+                                        case 4: $cor = '#f24c6f'; $status = 'Rejeitada'; break;
+                                        case 5: $cor = '#28a745'; $status = 'Autorizada'; break;
+                                        case 7: $cor = '#999';    $status = 'Cancelada'; break;
+                                        default: $cor = '#E0E4CC'; $status = 'N/A'; break;
+                                    }
+                                ?>
+                            <tr>
+                                <td><?= $n->NFC_NNF ?></td>
+                                <td class="cli1"><?= $n->NFC_X_NOME_DEST ?></td>
+                                <td><?= date('d/m/Y', strtotime($n->NFC_DHEMI)) ?></td>
+                                <td>R$ <?= number_format($n->NFC_V_NF, 2, ',', '.') ?></td>
+                                <td><span class="badge" style="background-color: <?= $cor ?>; border-color: <?= $cor ?>;"><?= $status ?></span></td>
+                                <td>
+                                    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) : ?>
+                                        <a href="<?= base_url() ?>index.php/nfecom/visualizar/<?= $n->NFC_ID ?>" class="btn-nwe tip-top" title="Visualizar">
+                                            <i class="bx bx-show"></i> </a>
+                                    <?php endif ?>
+                                </td>
+                            </tr>
+                        <?php endforeach ?>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="6">Nenhuma NFCom emitida hoje.</td>
+                        </tr>
+                    <?php endif ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
+    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) : ?>
     <div class="widget-box0 widbox-blak">
         <div>
             <h5 class="cardHeader">Últimos Lançamentos Pendentes</h5>
@@ -1064,7 +1147,9 @@
             </table>
         </div>
     </div>
+    <?php endif ?>
 
+    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eProduto')) : ?>
     <div class="AAA">
         <div class="widget-box0 widbox-blak">
             <div>
@@ -1122,6 +1207,7 @@
             </div>
         </div>
     </div>
+    <?php endif ?>
                         
 </div>
 <!-- Fim Staus OS -->
@@ -1270,30 +1356,54 @@
             },
             eventClick: function(info) {
                 var eventObj = info.event.extendedProps;
+                
+                // Limpar campos comuns
                 $('#modalId').html(eventObj.id);
-                $('#modalIdVisualizar').attr("href", "<?php echo base_url(); ?>index.php/os/visualizar/" + eventObj.id);
-                if (eventObj.editar) {
-                    $('#modalIdEditar').show();
-                    $('#linkExcluir').show();
-                    $('#modalIdEditar').attr("href", "<?php echo base_url(); ?>index.php/os/editar/" + eventObj.id);
-                    $('#modalIdExcluir').val(eventObj.id);
-                } else {
+                
+                if (eventObj.tipo === 'nfcom') {
+                    // Configuração para NFCom
+                    $('#myModalLabel').html('Detalhes da NFCom');
+                    $('#modalCliente').html(eventObj.cliente);
+                    $('#modalDataFinal').html(eventObj.dataEmissao);
+                    $('#modalStatus').html(eventObj.status);
+                    $('#modalTotal').html(eventObj.valor);
+                    
+                    // Limpar campos de OS
+                    $('#modalDataInicial, #modalGarantia, #modalDescription, #modalDefeito, #modalObservacoes, #modalSubtotal, #modalDesconto, #modalFaturado').html('');
+                    
+                    // Ajustar botões
+                    $('#modalIdVisualizar').attr("href", eventObj.visualizar);
+                    $('#modalIdVisualizar').show();
                     $('#modalIdEditar').hide();
                     $('#linkExcluir').hide();
+                } else {
+                    // Configuração para OS (Padrão)
+                    $('#myModalLabel').html('Status OS Detalhada');
+                    $('#modalIdVisualizar').attr("href", "<?php echo base_url(); ?>index.php/os/visualizar/" + eventObj.id);
+                    if (eventObj.editar) {
+                        $('#modalIdEditar').show();
+                        $('#linkExcluir').show();
+                        $('#modalIdEditar').attr("href", "<?php echo base_url(); ?>index.php/os/editar/" + eventObj.id);
+                        $('#modalIdExcluir').val(eventObj.id);
+                    } else {
+                        $('#modalIdEditar').hide();
+                        $('#linkExcluir').hide();
+                    }
+                    $('#modalCliente').html(eventObj.cliente);
+                    $('#modalDataInicial').html(eventObj.dataInicial);
+                    $('#modalDataFinal').html(eventObj.dataFinal);
+                    $('#modalGarantia').html(eventObj.garantia);
+                    $('#modalStatus').html(eventObj.status);
+                    $('#modalDescription').html(eventObj.description);
+                    $('#modalDefeito').html(eventObj.defeito);
+                    $('#modalObservacoes').html(eventObj.observacoes);
+                    $('#modalSubtotal').html(eventObj.subtotal);
+                    $('#modalDesconto').html(eventObj.desconto);
+                    $('#modalTotal').html(eventObj.total);
+                    $('#modalFaturado').html(eventObj.faturado);
+                    $('#modalIdVisualizar').show();
                 }
-                $('#modalCliente').html(eventObj.cliente);
-                $('#modalDataInicial').html(eventObj.dataInicial);
-                $('#modalDataFinal').html(eventObj.dataFinal);
-                $('#modalGarantia').html(eventObj.garantia);
-                $('#modalStatus').html(eventObj.status);
-                $('#modalDescription').html(eventObj.description);
-                $('#modalDefeito').html(eventObj.defeito);
-                $('#modalObservacoes').html(eventObj.observacoes);
-                $('#modalSubtotal').html(eventObj.subtotal);
-                $('#modalDesconto').html(eventObj.desconto);
-                $('#modalTotal').html(eventObj.total);
-                $('#modalFaturado').html(eventObj.faturado);
-                $('#eventUrl').attr('href', event.url);
+                
                 $('#calendarModal').modal();
             },
         });

@@ -8,95 +8,46 @@
                 <h5>Dados da NFCom</h5>
                 <div class="buttons">
                     <?php
-                    // EDITAR: Status < 2 (Rascunho/Salvo) ou 4 (Rejeitada)
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->NFC_STATUS < 2 || $result->NFC_STATUS == 4)) { ?>
-                        <a title="Editar NFCom" class="button btn btn-mini btn-success"
-                            href="<?php echo base_url(); ?>index.php/nfecom/editar/<?php echo $result->NFC_ID; ?>">
-                            <span class="button__icon"><i class="bx bx-edit"></i></span>
-                            <span class="button__text">Editar</span>
-                        </a>
-                    <?php } ?>
+                    // VOLTAR
+                    echo '<a href="' . base_url() . 'index.php/nfecom" class="btn-nwe" title="Voltar" style="margin-right: 1%"><i class="bx bx-arrow-back"></i></a>';
 
-                    <?php
+                    // EDITAR: Status < 2 (Rascunho/Salvo) ou 4 (Rejeitada)
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->NFC_STATUS < 2 || $result->NFC_STATUS == 4)) {
+                        echo '<a href="' . base_url() . 'index.php/nfecom/editar/' . $result->NFC_ID . '" class="btn-nwe" title="Editar NFCom" style="margin-right: 1%"><i class="bx bx-edit"></i></a>';
+                    }
+
                     // TRANSMITIR / REEMITIR: Status < 2 (Rascunho/Salvo) ou 4 (Rejeitada)
                     if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->NFC_STATUS < 2 || $result->NFC_STATUS == 4)) {
                         $label = ($result->NFC_STATUS == 4) ? 'Reemitir' : 'Transmitir';
-                        ?>
-                        <a href="#" class="button btn btn-mini btn-success btn-gerar-nfcom"
-                            data-id="<?php echo $result->NFC_ID; ?>" 
-                            onclick="gerarNFCom(<?php echo $result->NFC_ID; ?>); return false;"
-                            title="<?php echo $label; ?> NFCom">
-                            <span class="button__icon"><i class="bx bx-paper-plane"></i></span>
-                            <span class="button__text"><?php echo $label; ?></span>
-                        </a>
-                
-                        <!-- XML Pré-emissão -->
-                        <a target="_blank" title="Gerar XML (Pré-Emissão)" class="button btn btn-mini btn-warning"
-                            href="<?php echo base_url(); ?>index.php/nfecom/gerarXmlPreEmissao/<?php echo $result->NFC_ID; ?>">
-                            <span class="button__icon"><i class="bx bx-code-alt"></i></span>
-                            <span class="button__text">XML Prévia</span>
-                        </a>
-                    <?php } ?>
+                        echo '<a href="#" onclick="gerarNFCom(' . $result->NFC_ID . '); return false;" class="btn-nwe3" title="' . $label . ' NFCom" style="margin-right: 1%"><i class="bx bx-paper-plane"></i></a>';
+                        echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $result->NFC_ID . '" target="_blank" class="btn-nwe" title="Gerar XML (Pré-Emissão)" style="margin-right: 1%"><i class="bx bx-code-alt"></i></a>';
+                    }
 
-                    <?php
-                    // IMPRIMIR / DANFE: Permissão de visualizar
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) { ?>
-                        <a target="_blank" title="Imprimir NFCom" class="button btn btn-mini btn-inverse"
-                            href="<?php echo base_url(); ?>index.php/nfecom/danfe/<?php echo $result->NFC_ID; ?>">
-                            <span class="button__icon"><i class="bx bx-printer"></i></span>
-                            <span class="button__text">Imprimir</span>
-                        </a>
-                    <?php } ?>
-
-                    <?php
-                    // XML AUTORIZADO: Status 3 (Autorizada) ou 5 (Autorizada)
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($result->NFC_STATUS == 3 || $result->NFC_STATUS == 5)) { ?>
-                        <a target="_blank" title="Baixar XML Autorizado" class="button btn btn-mini btn-warning"
-                            href="<?php echo base_url(); ?>index.php/nfecom/gerarXml/<?php echo $result->NFC_ID; ?>">
-                            <span class="button__icon"><i class="bx bx-download"></i></span>
-                            <span class="button__text">XML</span>
-                        </a>
-                    <?php } ?>
-
-                    <?php
                     // CONSULTAR STATUS: Status >= 2 (Enviado+) AND Permissão Editar
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $result->NFC_STATUS >= 2) { ?>
-                        <a href="#" class="button btn btn-mini btn-info btn-consultar-nfcom"
-                            data-id="<?php echo $result->NFC_ID; ?>" 
-                            onclick="consultarNFCom(<?php echo $result->NFC_ID; ?>); return false;"
-                            title="Consultar Status na SEFAZ">
-                            <span class="button__icon"><i class="bx bx-search"></i></span>
-                            <span class="button__text">Consultar</span>
-                        </a>
-                    <?php } ?>
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $result->NFC_STATUS >= 2) {
+                        echo '<a href="#" onclick="consultarNFCom(' . $result->NFC_ID . '); return false;" class="btn-nwe2" title="Consultar Status na SEFAZ" style="margin-right: 1%"><i class="bx bx-search"></i></a>';
+                    }
 
-                    <?php
+                    // IMPRIMIR / DANFE: Permissão de visualizar
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
+                        echo '<a target="_blank" href="' . base_url() . 'index.php/nfecom/danfe/' . $result->NFC_ID . '" class="btn-nwe" title="Imprimir NFCom" style="margin-right: 1%"><i class="bx bx-printer"></i></a>';
+                    }
+
+                    // XML AUTORIZADO: Status 3 (Autorizada) ou 5 (Autorizada)
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($result->NFC_STATUS == 3 || $result->NFC_STATUS == 5)) {
+                        echo '<a target="_blank" href="' . base_url() . 'index.php/nfecom/gerarXml/' . $result->NFC_ID . '" class="btn-nwe" title="Baixar XML Autorizado" style="margin-right: 1%"><i class="bx bx-download"></i></a>';
+                    }
+
                     // CANCELAR: Status 3 ou 5 AND Permissão Editar
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->NFC_STATUS == 3 || $result->NFC_STATUS == 5)) { ?>
-                        <a href="#" class="button btn btn-mini btn-danger btn-cancelar-nfcom"
-                            data-id="<?php echo $result->NFC_ID; ?>"
-                            onclick="abrirModalCancelamento(<?php echo $result->NFC_ID; ?>); return false;"
-                            title="Cancelar NFCom">
-                            <span class="button__icon"><i class="bx bx-x-circle"></i></span>
-                            <span class="button__text">Cancelar</span>
-                        </a>
-                    <?php } ?>
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->NFC_STATUS == 3 || $result->NFC_STATUS == 5)) {
+                        echo '<a href="#" onclick="abrirModalCancelamento(' . $result->NFC_ID . '); return false;" class="btn-nwe4" title="Cancelar NFCom" style="margin-right: 1%"><i class="bx bx-x-circle"></i></a>';
+                    }
 
-                    <?php
                     // EXCLUIR: Status != 3 (Autorizada) AND Status != 7 (Cancelada) AND Permissão Editar
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $result->NFC_STATUS != 3 && $result->NFC_STATUS != 7) { ?>
-                        <a href="<?php echo base_url(); ?>index.php/nfecom/excluir/<?php echo $result->NFC_ID; ?>"
-                            class="button btn btn-mini btn-danger" title="Excluir NFCom"
-                            onclick="return confirm('Tem certeza que deseja excluir esta NFCom?')">
-                            <span class="button__icon"><i class="bx bx-trash-alt"></i></span>
-                            <span class="button__text">Excluir</span>
-                        </a>
-                    <?php } ?>
-
-                    <a href="<?php echo base_url(); ?>index.php/nfecom" class="button btn btn-mini btn-inverse">
-                        <span class="button__icon"><i class="bx bx-arrow-back"></i></span>
-                        <span class="button__text">Voltar</span>
-                    </a>
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $result->NFC_STATUS != 3 && $result->NFC_STATUS != 7) {
+                        echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $result->NFC_ID . '" class="btn-nwe4" title="Excluir NFCom" style="margin-right: 1%" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')"><i class="bx bx-trash-alt"></i></a>';
+                    }
+                    ?>
                 </div>
             </div>
             <div class="widget-content" id="printOs">
@@ -346,11 +297,11 @@
 <script>
     // Base URL para uso em JavaScript
     var baseUrl = '<?php echo base_url(); ?>';
-    
+
     // CSRF Tokens
     var csrfTokenName = '<?php echo $this->security->get_csrf_token_name(); ?>';
     var csrfTokenHash = '<?php echo $this->security->get_csrf_hash(); ?>';
-    
+
     // Expose functions to global scope
     window.renderModalNfecom = function (data) {
         var isSuccess = data.status.toLowerCase().includes('autorizado') || data.cstat == '100';
@@ -390,11 +341,7 @@
                             Ver Retorno Técnico Completo
                         </a>
                     </div>
-                    <div id="collapseRetorno" class="accordion-body collapse">
-                        <div class="accordion-inner">
-                            <pre style="max-height: 200px; overflow-y: auto;">${data.retorno}</pre>
-                        </div>
-                    </div>
+
                 </div>
             </div>` : ''}
         `;
@@ -422,10 +369,14 @@
 
         $('#nfecomModal').modal('show');
 
+        // Create data object safely for CSRF
+        var dataObj = { id: id, ajax: 'true' };
+        dataObj[csrfTokenName] = csrfTokenHash;
+
         $.ajax({
             url: baseUrl + 'index.php/nfecom/consultar',
             type: 'POST',
-            data: { id: id, ajax: 'true', [csrfTokenName]: csrfTokenHash },
+            data: dataObj,
             dataType: 'json',
             success: function (res) {
                 if (res.success) {
@@ -447,10 +398,14 @@
 
         $('#nfecomModal').modal('show');
 
+        // Create data object safely for CSRF
+        var dataObj = { id: id, ajax: 'true' };
+        dataObj[csrfTokenName] = csrfTokenHash;
+
         $.ajax({
             url: baseUrl + 'index.php/nfecom/gerarXml',
             type: 'POST',
-            data: { id: id, ajax: 'true', [csrfTokenName]: csrfTokenHash },
+            data: dataObj,
             dataType: 'json',
             success: function (res) {
                 if (res.success) {
