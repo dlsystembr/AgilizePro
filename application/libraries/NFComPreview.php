@@ -280,8 +280,13 @@ class NFComPreview
         $pdf->SetX($infoX);
         $pdf->MultiCell($infoW, 3.2, $this->safeText('Protocolo de Autorizacao:'), 0, 'L');
 
+        $protocoloInfo = 'Aguardando Protocolo';
+        if (!empty($dados['protocolo'])) {
+            $protocoloInfo = $dados['protocolo'] . ' - ' . ($dados['data_autorizacao'] ?? '');
+        }
+
         $pdf->SetX($infoX);
-        $pdf->MultiCell($infoW, 3.2, $this->safeText('000000000000000 - ' . date('d/m/Y') . ' as 00:00:00'), 0, 'L');
+        $pdf->MultiCell($infoW, 3.2, $this->safeText($protocoloInfo), 0, 'L');
 
         // ===== FAIXAS DE REFERÊNCIA (VENCIMENTO/TOTAL A PAGAR) =====
         $barW = 72;
@@ -481,7 +486,7 @@ class NFComPreview
             $pdf->SetFont('helvetica', 'B', 20);
             $pdf->SetTextColor(200, 200, 200);
             $pdf->SetXY($x, $infoY + $headerInfoH + 4);
-            $pdf->Cell($w, 10, $this->safeText('SEM VALOR FISCAL'), 0, 0, 'C');
+            $pdf->Cell($w, 10, $this->safeText('DOCUMENTO SEM VALOR FISCAL'), 0, 0, 'C');
             $pdf->SetTextColor(0, 0, 0);
         }
 
@@ -661,8 +666,13 @@ class NFComPreview
                 $pis = $item['pis']['valor'] ?? 0.00;
                 $cof = $item['cofins']['valor'] ?? 0.00;
 
+                $desc = $item['descricao'] ?? '';
+                $descLines = $this->wrapHeaderText($pdf, $desc, $scaled[0] - 2);
+                $nbLines = max(1, count($descLines));
+                $currentRowH = max($rowH, $nbLines * 3.5); // Ajusta a altura da linha conforme o texto
+
                 $row = [
-                    $this->truncate($item['descricao'] ?? '', 28),
+                    implode(PHP_EOL, $descLines),
                     $item['cclass'] ?? ($item['cClass'] ?? ($item['classe'] ?? $defaultCClass)),
                     $item['unidade'] ?? 'UN',
                     $this->fmtQty($qtd),
@@ -679,15 +689,21 @@ class NFComPreview
                 $cursorX = $x;
                 $currentY = $pdf->GetY();
 
-                if ($currentY + $rowH > $y + $h)
+                if ($currentY + $currentRowH > $y + $h)
                     break;
 
                 foreach ($row as $i => $val) {
                     $pdf->SetXY($cursorX, $currentY);
-                    $pdf->Cell($scaled[$i], $rowH, $this->safeText((string) $val), 'LRB', 0, 'C');
+                    $align = ($i === 0) ? 'L' : 'C';
+
+                    if ($i === 0) {
+                        $pdf->MultiCell($scaled[$i], $currentRowH / $nbLines, $this->safeText((string) $val), 'LRB', $align);
+                    } else {
+                        $pdf->Cell($scaled[$i], $currentRowH, $this->safeText((string) $val), 'LRB', 0, $align);
+                    }
                     $cursorX += $scaled[$i];
                 }
-                $pdf->SetY($currentY + $rowH);
+                $pdf->SetY($currentY + $currentRowH);
             }
         };
 

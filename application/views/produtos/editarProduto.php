@@ -392,6 +392,8 @@ L<style>
                         <label for="precoVenda" class="control-label">Preço Serviço<span class="required">*</span></label>
                         <div class="controls">
                             <input id="precoVenda" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->PRO_PRECO_VENDA; ?>" placeholder="0,00" />
+                            <!-- Campo hidden para garantir que o valor seja enviado mesmo se o campo estiver oculto -->
+                            <input type="hidden" name="precoVenda_servico" id="precoVenda_servico" value="<?php echo $result->PRO_PRECO_VENDA; ?>" />
                         </div>
                     </div>
                             <div class="control-group field-produto">
@@ -1137,6 +1139,18 @@ L<style>
                 // Alterar label do código para "Código do Serviço"
                 $('#codigo-label').text('Código do Serviço');
 
+                // Sincronizar preço: copiar valor do campo de produto para o campo de serviço se necessário
+                var precoProduto = $('#precoVenda_produto').val();
+                if (precoProduto && !$('#precoVenda').val()) {
+                    $('#precoVenda').val(precoProduto);
+                }
+                // Remover name do campo de produto para evitar conflito
+                $('#precoVenda_produto').removeAttr('name');
+                // Garantir que o campo de serviço tenha o name
+                $('#precoVenda').attr('name', 'precoVenda');
+                // Sincronizar campo hidden
+                $('#precoVenda_servico').val($('#precoVenda').val());
+
                 // Auto-set NCM for Service (apenas se for mudança manual)
                 if (manualChange) {
                     $('#PRO_NCM').val('00000000');
@@ -1168,6 +1182,16 @@ L<style>
                 // Alterar label do código de volta para "Código do Produto"
                 $('#codigo-label').text('Código do Produto');
 
+                // Sincronizar preço: copiar valor do campo de serviço para o campo de produto se necessário
+                var precoServico = $('#precoVenda').val();
+                if (precoServico && !$('#precoVenda_produto').val()) {
+                    $('#precoVenda_produto').val(precoServico);
+                }
+                // Remover name do campo de serviço para evitar conflito
+                $('#precoVenda').removeAttr('name');
+                // Garantir que o campo de produto tenha o name
+                $('#precoVenda_produto').attr('name', 'precoVenda');
+
                 // Clear NCM apenas se for mudança manual e o NCM for o padrão de serviço
                 if (manualChange && $('#PRO_NCM').val() === '00000000') {
                     console.log('Limpando NCM de serviço ao mudar para produto');
@@ -1188,6 +1212,19 @@ L<style>
             // Manter apenas o campo código como readonly
             $('#codigo').prop('readonly', true);
         }
+
+        // Sincronizar valores de precoVenda quando o usuário digitar
+        $('#precoVenda, #precoVenda_produto').on('input change', function() {
+            var valor = $(this).val();
+            // Sincronizar com o outro campo
+            if ($(this).attr('id') === 'precoVenda') {
+                $('#precoVenda_produto').val(valor);
+                $('#precoVenda_servico').val(valor);
+            } else {
+                $('#precoVenda').val(valor);
+                $('#precoVenda_servico').val(valor);
+            }
+        });
 
         // Evento do toggle switch
         $('#PRO_TIPO_TOGGLE').change(function () {

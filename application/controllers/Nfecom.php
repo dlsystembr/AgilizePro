@@ -1355,6 +1355,9 @@ class Nfecom extends MY_Controller
         $dados = [
             'numero' => $nfecom->NFC_NNF,
             'chave' => $nfecom->NFC_CH_NFCOM,
+            'status' => $nfecom->NFC_STATUS,
+            'protocolo' => $nfecom->NFC_N_PROT,
+            'data_autorizacao' => $nfecom->NFC_DH_RECBTO ? date('d/m/Y H:i:s', strtotime($nfecom->NFC_DH_RECBTO)) : '',
             'destinatario' => $destinatario,
             'assinante' => $assinante,
             'faturamento' => $faturamento,
@@ -1610,7 +1613,15 @@ class Nfecom extends MY_Controller
 
     public function autorizar($id = null, $redirect = true)
     {
+        // Verificar se é uma requisição AJAX
+        $isAjax = $this->input->is_ajax_request() || $this->input->post('ajax') === 'true';
+        
         if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
+            if ($isAjax) {
+                $response = ['success' => false, 'message' => 'Você não tem permissão para autorizar NFECom.'];
+                echo json_encode($response);
+                return false;
+            }
             $this->session->set_flashdata('error', 'Você não tem permissão para autorizar NFECom.');
             if ($redirect) redirect(base_url());
             return false;
@@ -1620,6 +1631,11 @@ class Nfecom extends MY_Controller
         $nfecom = $this->Nfecom_model->getById($id);
 
         if ($nfecom == null) {
+            if ($isAjax) {
+                $response = ['success' => false, 'message' => 'NFECom não encontrada.'];
+                echo json_encode($response);
+                return false;
+            }
             $this->session->set_flashdata('error', 'NFECom não encontrada.');
             redirect(site_url('nfecom'));
         }
@@ -1730,9 +1746,17 @@ class Nfecom extends MY_Controller
             }
         }
 
+        // Verificar se é reemissão
+        $isReemissao = ($nfecom->NFC_STATUS == 4);
+        
         // Validar certificado configurado para NFCOM
         $configFiscal = $this->getConfiguracaoNfcom();
         if (!$configFiscal || empty($configFiscal->CER_ARQUIVO) || empty($configFiscal->CER_SENHA)) {
+            if ($isAjax) {
+                $response = ['success' => false, 'message' => 'Nenhum certificado válido configurado para NFCOM.'];
+                echo json_encode($response);
+                return false;
+            }
             $this->session->set_flashdata('error', 'Nenhum certificado válido configurado para NFCOM.');
             redirect(site_url('nfecom/visualizar/' . $id));
         }
@@ -1743,27 +1767,52 @@ class Nfecom extends MY_Controller
             $this->load->library('NFComService');
 
             // 1. Preparar dados completos para o XML
-            $dados = $this->prepararDadosEnvio($id);
+            try {
+                $dados = $this->prepararDadosEnvio($id);
+            } catch (Exception $e) {
+                log_message('error', 'Erro ao preparar dados de envio NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+                throw new Exception('Erro ao preparar dados da NFCom: ' . $e->getMessage());
+            }
 
             // 2. Gerar XML
-            $nfcomMake = new NFComMake();
-            $xml = $nfcomMake->build($dados);
+            try {
+                $nfcomMake = new NFComMake();
+                $xml = $nfcomMake->build($dados);
+            } catch (Exception $e) {
+                log_message('error', 'Erro ao gerar XML NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+                throw new Exception('Erro ao gerar XML da NFCom: ' . $e->getMessage());
+            }
 
             // Debug do XML gerado
             file_put_contents('debug_nfcom_generated.xml', $xml);
 
             // 3. Configurar Serviço (Certificado e Ambiente)
-            $nfcomService = new NFComService([
-                'ambiente' => $dados['ide']['tpAmb'],
-                'disable_cert_validation' => true
-            ]);
-            $nfcomService->setCertificate($configFiscal->CER_ARQUIVO, $configFiscal->CER_SENHA);
+            try {
+                $nfcomService = new NFComService([
+                    'ambiente' => $dados['ide']['tpAmb'],
+                    'disable_cert_validation' => true
+                ]);
+                $nfcomService->setCertificate($configFiscal->CER_ARQUIVO, $configFiscal->CER_SENHA);
+            } catch (Exception $e) {
+                log_message('error', 'Erro ao configurar serviço NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+                throw new Exception('Erro ao configurar serviço NFCom: ' . $e->getMessage());
+            }
 
             // 4. Assinar XML
-            $xmlSigned = $nfcomService->sign($xml);
+            try {
+                $xmlSigned = $nfcomService->sign($xml);
+            } catch (Exception $e) {
+                log_message('error', 'Erro ao assinar XML NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+                throw new Exception('Erro ao assinar XML da NFCom: ' . $e->getMessage());
+            }
 
             // 5. Enviar para SEFAZ
-            $retorno = $nfcomService->send($xmlSigned);
+            try {
+                $retorno = $nfcomService->send($xmlSigned);
+            } catch (Exception $e) {
+                log_message('error', 'Erro ao enviar NFCom para SEFAZ: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+                throw new Exception('Erro ao enviar NFCom para SEFAZ: ' . $e->getMessage());
+            }
 
             // 6. Processar Retorno
             if (isset($retorno['error'])) {
@@ -1837,6 +1886,13 @@ class Nfecom extends MY_Controller
             if (strpos($e->getMessage(), 'Resposta vazia') !== false) {
                 $mensagemErro .= '. Verifique: 1) Certificado digital válido e configurado, 2) Conexão com internet, 3) Serviço SEFAZ disponível.';
             }
+            
+            // Se for requisição AJAX, retornar JSON com erro
+            if ($isAjax) {
+                $response = ['success' => false, 'message' => $mensagemErro];
+                echo json_encode($response);
+                return;
+            }
 
             $this->session->set_flashdata('error', $mensagemErro);
             if ($redirect) {
@@ -1908,32 +1964,37 @@ class Nfecom extends MY_Controller
 
     private function buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido, $mensagensFiscais = [])
     {
-        $emit = $this->Nfe_model->getEmit();
+        // NFC_INF_CPL deve conter: Observação digitada pelo usuário + Mensagens fiscais das classificações fiscais
+        // Separadas por ponto e vírgula
+        $info = '';
 
-        if (!$emit) {
-            // Tratar erro ou retornar string padrão, dependendo da necessidade
-            return "Erro: Dados do emitente não configurados.";
+        // Adicionar observação digitada pelo usuário (se houver)
+        $observacaoDigitada = isset($data['observacoes']) ? trim($data['observacoes']) : '';
+        if (!empty($observacaoDigitada)) {
+            $info = $observacaoDigitada;
         }
 
-        // Observação digitada pelo usuário
-        $observacaoDigitada = isset($data['observacoes']) ? trim($data['observacoes']) : '';
-        
-        // Construir informações complementares
-        $info = "VEICULAÇÃO COMERCIAL NA RÁDIO " . strtoupper($emit['xNome']) . ", " .
-            strtoupper($emit['enderEmit']['xMun']) . "-" . $emit['enderEmit']['UF'] . ", " .
-            "DA CAMPANHA " . $observacaoDigitada . ", " .
-            "VALOR BRUTO: R$ " . number_format($valorBruto, 2, ',', '.') . "\n" .
-            "COMISSÃO AGÊNCIA: R$ " . number_format($comissaoAgencia, 2, ',', '.') . "\n" .
-            "VALOR LÍQUIDO: R$ " . number_format($valorLiquido, 2, ',', '.') . "\n" .
-            "DADOS BANCÁRIOS " . (isset($data['dadosBancarios']) ? $data['dadosBancarios'] : '') . "\n" .
-            "Não tributação de ICMS conforme art. 155, §2º, X, 'd' da CRFB/1988. Imunidade de IBS/CBS conforme Artigo 9º, inciso VI da Lei Complementar nº 214/2025.";
-
-        // Adicionar mensagens fiscais das classificações fiscais ao final
+        // Adicionar mensagens fiscais das classificações fiscais
         if (!empty($mensagensFiscais) && is_array($mensagensFiscais)) {
-            $info .= "\n\n";
+            $mensagensUnicas = [];
             foreach ($mensagensFiscais as $mensagem) {
-                if (!empty(trim($mensagem))) {
-                    $info .= trim($mensagem) . "\n";
+                $mensagemLimpa = trim($mensagem);
+                if (!empty($mensagemLimpa)) {
+                    // Evitar duplicatas
+                    if (!in_array($mensagemLimpa, $mensagensUnicas)) {
+                        $mensagensUnicas[] = $mensagemLimpa;
+                    }
+                }
+            }
+            
+            // Juntar todas as mensagens únicas separadas por ponto e vírgula
+            if (!empty($mensagensUnicas)) {
+                $mensagensTexto = implode('; ', $mensagensUnicas);
+                // Se já tem observação, adicionar as mensagens fiscais após com ponto e vírgula
+                if (!empty($info)) {
+                    $info .= '; ' . $mensagensTexto;
+                } else {
+                    $info = $mensagensTexto;
                 }
             }
         }
@@ -2766,28 +2827,71 @@ class Nfecom extends MY_Controller
             ];
         }
         
-        // Atualizar NFC_INF_CPL com as mensagens fiscais se necessário
-        $infCplAtual = $nfecom->NFC_INF_CPL ?? '';
+        // Atualizar NFC_INF_CPL com observação + mensagens fiscais se necessário
+        // NFC_INF_CPL deve conter: Observação digitada pelo usuário + Mensagens fiscais (sem duplicatas)
+        $infCplAtual = trim($nfecom->NFC_INF_CPL ?? '');
+        
+        // Buscar observação original da nota (se houver campo separado ou se estiver no infCpl)
+        // Como a observação já deve estar no NFC_INF_CPL quando a nota foi salva,
+        // vamos verificar se precisa atualizar apenas as mensagens fiscais
+        
+        // Se há mensagens fiscais, construir o infCpl completo
         if (!empty($mensagensFiscais)) {
-            // Verificar se as mensagens já estão no infCpl
-            $mensagensJaIncluidas = true;
+            $mensagensUnicas = [];
             foreach ($mensagensFiscais as $mensagem) {
-                if (strpos($infCplAtual, $mensagem) === false) {
-                    $mensagensJaIncluidas = false;
-                    break;
+                $mensagemLimpa = trim($mensagem);
+                if (!empty($mensagemLimpa)) {
+                    // Evitar duplicatas
+                    if (!in_array($mensagemLimpa, $mensagensUnicas)) {
+                        $mensagensUnicas[] = $mensagemLimpa;
+                    }
                 }
             }
             
-            // Se as mensagens não estão incluídas, adicioná-las
-            if (!$mensagensJaIncluidas) {
-                $infCplAtual .= "\n\n";
-                foreach ($mensagensFiscais as $mensagem) {
-                    if (!empty(trim($mensagem))) {
-                        $infCplAtual .= trim($mensagem) . "\n";
-                    }
+            // Extrair observação do infCpl atual (tudo antes das mensagens fiscais)
+            $observacaoOriginal = '';
+            $mensagensNoInfCpl = [];
+            
+            // Se o infCpl atual contém mensagens fiscais conhecidas, separar observação
+            foreach ($mensagensUnicas as $msg) {
+                if (strpos($infCplAtual, $msg) !== false) {
+                    $mensagensNoInfCpl[] = $msg;
                 }
-                // Atualizar no banco
-                $this->Nfecom_model->edit('nfecom_capa', ['NFC_INF_CPL' => $infCplAtual], 'NFC_ID', $id);
+            }
+            
+            // Se encontrou mensagens no infCpl, extrair a observação (parte antes das mensagens)
+            // A observação termina antes da primeira mensagem fiscal (separada por ponto e vírgula)
+            if (!empty($mensagensNoInfCpl)) {
+                $primeiraMensagem = $mensagensNoInfCpl[0];
+                $posPrimeiraMensagem = strpos($infCplAtual, $primeiraMensagem);
+                if ($posPrimeiraMensagem !== false) {
+                    $observacaoOriginal = trim(substr($infCplAtual, 0, $posPrimeiraMensagem));
+                    // Remover ponto e vírgula e espaços no final da observação (se houver)
+                    $observacaoOriginal = rtrim($observacaoOriginal, '; ');
+                }
+            } else {
+                // Se não encontrou mensagens, todo o infCpl atual é a observação
+                $observacaoOriginal = $infCplAtual;
+            }
+            
+            // Construir infCpl: Observação + Mensagens fiscais (separadas por ponto e vírgula)
+            $infCplNovo = '';
+            if (!empty($observacaoOriginal)) {
+                $infCplNovo = $observacaoOriginal;
+            }
+            
+            if (!empty($mensagensUnicas)) {
+                $mensagensTexto = implode('; ', $mensagensUnicas);
+                if (!empty($infCplNovo)) {
+                    $infCplNovo .= '; ' . $mensagensTexto;
+                } else {
+                    $infCplNovo = $mensagensTexto;
+                }
+            }
+            
+            // Atualizar no banco apenas se for diferente do atual
+            if (trim($infCplNovo) !== $infCplAtual) {
+                $this->Nfecom_model->edit('nfecom_capa', ['NFC_INF_CPL' => $infCplNovo], 'NFC_ID', $id);
                 // Recarregar nfecom com o infCpl atualizado
                 $nfecom = $this->Nfecom_model->getById($id);
             }

@@ -156,7 +156,11 @@ class Produtos extends MY_Controller
 
         if ($tipo == '2') { // Serviço
             $_POST['precoCompra'] = $_POST['precoCompra'] ?: '0';
-            $_POST['precoVenda'] = $_POST['precoVenda'] ?: '0';
+            // Não sobrescrever precoVenda - deixar o valor que o usuário digitou
+            // Se estiver vazio, definir como '0' apenas para validação
+            if (empty($_POST['precoVenda']) || trim($_POST['precoVenda']) == '') {
+                $_POST['precoVenda'] = '0';
+            }
             $_POST['estoque'] = $_POST['estoque'] ?: '0';
             $_POST['estoqueMinimo'] = $_POST['estoqueMinimo'] ?: '0';
             $_POST['PRO_ORIGEM'] = $_POST['PRO_ORIGEM'] ?: '0';
@@ -170,6 +174,7 @@ class Produtos extends MY_Controller
             $this->form_validation->set_rules('descricao', 'Descrição', 'required|trim');
             $this->form_validation->set_rules('PRO_UNID_MEDIDA', 'Unidade', 'required|trim');
             $this->form_validation->set_rules('PRO_CCLASS_SERV', 'cClass', 'required|trim');
+            $this->form_validation->set_rules('precoVenda', 'Preço Serviço', 'required|trim');
         } else { // Produto
             // Regras de validação para produtos (usando a configuração padrão)
             $this->form_validation->set_rules('descricao', 'Descrição', 'required|trim');
@@ -193,8 +198,24 @@ class Produtos extends MY_Controller
         } else {
             $precoCompra = $this->input->post('precoCompra');
             $precoCompra = str_replace(',', '.', $precoCompra);
+            
+            // Determinar o tipo do produto ANTES de processar precoVenda
+            $tipo = $this->input->post('PRO_TIPO') ?: 1;
+            
+            // Processar precoVenda - importante para serviços
             $precoVenda = $this->input->post('precoVenda');
+            // Se for serviço e o campo estiver vazio, pode ser que o campo não foi enviado (estava oculto)
+            // Nesse caso, buscar o valor atual do banco
+            if ($tipo == '2' && (empty($precoVenda) || trim($precoVenda) == '')) {
+                $produtoAtual = $this->produtos_model->getById($this->input->post('PRO_ID'));
+                if ($produtoAtual && !empty($produtoAtual->PRO_PRECO_VENDA)) {
+                    $precoVenda = $produtoAtual->PRO_PRECO_VENDA;
+                } else {
+                    $precoVenda = '0';
+                }
+            }
             $precoVenda = str_replace(',', '.', $precoVenda);
+            
             $data = [
                 'PRO_COD_BARRA' => $this->input->post('codDeBarra'),
                 'PRO_DESCRICAO' => $this->input->post('descricao'),
@@ -206,7 +227,7 @@ class Produtos extends MY_Controller
                 'PRO_NCM' => $this->input->post('PRO_NCM'),
                 'NCM_ID' => $this->input->post('NCM_ID'),
                 'PRO_ORIGEM' => $this->input->post('PRO_ORIGEM'),
-                'PRO_TIPO' => $this->input->post('PRO_TIPO') ?: 1,
+                'PRO_TIPO' => $tipo,
                 'PRO_CCLASS_SERV' => $this->input->post('PRO_CCLASS_SERV'),
                 'PRO_PESO_BRUTO' => $this->input->post('peso_bruto') ? str_replace(',', '.', $this->input->post('peso_bruto')) : null,
                 'PRO_PESO_LIQUIDO' => $this->input->post('peso_liquido') ? str_replace(',', '.', $this->input->post('peso_liquido')) : null,
@@ -216,6 +237,14 @@ class Produtos extends MY_Controller
                 'PRO_ENTRADA' => $this->input->post('entrada') ?: 0,
                 'PRO_SAIDA' => $this->input->post('saida') ?: 0
             ];
+            
+            // Se for serviço, garantir que o preço de venda seja salvo corretamente
+            if ($tipo == '2') {
+                // Para serviços, sempre salvar o precoVenda que foi informado
+                // O valor já foi processado acima (linha 217), então apenas garantir que está no array
+                // Não precisa fazer nada especial, o valor já está em $data['PRO_PRECO_VENDA']
+                log_message('debug', 'Editando serviço - PRO_ID: ' . $this->input->post('PRO_ID') . ', PRO_PRECO_VENDA: ' . $precoVenda);
+            }
 
             if ($this->produtos_model->edit('produtos', $data, 'PRO_ID', $this->input->post('PRO_ID')) == true) {
                 $this->session->set_flashdata('success', 'Produto editado com sucesso!');
