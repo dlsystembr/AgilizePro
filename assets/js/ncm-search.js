@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
     var $ncmInput = $('#NCMs');
     var $ncmId = $('#ncm_id');
     var baseUrl = '<?php echo base_url(); ?>';
@@ -11,25 +11,25 @@ $(document).ready(function() {
     // Função para buscar NCM
     function buscarNcm(codigo) {
         if (!codigo) return;
-        
+
         // Remove caracteres não numéricos
         codigo = codigo.replace(/[^0-9]/g, '');
         console.log('Buscando NCM:', codigo);
-        
+
         $.ajax({
             url: baseUrl + 'index.php/ncms/buscar',
             type: 'GET',
             data: { termo: codigo },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 console.log('Resposta:', response);
-                
+
                 if (response && response.length > 0) {
                     // Procura exatamente pelo código digitado
-                    var ncmEncontrado = response.find(function(ncm) {
+                    var ncmEncontrado = response.find(function (ncm) {
                         return ncm.codigo === codigo;
                     });
-                    
+
                     if (ncmEncontrado) {
                         console.log('NCM encontrado:', ncmEncontrado);
                         $ncmInput.val(ncmEncontrado.codigo);
@@ -48,7 +48,7 @@ $(document).ready(function() {
                     $('#btnDescricaoNcm').data('descricao', '');
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Erro na busca:', error);
                 $ncmId.val('');
                 $('#btnDescricaoNcm').data('descricao', '');
@@ -57,10 +57,10 @@ $(document).ready(function() {
     }
 
     // Aceita apenas números no campo
-    $ncmInput.on('input', function() {
+    $ncmInput.on('input', function () {
         var valor = $(this).val().replace(/[^0-9]/g, '');
         $(this).val(valor);
-        
+
         // Se tiver 8 dígitos, busca automaticamente
         if (valor.length === 8) {
             buscarNcm(valor);
@@ -68,7 +68,7 @@ $(document).ready(function() {
     });
 
     // Busca quando sair do campo
-    $ncmInput.on('blur', function() {
+    $ncmInput.on('blur', function () {
         var valor = $(this).val();
         if (valor.length > 0) {
             buscarNcm(valor);
@@ -76,7 +76,7 @@ $(document).ready(function() {
     });
 
     // Limpar campo ao focar
-    $ncmInput.on('focus', function() {
+    $ncmInput.on('focus', function () {
         if ($(this).val() === '') {
             $ncmId.val('');
             $('#btnDescricaoNcm').data('descricao', '');
@@ -84,33 +84,33 @@ $(document).ready(function() {
     });
 
     // Mostrar descrição ao clicar no botão
-    $('#btnDescricaoNcm').on('click', function() {
+    $('#btnDescricaoNcm').on('click', function () {
         var descricao = $(this).data('descricao');
         if (descricao) {
             // Remove alerta anterior se existir
             $('#ncm_alert').remove();
-            
+
             // Cria novo alerta
             var alert = $('<div id="ncm_alert" class="alert alert-info" style="margin-top: 10px;">' + descricao + '</div>');
             $ncmInput.parent().after(alert);
-            
+
             // Remove o alerta após 5 segundos
-            setTimeout(function() {
-                $('#ncm_alert').fadeOut(function() {
+            setTimeout(function () {
+                $('#ncm_alert').fadeOut(function () {
                     $(this).remove();
                 });
             }, 5000);
         } else {
             // Remove alerta anterior se existir
             $('#ncm_alert').remove();
-            
+
             // Cria novo alerta de erro
             var alert = $('<div id="ncm_alert" class="alert alert-warning" style="margin-top: 10px;">Nenhum NCM selecionado</div>');
             $ncmInput.parent().after(alert);
-            
+
             // Remove o alerta após 5 segundos
-            setTimeout(function() {
-                $('#ncm_alert').fadeOut(function() {
+            setTimeout(function () {
+                $('#ncm_alert').fadeOut(function () {
                     $(this).remove();
                 });
             }, 5000);
@@ -118,16 +118,16 @@ $(document).ready(function() {
     });
 
     // Validação do formulário
-    $('#formProduto').on('submit', function(e) {
+    $('#formProduto').on('submit', function (e) {
         if (!$ncmId.val() || $ncmId.val() === '0') {
             e.preventDefault();
             // Remove alerta anterior se existir
             $('#ncm_alert').remove();
-            
+
             // Cria novo alerta de erro
             var alert = $('<div id="ncm_alert" class="alert alert-warning" style="margin-top: 10px;">Selecione um NCM válido</div>');
             $ncmInput.parent().after(alert);
-            
+
             $ncmInput.focus();
             return false;
         }
@@ -135,7 +135,7 @@ $(document).ready(function() {
 
     // Se estiver na página de visualização e tiver um NCM, carregar a descrição
     if ($('#btnDescricaoNcm').length && $('#ncm_id').val()) {
-        $.get(baseUrl + 'index.php/ncms/buscar', { termo: $('#NCMs').val() }, function(data) {
+        $.get(baseUrl + 'index.php/ncms/buscar', { termo: $('#NCMs').val() }, function (data) {
             if (data && data.length > 0) {
                 var ncm = data.find(n => n.codigo == $('#ncm_id').val());
                 if (ncm) {
@@ -152,14 +152,14 @@ $(document).ready(function() {
             type: 'GET',
             data: { termo: termo },
             dataType: 'json',
-            beforeSend: function() {
+            beforeSend: function () {
                 $('#tabelaNcm tbody').html('<tr><td colspan="3" class="text-center"><i class="fas fa-spinner fa-spin"></i> Pesquisando...</td></tr>');
                 $('#totalResultados').html('');
             },
-            success: function(response) {
+            success: function (response) {
                 if (response && response.length > 0) {
                     let html = '';
-                    response.forEach(function(item) {
+                    response.forEach(function (item) {
                         html += `
                             <tr>
                                 <td>${item.codigo}</td>
@@ -181,7 +181,7 @@ $(document).ready(function() {
                     $('#totalResultados').html('');
                 }
             },
-            error: function() {
+            error: function () {
                 $('#tabelaNcm tbody').html('<tr><td colspan="3" class="text-center text-danger">Erro ao pesquisar NCM</td></tr>');
                 $('#totalResultados').html('');
             }
@@ -189,7 +189,7 @@ $(document).ready(function() {
     }
 
     // Evento de clique no botão de pesquisa
-    $('#btnPesquisarNcm').click(function() {
+    $('#btnPesquisarNcm').click(function () {
         const termo = $('#pesquisaNcm').val().trim();
         if (termo) {
             pesquisarNcm(termo);
@@ -197,7 +197,7 @@ $(document).ready(function() {
     });
 
     // Evento de tecla Enter no campo de pesquisa
-    $('#pesquisaNcm').keypress(function(e) {
+    $('#pesquisaNcm').keypress(function (e) {
         if (e.which == 13) {
             const termo = $(this).val().trim();
             if (termo) {
@@ -207,19 +207,19 @@ $(document).ready(function() {
     });
 
     // Evento de seleção do NCM
-    $(document).on('click', '.selecionar-ncm', function() {
+    $(document).on('click', '.selecionar-ncm', function () {
         const codigo = $(this).data('codigo');
         const descricao = $(this).data('descricao');
-        
+
         $('#NCMs').val(codigo);
         $('#ncm_id').val(codigo);
         $('#btnDescricaoNcm').data('descricao', descricao);
-        
+
         $('#modalNcm').modal('hide');
     });
 
     // Limpar campos ao fechar o modal
-    $('#modalNcm').on('hidden.bs.modal', function() {
+    $('#modalNcm').on('hidden.bs.modal', function () {
         $('#pesquisaNcm').val('');
         $('#tabelaNcm tbody').html('');
         $('#totalResultados').html('');

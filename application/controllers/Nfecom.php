@@ -1362,7 +1362,8 @@ class Nfecom extends MY_Controller
                 $this->Nfecom_model->updateStatus($id, $dadosAtu);
                 $this->registrarProtocolo($id, $protocolo, 'AUTORIZACAO', $xMotivo, $dhRecbto);
 
-                $this->session->set_flashdata('success', 'NFCom consultada e Autorizada! Status: ' . $xMotivo);
+                // Flashdata removido - não exibir SweetAlert após consulta bem-sucedida
+                // $this->session->set_flashdata('success', 'NFCom consultada e Autorizada! Status: ' . $xMotivo);
             } elseif ($cStat == '101') { // Cancelamento homologado
                 $statusTexto = 'Cancelada';
                 $protocolo = $retorno['protocolo']['nProt'] ?? '';

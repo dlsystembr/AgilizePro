@@ -8,9 +8,9 @@
         position: fixed !important;
         width: 90% !important;
         max-width: 900px !important;
-        margin-left: 0 !important;
-        left: 5% !important;
-        top: 50px !important;
+        left: 75% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
         z-index: 99999 !important;
         background-color: white !important;
         border: 2px solid #333 !important;
@@ -19,10 +19,17 @@
         display: none;
     }
 
-    @media (min-width: 900px) {
+    @media (max-width: 1200px) {
         #nfecomModal {
-            left: 50%;
-            margin-left: -450px;
+            left: 60% !important;
+        }
+    }
+
+    @media (max-width: 899px) {
+        #nfecomModal {
+            width: 95% !important;
+            max-width: none !important;
+            left: 50% !important;
         }
     }
 
@@ -91,6 +98,171 @@
 
     /* Technical details */
     .nfcom-technical pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background: #f5f5f5;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 0.8em;
+    }
+
+    @media (max-width: 768px) {
+        /* Force table to not be like tables anymore */
+        #tabela table, 
+        #tabela thead, 
+        #tabela tbody, 
+        #tabela th, 
+        #tabela td, 
+        #tabela tr { 
+            display: block; 
+        }
+        
+        /* Hide table headers (but not display: none;, for accessibility) */
+        /* Hide table headers completely */
+        #tabela thead { 
+            display: none;
+        }
+        
+        #tabela tr { 
+            border: 1px solid #ccc; 
+            margin-bottom: 10px; 
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        #tabela td { 
+            /* Behave like a "row" */
+            border: none;
+            border-bottom: 1px solid #eee; 
+            position: relative;
+            padding-left: 10px !important; 
+            padding-right: 10px !important; 
+            padding-top: 8px !important; /* Reduced padding */
+            padding-bottom: 8px !important; /* Reduced padding */
+            white-space: normal;
+            text-align: left;
+            min-height: 20px; /* Reduced min-height */
+            display: flex;       /* Use flexbox for inline layout */
+            flex-direction: row; /* Horizontal alignment */
+            align-items: center; /* Vertically center */
+            justify-content: flex-start; /* Start from left */
+        }
+        
+        /* Hide the first 'line' (Nº NF column) of the card as requested */
+        #tabela td:nth-of-type(1) {
+            display: none;
+        }
+        
+        #tabela td:before { 
+            /* Label styling */
+            position: static; /* No longer absolute */
+            width: auto; 
+            padding-right: 5px; 
+            white-space: nowrap;
+            text-align: left;
+            font-weight: bold;
+            color: #444; 
+            content: attr(data-label) ": "; /* Add colon */
+            font-size: 0.9em;
+            text-transform: none; /* Normalize case if desired, or keep uppercase */
+            letter-spacing: normal;
+            opacity: 1;
+            flex-shrink: 0; /* Prevent label from shrinking */
+        }
+
+        #tabela td:last-child {
+            border-bottom: 0;
+            text-align: center;
+            padding-left: 0 !important; 
+            padding-right: 0 !important;
+            padding-top: 10px !important;
+            padding-bottom: 10px !important;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px; /* Reduced gap between icons */
+            background: #f9f9f9; 
+        }
+        
+        #tabela td:last-child:before {
+            display: none;
+        }
+        
+        /* Adjust layout */
+        .widget-content {
+            border: none !important;
+        }
+        
+        /* Adjust actions button container */
+        #tabela td:last-child a {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 45px !important; /* Slightly smaller width */
+            height: 40px !important; /* Slightly smaller height */
+            margin: 0 !important;
+            font-size: 1.3em; /* Adjusted icon size */
+            border-radius: 6px; 
+        }
+        
+        #tabela td:last-child a i {
+            display: block; 
+            font-size: 20px; 
+        }
+        
+        /* Adjust search form fields */
+        div.span12 > div.span3:first-child { /* "Nova NFECom" button container */
+            width: 100% !important;
+            margin-bottom: 15px !important;
+            text-align: center;
+        }
+
+        form.span9 {
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            margin-left: 0 !important;
+        }
+
+        .search-input-container, 
+        .status-select-container, 
+        .date-inputs-container, 
+        .search-button-container {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-bottom: 10px !important;
+            display: block !important;
+        }
+
+        /* Special handling for date inputs to be side-by-side */
+        .date-inputs-container {
+             display: flex !important;
+             gap: 10px;
+        }
+        
+        .date-inputs-container input {
+            width: 50% !important;
+            margin: 0 !important;
+            min-height: 30px; /* Better touch target */
+        }
+
+        /* Search Button */
+        .search-button-container button {
+            width: 100% !important;
+            height: 40px !important; /* Bigger target */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        form.form-horizontal .control-group {
+            margin-bottom: 10px;
+        }
+    }
+
         background: #272822;
         color: #f8f8f2;
         padding: 15px;
@@ -135,56 +307,31 @@
         border: 1px solid #dee2e6;
     }
 
-    /* Hide the original jittery filter */
-    #tabela_filter, .dataTables_filter {
-        display: none !important;
-    }
-    
-    /* Fix for Show entries overlap */
-    .dataTables_length {
-        float: left !important;
-        margin: 10px !important;
-        position: relative !important;
-        z-index: 1 !important;
-    }
-
-    /* Ensure Novo NFECom button is on top */
-    .btn-success.button {
-        position: relative !important;
-        z-index: 99 !important;
-    }
 </style>
 
 <div class="new122">
-    <div class="widget-box">
-        <div class="widget-title" style="margin: -20px 0 0">
-            <span class="icon">
-                <i class="fas fa-file-invoice"></i>
-            </span>
-            <h5>NFECom</h5>
-            <div style="float: right; margin: 3px 10px 0 0; display: flex; align-items: center; line-height: 30px;">
-                <span style="color: #878787; font-size: 11px; margin-right: 8px;">Pesquisa rápida na tabela:</span>
-                <input type="text" id="customSearch" placeholder="Filtrar resultados..." 
-                       style="height: 20px; width: 150px; padding: 2px 8px; margin-bottom: 0; border-radius: 12px; border: 1px solid #ccc; font-size: 11px; background: #fff;">
-            </div>
-        </div>
-        <div class="widget-content nopadding tab-content">
-            <div class="span12" style="padding: 10px; margin-left: 0">
-        <form method="get" action="<?php echo base_url(); ?>index.php/nfecom/gerenciar">
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'aNfecom')) { ?>
-                <div class="span3">
-                    <a href="<?php echo base_url(); ?>index.php/nfecom/adicionar" class="button btn btn-mini btn-success" style="max-width: 160px">
-                        <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
-                        <span class="button__text2">Nova NFECom</span>
-                    </a>
-                </div>
-            <?php } ?>
+    <div class="widget-title" style="margin: -20px 0 0">
+        <span class="icon">
+            <i class="fas fa-file-invoice"></i>
+        </span>
+        <h5>NFECom</h5>
+    </div>
+    <div class="span12" style="margin-left: 0">
+        <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'aNfecom')) { ?>
             <div class="span3">
-                <input type="text" name="pesquisa" id="pesquisa" placeholder="Chave, cliente ou número" class="span12" value="<?php echo $this->input->get('pesquisa'); ?>">
+                <a href="<?php echo base_url(); ?>index.php/nfecom/adicionar" class="button btn btn-mini btn-success" style="max-width: 160px">
+                    <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
+                    <span class="button__text2">Nova NFECom</span>
+                </a>
             </div>
-            <div class="span2">
+        <?php } ?>
+        <form class="span9" method="get" action="<?php echo base_url(); ?>index.php/nfecom/gerenciar" style="display: flex; justify-content: flex-end;">
+            <div class="span3 search-input-container">
+                <input type="text" name="pesquisa" id="pesquisa" placeholder="Buscar por Nº NF, Cliente, Chave ou Status..." class="span12" value="<?php echo $this->input->get('pesquisa'); ?>">
+            </div>
+            <div class="span2 status-select-container">
                 <select name="status" class="span12">
-                    <option value="">Selecione status</option>
+                    <option value="">Todos os status</option>
                     <option value="0" <?php echo $this->input->get('status') == '0' ? 'selected' : ''; ?>>Rascunho</option>
                     <option value="1" <?php echo $this->input->get('status') == '1' ? 'selected' : ''; ?>>Pendente</option>
                     <option value="2" <?php echo $this->input->get('status') == '2' ? 'selected' : ''; ?>>Enviado</option>
@@ -194,25 +341,29 @@
                     <option value="7" <?php echo $this->input->get('status') == '7' ? 'selected' : ''; ?>>Cancelada</option>
                 </select>
             </div>
-            <div class="span3">
+            <div class="span3 date-inputs-container">
                 <input type="date" name="data" id="data" placeholder="De" class="span6 datepicker" autocomplete="off" value="<?php echo $this->input->get('data'); ?>">
                 <input type="date" name="data2" id="data2" placeholder="Até" class="span6 datepicker" autocomplete="off" value="<?php echo $this->input->get('data2'); ?>">
             </div>
-            <div class="span1">
+            <div class="span1 search-button-container">
                 <button class="button btn btn-mini btn-warning" style="min-width: 30px">
                     <span class="button__icon"><i class='bx bx-search-alt'></i></span>
                 </button>
             </div>
         </form>
-            </div>
+    </div>
+
+    <div class="widget-box">
+        <h5 style="padding: 3px 0"></h5>
+        <div class="widget-content nopadding tab-content">
             <table id="tabela" class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Nº NF</th>
                         <th>Cliente</th>
-                        <th>Estado</th>
-                        <th>Município</th>
-                        <th>Data Emissão</th>
+                        <th class="col-estado">Estado</th>
+                        <th class="col-municipio">Município</th>
+                        <th class="col-data-emissao">Data Emissão</th>
                         <th>Valor</th>
                         <th>Status</th>
                         <th style="text-align:center">Ações</th>
@@ -251,45 +402,45 @@
                             };
 
                             echo '<tr>';
-                            echo '<td>' . $r->NFC_NNF . '</td>';
-                            echo '<td>' . $r->NFC_X_NOME_DEST . '</td>';
-                            echo '<td>' . $r->NFC_UF_DEST . '</td>';
-                            echo '<td>' . $r->NFC_X_MUN_DEST . '</td>';
-                            echo '<td>' . $dataEmissao . '</td>';
-                            echo '<td>R$ ' . $valorTotal . '</td>';
+                            echo '<td data-label="Nº NF">' . $r->NFC_NNF . '</td>';
+                            echo '<td data-label="Cliente">' . $r->NFC_X_NOME_DEST . '</td>';
+                            echo '<td data-label="Estado" class="col-estado">' . $r->NFC_UF_DEST . '</td>';
+                            echo '<td data-label="Município" class="col-municipio">' . $r->NFC_X_MUN_DEST . '</td>';
+                            echo '<td data-label="Data Emissão" class="col-data-emissao">' . $dataEmissao . '</td>';
+                            echo '<td data-label="Valor">R$ ' . $valorTotal . '</td>';
                             $motivo = !empty($r->NFC_X_MOTIVO) ? htmlspecialchars($r->NFC_X_MOTIVO) : 'Sem retorno da SEFAZ';
-                            echo '<td><span class="badge" style="background-color: ' . $corStatus . '; border-color: ' . $corStatus . '; cursor: help;" data-toggle="tooltip" title="' . $motivo . '">' . $statusDesc . '</span></td>';
-                            echo '<td style="text-align:center; white-space: nowrap;">';
+                            echo '<td data-label="Status"><span class="badge" style="background-color: ' . $corStatus . '; border-color: ' . $corStatus . '; cursor: help;" data-toggle="tooltip" title="' . $motivo . '">' . $statusDesc . '</span></td>';
+                            echo '<td data-label="Ações" style="text-align:center; white-space: nowrap;">';
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" class="btn btn-mini btn-info" title="Ver dados da nota" style="margin-right: 2px"><i class="fas fa-eye"></i></a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" class="btn-nwe" title="Ver dados da nota" style="margin-right: 1%"><i class="bx bx-show"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
                                 if ($r->NFC_STATUS < 2) {
                                     // NFCom nova ou salva - permite gerar
-                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Gerar NFCom" style="margin-right: 2px"><i class="fas fa-paper-plane"></i></a>';
-                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 2px"><i class="fas fa-file-code"></i></a>';
+                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn-nwe3" title="Gerar NFCom" style="margin-right: 1%"><i class="bx bx-paper-plane"></i></a>';
+                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn-nwe" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 1%"><i class="bx bx-code-alt"></i></a>';
                                 } elseif ($r->NFC_STATUS == 4) {
                                     // NFCom rejeitada - permite reemitir
-                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Reemitir Nota" style="margin-right: 2px"><i class="fas fa-sync"></i></a>';
-                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 2px"><i class="fas fa-file-code"></i></a>';
+                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn-nwe3" title="Reemitir Nota" style="margin-right: 1%"><i class="bx bx-revision"></i></a>';
+                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn-nwe" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 1%"><i class="bx bx-code-alt"></i></a>';
                                 }
                                 // NFCom autorizada (status 3 ou 5) não mostra botão
                                 // NFCom cancelada (status 7) não mostra botão
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->NFC_ID . '" class="btn btn-mini btn-inverse" target="_blank" title="Imprimir NFCom" style="margin-right: 2px"><i class="bx bx-printer"></i></a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->NFC_ID . '" class="btn-nwe" target="_blank" title="Imprimir NFCom" style="margin-right: 1%"><i class="bx bx-printer"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($r->NFC_STATUS == 3 || $r->NFC_STATUS == 5)) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" title="Baixar XML Autorizado" style="margin-right: 2px"><i class="fas fa-file-code"></i></a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" class="btn-nwe" title="Baixar XML Autorizado" style="margin-right: 1%"><i class="bx bx-download"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($r->NFC_STATUS == 3 || $r->NFC_STATUS == 5)) {
-                                echo '<a href="#" onclick="abrirModalCancelamento(' . $r->NFC_ID . ')" class="btn btn-mini btn-danger" title="Cancelar NFCom" style="margin-right: 2px"><i class="fas fa-ban"></i></a>';
+                                echo '<a href="#" onclick="abrirModalCancelamento(' . $r->NFC_ID . ')" class="btn-nwe4" title="Cancelar NFCom" style="margin-right: 1%"><i class="bx bx-x-circle"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS >= 2) {
-                                echo '<a href="#" onclick="consultarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini" title="Consultar Status na SEFAZ" style="margin-right: 2px"><i class="bx bx-search"></i></a>';
+                                echo '<a href="#" onclick="consultarNFCom(' . $r->NFC_ID . ')" class="btn-nwe2" title="Consultar Status na SEFAZ" style="margin-right: 1%"><i class="bx bx-search"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS != 3 && $r->NFC_STATUS != 7) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->NFC_ID . '" class="btn btn-mini btn-danger" title="Excluir NFCom" style="margin-right: 2px" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')"><i class="fas fa-trash-alt"></i></a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->NFC_ID . '" class="btn-nwe4" title="Excluir NFCom" style="margin-right: 1%" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')"><i class="bx bx-trash-alt"></i></a>';
                             }
                             echo '</td>';
                             echo '</tr>';
@@ -787,8 +938,7 @@ $(document).ready(function() {
         $('body').removeClass('modal-open');
         $('body').css({
             'overflow': 'auto',
-            'padding-right': '0',
-            'pointer-events': 'auto'
+            'padding-right': '0'
         });
 
         // Garantir que os modais estão completamente fechados
@@ -797,41 +947,12 @@ $(document).ready(function() {
 
         // Resetar estilos dos modais de forma segura
         $('#nfecomModal, #modal-nfecom').css({
-            'display': 'none',
-            'pointer-events': 'none'
+            'display': 'none'
         });
         
         // Apenas remover classes de visibilidade ativa
         $('#nfecomModal, #modal-nfecom').removeClass('in show');
-
-        // Liberar todos os elementos clicáveis
-        $('input, select, textarea, button, a, .btn').each(function() {
-            var $element = $(this);
-            $element.prop('disabled', false).prop('readonly', false);
-            $element.removeAttr('disabled').removeAttr('readonly');
-            $element.css({
-                'pointer-events': 'auto',
-                'cursor': 'auto',
-                'z-index': 'auto'
-            });
-        });
-
-        // Resetar containers principais
-        $('.widget-box, .widget-content, form, .row-fluid, .span6, .span12, .table, tbody, tr, td').css({
-            'pointer-events': 'auto',
-            'position': 'static',
-            'z-index': 'auto'
-        });
-
-        // Verificar e corrigir qualquer elemento com pointer-events bloqueante
-        $('*').each(function() {
-            var $el = $(this);
-            var pointerEvents = $el.css('pointer-events');
-            if (pointerEvents === 'none') {
-                $el.css('pointer-events', 'auto');
-            }
-        });
-
+        
         console.log('NFCOM: Limpeza completa dos modais finalizada');
     }
 
@@ -930,18 +1051,6 @@ $(document).ready(function() {
                 $btn.prop('disabled', false).html(originalText);
             }
         });
-    });
-});
-
-$(document).ready(function() {
-    // Vincular pesquisa customizada ao DataTable
-    $('#customSearch').on('keyup', function() {
-        if ($.fn.DataTable.isDataTable('#tabela')) {
-            $('#tabela').DataTable().search(this.value).draw();
-        } else {
-            // Se ainda não inicializou (raro), tenta inicializar ou aguarda
-            console.log('DataTable ainda não inicializado');
-        }
     });
 });
 </script>

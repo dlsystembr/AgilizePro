@@ -1264,7 +1264,8 @@
                     };
                 },
                 failure: function() {
-                    alert('Falha ao buscar OS de calendário!');
+                    // alert('Falha ao buscar OS de calendário!');
+                    console.error('Erro ao carregar eventos do calendário');
                 },
             },
             eventClick: function(info) {
