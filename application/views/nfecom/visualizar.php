@@ -120,7 +120,7 @@
                                 echo '#00cd00';
                                 break;
                             case 3:
-                                echo '#4d9c79';
+                                echo '#28a745'; // Verde para Autorizado
                                 break;
                             case 4:
                                 echo '#f24c6f';
@@ -346,17 +346,24 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Nova linha para Informações de Pagamento -->
-                                <div class="row-fluid"
-                                    style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #eee;">
-                                    <h5 style="margin-left: 10px; color: #555;"><i class="fas fa-credit-card"></i>
-                                        Informações de Pagamento</h5>
-                                    <div class="span3">
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Seção separada para Informações de Pagamento -->
+                    <div class="nfecom-card" style="margin-top: 20px;">
+                        <div class="nfecom-card-header">
+                            <h4><i class="fas fa-credit-card"></i> Informações de Pagamento</h4>
+                        </div>
+                        <div class="nfecom-card-body">
+                            <form id="editFormPagamento" method="post"
+                                action="<?php echo base_url(); ?>index.php/nfecom/editar/<?php echo $result->NFC_ID; ?>">
+                                <div class="row-fluid">
+                                    <div class="span4">
                                         <div class="control-group">
-                                            <label class="control-label">Vencimento:</label>
+                                            <label class="control-label"><strong>Vencimento:</strong></label>
                                             <div class="controls">
-                                                <span class="view-mode">
+                                                <span class="view-mode" style="font-size: 14px;">
                                                     <?php echo date('d/m/Y', strtotime($result->NFC_D_VENC_FAT)); ?>
                                                 </span>
                                                 <input type="date" name="nfc_d_venc_fat" class="span12 edit-field"
@@ -365,11 +372,11 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="span4">
+                                    <div class="span8">
                                         <div class="control-group">
-                                            <label class="control-label">Boleto (Linha Digitável):</label>
+                                            <label class="control-label"><strong>Boleto (Linha Digitável):</strong></label>
                                             <div class="controls">
-                                                <span class="view-mode">
+                                                <span class="view-mode" style="font-size: 12px; word-break: break-all;">
                                                     <?php echo $result->NFC_LINHA_DIGITAVEL ?: '<span class="text-muted">Não informado</span>'; ?>
                                                 </span>
                                                 <input type="text" name="nfc_linha_digitavel" class="span12 edit-field"
@@ -378,35 +385,19 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="span4">
+                                </div>
+                                <div class="row-fluid" style="margin-top: 15px;">
+                                    <div class="span12">
                                         <div class="control-group">
-                                            <label class="control-label">Pix (Chave Pix):</label>
+                                            <label class="control-label"><strong>Pix (Chave Pix):</strong></label>
                                             <div class="controls">
-                                                <span class="view-mode">
+                                                <span class="view-mode" style="font-size: 11px; word-break: break-all; display: block; padding: 8px; background: #f8f9fa; border-radius: 4px;">
                                                     <?php echo $result->NFC_CHAVE_PIX ?: '<span class="text-muted">Não informado</span>'; ?>
                                                 </span>
-                                                <input type="text" name="nfc_chave_pix" class="span12 edit-field"
-                                                    value="<?php echo $result->NFC_CHAVE_PIX; ?>"
-                                                    placeholder="Chave Pix" style="display: none;">
+                                                <textarea name="nfc_chave_pix" class="span12 edit-field" rows="3"
+                                                    placeholder="Chave Pix" style="display: none;"><?php echo $result->NFC_CHAVE_PIX; ?></textarea>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div class="edit-actions"
-                                    style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e1e8ed;">
-                                    <div class="span6">
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fas fa-save"></i> Salvar Alterações
-                                        </button>
-                                        <button type="button" class="btn btn-default" onclick="cancelEdit()">
-                                            <i class="fas fa-times"></i> Cancelar
-                                        </button>
-                                    </div>
-                                    <div class="span6" style="text-align: right;">
-                                        <button type="button" class="btn btn-primary" onclick="reenviarNota()">
-                                            <i class="fas fa-paper-plane"></i> Salvar e Reenviar
-                                        </button>
                                     </div>
                                 </div>
                             </form>
@@ -1140,6 +1131,7 @@
         $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
+</div>
 </div>
 </div>
 </div>

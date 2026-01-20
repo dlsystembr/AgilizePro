@@ -898,16 +898,39 @@ class Nfecom extends MY_Controller
         }
 
         // Preparar dados para o modal
-        $statusDescricao = $this->getStatusDescricao($nfecom->NFC_STATUS);
-
-        // Para notas rejeitadas, incluir o cStat da SEFAZ
-        if ($nfecom->NFC_STATUS == 4 && !empty($nfecom->NFC_C_STAT)) {
+        // Recarregar dados atualizados após autorização
+        $nfecom = $this->Nfecom_model->getById($id);
+        
+        if (!$nfecom) {
+            if ($isAjax) {
+                $response = ['success' => false, 'message' => 'NFECom não encontrada após autorização.'];
+                echo json_encode($response);
+                return;
+            } else {
+                $this->session->set_flashdata('error', 'NFECom não encontrada após autorização.');
+                redirect(site_url('nfecom'));
+            }
+        }
+        
+        // Garantir que o status seja um número inteiro
+        $statusAtual = (int) $nfecom->NFC_STATUS;
+        
+        // Determinar status baseado no status atual e cStat da SEFAZ
+        $statusDescricao = $this->getStatusDescricao($statusAtual);
+        
+        // Se foi autorizado (status 3), garantir que mostra "Autorizado"
+        if ($statusAtual == 3) {
+            $statusDescricao = 'Autorizado';
+        } elseif ($statusAtual == 4 && !empty($nfecom->NFC_C_STAT)) {
+            // Para notas rejeitadas, incluir o cStat da SEFAZ
             $statusDescricao = 'Rejeitada (cStat: ' . $nfecom->NFC_C_STAT . ')';
+        } elseif ($statusAtual == 7) {
+            $statusDescricao = 'Cancelada';
         }
 
         $modalData = [
-            'numero_nfcom' => $nfecom->NFC_NNF,
-            'chave_nfcom' => $nfecom->NFC_CH_NFCOM,
+            'numero_nfcom' => $nfecom->NFC_NNF ?? '',
+            'chave_nfcom' => $nfecom->NFC_CH_NFCOM ?? '',
             'status' => $statusDescricao,
             'cstat' => $nfecom->NFC_C_STAT ?? '',
             'motivo' => $nfecom->NFC_X_MOTIVO ?? 'NFCom processada com sucesso',
@@ -915,17 +938,76 @@ class Nfecom extends MY_Controller
             'id' => $id
         ];
 
-        // Verificar se tem retorno detalhado
-        if (!empty($nfecom->NFC_XML)) {
-            $modalData['retorno'] = 'XML autorizado gerado com sucesso.';
+        // Se foi autorizado, incluir informações adicionais
+        if ($statusAtual == 3) {
+            $modalData['motivo'] = $nfecom->NFC_X_MOTIVO ?? 'Autorizado o uso da NFCom';
+            // Garantir que o status seja "Autorizado"
+            $modalData['status'] = 'Autorizado';
+            
+            // Montar retorno detalhado em JSON quando autorizado
+            $retornoSefaz = [
+                'cStat' => $nfecom->NFC_C_STAT ?? '100',
+                'xMotivo' => $nfecom->NFC_X_MOTIVO ?? 'Autorizado o uso da NFCom',
+                'nProt' => $nfecom->NFC_N_PROT ?? '',
+                'dhRecbto' => $nfecom->NFC_DH_RECBTO ?? '',
+                'xml' => $nfecom->NFC_XML ?? ''
+            ];
+            $modalData['retorno'] = json_encode($retornoSefaz, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        } elseif ($statusAtual == 4) {
+            // Para rejeitadas, também montar retorno detalhado
+            $retornoSefaz = [
+                'cStat' => $nfecom->NFC_C_STAT ?? '',
+                'xMotivo' => $nfecom->NFC_X_MOTIVO ?? 'Rejeitada',
+                'nProt' => '',
+                'dhRecbto' => '',
+                'xml' => ''
+            ];
+            $modalData['retorno'] = json_encode($retornoSefaz, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
 
         if ($isAjax) {
             $response = ['success' => true, 'modal' => $modalData];
             echo json_encode($response);
         } else {
-            $this->session->set_flashdata('nfecom_modal', $modalData);
-            redirect(site_url('nfecom'));
+            // Se não for AJAX e estiver autorizada, fazer download do XML autorizado
+            if ($statusAtual == 3 && !empty($nfecom->NFC_XML)) {
+                // Limpar qualquer output anterior
+                if (ob_get_length()) {
+                    ob_clean();
+                }
+                
+                // Recarregar dados para garantir que temos o XML mais recente
+                $nfecom = $this->Nfecom_model->getById($id);
+                
+                if (empty($nfecom->NFC_XML)) {
+                    log_message('error', 'NFCom: Tentativa de download mas NFC_XML está vazio. ID: ' . $id);
+                    $this->session->set_flashdata('error', 'XML autorizado não encontrado no banco de dados.');
+                    redirect(site_url('nfecom'));
+                    return;
+                }
+                
+                // Configurar headers para download do XML autorizado
+                $filename = 'NFCom_' . str_pad($nfecom->NFC_NNF, 9, '0', STR_PAD_LEFT) . '_' . date('YmdHis') . '.xml';
+                
+                // Limpar qualquer output buffer
+                while (ob_get_level()) {
+                    ob_end_clean();
+                }
+                
+                header('Content-Type: application/xml; charset=utf-8');
+                header('Content-Disposition: attachment; filename="' . $filename . '"');
+                header('Content-Length: ' . strlen($nfecom->NFC_XML));
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header('Pragma: public');
+                
+                // Output do XML autorizado
+                echo $nfecom->NFC_XML;
+                exit;
+            } else {
+                // Se não estiver autorizada ou não tiver XML, mostrar modal
+                $this->session->set_flashdata('nfecom_modal', $modalData);
+                redirect(site_url('nfecom'));
+            }
         }
     }
 
@@ -1027,6 +1109,9 @@ class Nfecom extends MY_Controller
 
     private function getStatusDescricao($status)
     {
+        // Garantir que o status seja um número inteiro
+        $status = (int) $status;
+        
         return match($status) {
             0 => 'Rascunho',
             1 => 'Salvo',
@@ -1037,6 +1122,105 @@ class Nfecom extends MY_Controller
             7 => 'Cancelada',
             default => 'Desconhecido'
         };
+    }
+
+    private function montarXmlAutorizado($xmlSigned, $xmlRetorno)
+    {
+        try {
+            // Carregar XML assinado
+            $domNFCom = new DOMDocument();
+            $domNFCom->preserveWhiteSpace = false;
+            $domNFCom->formatOutput = true;
+            
+            // Remover namespaces para facilitar parsing
+            $xmlSignedClean = preg_replace('/(<\/?)(\w+):([^>]*>)/', '$1$3', $xmlSigned);
+            @$domNFCom->loadXML($xmlSignedClean);
+            
+            // Extrair o elemento NFCom do XML assinado
+            $nfcomNode = $domNFCom->getElementsByTagName('NFCom')->item(0);
+            if (!$nfcomNode) {
+                log_message('error', 'NFCom: Elemento NFCom não encontrado no XML assinado');
+                return $xmlSigned;
+            }
+            
+            // Carregar XML de retorno da SEFAZ
+            $domRetorno = new DOMDocument();
+            $domRetorno->preserveWhiteSpace = false;
+            $domRetorno->formatOutput = true;
+            
+            // Remover namespaces do retorno
+            $xmlRetornoClean = preg_replace('/(<\/?)(\w+):([^>]*>)/', '$1$3', $xmlRetorno);
+            @$domRetorno->loadXML($xmlRetornoClean);
+            
+            // Extrair o protocolo de autorização - tentar várias formas
+            $protNFCom = null;
+            
+            // Tentar 1: protNFCom direto
+            $protNFCom = $domRetorno->getElementsByTagName('protNFCom')->item(0);
+            
+            // Tentar 2: infProt dentro de protNFCom
+            if (!$protNFCom) {
+                $infProt = $domRetorno->getElementsByTagName('infProt')->item(0);
+                if ($infProt) {
+                    // Criar protNFCom com infProt dentro
+                    $protNFCom = $domRetorno->createElement('protNFCom');
+                    $infProtClone = $domRetorno->importNode($infProt, true);
+                    $protNFCom->appendChild($infProtClone);
+                }
+            }
+            
+            // Tentar 3: usar XPath
+            if (!$protNFCom) {
+                $xpath = new DOMXPath($domRetorno);
+                $xpath->registerNamespace('soap', 'http://www.w3.org/2003/05/soap-envelope');
+                $protNFCom = $xpath->query('//protNFCom')->item(0);
+                if (!$protNFCom) {
+                    $protNFCom = $xpath->query('//infProt')->item(0);
+                    if ($protNFCom) {
+                        // Criar protNFCom com infProt dentro
+                        $protNFComTemp = $domRetorno->createElement('protNFCom');
+                        $infProtClone = $domRetorno->importNode($protNFCom, true);
+                        $protNFComTemp->appendChild($infProtClone);
+                        $protNFCom = $protNFComTemp;
+                    }
+                }
+            }
+            
+            if (!$protNFCom) {
+                log_message('error', 'NFCom: Protocolo não encontrado no XML de retorno');
+                return $xmlSigned;
+            }
+            
+            // Criar novo documento para o XML autorizado
+            $domAutorizado = new DOMDocument('1.0', 'UTF-8');
+            $domAutorizado->preserveWhiteSpace = false;
+            $domAutorizado->formatOutput = true;
+            
+            // Criar elemento raiz nfeProc
+            $nfeProc = $domAutorizado->createElement('nfeProc');
+            $nfeProc->setAttribute('xmlns', 'http://www.portalfiscal.inf.br/nfcom');
+            $nfeProc->setAttribute('versao', '1.00');
+            $domAutorizado->appendChild($nfeProc);
+            
+            // Importar NFCom (com namespaces preservados)
+            $nfcomImportado = $domAutorizado->importNode($nfcomNode, true);
+            $nfeProc->appendChild($nfcomImportado);
+            
+            // Importar protocolo
+            $protImportado = $domAutorizado->importNode($protNFCom, true);
+            $nfeProc->appendChild($protImportado);
+            
+            $xmlAutorizado = $domAutorizado->saveXML();
+            
+            log_message('info', 'NFCom: XML autorizado montado com sucesso. Tamanho: ' . strlen($xmlAutorizado) . ' bytes');
+            
+            return $xmlAutorizado;
+            
+        } catch (Exception $e) {
+            log_message('error', 'Erro ao montar XML autorizado: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            // Em caso de erro, retornar XML assinado original
+            return $xmlSigned;
+        }
     }
 
     public function consultar()
@@ -1337,8 +1521,8 @@ class Nfecom extends MY_Controller
             'periodo_inicio' => date('d/m/Y', strtotime($nfecom->NFC_D_PER_USO_INI)),
             'periodo_fim' => date('d/m/Y', strtotime($nfecom->NFC_D_PER_USO_FIM)),
             'vencimento' => date('d/m/Y', strtotime($nfecom->NFC_D_VENC_FAT)),
-            'linha_digitavel' => $nfecom->NFC_COD_BARRAS ?? '',
-            'cod_barras' => $nfecom->NFC_COD_BARRAS ?? ''
+            'linha_digitavel' => $nfecom->NFC_LINHA_DIGITAVEL ?? '',
+            'cod_barras' => $nfecom->NFC_LINHA_DIGITAVEL ?? ''
         ];
 
         // Preparar itens
@@ -1865,6 +2049,18 @@ class Nfecom extends MY_Controller
                 $dhRecbto = $retorno['protocolo']['dhRecbto'];
                 $motivo = $retorno['xMotivo'];
                 $chaveAcesso = $retorno['protocolo']['chNFCom'];
+                
+                // Montar XML autorizado (NFCom + protocolo)
+                $xmlAutorizado = $this->montarXmlAutorizado($xmlSigned, $retorno['xml']);
+                
+                // Log para debug
+                log_message('info', 'NFCom: XML autorizado montado. Tamanho: ' . strlen($xmlAutorizado) . ' bytes');
+                
+                // Verificar se o XML autorizado foi montado corretamente
+                if (empty($xmlAutorizado) || strlen($xmlAutorizado) < 100) {
+                    log_message('error', 'NFCom: XML autorizado parece estar vazio ou inválido. Usando XML assinado como fallback.');
+                    $xmlAutorizado = $xmlSigned;
+                }
 
                 $dadosAtu = [
                     'NFC_STATUS' => 3, // Autorizado
@@ -1874,10 +2070,18 @@ class Nfecom extends MY_Controller
                     'NFC_X_MOTIVO' => $motivo,
                     'NFC_N_PROT' => $protocolo,
                     'NFC_DH_RECBTO' => $dhRecbto,
-                    'NFC_XML' => $xmlSigned // Salva o assinado
+                    'NFC_XML' => $xmlAutorizado // Salva o XML autorizado com protocolo
                 ];
 
                 $this->Nfecom_model->updateStatus($id, $dadosAtu);
+                
+                // Verificar se foi salvo corretamente
+                $nfecomVerificacao = $this->Nfecom_model->getById($id);
+                if (empty($nfecomVerificacao->NFC_XML)) {
+                    log_message('error', 'NFCom: ERRO - XML autorizado não foi salvo no banco! ID: ' . $id);
+                } else {
+                    log_message('info', 'NFCom: XML autorizado salvo com sucesso no banco. Tamanho salvo: ' . strlen($nfecomVerificacao->NFC_XML) . ' bytes');
+                }
                 $this->registrarProtocolo($id, $protocolo, 'AUTORIZACAO', $motivo, $dhRecbto);
 
                 log_info('NFCom Autorizada Real (ID: ' . $id . ', Chave: ' . $chaveAcesso . ')');
