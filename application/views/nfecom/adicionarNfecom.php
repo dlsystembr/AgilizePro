@@ -333,11 +333,11 @@
                 </span>
                 <h5>Nova NFECom</h5>
             </div>
-            <?php
+            <?php 
             // Só exibir erro se realmente houver um erro (não apenas no carregamento inicial)
             $error_message = '';
             $success_message = '';
-
+            
             if ($this->session->flashdata('error')) {
                 $error_message = $this->session->flashdata('error');
             } elseif ($custom_error !== '' && $custom_error !== false && $custom_error !== true) {
@@ -347,12 +347,12 @@
                     $error_message = is_bool($custom_error) ? 'Ocorreu um erro ao processar o formulário. Verifique os campos obrigatórios.' : $custom_error;
                 }
             }
-
+            
             // Verificar mensagem de sucesso
             if ($this->session->flashdata('success')) {
                 $success_message = $this->session->flashdata('success');
             }
-
+            
             if ($error_message) {
                 echo '<div class="alert alert-danger" style="margin-bottom: 20px;">';
                 echo '<i class="fas fa-exclamation-triangle"></i> ';
@@ -462,8 +462,7 @@
                                                     Selecione um contrato para preencher automaticamente os dados.
                                                 </small>
                                                 <div class="controls">
-                                                    <select name="contratoSelect" id="contratoSelect"
-                                                        style="width: 100%;">
+                                                    <select name="contratoSelect" id="contratoSelect" style="width: 100%;">
                                                         <option value="">Selecione um contrato...</option>
                                                     </select>
                                                 </div>
@@ -475,8 +474,8 @@
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="numeroContrato" class="control-label">Número do
-                                                    Contrato<span class="required">*</span></label>
+                                                <label for="numeroContrato" class="control-label">Número do Contrato<span
+                                                        class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="text" name="numeroContrato" id="numeroContrato"
                                                         value="<?php echo set_value('numeroContrato'); ?>" required>
@@ -766,12 +765,6 @@
                                             </tr>
                                         </thead>
                                         <tbody id="servicos-list-body"></tbody>
-                                        <tr id="servicos-error" style="display: none;">
-                                            <td colspan="11" class="alert alert-error" style="text-align: center;">
-                                                <strong>Erro:</strong> É necessário adicionar pelo menos um serviço à
-                                                NFCom.
-                                            </td>
-                                        </tr>
                                         <tfoot>
                                             <tr>
                                                 <td colspan="10" style="text-align: right"><strong>Total:</strong>
@@ -806,21 +799,17 @@
                             </div>
 
                             <?php if (empty($servicos)): ?>
-                                    <div id="servicos-aviso"
-                                        style="margin-top: 15px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <strong>Atenção:</strong> Nenhum serviço encontrado na base de dados.
-                                        <br><small>Para adicionar serviços, vá em <strong>Produtos → Adicionar</strong> e defina
-                                            o tipo como "Serviço" (pro_tipo = 2).</small>
-                                    </div>
+                                <div id="servicos-aviso"
+                                    style="margin-top: 15px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Atenção:</strong> Nenhum serviço encontrado na base de dados.
+                                    <br><small>Para adicionar serviços, vá em <strong>Produtos → Adicionar</strong> e defina
+                                        o tipo como "Serviço" (pro_tipo = 2).</small>
+                                </div>
                             <?php endif; ?>
 
                             <!-- Campo oculto para valor bruto (calculado automaticamente) -->
                             <input type="hidden" name="valorBruto" id="valorBruto" value="0">
-                            <div id="servicos-error"
-                                style="display: none; margin-top: 10px; padding: 10px; background-color: #f2dede; border: 1px solid #ebccd1; border-radius: 4px; color: #a94442;">
-                                <i class="fas fa-exclamation-triangle"></i> Adicione pelo menos um serviço
-                            </div>
                         </div>
                     </div>
 
@@ -870,50 +859,50 @@
     $(document).ready(function () {
         // Exibir mensagem de sucesso com SweetAlert
         <?php if (!empty($success_message)): ?>
-                // Aguardar um pouco para garantir que o DOM está pronto e evitar conflito com o template
-                setTimeout(function () {
-                    // Prevenir que o template geral exiba o SweetAlert
-                    if (typeof window.__swalPrevented === 'undefined') {
-                        window.__swalPrevented = true;
+        // Aguardar um pouco para garantir que o DOM está pronto e evitar conflito com o template
+        setTimeout(function() {
+            // Prevenir que o template geral exiba o SweetAlert
+            if (typeof window.__swalPrevented === 'undefined') {
+                window.__swalPrevented = true;
+            }
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso!',
+                    text: '<?php echo addslashes($success_message); ?>',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showCloseButton: false,
+                    buttonsStyling: true,
+                    customClass: {
+                        confirmButton: 'btn btn-success'
                     }
-
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Sucesso!',
-                            text: '<?php echo addslashes($success_message); ?>',
-                            confirmButtonText: 'OK',
-                            allowOutsideClick: false,
-                            allowEscapeKey: false,
-                            showCloseButton: false,
-                            buttonsStyling: true,
-                            customClass: {
-                                confirmButton: 'btn btn-success'
-                            }
-                        }).then((result) => {
-                            // Redirecionar para a listagem após clicar em OK
-                            if (result.isConfirmed || result.isDismissed) {
-                                window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
-                            }
-                        });
-                    } else if (typeof swal !== 'undefined') {
-                        // Fallback para versão antiga do SweetAlert
-                        swal({
-                            title: "Sucesso!",
-                            text: "<?php echo addslashes($success_message); ?>",
-                            type: "success",
-                            confirmButtonText: "OK",
-                            closeOnConfirm: true
-                        }, function () {
-                            window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
-                        });
-                    } else {
-                        alert('<?php echo addslashes($success_message); ?>');
+                }).then((result) => {
+                    // Redirecionar para a listagem após clicar em OK
+                    if (result.isConfirmed || result.isDismissed) {
                         window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
                     }
-                }, 200);
+                });
+            } else if (typeof swal !== 'undefined') {
+                // Fallback para versão antiga do SweetAlert
+                swal({
+                    title: "Sucesso!",
+                    text: "<?php echo addslashes($success_message); ?>",
+                    type: "success",
+                    confirmButtonText: "OK",
+                    closeOnConfirm: true
+                }, function() {
+                    window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
+                });
+            } else {
+                alert('<?php echo addslashes($success_message); ?>');
+                window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
+            }
+        }, 200);
         <?php endif; ?>
-
+        
         // Configurar Select2 para busca de clientes (opções iniciais + busca AJAX)
         $('#cliente').select2({
             placeholder: 'Selecione um cliente ou digite para buscar...',
@@ -997,7 +986,7 @@
                     dataType: 'json',
                     success: function (contratos) {
                         console.log('📋 Contratos recebidos:', contratos);
-
+                        
                         if (contratos.error) {
                             console.log('⚠️ Erro ao buscar contratos:', contratos.error);
                             return;
@@ -1011,7 +1000,7 @@
 
                         // Popular select de contratos
                         var options = '<option value="">Selecione um contrato...</option>';
-                        contratos.forEach(function (contrato) {
+                        contratos.forEach(function(contrato) {
                             var numero = contrato.CTR_NUMERO || '';
                             var dataIni = contrato.CTR_DATA_INICIO ? new Date(contrato.CTR_DATA_INICIO).toLocaleDateString('pt-BR') : '';
                             var label = numero + (dataIni ? ' (Início: ' + dataIni + ')' : '');
@@ -1029,7 +1018,7 @@
                             console.log('📋 Múltiplos contratos encontrados (' + contratos.length + '), aguardando seleção do usuário');
                         }
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         console.error('❌ Erro ao buscar contratos:', error);
                         $('#contratoSelect').html('<option value="">Erro ao carregar contratos</option>');
                     }
@@ -1125,32 +1114,32 @@
         // Função para preencher dados do contrato
         function preencherDadosContrato(contrato) {
             console.log('📝 Preenchendo dados do contrato:', contrato);
-
+            
             if (contrato.CTR_NUMERO) {
                 $('#numeroContrato').val(contrato.CTR_NUMERO);
             }
-
+            
             if (contrato.CTR_DATA_INICIO) {
                 $('#dataContratoIni').val(contrato.CTR_DATA_INICIO);
             }
-
+            
             if (contrato.CTR_DATA_FIM) {
                 $('#dataContratoFim').val(contrato.CTR_DATA_FIM);
             }
-
+            
             if (contrato.CTR_OBSERVACAO) {
                 $('#observacoes').val(contrato.CTR_OBSERVACAO);
             }
-
+            
             if (contrato.CTR_TIPO_ASSINANTE) {
                 $('#tpAssinante').val(contrato.CTR_TIPO_ASSINANTE);
             }
-
+            
             console.log('✅ Dados do contrato preenchidos com sucesso');
         }
 
         // Evento de mudança no select de contratos
-        $('#contratoSelect').change(function () {
+        $('#contratoSelect').change(function() {
             var contratoId = $(this).val();
             if (contratoId) {
                 var contratoData = $(this).find('option:selected').data('contrato');
@@ -1215,9 +1204,9 @@
 
         function parseNumber(value) {
             if (!value || value === '') return 0;
-
+            
             const strValue = String(value).trim();
-
+            
             // Se tem vírgula, é formato brasileiro (1.234,56 ou 1234,56)
             if (strValue.indexOf(',') > -1) {
                 // Remover pontos (separadores de milhar) e trocar vírgula por ponto
@@ -1225,7 +1214,7 @@
                 const parsed = parseFloat(normalized);
                 return isNaN(parsed) ? 0 : parsed;
             }
-
+            
             // Se tem ponto, verificar se é separador decimal ou de milhar
             if (strValue.indexOf('.') > -1) {
                 const parts = strValue.split('.');
@@ -1244,7 +1233,7 @@
                     return isNaN(parsed) ? 0 : parsed;
                 }
             }
-
+            
             // Apenas números sem separadores
             const parsed = parseFloat(strValue);
             return isNaN(parsed) ? 0 : parsed;
@@ -1253,13 +1242,13 @@
         function formatMoney(value) {
             // Converter para número
             let numValue;
-
+            
             if (typeof value === 'string') {
                 // Detectar formato: se tem vírgula, é formato BR (1.234,56)
                 // Se tem ponto após 2 dígitos do final, é formato US (1234.56)
                 const hasComma = value.indexOf(',') > -1;
                 const hasDot = value.indexOf('.') > -1;
-
+                
                 if (hasComma && !hasDot) {
                     // Formato BR sem ponto: "1234,56" -> 1234.56
                     numValue = parseFloat(value.replace(',', '.'));
@@ -1276,12 +1265,26 @@
             } else {
                 numValue = parseFloat(value);
             }
+            
+            if (isNaN(numValue)) return '0,00';
+            
+            // Formatar com 2 casas decimais usando vírgula (formato brasileiro)
+            return numValue.toFixed(2).replace('.', ',');
+        }
 
-            if (isNaN(numValue)) return '0.00';
-
-            // Formatar apenas com 2 casas decimais, sem separador de milhares
-            // Usar ponto como separador decimal (formato simples)
-            return numValue.toFixed(2);
+        function formatarQuantidade(value) {
+            // Converter para número
+            let numValue = parseFloat(value);
+            
+            if (isNaN(numValue)) return '0';
+            
+            // Se for número inteiro, retornar sem decimais
+            if (numValue % 1 === 0) {
+                return numValue.toString();
+            }
+            
+            // Se tiver decimais, formatar com vírgula (máximo 4 casas decimais)
+            return numValue.toFixed(4).replace(/\.?0+$/, '').replace('.', ',');
         }
 
         $("#quantidadeServicoNfecom").keyup(function () {
@@ -1293,7 +1296,9 @@
             minLength: 2,
             select: function (event, ui) {
                 $("#idServicoNfecom").val(ui.item.id);
-                $("#precoServicoNfecom").val(ui.item.preco);
+                // Formatar preço com vírgula quando vier do autocomplete
+                const precoFormatado = formatMoney(ui.item.preco);
+                $("#precoServicoNfecom").val(precoFormatado);
                 $("#cClassServicoNfecom").val(ui.item.cClass);
                 $("#uMedServicoNfecom").val(ui.item.uMed);
                 $("#quantidadeServicoNfecom").focus();
@@ -1354,7 +1359,7 @@
             const quantidadeRaw = $("#quantidadeServicoNfecom").val();
             const preco = parseNumber(precoRaw);
             const quantidade = parseNumber(quantidadeRaw);
-
+            
             console.log('🔍 Valores parseados:', {
                 precoRaw: precoRaw,
                 preco: preco,
@@ -1363,7 +1368,7 @@
             });
             const vDesc = parseNumber($("#descontoServicoNfecom").val() || '0');
             const vOutros = parseNumber($("#outrosServicoNfecom").val() || '0');
-
+            
             console.log('🔍 Validação de serviço:', {
                 servicoId: servicoId,
                 servicoNome: servicoNome,
@@ -1385,7 +1390,7 @@
                 }
                 return;
             }
-
+            
             if (isNaN(preco) || preco <= 0) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
@@ -1398,7 +1403,7 @@
                 }
                 return;
             }
-
+            
             if (isNaN(quantidade) || quantidade <= 0) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
@@ -1419,17 +1424,17 @@
             let defaultCfop = '5303';
             let defaultCst = '00';
             let clfId = null; // ID da classificação fiscal
-
+            
             // Buscar classificação fiscal se tiver operação comercial e cliente
             const operacaoComercialId = $("#opc_id").val(); // Campo correto é opc_id
             const clienteId = $("#cliente").val();
-
+            
             if (operacaoComercialId && clienteId) {
                 console.log('🔍 Buscando classificação fiscal...');
                 console.log('   OPC_ID:', operacaoComercialId);
                 console.log('   Cliente ID:', clienteId);
                 console.log('   Produto ID:', servicoId);
-
+                
                 $.ajax({
                     url: '<?php echo base_url(); ?>index.php/nfecom/getClassificacaoFiscal',
                     type: 'POST',
@@ -1439,16 +1444,16 @@
                         produto_id: servicoId || null
                     },
                     async: false, // Síncrono para aguardar o resultado
-                    success: function (response) {
+                    success: function(response) {
                         console.log('📋 Resposta da classificação fiscal:', response);
                         if (response.success && response.data) {
                             clfId = response.data.id;
                             defaultCfop = response.data.cfop || defaultCfop;
                             defaultCst = response.data.cst || defaultCst;
-
+                            
                             // cClass vem do produto, não da classificação fiscal
                             // cClassTrib é apenas informativo da classificação fiscal
-
+                            
                             console.log('✅ Classificação Fiscal encontrada:');
                             console.log('   CLF_ID:', clfId);
                             console.log('   CFOP:', defaultCfop);
@@ -1461,7 +1466,7 @@
                             console.log('⚠️  Classificação fiscal não encontrada:', response.error || 'Erro desconhecido');
                         }
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         console.log('❌ Erro ao buscar classificação fiscal:', error);
                     }
                 });
@@ -1483,7 +1488,7 @@
                     ${unidade}
                     <input type="hidden" name="servicos[${servicoIndex}][u_med]" value="${unidade}">
                 </td>
-                <td><div align="center">${quantidade}</div>
+                <td><div align="center">${formatarQuantidade(quantidade)}</div>
                     <input type="hidden" name="servicos[${servicoIndex}][quantidade]" value="${quantidade}">
                 </td>
                 <td><div align="center">R$ ${formatMoney(preco)}</div>
@@ -1598,7 +1603,7 @@
         `;
 
             $('#servicos-list-body').append(row);
-
+            
             console.log('✅ Serviço adicionado com sucesso:', {
                 index: servicoIndex,
                 id: servicoId,
@@ -1610,18 +1615,17 @@
                 cClass: cClass,
                 clfId: clfId
             });
-
+            
             servicoIndex++;
             limparServicoFormulario();
             atualizarTotais();
-            atualizarValidacaoServicos();
         }
 
         // Debug: Mostrar informações sobre serviços e clientes
         console.log('🔍 Debug NFECOM:');
         console.log('   📋 Serviços - Total carregados:', <?php echo count($servicos); ?>);
         <?php if (empty($servicos)): ?>
-                console.log('   ⚠️  Nenhum serviço encontrado! Verifique se há produtos com pro_tipo = 2');
+            console.log('   ⚠️  Nenhum serviço encontrado! Verifique se há produtos com pro_tipo = 2');
         <?php endif; ?>
         console.log('   👥 Clientes - Carregados:', <?php echo count($clientes_iniciais); ?>, 'iniciais + busca AJAX');
         console.log('   📍 Endereços - Seleção automática do endereço padrão ativada');
@@ -1645,7 +1649,6 @@
         $(document).on('click', '.servico-remove', function () {
             $(this).closest('tr').remove();
             atualizarTotais();
-            atualizarValidacaoServicos();
         });
 
         // Função para calcular e atualizar totais
@@ -1682,21 +1685,15 @@
             atualizarTotais();
         });
 
-        // Função para atualizar validação de serviços
+        // Função para atualizar validação de serviços (removida mensagem de erro)
         function atualizarValidacaoServicos() {
-            const numServicos = $('#servicos-list-body tr').length;
-            if (numServicos === 0) {
-                $('#servicos-error').show();
-            } else {
-                $('#servicos-error').hide();
-            }
+            // Validação removida - não exibe mais mensagem de erro
         }
 
         // Cálculo automático é feito pela função atualizarTotais()
 
-        // Inicializar totais e validação ao carregar a página
+        // Inicializar totais ao carregar a página
         atualizarTotais();
-        atualizarValidacaoServicos();
 
         // Validação do formulário
         $('#formNfecom').validate({
@@ -1744,7 +1741,15 @@
                 const servicosValidos = $('#servicos-list-body tr').length;
 
                 if (servicosValidos === 0) {
-                    $('#servicos-error').show();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            type: "error",
+                            title: "Atenção",
+                            text: "É necessário adicionar pelo menos um serviço à NFCom."
+                        });
+                    } else {
+                        alert('É necessário adicionar pelo menos um serviço à NFCom.');
+                    }
                     $('html, body').animate({
                         scrollTop: $('#servicos-container').offset().top - 100
                     }, 500);
@@ -1754,7 +1759,6 @@
                 // Atualizar o valor bruto com o total calculado antes de enviar
                 atualizarTotais();
 
-                $('#servicos-error').hide();
                 form.submit();
             }
         });

@@ -135,16 +135,41 @@
         border: 1px solid #dee2e6;
     }
 
+    /* Hide the original jittery filter */
+    #tabela_filter, .dataTables_filter {
+        display: none !important;
+    }
+    
+    /* Fix for Show entries overlap */
+    .dataTables_length {
+        float: left !important;
+        margin: 10px !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+
+    /* Ensure Novo NFECom button is on top */
+    .btn-success.button {
+        position: relative !important;
+        z-index: 99 !important;
+    }
 </style>
 
 <div class="new122">
-    <div class="widget-title" style="margin: -20px 0 0">
-        <span class="icon">
-            <i class="fas fa-file-invoice"></i>
-        </span>
-        <h5>NFECom</h5>
-    </div>
-    <div class="span12" style="margin-left: 0">
+    <div class="widget-box">
+        <div class="widget-title" style="margin: -20px 0 0">
+            <span class="icon">
+                <i class="fas fa-file-invoice"></i>
+            </span>
+            <h5>NFECom</h5>
+            <div style="float: right; margin: 3px 10px 0 0; display: flex; align-items: center; line-height: 30px;">
+                <span style="color: #878787; font-size: 11px; margin-right: 8px;">Pesquisa rápida na tabela:</span>
+                <input type="text" id="customSearch" placeholder="Filtrar resultados..." 
+                       style="height: 20px; width: 150px; padding: 2px 8px; margin-bottom: 0; border-radius: 12px; border: 1px solid #ccc; font-size: 11px; background: #fff;">
+            </div>
+        </div>
+        <div class="widget-content nopadding tab-content">
+            <div class="span12" style="padding: 10px; margin-left: 0">
         <form method="get" action="<?php echo base_url(); ?>index.php/nfecom/gerenciar">
             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'aNfecom')) { ?>
                 <div class="span3">
@@ -179,10 +204,7 @@
                 </button>
             </div>
         </form>
-    </div>
-
-    <div class="widget-box">
-        <div class="widget-content nopadding tab-content">
+            </div>
             <table id="tabela" class="table table-bordered">
                 <thead>
                     <tr>
@@ -239,17 +261,17 @@
                             echo '<td><span class="badge" style="background-color: ' . $corStatus . '; border-color: ' . $corStatus . '; cursor: help;" data-toggle="tooltip" title="' . $motivo . '">' . $statusDesc . '</span></td>';
                             echo '<td style="text-align:center; white-space: nowrap;">';
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" class="btn btn-mini btn-info" title="Ver dados da nota" style="margin-right: 2px">Ver dados</a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" class="btn btn-mini btn-info" title="Ver dados da nota" style="margin-right: 2px"><i class="fas fa-eye"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
                                 if ($r->NFC_STATUS < 2) {
                                     // NFCom nova ou salva - permite gerar
-                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Gerar NFCom" style="margin-right: 2px">Gerar NFCom</a>';
-                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 2px">Gerar XML</a>';
+                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Gerar NFCom" style="margin-right: 2px"><i class="fas fa-paper-plane"></i></a>';
+                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 2px"><i class="fas fa-file-code"></i></a>';
                                 } elseif ($r->NFC_STATUS == 4) {
                                     // NFCom rejeitada - permite reemitir
-                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Reemitir Nota" style="margin-right: 2px">Reemitir Nota</a>';
-                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 2px">Gerar XML</a>';
+                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Reemitir Nota" style="margin-right: 2px"><i class="fas fa-sync"></i></a>';
+                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 2px"><i class="fas fa-file-code"></i></a>';
                                 }
                                 // NFCom autorizada (status 3 ou 5) não mostra botão
                                 // NFCom cancelada (status 7) não mostra botão
@@ -258,16 +280,16 @@
                                 echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->NFC_ID . '" class="btn btn-mini btn-inverse" target="_blank" title="Imprimir NFCom" style="margin-right: 2px"><i class="bx bx-printer"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($r->NFC_STATUS == 3 || $r->NFC_STATUS == 5)) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" title="Baixar XML Autorizado" style="margin-right: 2px">XML</a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" title="Baixar XML Autorizado" style="margin-right: 2px"><i class="fas fa-file-code"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($r->NFC_STATUS == 3 || $r->NFC_STATUS == 5)) {
-                                echo '<a href="#" onclick="abrirModalCancelamento(' . $r->NFC_ID . ')" class="btn btn-mini btn-danger" title="Cancelar NFCom" style="margin-right: 2px"><i class="fas fa-ban"></i> Cancelar</a>';
+                                echo '<a href="#" onclick="abrirModalCancelamento(' . $r->NFC_ID . ')" class="btn btn-mini btn-danger" title="Cancelar NFCom" style="margin-right: 2px"><i class="fas fa-ban"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS >= 2) {
                                 echo '<a href="#" onclick="consultarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini" title="Consultar Status na SEFAZ" style="margin-right: 2px"><i class="bx bx-search"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS != 3 && $r->NFC_STATUS != 7) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->NFC_ID . '" class="btn btn-mini btn-danger" title="Excluir NFCom" style="margin-right: 2px" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')">Excluir</a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->NFC_ID . '" class="btn btn-mini btn-danger" title="Excluir NFCom" style="margin-right: 2px" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')"><i class="fas fa-trash-alt"></i></a>';
                             }
                             echo '</td>';
                             echo '</tr>';
@@ -908,6 +930,18 @@ $(document).ready(function() {
                 $btn.prop('disabled', false).html(originalText);
             }
         });
+    });
+});
+
+$(document).ready(function() {
+    // Vincular pesquisa customizada ao DataTable
+    $('#customSearch').on('keyup', function() {
+        if ($.fn.DataTable.isDataTable('#tabela')) {
+            $('#tabela').DataTable().search(this.value).draw();
+        } else {
+            // Se ainda não inicializou (raro), tenta inicializar ou aguarda
+            console.log('DataTable ainda não inicializado');
+        }
     });
 });
 </script>
