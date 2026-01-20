@@ -12,19 +12,27 @@ class Tipos_clientes_model extends CI_Model
         parent::__construct();
     }
 
-    public function get($table, $fields, $where = '', $perpage = 0, $start = 0, $one = false, $array = 'object')
+    public function get($table, $fields, $where = '', $perpage = 0, $start = 0, $one = false, $array = 'object', $order_field = 'TPC_NOME', $order_direction = 'asc')
     {
         $this->db->select($fields);
         $this->db->from($table);
-        $this->db->order_by('TPC_NOME', 'asc');
-        $this->db->limit($perpage, $start);
+        
+        $order_field = $order_field ?: 'TPC_NOME';
+        $order_direction = $order_direction ?: 'asc';
+        $this->db->order_by($order_field, $order_direction);
+        
+        // Só aplica limit se perpage for maior que 0
+        if ($perpage > 0) {
+            $this->db->limit($perpage, $start);
+        }
+        
         if ($where) {
             $this->db->where($where);
         }
 
         $query = $this->db->get();
 
-        $result = ! $one ? $query->result($array) : $query->row();
+        $result = ! $one ? $query->result($array === 'object' || $array === 'array' ? $array : 'object') : $query->row();
 
         return $result;
     }

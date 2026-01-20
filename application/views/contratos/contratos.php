@@ -125,9 +125,13 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $(document).on('click', 'a', function (event) {
-            var contrato = $(this).attr('contrato');
-            $('#idContrato').val(contrato);
+        // Capturar clique no link de excluir que tem o atributo 'contrato'
+        $(document).on('click', 'a[contrato]', function (event) {
+            var contratoId = $(this).attr('contrato');
+            if (contratoId) {
+                $('#idContrato').val(contratoId);
+                console.log('ID do contrato definido:', contratoId);
+            }
         });
     });
 </script>

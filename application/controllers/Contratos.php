@@ -254,7 +254,12 @@ class Contratos extends MY_Controller
             redirect(base_url());
         }
 
+        // Aceitar ID via URL ou via POST
         if ($id == null) {
+            $id = $this->input->post('id');
+        }
+
+        if ($id == null || $id == '') {
             $this->session->set_flashdata('error', 'Contrato não encontrado.');
             redirect(base_url('index.php/contratos'));
         }

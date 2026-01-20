@@ -389,7 +389,7 @@ class Pessoas extends MY_Controller
         // Carrega estados para o modal de endereço
         $this->data['estados'] = $this->db->order_by('EST_UF', 'ASC')->get('estados')->result();
 
-        $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('TIPOS_CLIENTES', 'TPC_ID, TPC_NOME');
+        $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('TIPOS_CLIENTES', 'TPC_ID, TPC_NOME', '', 0, 0, false, 'object', 'TPC_NOME', 'ASC');
         $this->data['view'] = 'pessoas/adicionarPessoa';
         return $this->layout();
     }
@@ -829,7 +829,7 @@ class Pessoas extends MY_Controller
             $this->data['vendedor'] = null;
         }
 
-        $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('TIPOS_CLIENTES', 'TPC_ID, TPC_NOME');
+        $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('TIPOS_CLIENTES', 'TPC_ID, TPC_NOME', '', 0, 0, false, 'object', 'TPC_NOME', 'ASC');
         $this->data['view'] = 'pessoas/editarPessoa';
         return $this->layout();
     }

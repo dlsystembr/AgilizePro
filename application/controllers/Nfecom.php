@@ -16,6 +16,7 @@ class Nfecom extends MY_Controller
         $this->load->model('Clientes_model');
         $this->load->model('ConfiguracoesFiscais_model');
         $this->load->model('OperacaoComercial_model');
+        $this->load->library('FiscalClassificationService');
         $this->data['menuNfecom'] = 'NFECom';
 
         // Fix for OpenSSL 3 legacy certificates
@@ -125,6 +126,11 @@ class Nfecom extends MY_Controller
 
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
+        
+        // Limpar flashdata de erro se não for um POST (evitar exibir erro ao carregar página)
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->session->set_flashdata('error', '');
+        }
 
         // Regras de validação
         $this->form_validation->set_rules('clientes_id', 'Cliente', 'trim|required');
@@ -132,7 +138,8 @@ class Nfecom extends MY_Controller
         $this->form_validation->set_rules('observacoes', 'Observações', 'trim|required');
         $this->form_validation->set_rules('numeroContrato', 'Número do Contrato', 'trim|required');
         $this->form_validation->set_rules('dataContratoIni', 'Data Início Contrato', 'trim|required');
-        $this->form_validation->set_rules('dataEmissao', 'Data Emissão', 'trim|required');
+        // Data de emissão é opcional (será gerada automaticamente se não fornecida)
+        $this->form_validation->set_rules('dataEmissao', 'Data Emissão', 'trim');
         $this->form_validation->set_rules('comissaoAgencia', 'Comissão Agência', 'trim|numeric');
         $this->form_validation->set_rules('dataVencimento', 'Data Vencimento', 'trim|required');
         $this->form_validation->set_rules('dataPeriodoIni', 'Data Período Início', 'trim|required');
@@ -175,87 +182,120 @@ class Nfecom extends MY_Controller
         // Carregar Operações Comerciais
         $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
 
-        if ($this->form_validation->run('nfecom') == false) {
-            $this->data['custom_error'] = (validation_errors() ? true : false);
-        } else {
-            $data = $this->input->post();
+        // Só validar se for um POST (submissão do formulário)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if ($this->form_validation->run('nfecom') == false) {
+                $error_messages = validation_errors();
+                if ($error_messages) {
+                    $this->data['custom_error'] = $error_messages;
+                    $this->session->set_flashdata('error', $error_messages);
+                    log_message('debug', 'Erros de validação NFCom: ' . $error_messages);
+                } else {
+                    // Se não há erros de validação mas o run retornou false, pode ser problema com os dados
+                    $post_data = $this->input->post();
+                    log_message('debug', 'Validação falhou sem mensagens. Dados POST: ' . json_encode($post_data));
+                    $this->data['custom_error'] = 'Erro na validação do formulário. Verifique se todos os campos obrigatórios foram preenchidos.';
+                    $this->session->set_flashdata('error', 'Erro na validação do formulário. Verifique se todos os campos obrigatórios foram preenchidos.');
+                }
+            } else {
+                // Validação passou, processar dados
+                $data = $this->input->post();
+                log_message('debug', 'Validação passou. Processando dados...');
 
-            // Definir série padrão (não controlada na tela)
-            $data['serie'] = isset($data['serie']) ? $data['serie'] : '1';
+                // Definir série padrão (não controlada na tela)
+                $data['serie'] = isset($data['serie']) ? $data['serie'] : '1';
 
-            // Processar data de emissão
-            // Processar data de emissão (automática)
-            if (!empty($data['dataEmissao'])) {
+                // Processar data de emissão
+                // Processar data de emissão (automática)
+                if (!empty($data['dataEmissao'])) {
                 try {
                     $dataEmissao = explode('/', $data['dataEmissao']);
                     $data['dataEmissao'] = $dataEmissao[2] . '-' . $dataEmissao[1] . '-' . $dataEmissao[0];
                 } catch (Exception $e) {
                     $data['dataEmissao'] = date('Y-m-d');
                 }
-            } else {
-                $data['dataEmissao'] = date('Y-m-d');
-            }
+                } else {
+                    $data['dataEmissao'] = date('Y-m-d');
+                }
 
-            // Processar datas do contrato
-            if ($data['dataContratoIni']) {
+                // Processar datas do contrato
+                if ($data['dataContratoIni']) {
                 try {
                     $dataContrato = explode('/', $data['dataContratoIni']);
                     $data['dataContratoIni'] = $dataContrato[2] . '-' . $dataContrato[1] . '-' . $dataContrato[0];
                 } catch (Exception $e) {
                     $data['dataContratoIni'] = date('Y-m-d');
                 }
-            }
+                }
 
-            // Processar datas de vencimento
-            if ($data['dataVencimento']) {
+                // Processar datas de vencimento
+                if ($data['dataVencimento']) {
                 try {
                     $dataVenc = explode('/', $data['dataVencimento']);
                     $data['dataVencimento'] = $dataVenc[2] . '-' . $dataVenc[1] . '-' . $dataVenc[0];
                 } catch (Exception $e) {
                     $data['dataVencimento'] = date('Y-m-d', strtotime('+30 days'));
                 }
-            }
+                }
 
-            // Processar período de uso
-            if ($data['dataPeriodoIni']) {
+                // Processar período de uso
+                if ($data['dataPeriodoIni']) {
                 try {
                     $dataPerIni = explode('/', $data['dataPeriodoIni']);
                     $data['dataPeriodoIni'] = $dataPerIni[2] . '-' . $dataPerIni[1] . '-' . $dataPerIni[0];
                 } catch (Exception $e) {
                     $data['dataPeriodoIni'] = date('Y-m-d');
                 }
-            }
+                }
 
-            if ($data['dataPeriodoFim']) {
+                if ($data['dataPeriodoFim']) {
                 try {
                     $dataPerFim = explode('/', $data['dataPeriodoFim']);
                     $data['dataPeriodoFim'] = $dataPerFim[2] . '-' . $dataPerFim[1] . '-' . $dataPerFim[0];
                 } catch (Exception $e) {
                     $data['dataPeriodoFim'] = date('Y-m-d', strtotime('+30 days'));
                 }
-            }
+                }
 
-            // Processar data fim de contrato (opcional)
-            if (!empty($data['dataContratoFim']) && strpos($data['dataContratoFim'], '/') !== false) {
+                // Processar data fim de contrato (opcional)
+                if (!empty($data['dataContratoFim']) && strpos($data['dataContratoFim'], '/') !== false) {
                 try {
                     $dataContFim = explode('/', $data['dataContratoFim']);
                     $data['dataContratoFim'] = $dataContFim[2] . '-' . $dataContFim[1] . '-' . $dataContFim[0];
                 } catch (Exception $e) {
                     $data['dataContratoFim'] = null;
                 }
-            }
+                }
 
-            // Processar múltiplos serviços
-            $servicos = isset($data['servicos']) ? $data['servicos'] : [];
-            $totalValorBruto = 0;
-            $nomesServicos = [];
+                // Processar múltiplos serviços
+                $servicos = isset($data['servicos']) ? $data['servicos'] : [];
+                log_message('debug', 'Serviços recebidos: ' . json_encode($servicos));
+                
+                // Validar se os serviços têm dados válidos (se houver serviços)
+                $servicosValidos = 0;
+                if (!empty($servicos) && is_array($servicos)) {
+                    foreach ($servicos as $index => $servico) {
+                        log_message('debug', "Validando serviço $index: " . json_encode($servico));
+                        if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
+                            $servicosValidos++;
+                        }
+                    }
+                }
+                
+                log_message('debug', "Total de serviços válidos: $servicosValidos");
+                
+                $totalValorBruto = 0;
+                $nomesServicos = [];
 
-            foreach ($servicos as $servico) {
+                foreach ($servicos as $servico) {
                 if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
-                    $quantidade = floatval($servico['quantidade']);
-                    $valorUnitario = floatval($servico['valorUnitario']);
-                    $valorDesconto = floatval($servico['valorDesconto'] ?? 0);
-                    $valorOutros = floatval($servico['valorOutros'] ?? 0);
+                    // Converter valores recebidos (podem vir como string)
+                    $quantidade = is_numeric($servico['quantidade']) ? floatval($servico['quantidade']) : 0;
+                    $valorUnitario = is_numeric($servico['valorUnitario']) ? floatval($servico['valorUnitario']) : 0;
+                    $valorDesconto = isset($servico['valorDesconto']) && is_numeric($servico['valorDesconto']) ? floatval($servico['valorDesconto']) : (isset($servico['v_desc']) && is_numeric($servico['v_desc']) ? floatval($servico['v_desc']) : 0);
+                    $valorOutros = isset($servico['valorOutros']) && is_numeric($servico['valorOutros']) ? floatval($servico['valorOutros']) : (isset($servico['v_outro']) && is_numeric($servico['v_outro']) ? floatval($servico['v_outro']) : 0);
+                    
+                    log_message('debug', "Serviço processado - Quantidade: $quantidade, Valor Unitário: $valorUnitario, Desconto: $valorDesconto, Outros: $valorOutros");
 
                     // Valor Item = Quantidade × Valor Unitário
                     $valorItem = $quantidade * $valorUnitario;
@@ -275,74 +315,74 @@ class Nfecom extends MY_Controller
                         $nomesServicos[] = $servico_info->descricao . ' (Qtd: ' . $quantidade . ')';
                     }
                 }
-            }
+                }
 
-            // Se não há serviços válidos, usar o valor bruto do formulário
-            if ($totalValorBruto == 0) {
-                $totalValorBruto = floatval($data['valorBruto']);
-                $nomesServicos[] = 'Serviços diversos';
-            }
+                // Se não há serviços válidos, usar o valor bruto do formulário
+                if ($totalValorBruto == 0) {
+                    $totalValorBruto = floatval($data['valorBruto']);
+                    $nomesServicos[] = 'Serviços diversos';
+                }
 
-            // Calcular valores usando o total dos serviços
-            $valorBruto = $totalValorBruto;
-            $comissaoAgencia = floatval($data['comissaoAgencia']);
-            $valorLiquido = $valorBruto - $comissaoAgencia;
+                // Calcular valores usando o total dos serviços
+                $valorBruto = $totalValorBruto;
+                $comissaoAgencia = floatval($data['comissaoAgencia']);
+                $valorLiquido = $valorBruto - $comissaoAgencia;
 
-            // Cálculos tributários (valores fixos baseados no XML de exemplo)
-            $pis = $valorLiquido * 0.0065; // 0.65%
-            $cofins = $valorLiquido * 0.03; // 3.0%
-            $irrf = $valorLiquido * 0.024; // 2.4% (IRRF)
-            $valorNF = $valorLiquido - $pis - $cofins - $irrf;
+                // Cálculos tributários (valores fixos baseados no XML de exemplo)
+                $pis = $valorLiquido * 0.0065; // 0.65%
+                $cofins = $valorLiquido * 0.03; // 3.0%
+                $irrf = 0.00; // IRRF zerado por enquanto
+                $valorNF = $valorLiquido - $pis - $cofins; // IRRF não altera o valor total
 
-            $nomeServico = implode('; ', $nomesServicos);
+                $nomeServico = implode('; ', $nomesServicos);
 
-            // Buscar dados completos do cliente incluindo endereço selecionado
-            $enderecoId = $data['enderecoClienteSelect'] ?? null;
-            $this->db->select('p.PES_CPFCNPJ, p.PES_NOME, p.PES_RAZAO_SOCIAL, p.PES_FISICO_JURIDICO, e.END_LOGRADOURO as logradouro, e.END_NUMERO as numero, e.END_COMPLEMENTO as complemento, e.END_CEP as cep, b.BAI_NOME as bairro, m.MUN_NOME as municipio_nome, m.MUN_IBGE, es.EST_UF as estado_uf');
-            $this->db->from('clientes c');
-            $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID');
-            $this->db->join('enderecos e', 'e.PES_ID = p.PES_ID', 'left');
-            $this->db->join('bairros b', 'b.BAI_ID = e.BAI_ID', 'left');
-            $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
-            $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
-            $this->db->where('c.CLN_ID', $data['clientes_id']);
-            if (!empty($enderecoId)) {
-                $this->db->where('e.END_ID', $enderecoId);
-            } else {
-                $this->db->where('e.END_PADRAO', 1);
-            }
-            $this->db->limit(1);
-            $cliente_query = $this->db->get();
-            $cliente = $cliente_query->row();
+                // Buscar dados completos do cliente incluindo endereço selecionado
+                $enderecoId = $data['enderecoClienteSelect'] ?? null;
+                $this->db->select('p.PES_CPFCNPJ, p.PES_NOME, p.PES_RAZAO_SOCIAL, p.PES_FISICO_JURIDICO, e.END_LOGRADOURO as logradouro, e.END_NUMERO as numero, e.END_COMPLEMENTO as complemento, e.END_CEP as cep, b.BAI_NOME as bairro, m.MUN_NOME as municipio_nome, m.MUN_IBGE, es.EST_UF as estado_uf');
+                $this->db->from('clientes c');
+                $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID');
+                $this->db->join('enderecos e', 'e.PES_ID = p.PES_ID', 'left');
+                $this->db->join('bairros b', 'b.BAI_ID = e.BAI_ID', 'left');
+                $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
+                $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
+                $this->db->where('c.CLN_ID', $data['clientes_id']);
+                if (!empty($enderecoId)) {
+                    $this->db->where('e.END_ID', $enderecoId);
+                } else {
+                    $this->db->where('e.END_PADRAO', 1);
+                }
+                $this->db->limit(1);
+                $cliente_query = $this->db->get();
+                $cliente = $cliente_query->row();
 
-            if ($cliente) {
-                $data['nomeCliente'] = $cliente->PES_FISICO_JURIDICO == 'F' ? $cliente->PES_NOME : ($cliente->PES_RAZAO_SOCIAL ?: $cliente->PES_NOME);
-                $data['cnpjCliente'] = $cliente->PES_CPFCNPJ ?? '';
-                $data['logradouroCliente'] = $cliente->logradouro ?? '';
-                $data['numeroCliente'] = $cliente->numero ?? '';
-                $data['bairroCliente'] = $cliente->bairro ?? '';
-                $data['municipioCliente'] = $cliente->municipio_nome ?? '';
-                $data['codMunCliente'] = $cliente->MUN_IBGE ?? '';
-                $data['cepCliente'] = $cliente->cep ?? '';
-                $data['ufCliente'] = $cliente->estado_uf ?? '';
-            }
+                if ($cliente) {
+                    $data['nomeCliente'] = $cliente->PES_FISICO_JURIDICO == 'F' ? $cliente->PES_NOME : ($cliente->PES_RAZAO_SOCIAL ?: $cliente->PES_NOME);
+                    $data['cnpjCliente'] = $cliente->PES_CPFCNPJ ?? '';
+                    $data['logradouroCliente'] = $cliente->logradouro ?? '';
+                    $data['numeroCliente'] = $cliente->numero ?? '';
+                    $data['bairroCliente'] = $cliente->bairro ?? '';
+                    $data['municipioCliente'] = $cliente->municipio_nome ?? '';
+                    $data['codMunCliente'] = $cliente->MUN_IBGE ?? '';
+                    $data['cepCliente'] = $cliente->cep ?? '';
+                    $data['ufCliente'] = $cliente->estado_uf ?? '';
+                }
 
 
-            // Carregar dados do emitente da tabela empresas
-            $emit = $this->Nfe_model->getEmit();
+                // Carregar dados do emitente da tabela empresas
+                $emit = $this->Nfe_model->getEmit();
 
-            if (!$emit) {
-                $this->session->set_flashdata('error', 'Nenhuma empresa emitente configurada. Por favor, cadastre uma empresa.');
-                redirect(site_url('nfecom/adicionar'));
-            }
+                if (!$emit) {
+                    $this->session->set_flashdata('error', 'Nenhuma empresa emitente configurada. Por favor, cadastre uma empresa.');
+                    redirect(site_url('nfecom/adicionar'));
+                }
 
-            // ... busca de cliente ...
+                // ... busca de cliente ...
 
-            // Dados da NFCom
-            $cnpjSemMascara = preg_replace('/\D/', '', $data['cnpjCliente'] ?? '');
-            $configFiscal = $this->getConfiguracaoNfcom();
-            $codigoUf = $this->getCodigoUf($emit['enderEmit']['UF'] ?? '');
-            $nfecomData = [
+                // Dados da NFCom
+                $cnpjSemMascara = preg_replace('/\D/', '', $data['cnpjCliente'] ?? '');
+                $configFiscal = $this->getConfiguracaoNfcom();
+                $codigoUf = $this->getCodigoUf($emit['enderEmit']['UF'] ?? '');
+                $nfecomData = [
                 'NFC_CUF' => $codigoUf ?: ($emit['enderEmit']['UF'] ?? ''),
                 'NFC_TIPO_AMBIENTE' => $configFiscal ? $configFiscal->CFG_AMBIENTE : $this->data['configuration']['ambiente'],
                 'NFC_MOD' => '62',
@@ -404,20 +444,43 @@ class Nfecom extends MY_Controller
                 'NFC_D_PER_USO_INI' => $data['dataPeriodoIni'],
                 'NFC_D_PER_USO_FIM' => $data['dataPeriodoFim'],
                 'NFC_COD_BARRAS' => '1',
-                'NFC_INF_CPL' => $this->buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido),
                 'NFC_STATUS' => 1, // Salvo
                 'CLN_ID' => $data['clientes_id'],
                 'OPC_ID' => $this->input->post('opc_id'),
                 'NFC_CHAVE_PIX' => $this->input->post('nfc_chave_pix'),
                 'NFC_LINHA_DIGITAVEL' => $this->input->post('nfc_linha_digitavel')
-            ];
+                ];
 
-            // Calcular CDV e Chave
-            $nfecomData['NFC_CDV'] = $this->calculateDV($nfecomData);
-            $nfecomData['NFC_CH_NFCOM'] = $this->generateChave($nfecomData);
+                // Coletar mensagens fiscais dos itens antes de construir informações complementares
+                $mensagensFiscais = [];
+                foreach ($servicos as $servico) {
+                    if (!empty($servico['clf_id'])) {
+                        // Buscar mensagem fiscal da classificação
+                        $this->db->select('CLF_MENSAGEM');
+                        $this->db->from('classificacao_fiscal');
+                        $this->db->where('CLF_ID', $servico['clf_id']);
+                        $clfQuery = $this->db->get();
+                        if ($clfQuery->num_rows() > 0) {
+                            $clf = $clfQuery->row();
+                            if (!empty($clf->CLF_MENSAGEM)) {
+                                // Evitar duplicatas
+                                if (!in_array($clf->CLF_MENSAGEM, $mensagensFiscais)) {
+                                    $mensagensFiscais[] = $clf->CLF_MENSAGEM;
+                                }
+                            }
+                        }
+                    }
+                }
 
-            // Salvar NFCom
-            $idNfecom = $this->Nfecom_model->add('nfecom_capa', $nfecomData);
+                // Construir informações complementares com mensagens fiscais
+                $nfecomData['NFC_INF_CPL'] = $this->buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido, $mensagensFiscais);
+
+                // Calcular CDV e Chave
+                $nfecomData['NFC_CDV'] = $this->calculateDV($nfecomData);
+                $nfecomData['NFC_CH_NFCOM'] = $this->generateChave($nfecomData);
+
+                // Salvar NFCom
+                $idNfecom = $this->Nfecom_model->add('nfecom_capa', $nfecomData);
 
             if ($idNfecom) {
                 // Salvar múltiplos itens (um para cada serviço)
@@ -433,6 +496,7 @@ class Nfecom extends MY_Controller
                         $unidade = $servico['u_med'] ?? 'UN';
                         $cClass = $servico['c_class'] ?? '0600402';
                         $cstIcms = $servico['cst_icms'] ?? '00';
+                        $clfId = $servico['clf_id'] ?? null; // ID da classificação fiscal encontrada
 
                         // Valor Item = Quantidade × Valor Unitário
                         $valorItem = $quantidade * $valorUnitario;
@@ -492,7 +556,22 @@ class Nfecom extends MY_Controller
                             'NFI_DATA_ATUALIZACAO' => date('Y-m-d H:i:s')
                         ];
 
+                        // Adicionar CLF_ID se existir o campo na tabela e se tiver valor
+                        if ($clfId) {
+                            // Verificar se o campo existe antes de adicionar
+                            $fields = $this->db->list_fields('nfecom_itens');
+                            if (in_array('CLF_ID', $fields) || in_array('clf_id', $fields)) {
+                                $itemData['CLF_ID'] = $clfId;
+                                log_message('info', 'Item NFCom #' . $itemNumero . ' - CLF_ID adicionado: ' . $clfId);
+                            } else {
+                                log_message('info', 'Campo CLF_ID não existe na tabela nfecom_itens. Não foi possível salvar o ID da classificação fiscal.');
+                            }
+                        } else {
+                            log_message('info', 'Item NFCom #' . $itemNumero . ' - CLF_ID não fornecido no serviço');
+                        }
+
                         $this->Nfecom_model->add('nfecom_itens', $itemData);
+                        log_message('info', 'Item NFCom #' . $itemNumero . ' salvo com sucesso. NFI_ID: ' . $this->db->insert_id());
                         $itemNumero++;
                     }
                 }
@@ -542,7 +621,8 @@ class Nfecom extends MY_Controller
                 $this->data['custom_error'] = true;
                 $this->session->set_flashdata('error', 'Erro ao salvar NFECom!');
             }
-        }
+            } // Fechamento do else da validação (linha 199)
+        } // Fechamento do if ($_SERVER['REQUEST_METHOD'] === 'POST') (linha 185)
 
         $this->data['view'] = 'nfecom/adicionarNfecom';
         return $this->layout();
@@ -1770,7 +1850,7 @@ class Nfecom extends MY_Controller
     }
 
 
-    private function buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido)
+    private function buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido, $mensagensFiscais = [])
     {
         $emit = $this->Nfe_model->getEmit();
 
@@ -1779,14 +1859,28 @@ class Nfecom extends MY_Controller
             return "Erro: Dados do emitente não configurados.";
         }
 
+        // Observação digitada pelo usuário
+        $observacaoDigitada = isset($data['observacoes']) ? trim($data['observacoes']) : '';
+        
+        // Construir informações complementares
         $info = "VEICULAÇÃO COMERCIAL NA RÁDIO " . strtoupper($emit['xNome']) . ", " .
             strtoupper($emit['enderEmit']['xMun']) . "-" . $emit['enderEmit']['UF'] . ", " .
-            "DA CAMPANHA " . $data['observacoes'] . ", " .
+            "DA CAMPANHA " . $observacaoDigitada . ", " .
             "VALOR BRUTO: R$ " . number_format($valorBruto, 2, ',', '.') . "\n" .
             "COMISSÃO AGÊNCIA: R$ " . number_format($comissaoAgencia, 2, ',', '.') . "\n" .
             "VALOR LÍQUIDO: R$ " . number_format($valorLiquido, 2, ',', '.') . "\n" .
-            "DADOS BANCÁRIOS " . $data['dadosBancarios'] . "\n" .
+            "DADOS BANCÁRIOS " . (isset($data['dadosBancarios']) ? $data['dadosBancarios'] : '') . "\n" .
             "Não tributação de ICMS conforme art. 155, §2º, X, 'd' da CRFB/1988. Imunidade de IBS/CBS conforme Artigo 9º, inciso VI da Lei Complementar nº 214/2025.";
+
+        // Adicionar mensagens fiscais das classificações fiscais ao final
+        if (!empty($mensagensFiscais) && is_array($mensagensFiscais)) {
+            $info .= "\n\n";
+            foreach ($mensagensFiscais as $mensagem) {
+                if (!empty(trim($mensagem))) {
+                    $info .= trim($mensagem) . "\n";
+                }
+            }
+        }
 
         return $info;
     }
@@ -2233,6 +2327,197 @@ class Nfecom extends MY_Controller
             log_message('error', 'Erro ao buscar clientes: ' . $e->getMessage());
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Erro interno do servidor']);
+        }
+    }
+
+    public function getContratosCliente()
+    {
+        $clienteId = $this->uri->segment(3);
+
+        if (!$clienteId) {
+            echo json_encode(['error' => 'ID do cliente não informado']);
+            return;
+        }
+
+        try {
+            // Primeiro, buscar o PES_ID do cliente
+            $this->db->select('PES_ID');
+            $this->db->from('clientes');
+            $this->db->where('CLN_ID', $clienteId);
+            $clienteQuery = $this->db->get();
+
+            if ($clienteQuery->num_rows() == 0) {
+                echo json_encode(['error' => 'Cliente ID ' . $clienteId . ' não encontrado']);
+                return;
+            }
+
+            $cliente = $clienteQuery->row();
+            $pesId = $cliente->PES_ID;
+
+            // Buscar contratos ativos do cliente
+            $this->db->select('CTR_ID, CTR_NUMERO, CTR_DATA_INICIO, CTR_DATA_FIM, CTR_TIPO_ASSINANTE, CTR_OBSERVACAO');
+            $this->db->from('contratos');
+            $this->db->where('PES_ID', $pesId);
+            $this->db->where('CTR_SITUACAO', 1); // Apenas contratos ativos
+            $this->db->order_by('CTR_DATA_INICIO', 'desc');
+            $query = $this->db->get();
+
+            if ($query->num_rows() > 0) {
+                $contratos = $query->result_array();
+                
+                // Formatar datas para o formato esperado pelo frontend
+                foreach ($contratos as &$contrato) {
+                    if ($contrato['CTR_DATA_INICIO']) {
+                        $contrato['CTR_DATA_INICIO'] = date('Y-m-d', strtotime($contrato['CTR_DATA_INICIO']));
+                    }
+                    if ($contrato['CTR_DATA_FIM']) {
+                        $contrato['CTR_DATA_FIM'] = date('Y-m-d', strtotime($contrato['CTR_DATA_FIM']));
+                    }
+                }
+
+                header('Content-Type: application/json');
+                echo json_encode($contratos);
+            } else {
+                header('Content-Type: application/json');
+                echo json_encode([]);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'Erro ao buscar contratos do cliente: ' . $e->getMessage());
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Erro interno do servidor: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Endpoint AJAX para buscar classificação fiscal automaticamente
+     * 
+     * Parâmetros via POST:
+     * - operacao_comercial_id: ID da operação comercial
+     * - cliente_id: ID do cliente (CLN_ID)
+     * - produto_id: ID do produto (PRO_ID) - opcional para serviços
+     * 
+     * Retorna JSON com CFOP, CST, CSOSN e cClassTrib
+     */
+    public function getClassificacaoFiscal()
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $operacaoComercialId = $this->input->post('operacao_comercial_id');
+            $clienteId = $this->input->post('cliente_id'); // CLN_ID
+            $produtoId = $this->input->post('produto_id'); // PRO_ID (opcional)
+
+            if (!$operacaoComercialId || !$clienteId) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Operação comercial e cliente são obrigatórios'
+                ]);
+                return;
+            }
+
+            // Buscar PES_ID do cliente
+            $this->db->select('PES_ID');
+            $this->db->from('clientes');
+            $this->db->where('CLN_ID', $clienteId);
+            $clienteQuery = $this->db->get();
+            
+            if ($clienteQuery->num_rows() == 0) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Cliente não encontrado'
+                ]);
+                return;
+            }
+            
+            $pesId = $clienteQuery->row()->PES_ID;
+
+            // Buscar EMP_ID da empresa logada
+            $this->load->model('Mapos_model');
+            $configuracao = $this->Mapos_model->getConfiguracao();
+            $empresaId = $configuracao['idEmpresa'] ?? 1; // Default 1 se não encontrar
+
+            // Se não tiver produto_id, usar um produto genérico ou null
+            // Para serviços, podemos passar null ou um produto genérico
+            if (!$produtoId) {
+                // Tentar buscar um produto genérico ou usar null
+                $produtoId = null;
+            }
+
+            // Chamar o serviço de classificação fiscal
+            $resultado = $this->fiscalclassificationservice->findClassification(
+                $operacaoComercialId,
+                $pesId, // PES_ID do cliente
+                $produtoId,
+                $empresaId
+            );
+
+            if ($resultado) {
+                $clfId = $resultado['CLF_ID'] ?? null;
+                $cfop = $resultado['CLF_CFOP'] ?? null;
+                $cst = $resultado['CLF_CST'] ?? null;
+                $csosn = $resultado['CLF_CSOSN'] ?? null;
+                $cClassTrib = $resultado['CLF_CCLASSTRIB'] ?? null;
+                $tipoIcms = $resultado['CLF_TIPO_ICMS'] ?? null;
+                $mensagemFiscal = $resultado['CLF_MENSAGEM'] ?? null;
+                
+                // Log detalhado para identificação
+                log_message('info', '=== CLASSIFICAÇÃO FISCAL ENCONTRADA ===');
+                log_message('info', 'CLF_ID: ' . ($clfId ?? 'N/A'));
+                log_message('info', 'OPC_ID: ' . $operacaoComercialId);
+                log_message('info', 'Cliente ID (CLN_ID): ' . $clienteId);
+                log_message('info', 'Cliente PES_ID: ' . $pesId);
+                log_message('info', 'Produto ID: ' . ($produtoId ?? 'N/A'));
+                log_message('info', 'Empresa ID: ' . $empresaId);
+                log_message('info', 'CFOP: ' . ($cfop ?? 'N/A'));
+                log_message('info', 'CST: ' . ($cst ?? 'N/A'));
+                log_message('info', 'CSOSN: ' . ($csosn ?? 'N/A'));
+                log_message('info', 'cClassTrib: ' . ($cClassTrib ?? 'N/A'));
+                log_message('info', 'Tipo ICMS: ' . ($tipoIcms ?? 'N/A'));
+                log_message('info', 'Mensagem Fiscal: ' . (substr($mensagemFiscal ?? '', 0, 100)));
+                log_message('info', '==========================================');
+                
+                echo json_encode([
+                    'success' => true,
+                    'data' => [
+                        'id' => $clfId,
+                        'cfop' => $cfop,
+                        'cst' => $cst,
+                        'csosn' => $csosn,
+                        'cClassTrib' => $cClassTrib,
+                        'tipo_icms' => $tipoIcms,
+                        'mensagem_fiscal' => $mensagemFiscal
+                    ]
+                ]);
+            } else {
+                log_message('info', '=== CLASSIFICAÇÃO FISCAL NÃO ENCONTRADA ===');
+                log_message('info', 'OPC_ID: ' . $operacaoComercialId);
+                log_message('info', 'Cliente ID (CLN_ID): ' . $clienteId);
+                log_message('info', 'Cliente PES_ID: ' . $pesId);
+                log_message('info', 'Produto ID: ' . ($produtoId ?? 'N/A'));
+                log_message('info', 'Empresa ID: ' . $empresaId);
+                log_message('info', '==========================================');
+                
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Nenhuma classificação fiscal encontrada para os parâmetros informados'
+                ]);
+            }
+
+        } catch (Exception $e) {
+            log_message('error', 'Erro ao buscar classificação fiscal: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+            echo json_encode([
+                'success' => false,
+                'error' => 'Erro ao buscar classificação fiscal: ' . $e->getMessage(),
+                'trace' => $this->config->item('log_threshold') >= 4 ? $e->getTraceAsString() : null
+            ]);
+        } catch (Error $e) {
+            log_message('error', 'Erro fatal ao buscar classificação fiscal: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+            echo json_encode([
+                'success' => false,
+                'error' => 'Erro fatal ao buscar classificação fiscal: ' . $e->getMessage()
+            ]);
         }
     }
 

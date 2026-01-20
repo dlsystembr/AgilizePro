@@ -14,6 +14,7 @@ class ClassificacaoFiscal extends MY_Controller
 
         $this->load->model('ClassificacaoFiscal_model');
         $this->load->model('OperacaoComercial_model');
+        $this->load->model('TiposClientes_model');
         $this->load->helper('form');
         $this->data['menuConfiguracoes'] = 'Configurações';
         $this->data['menuClassificacaoFiscal'] = 'Classificação Fiscal';
@@ -43,11 +44,12 @@ class ClassificacaoFiscal extends MY_Controller
         $this->data['custom_error'] = '';
 
         $this->form_validation->set_rules('operacao_comercial_id', 'Operação Comercial', 'required|trim');
+        $this->form_validation->set_rules('tipo_cliente_id', 'Tipo de Cliente', 'trim');
         $this->form_validation->set_rules('natureza_contribuinte', 'Natureza do Contribuinte', 'required|trim');
         $this->form_validation->set_rules('cfop', 'CFOP', 'required|trim');
         $this->form_validation->set_rules('destinacao', 'Destinação', 'required|trim');
         $this->form_validation->set_rules('objetivo_comercial', 'Objetivo Comercial', 'required|trim');
-        $this->form_validation->set_rules('tipo_icms', 'Tipo ICMS', 'required|in_list[normal,st]');
+        $this->form_validation->set_rules('tipo_icms', 'Tipo ICMS', 'required|in_list[normal,st,servico,ICMS Normal,Substituição Tributaria,Substituição Tributária,Serviço]');
 
         // Get tax regime from configuration
         $this->load->model('Mapos_model');
@@ -57,13 +59,70 @@ class ClassificacaoFiscal extends MY_Controller
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
+            // Mapear valores para o formato correto do ENUM
+            $objetivo_comercial = $this->input->post('objetivo_comercial');
+            // Converter valores minúsculos para o formato do ENUM se necessário
+            $objetivo_map = [
+                'consumo' => 'Consumo',
+                'revenda' => 'Revenda',
+                'industrialização' => 'Industrialização',
+                'industrializacao' => 'Industrialização',
+                'orgão público' => 'Orgão Público',
+                'orgao publico' => 'Orgão Público'
+            ];
+            if (isset($objetivo_map[strtolower($objetivo_comercial)])) {
+                $objetivo_comercial = $objetivo_map[strtolower($objetivo_comercial)];
+            }
+
+            $natureza_contribuinte = $this->input->post('natureza_contribuinte');
+            // Converter valores minúsculos para o formato do ENUM se necessário
+            $natureza_map = [
+                'inscrito' => 'Contribuinte',
+                'contribuinte' => 'Contribuinte',
+                'nao_inscrito' => 'Não Contribuinte',
+                'não contribuinte' => 'Não Contribuinte',
+                'nao contribuinte' => 'Não Contribuinte'
+            ];
+            if (isset($natureza_map[strtolower($natureza_contribuinte)])) {
+                $natureza_contribuinte = $natureza_map[strtolower($natureza_contribuinte)];
+            }
+
+            $tipo_icms = $this->input->post('tipo_icms');
+            // Converter valores para o formato do ENUM (normal, st, servico)
+            // O banco aceita: 'normal', 'st', ou 'servico'
+            $tipo_icms_lower = strtolower($tipo_icms);
+            if (in_array($tipo_icms_lower, ['normal', 'st', 'servico', 'serviço'])) {
+                // Normalizar 'serviço' para 'servico'
+                if ($tipo_icms_lower == 'serviço') {
+                    $tipo_icms = 'servico';
+                } else {
+                    $tipo_icms = $tipo_icms_lower;
+                }
+            } else {
+                // Fallback: manter o valor original se não for reconhecido
+                $tipo_icms = $tipo_icms_lower;
+            }
+
+            $destinacao = $this->input->post('destinacao');
+            // Converter valores minúsculos para o formato correto
+            $destinacao_map = [
+                'estadual' => 'Estadual',
+                'interestadual' => 'Interestadual'
+            ];
+            if (isset($destinacao_map[strtolower($destinacao)])) {
+                $destinacao = $destinacao_map[strtolower($destinacao)];
+            }
+
             $data = [
                 'operacao_comercial_id' => $this->input->post('operacao_comercial_id'),
-                'natureza_contribuinte' => $this->input->post('natureza_contribuinte'),
+                'tipo_cliente_id' => $this->input->post('tipo_cliente_id') ?: null,
+                'natureza_contribuinte' => $natureza_contribuinte,
                 'cfop' => $this->input->post('cfop'),
-                'destinacao' => $this->input->post('destinacao'),
-                'objetivo_comercial' => $this->input->post('objetivo_comercial'),
-                'tipo_icms' => $this->input->post('tipo_icms'),
+                'destinacao' => $destinacao,
+                'CLF_DESTINACAO' => $destinacao, // Campo adicional para garantir gravação
+                'objetivo_comercial' => $objetivo_comercial,
+                'tipo_icms' => $tipo_icms,
+                'cClassTrib' => $this->input->post('cClassTrib') ?: null,
                 'mensagem_fiscal' => $this->input->post('mensagem_fiscal'),
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
@@ -89,6 +148,7 @@ class ClassificacaoFiscal extends MY_Controller
         }
 
         $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
+        $this->data['tipos_clientes'] = $this->TiposClientes_model->getAll();
         $this->data['view'] = 'classificacaofiscal/adicionarClassificacaoFiscal';
         return $this->layout();
     }
@@ -104,11 +164,12 @@ class ClassificacaoFiscal extends MY_Controller
         $this->data['custom_error'] = '';
 
         $this->form_validation->set_rules('operacao_comercial_id', 'Operação Comercial', 'required|trim');
+        $this->form_validation->set_rules('tipo_cliente_id', 'Tipo de Cliente', 'trim');
         $this->form_validation->set_rules('natureza_contribuinte', 'Natureza do Contribuinte', 'required|trim');
         $this->form_validation->set_rules('cfop', 'CFOP', 'required|trim');
         $this->form_validation->set_rules('destinacao', 'Destinação', 'required|trim');
         $this->form_validation->set_rules('objetivo_comercial', 'Objetivo Comercial', 'required|trim');
-        $this->form_validation->set_rules('tipo_icms', 'Tipo ICMS', 'required|in_list[normal,st]');
+        $this->form_validation->set_rules('tipo_icms', 'Tipo ICMS', 'required|in_list[normal,st,servico,ICMS Normal,Substituição Tributaria,Substituição Tributária,Serviço]');
 
         // Get tax regime from configuration
         $this->load->model('Mapos_model');
@@ -118,13 +179,70 @@ class ClassificacaoFiscal extends MY_Controller
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
+            // Mapear valores para o formato correto do ENUM
+            $objetivo_comercial = $this->input->post('objetivo_comercial');
+            // Converter valores minúsculos para o formato do ENUM se necessário
+            $objetivo_map = [
+                'consumo' => 'Consumo',
+                'revenda' => 'Revenda',
+                'industrialização' => 'Industrialização',
+                'industrializacao' => 'Industrialização',
+                'orgão público' => 'Orgão Público',
+                'orgao publico' => 'Orgão Público'
+            ];
+            if (isset($objetivo_map[strtolower($objetivo_comercial)])) {
+                $objetivo_comercial = $objetivo_map[strtolower($objetivo_comercial)];
+            }
+
+            $natureza_contribuinte = $this->input->post('natureza_contribuinte');
+            // Converter valores minúsculos para o formato do ENUM se necessário
+            $natureza_map = [
+                'inscrito' => 'Contribuinte',
+                'contribuinte' => 'Contribuinte',
+                'nao_inscrito' => 'Não Contribuinte',
+                'não contribuinte' => 'Não Contribuinte',
+                'nao contribuinte' => 'Não Contribuinte'
+            ];
+            if (isset($natureza_map[strtolower($natureza_contribuinte)])) {
+                $natureza_contribuinte = $natureza_map[strtolower($natureza_contribuinte)];
+            }
+
+            $tipo_icms = $this->input->post('tipo_icms');
+            // Converter valores para o formato do ENUM (normal, st, servico)
+            // O banco aceita: 'normal', 'st', ou 'servico'
+            $tipo_icms_lower = strtolower($tipo_icms);
+            if (in_array($tipo_icms_lower, ['normal', 'st', 'servico', 'serviço'])) {
+                // Normalizar 'serviço' para 'servico'
+                if ($tipo_icms_lower == 'serviço') {
+                    $tipo_icms = 'servico';
+                } else {
+                    $tipo_icms = $tipo_icms_lower;
+                }
+            } else {
+                // Fallback: manter o valor original se não for reconhecido
+                $tipo_icms = $tipo_icms_lower;
+            }
+
+            $destinacao = $this->input->post('destinacao');
+            // Converter valores minúsculos para o formato correto
+            $destinacao_map = [
+                'estadual' => 'Estadual',
+                'interestadual' => 'Interestadual'
+            ];
+            if (isset($destinacao_map[strtolower($destinacao)])) {
+                $destinacao = $destinacao_map[strtolower($destinacao)];
+            }
+
             $data = [
                 'operacao_comercial_id' => $this->input->post('operacao_comercial_id'),
-                'natureza_contribuinte' => $this->input->post('natureza_contribuinte'),
+                'tipo_cliente_id' => $this->input->post('tipo_cliente_id') ?: null,
+                'natureza_contribuinte' => $natureza_contribuinte,
                 'cfop' => $this->input->post('cfop'),
-                'destinacao' => $this->input->post('destinacao'),
-                'objetivo_comercial' => $this->input->post('objetivo_comercial'),
-                'tipo_icms' => $this->input->post('tipo_icms'),
+                'destinacao' => $destinacao,
+                'CLF_DESTINACAO' => $destinacao, // Campo adicional para garantir gravação
+                'objetivo_comercial' => $objetivo_comercial,
+                'tipo_icms' => $tipo_icms,
+                'cClassTrib' => $this->input->post('cClassTrib') ?: null,
                 'mensagem_fiscal' => $this->input->post('mensagem_fiscal'),
                 'updated_at' => date('Y-m-d H:i:s')
             ];
@@ -150,6 +268,7 @@ class ClassificacaoFiscal extends MY_Controller
 
         $this->data['result'] = $this->ClassificacaoFiscal_model->getById($id);
         $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
+        $this->data['tipos_clientes'] = $this->TiposClientes_model->getAll();
         $this->data['view'] = 'classificacaofiscal/editarClassificacaoFiscal';
         return $this->layout();
     }
@@ -200,8 +319,10 @@ class ClassificacaoFiscal extends MY_Controller
 
         $this->data['custom_error'] = '';
         $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
+        $this->data['tipos_clientes'] = $this->TiposClientes_model->getAll();
         $this->data['prefill'] = [
             'operacao_comercial_id' => $orig->operacao_comercial_id,
+            'tipo_cliente_id' => $orig->tipo_cliente_id,
             'natureza_contribuinte' => $orig->natureza_contribuinte,
             'cfop' => $orig->cfop,
             'destinacao' => $orig->destinacao,
@@ -211,6 +332,34 @@ class ClassificacaoFiscal extends MY_Controller
             'csosn' => isset($orig->csosn) ? $orig->csosn : ''
         ];
         $this->data['view'] = 'classificacaofiscal/adicionarClassificacaoFiscal';
+        return $this->layout();
+    }
+
+    public function visualizar($id = null)
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'vClassificacaoFiscal')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para visualizar classificação fiscal.');
+            redirect(base_url());
+        }
+
+        if ($id == null) {
+            $this->session->set_flashdata('error', 'Classificação Fiscal não encontrada.');
+            redirect(base_url('index.php/classificacaofiscal'));
+        }
+
+        $this->data['result'] = $this->ClassificacaoFiscal_model->getById($id);
+
+        if (!$this->data['result']) {
+            $this->session->set_flashdata('error', 'Classificação Fiscal não encontrada.');
+            redirect(base_url('index.php/classificacaofiscal'));
+        }
+
+        // Get tax regime from configuration
+        $this->load->model('Mapos_model');
+        $configuracao = $this->Mapos_model->getConfiguracao();
+        $this->data['regime_tributario'] = $configuracao['regime_tributario'];
+
+        $this->data['view'] = 'classificacaofiscal/visualizarClassificacaoFiscal';
         return $this->layout();
     }
 }

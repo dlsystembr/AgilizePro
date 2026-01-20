@@ -653,6 +653,34 @@
                                             </select>
                                         </div>
                                     </div>
+
+                                    <div class="control-group">
+                                        <label for="CLN_OBJETIVO_COMERCIAL" class="control-label">Objetivo Comercial</label>
+                                        <div class="controls">
+                                            <select id="CLN_OBJETIVO_COMERCIAL" name="CLN_OBJETIVO_COMERCIAL" class="span12">
+                                                <option value="Consumo" selected>Consumo</option>
+                                                <option value="Revenda">Revenda</option>
+                                                <option value="Industrialização">Industrialização</option>
+                                                <option value="Orgão Público">Orgão Público</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <?php if (!empty($tipos_clientes)): ?>
+                                        <div class="control-group">
+                                            <label for="TPC_ID" class="control-label">Tipo de Cliente</label>
+                                            <div class="controls">
+                                                <select id="TPC_ID" name="TPC_ID" class="span12">
+                                                    <option value="">Selecione um tipo</option>
+                                                    <?php foreach ($tipos_clientes as $tc): ?>
+                                                        <option value="<?php echo $tc->TPC_ID; ?>" <?php echo set_select('TPC_ID', $tc->TPC_ID); ?>>
+                                                            <?php echo htmlspecialchars($tc->TPC_NOME, ENT_QUOTES, 'UTF-8'); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
 
                                 <!-- Coluna 2: Opções -->
@@ -698,38 +726,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Nova Linha: Objetivo Comercial e Tipo de Cliente -->
-                                <div class="span4">
-                                    <div class="control-group">
-                                        <label for="CLN_OBJETIVO_COMERCIAL" class="control-label">Objetivo
-                                            Comercial</label>
-                                        <div class="controls">
-                                            <select id="CLN_OBJETIVO_COMERCIAL" name="CLN_OBJETIVO_COMERCIAL"
-                                                class="span12">
-                                                <option value="Consumo" selected>Consumo</option>
-                                                <option value="Revenda">Revenda</option>
-                                                <option value="Industrialização">Industrialização</option>
-                                                <option value="Orgão Público">Orgão Público</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <?php if (!empty($tipos_clientes)): ?>
-                                    <div class="span4">
-                                        <div class="control-group">
-                                            <label for="TPC_ID" class="control-label">Tipo de Cliente</label>
-                                            <div class="controls">
-                                                <select id="TPC_ID" name="TPC_ID" class="span12">
-                                                    <option value="">Selecione um tipo</option>
-                                                    <?php foreach ($tipos_clientes as $tc): ?>
-                                                        <option value="<?php echo $tc->TPC_ID; ?>"><?php echo $tc->TPC_NOME; ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -1480,6 +1476,8 @@
                     $('#CLN_DIAS_CARENCIA').val('0');
                     $('#CLN_SITUACAO').val('1');
                     $('#CLN_COMPRAR_APRAZO, #CLN_BLOQUEIO_FINANCEIRO, #CLN_EMITIR_NFE').prop('checked', false);
+                    $('#CLN_OBJETIVO_COMERCIAL').val('');
+                    $('#TPC_ID').val('');
                     // Limpar vendedores permitidos
                     $('#vendedores-permitidos-container').empty();
                 }

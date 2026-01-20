@@ -1,0 +1,2 @@
+﻿Table	Create Table
+tipos_clientes	CREATE TABLE `tipos_clientes` (\n  `TPC_ID` int(11) NOT NULL AUTO_INCREMENT,\n  `TPC_NOME` varchar(200) NOT NULL,\n  `TPC_CODIGO_CLIENTE` varchar(20) DEFAULT NULL,\n  `TPC_DATA_CADASTRO` datetime NOT NULL,\n  PRIMARY KEY (`TPC_ID`),\n  UNIQUE KEY `UK_TPC_ID` (`TPC_ID`)\n) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

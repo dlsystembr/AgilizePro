@@ -20,10 +20,13 @@ class ClassificacaoFiscal_model extends CI_Model
              classificacao_fiscal.CLF_DESTINACAO as destinacao,
              classificacao_fiscal.CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
              classificacao_fiscal.CLF_TIPO_ICMS as tipo_icms,
+             classificacao_fiscal.CLF_CCLASSTRIB as cClassTrib,
              classificacao_fiscal.CLF_MENSAGEM as mensagem_fiscal,
              classificacao_fiscal.CLF_DATA_INCLUSAO as created_at,
              classificacao_fiscal.CLF_DATA_ALTERACAO as updated_at,
-             (SELECT oc.OPC_NOME FROM operacao_comercial oc WHERE oc.OPC_ID = classificacao_fiscal.OPC_ID) as nome_operacao'
+             classificacao_fiscal.TPC_ID as tipo_cliente_id,
+             (SELECT oc.OPC_NOME FROM operacao_comercial oc WHERE oc.OPC_ID = classificacao_fiscal.OPC_ID) as nome_operacao,
+             (SELECT tc.TPC_NOME FROM tipos_clientes tc WHERE tc.TPC_ID = classificacao_fiscal.TPC_ID) as nome_tipo_cliente'
         );
         $this->db->from('classificacao_fiscal');
         $this->db->order_by('classificacao_fiscal.CLF_ID', 'DESC');
@@ -50,10 +53,13 @@ class ClassificacaoFiscal_model extends CI_Model
              classificacao_fiscal.CLF_DESTINACAO as destinacao,
              classificacao_fiscal.CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
              classificacao_fiscal.CLF_TIPO_ICMS as tipo_icms,
+             classificacao_fiscal.CLF_CCLASSTRIB as cClassTrib,
              classificacao_fiscal.CLF_MENSAGEM as mensagem_fiscal,
              classificacao_fiscal.CLF_DATA_INCLUSAO as created_at,
              classificacao_fiscal.CLF_DATA_ALTERACAO as updated_at,
-             (SELECT oc.OPC_NOME FROM operacao_comercial oc WHERE oc.OPC_ID = classificacao_fiscal.OPC_ID) as nome_operacao'
+             classificacao_fiscal.TPC_ID as tipo_cliente_id,
+             (SELECT oc.OPC_NOME FROM operacao_comercial oc WHERE oc.OPC_ID = classificacao_fiscal.OPC_ID) as nome_operacao,
+             (SELECT tc.TPC_NOME FROM tipos_clientes tc WHERE tc.TPC_ID = classificacao_fiscal.TPC_ID) as nome_tipo_cliente'
         );
         $this->db->from('classificacao_fiscal');
         $this->db->where('classificacao_fiscal.CLF_ID', $id);
@@ -70,10 +76,12 @@ class ClassificacaoFiscal_model extends CI_Model
         if ($table === 'classificacao_fiscal') {
             // Mapear chaves lógicas -> colunas reais existentes na tabela
             $tableFields = array_map(function ($f) {
-                return $f->name; }, $this->db->field_data('classificacao_fiscal'));
+                return strtoupper($f->name);
+            }, $this->db->field_data('classificacao_fiscal'));
 
             $map = [
                 'operacao_comercial_id' => ['OPC_ID', 'OPC_ID', 'operacao_comercial_id'],
+                'tipo_cliente_id' => ['TPC_ID', 'tipo_cliente_id'],
                 'cst' => ['CLF_CST', 'cst'],
                 'csosn' => ['CLF_CSOSN', 'csosn'],
                 'natureza_contribuinte' => ['CLF_NATUREZA_CONTRIB', 'natureza_contribuinte'],
@@ -81,6 +89,7 @@ class ClassificacaoFiscal_model extends CI_Model
                 'destinacao' => ['CLF_DESTINACAO', 'destinacao'],
                 'objetivo_comercial' => ['CLF_OBJETIVO_COMERCIAL', 'objetivo_comercial'],
                 'tipo_icms' => ['CLF_TIPO_ICMS', 'tipo_icms'],
+                'cClassTrib' => ['CLF_CCLASSTRIB', 'cClassTrib'],
                 'mensagem_fiscal' => ['CLF_MENSAGEM', 'mensagem_fiscal'],
                 'created_at' => ['CLF_DATA_INCLUSAO', 'created_at'],
                 'updated_at' => ['CLF_DATA_ALTERACAO', 'updated_at'],
@@ -121,9 +130,12 @@ class ClassificacaoFiscal_model extends CI_Model
     {
         if ($table === 'classificacao_fiscal') {
             $tableFields = array_map(function ($f) {
-                return $f->name; }, $this->db->field_data('classificacao_fiscal'));
+                return strtoupper($f->name);
+            }, $this->db->field_data('classificacao_fiscal'));
+
             $map = [
                 'operacao_comercial_id' => ['OPC_ID', 'OPC_ID', 'operacao_comercial_id'],
+                'tipo_cliente_id' => ['TPC_ID', 'tipo_cliente_id'],
                 'cst' => ['CLF_CST', 'cst'],
                 'csosn' => ['CLF_CSOSN', 'csosn'],
                 'natureza_contribuinte' => ['CLF_NATUREZA_CONTRIB', 'natureza_contribuinte'],
@@ -131,6 +143,7 @@ class ClassificacaoFiscal_model extends CI_Model
                 'destinacao' => ['CLF_DESTINACAO', 'destinacao'],
                 'objetivo_comercial' => ['CLF_OBJETIVO_COMERCIAL', 'objetivo_comercial'],
                 'tipo_icms' => ['CLF_TIPO_ICMS', 'tipo_icms'],
+                'cClassTrib' => ['CLF_CCLASSTRIB', 'cClassTrib'],
                 'mensagem_fiscal' => ['CLF_MENSAGEM', 'mensagem_fiscal'],
                 'updated_at' => ['CLF_DATA_ALTERACAO', 'updated_at'],
             ];

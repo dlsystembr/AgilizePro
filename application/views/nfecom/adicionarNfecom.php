@@ -333,10 +333,36 @@
                 </span>
                 <h5>Nova NFECom</h5>
             </div>
-            <?php if ($custom_error != '') {
-                echo '<div class="alert alert-danger">' . $custom_error . '</div>';
-            } ?>
+            <?php 
+            // Só exibir erro se realmente houver um erro (não apenas no carregamento inicial)
+            $error_message = '';
+            $success_message = '';
+            
+            if ($this->session->flashdata('error')) {
+                $error_message = $this->session->flashdata('error');
+            } elseif ($custom_error !== '' && $custom_error !== false && $custom_error !== true) {
+                // Se custom_error for true, significa que houve erro mas sem mensagem específica
+                // Só exibir se houver mensagem de validação ou se foi um POST
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' || !is_bool($custom_error)) {
+                    $error_message = is_bool($custom_error) ? 'Ocorreu um erro ao processar o formulário. Verifique os campos obrigatórios.' : $custom_error;
+                }
+            }
+            
+            // Verificar mensagem de sucesso
+            if ($this->session->flashdata('success')) {
+                $success_message = $this->session->flashdata('success');
+            }
+            
+            if ($error_message) {
+                echo '<div class="alert alert-danger" style="margin-bottom: 20px;">';
+                echo '<i class="fas fa-exclamation-triangle"></i> ';
+                echo $error_message;
+                echo '</div>';
+            }
+            ?>
             <form action="<?php echo current_url(); ?>" id="formNfecom" method="post" class="form-horizontal">
+                <!-- Campo hidden para data de emissão (gerada automaticamente) -->
+                <input type="hidden" name="dataEmissao" id="dataEmissao" value="<?php echo date('d/m/Y'); ?>">
                 <div class="widget-content nopadding tab-content">
 
                     <!-- Seções lado a lado -->
@@ -427,11 +453,28 @@
                                     </div>
 
 
-                                    <!-- Linha 3: Número do Contrato -->
+                                    <!-- Linha 3: Seleção de Contrato -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="numeroContrato" class="control-label">Contrato<span
+                                                <label for="contratoSelect" class="control-label">Contrato</label>
+                                                <small style="display: block; color: #666; margin-top: 2px;">
+                                                    Selecione um contrato para preencher automaticamente os dados.
+                                                </small>
+                                                <div class="controls">
+                                                    <select name="contratoSelect" id="contratoSelect" style="width: 100%;">
+                                                        <option value="">Selecione um contrato...</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Linha 3.1: Número do Contrato -->
+                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                        <div class="span12">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="numeroContrato" class="control-label">Número do Contrato<span
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="text" name="numeroContrato" id="numeroContrato"
@@ -672,7 +715,7 @@
                                         <input type="hidden" id="cClassServicoNfecom">
                                         <input type="hidden" id="uMedServicoNfecom">
                                         <input type="text" class="span12" id="servicoNfecom" data-pro-id=""
-                                            placeholder="Digite o nome do serviço">
+                                            placeholder="Selecione um cliente primeiro" disabled>
                                     </div>
                                     <div class="span2">
                                         <label for="">Preço:<span class="required">*</span></label>
@@ -722,6 +765,11 @@
                                             </tr>
                                         </thead>
                                         <tbody id="servicos-list-body"></tbody>
+                                        <tr id="servicos-error" style="display: none;">
+                                            <td colspan="11" class="alert alert-error" style="text-align: center;">
+                                                <strong>Erro:</strong> É necessário adicionar pelo menos um serviço à NFCom.
+                                            </td>
+                                        </tr>
                                         <tfoot>
                                             <tr>
                                                 <td colspan="10" style="text-align: right"><strong>Total:</strong>
@@ -818,6 +866,52 @@
 <script src="<?php echo base_url(); ?>assets/js/jquery-ui/js/jquery-ui-1.9.2.custom.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        // Exibir mensagem de sucesso com SweetAlert
+        <?php if (!empty($success_message)): ?>
+        // Aguardar um pouco para garantir que o DOM está pronto e evitar conflito com o template
+        setTimeout(function() {
+            // Prevenir que o template geral exiba o SweetAlert
+            if (typeof window.__swalPrevented === 'undefined') {
+                window.__swalPrevented = true;
+            }
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso!',
+                    text: '<?php echo addslashes($success_message); ?>',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showCloseButton: false,
+                    buttonsStyling: true,
+                    customClass: {
+                        confirmButton: 'btn btn-success'
+                    }
+                }).then((result) => {
+                    // Redirecionar para a listagem após clicar em OK
+                    if (result.isConfirmed || result.isDismissed) {
+                        window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
+                    }
+                });
+            } else if (typeof swal !== 'undefined') {
+                // Fallback para versão antiga do SweetAlert
+                swal({
+                    title: "Sucesso!",
+                    text: "<?php echo addslashes($success_message); ?>",
+                    type: "success",
+                    confirmButtonText: "OK",
+                    closeOnConfirm: true
+                }, function() {
+                    window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
+                });
+            } else {
+                alert('<?php echo addslashes($success_message); ?>');
+                window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
+            }
+        }, 200);
+        <?php endif; ?>
+        
         // Configurar Select2 para busca de clientes (opções iniciais + busca AJAX)
         $('#cliente').select2({
             placeholder: 'Selecione um cliente ou digite para buscar...',
@@ -871,15 +965,74 @@
             $('#nomeCliente, #cnpjCliente').val('');
             $('#enderecoClienteSelect').prop('disabled', true).html('<option value="">Selecione um cliente primeiro</option>');
             $('#dadosClienteSection').slideUp(300);
+            // Desabilitar campo de serviço quando cliente for removido
+            $('#servicoNfecom').prop('disabled', true).attr('placeholder', 'Selecione um cliente primeiro');
         }).on('select2:open', function () {
             // Garantir que as opções iniciais estejam sempre disponíveis
             console.log('📋 Select2 aberto - opções iniciais disponíveis');
         });
 
+        // Habilitar campo de serviço se já houver cliente selecionado ao carregar a página
+        if ($('#cliente').val()) {
+            $('#servicoNfecom').prop('disabled', false).attr('placeholder', 'Digite o nome do serviço');
+        }
+
         // Função para buscar endereços do cliente
         $('#cliente').change(function () {
             var clienteId = $(this).val();
             if (clienteId) {
+                // Habilitar campo de serviço quando cliente for selecionado
+                $('#servicoNfecom').prop('disabled', false).attr('placeholder', 'Digite o nome do serviço');
+                // Limpar campos de contrato
+                $('#contratoSelect').html('<option value="">Selecione um contrato...</option>');
+                $('#numeroContrato, #dataContratoIni, #dataContratoFim, #observacoes').val('');
+                $('#tpAssinante').val('3'); // Resetar para padrão
+
+                // Buscar contratos do cliente
+                $.ajax({
+                    url: '<?php echo base_url(); ?>index.php/nfecom/getContratosCliente/' + clienteId,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (contratos) {
+                        console.log('📋 Contratos recebidos:', contratos);
+                        
+                        if (contratos.error) {
+                            console.log('⚠️ Erro ao buscar contratos:', contratos.error);
+                            return;
+                        }
+
+                        if (contratos.length === 0) {
+                            console.log('ℹ️ Nenhum contrato ativo encontrado para este cliente');
+                            $('#contratoSelect').html('<option value="">Nenhum contrato ativo encontrado</option>');
+                            return;
+                        }
+
+                        // Popular select de contratos
+                        var options = '<option value="">Selecione um contrato...</option>';
+                        contratos.forEach(function(contrato) {
+                            var numero = contrato.CTR_NUMERO || '';
+                            var dataIni = contrato.CTR_DATA_INICIO ? new Date(contrato.CTR_DATA_INICIO).toLocaleDateString('pt-BR') : '';
+                            var label = numero + (dataIni ? ' (Início: ' + dataIni + ')' : '');
+                            options += '<option value="' + contrato.CTR_ID + '" data-contrato=\'' + JSON.stringify(contrato).replace(/'/g, "&#39;") + '\'>' + label + '</option>';
+                        });
+                        $('#contratoSelect').html(options);
+
+                        // Se houver apenas 1 contrato, preencher automaticamente
+                        if (contratos.length === 1) {
+                            console.log('✅ Apenas 1 contrato encontrado, preenchendo automaticamente...');
+                            var contrato = contratos[0];
+                            preencherDadosContrato(contrato);
+                            $('#contratoSelect').val(contrato.CTR_ID);
+                        } else {
+                            console.log('📋 Múltiplos contratos encontrados (' + contratos.length + '), aguardando seleção do usuário');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('❌ Erro ao buscar contratos:', error);
+                        $('#contratoSelect').html('<option value="">Erro ao carregar contratos</option>');
+                    }
+                });
+
                 // Buscar telefones do cliente
                 $.ajax({
                     url: '<?php echo base_url(); ?>index.php/nfecom/getTelefonesCliente/' + clienteId,
@@ -955,10 +1108,61 @@
                     }
                 });
             } else {
+                // Desabilitar campo de serviço quando nenhum cliente selecionado
+                $('#servicoNfecom').prop('disabled', true).attr('placeholder', 'Selecione um cliente primeiro');
                 // Limpar campos quando nenhum cliente selecionado
                 $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
                 $('#enderecoClienteSelect').prop('disabled', true).html('<option value="">Selecione um cliente primeiro</option>');
                 $('#contatoCliente').val('');
+                $('#contratoSelect').html('<option value="">Selecione um contrato...</option>');
+                $('#numeroContrato, #dataContratoIni, #dataContratoFim, #observacoes').val('');
+                $('#tpAssinante').val('3');
+            }
+        });
+
+        // Função para preencher dados do contrato
+        function preencherDadosContrato(contrato) {
+            console.log('📝 Preenchendo dados do contrato:', contrato);
+            
+            if (contrato.CTR_NUMERO) {
+                $('#numeroContrato').val(contrato.CTR_NUMERO);
+            }
+            
+            if (contrato.CTR_DATA_INICIO) {
+                $('#dataContratoIni').val(contrato.CTR_DATA_INICIO);
+            }
+            
+            if (contrato.CTR_DATA_FIM) {
+                $('#dataContratoFim').val(contrato.CTR_DATA_FIM);
+            }
+            
+            if (contrato.CTR_OBSERVACAO) {
+                $('#observacoes').val(contrato.CTR_OBSERVACAO);
+            }
+            
+            if (contrato.CTR_TIPO_ASSINANTE) {
+                $('#tpAssinante').val(contrato.CTR_TIPO_ASSINANTE);
+            }
+            
+            console.log('✅ Dados do contrato preenchidos com sucesso');
+        }
+
+        // Evento de mudança no select de contratos
+        $('#contratoSelect').change(function() {
+            var contratoId = $(this).val();
+            if (contratoId) {
+                var contratoData = $(this).find('option:selected').data('contrato');
+                if (contratoData) {
+                    // Converter string JSON para objeto se necessário
+                    if (typeof contratoData === 'string') {
+                        contratoData = JSON.parse(contratoData.replace(/&#39;/g, "'"));
+                    }
+                    preencherDadosContrato(contratoData);
+                }
+            } else {
+                // Limpar campos quando nenhum contrato selecionado
+                $('#numeroContrato, #dataContratoIni, #dataContratoFim, #observacoes').val('');
+                $('#tpAssinante').val('3');
             }
         });
 
@@ -1008,12 +1212,74 @@
         let servicoIndex = 0;
 
         function parseNumber(value) {
-            const normalized = String(value || '').replace(',', '.');
-            return parseFloat(normalized) || 0;
+            if (!value || value === '') return 0;
+            
+            const strValue = String(value).trim();
+            
+            // Se tem vírgula, é formato brasileiro (1.234,56 ou 1234,56)
+            if (strValue.indexOf(',') > -1) {
+                // Remover pontos (separadores de milhar) e trocar vírgula por ponto
+                const normalized = strValue.replace(/\./g, '').replace(',', '.');
+                const parsed = parseFloat(normalized);
+                return isNaN(parsed) ? 0 : parsed;
+            }
+            
+            // Se tem ponto, verificar se é separador decimal ou de milhar
+            if (strValue.indexOf('.') > -1) {
+                const parts = strValue.split('.');
+                // Se tem mais de 2 partes, o último ponto é separador de milhar
+                // Ex: "1.234.567" -> parts = ["1", "234", "567"]
+                // Se tem 2 partes e a última tem 2 dígitos, é decimal
+                // Ex: "1234.56" -> parts = ["1234", "56"]
+                if (parts.length === 2 && parts[1].length <= 2) {
+                    // É formato decimal (1234.56)
+                    return parseFloat(strValue);
+                } else {
+                    // É formato com separadores de milhar (1.234.567)
+                    // Remover todos os pontos
+                    const normalized = strValue.replace(/\./g, '');
+                    const parsed = parseFloat(normalized);
+                    return isNaN(parsed) ? 0 : parsed;
+                }
+            }
+            
+            // Apenas números sem separadores
+            const parsed = parseFloat(strValue);
+            return isNaN(parsed) ? 0 : parsed;
         }
 
         function formatMoney(value) {
-            return value.toFixed(2).replace('.', ',');
+            // Converter para número
+            let numValue;
+            
+            if (typeof value === 'string') {
+                // Detectar formato: se tem vírgula, é formato BR (1.234,56)
+                // Se tem ponto após 2 dígitos do final, é formato US (1234.56)
+                const hasComma = value.indexOf(',') > -1;
+                const hasDot = value.indexOf('.') > -1;
+                
+                if (hasComma && !hasDot) {
+                    // Formato BR sem ponto: "1234,56" -> 1234.56
+                    numValue = parseFloat(value.replace(',', '.'));
+                } else if (hasComma && hasDot) {
+                    // Formato BR completo: "1.234,56" -> remover pontos, trocar vírgula por ponto
+                    numValue = parseFloat(value.replace(/\./g, '').replace(',', '.'));
+                } else if (hasDot) {
+                    // Formato US: "1234.56" -> 1234.56 (já está correto)
+                    numValue = parseFloat(value);
+                } else {
+                    // Apenas números: "1234" -> 1234
+                    numValue = parseFloat(value);
+                }
+            } else {
+                numValue = parseFloat(value);
+            }
+            
+            if (isNaN(numValue)) return '0.00';
+            
+            // Formatar apenas com 2 casas decimais, sem separador de milhares
+            // Usar ponto como separador decimal (formato simples)
+            return numValue.toFixed(2);
         }
 
         $("#quantidadeServicoNfecom").keyup(function () {
@@ -1080,22 +1346,66 @@
         function adicionarServicoNfecom() {
             const servicoId = $("#idServicoNfecom").val();
             const servicoNome = $("#servicoNfecom").val().trim();
-            const cClass = $("#cClassServicoNfecom").val();
+            let cClass = $("#cClassServicoNfecom").val();
             const unidade = $("#uMedServicoNfecom").val();
-            const preco = parseNumber($("#precoServicoNfecom").val());
-            const quantidade = parseNumber($("#quantidadeServicoNfecom").val());
-            const vDesc = parseNumber($("#descontoServicoNfecom").val());
-            const vOutros = parseNumber($("#outrosServicoNfecom").val());
+            const precoRaw = $("#precoServicoNfecom").val();
+            const quantidadeRaw = $("#quantidadeServicoNfecom").val();
+            const preco = parseNumber(precoRaw);
+            const quantidade = parseNumber(quantidadeRaw);
+            
+            console.log('🔍 Valores parseados:', {
+                precoRaw: precoRaw,
+                preco: preco,
+                quantidadeRaw: quantidadeRaw,
+                quantidade: quantidade
+            });
+            const vDesc = parseNumber($("#descontoServicoNfecom").val() || '0');
+            const vOutros = parseNumber($("#outrosServicoNfecom").val() || '0');
+            
+            console.log('🔍 Validação de serviço:', {
+                servicoId: servicoId,
+                servicoNome: servicoNome,
+                precoRaw: precoRaw,
+                preco: preco,
+                quantidadeRaw: quantidadeRaw,
+                quantidade: quantidade
+            });
 
-            if (!servicoId || !servicoNome || preco <= 0 || quantidade <= 0) {
+            if (!servicoId || !servicoNome) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         type: "error",
                         title: "Atenção",
-                        text: "Informe um serviço válido, preço e quantidade."
+                        text: "Selecione um serviço válido."
                     });
                 } else {
-                    alert('Informe um serviço válido, preço e quantidade.');
+                    alert('Selecione um serviço válido.');
+                }
+                return;
+            }
+            
+            if (isNaN(preco) || preco <= 0) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        type: "error",
+                        title: "Atenção",
+                        text: "Informe um preço válido maior que zero."
+                    });
+                } else {
+                    alert('Informe um preço válido maior que zero.');
+                }
+                return;
+            }
+            
+            if (isNaN(quantidade) || quantidade <= 0) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        type: "error",
+                        title: "Atenção",
+                        text: "Informe uma quantidade válida maior que zero."
+                    });
+                } else {
+                    alert('Informe uma quantidade válida maior que zero.');
                 }
                 return;
             }
@@ -1104,8 +1414,58 @@
             const valorProduto = valorItem - vDesc + vOutros;
 
             // Valores padrão temporários
-            const defaultCfop = '5303';
-            const defaultCst = '00';
+            let defaultCfop = '5303';
+            let defaultCst = '00';
+            let clfId = null; // ID da classificação fiscal
+            
+            // Buscar classificação fiscal se tiver operação comercial e cliente
+            const operacaoComercialId = $("#opc_id").val(); // Campo correto é opc_id
+            const clienteId = $("#cliente").val();
+            
+            if (operacaoComercialId && clienteId) {
+                console.log('🔍 Buscando classificação fiscal...');
+                console.log('   OPC_ID:', operacaoComercialId);
+                console.log('   Cliente ID:', clienteId);
+                console.log('   Produto ID:', servicoId);
+                
+                $.ajax({
+                    url: '<?php echo base_url(); ?>index.php/nfecom/getClassificacaoFiscal',
+                    type: 'POST',
+                    data: {
+                        operacao_comercial_id: operacaoComercialId,
+                        cliente_id: clienteId,
+                        produto_id: servicoId || null
+                    },
+                    async: false, // Síncrono para aguardar o resultado
+                    success: function(response) {
+                        console.log('📋 Resposta da classificação fiscal:', response);
+                        if (response.success && response.data) {
+                            clfId = response.data.id;
+                            defaultCfop = response.data.cfop || defaultCfop;
+                            defaultCst = response.data.cst || defaultCst;
+                            
+                            // cClass vem do produto, não da classificação fiscal
+                            // cClassTrib é apenas informativo da classificação fiscal
+                            
+                            console.log('✅ Classificação Fiscal encontrada:');
+                            console.log('   CLF_ID:', clfId);
+                            console.log('   CFOP:', defaultCfop);
+                            console.log('   CST:', defaultCst);
+                            console.log('   CSOSN:', response.data.csosn);
+                            console.log('   cClassTrib (informativo):', response.data.cClassTrib);
+                            console.log('   cClass (do produto):', cClass);
+                            console.log('   Mensagem Fiscal:', response.data.mensagem_fiscal);
+                        } else {
+                            console.log('⚠️  Classificação fiscal não encontrada:', response.error || 'Erro desconhecido');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('❌ Erro ao buscar classificação fiscal:', error);
+                    }
+                });
+            } else {
+                console.log('⚠️  Operação comercial ou cliente não selecionado. Usando valores padrão.');
+            }
 
             const row = `
             <tr data-index="${servicoIndex}" data-valor-produto="${valorProduto}">
@@ -1129,29 +1489,101 @@
                 </td>
                 <td>
                     R$ ${formatMoney(vDesc)}
-                    <input type="hidden" name="servicos[${servicoIndex}][v_desc]" value="${formatMoney(vDesc)}">
+                    <input type="hidden" name="servicos[${servicoIndex}][v_desc]" value="${vDesc}">
                 </td>
                 <td>
                     R$ ${formatMoney(vOutros)}
-                    <input type="hidden" name="servicos[${servicoIndex}][v_outro]" value="${formatMoney(vOutros)}">
+                    <input type="hidden" name="servicos[${servicoIndex}][v_outro]" value="${vOutros}">
                 </td>
                 <td>
                     <select name="servicos[${servicoIndex}][cst_icms]" class="span12" style="margin:0; width: 100%;">
-                        <option value="00" ${defaultCst == '00' ? 'selected' : ''}>00 - Tribut. Integral</option>
-                        <option value="20" ${defaultCst == '20' ? 'selected' : ''}>20 - Red. Base Calc.</option>
-                        <option value="40" ${defaultCst == '40' ? 'selected' : ''}>40 - Isenta</option>
-                        <option value="41" ${defaultCst == '41' ? 'selected' : ''}>41 - Não Tributada</option>
-                        <option value="50" ${defaultCst == '50' ? 'selected' : ''}>50 - Suspensão</option>
-                        <option value="51" ${defaultCst == '51' ? 'selected' : ''}>51 - Diferimento</option>
-                        <option value="90" ${defaultCst == '90' ? 'selected' : ''}>90 - Outras</option>
+                        <option value="00" ${String(defaultCst) === '00' ? 'selected' : ''}>00 - Tribut. Integral</option>
+                        <option value="20" ${String(defaultCst) === '20' ? 'selected' : ''}>20 - Red. Base Calc.</option>
+                        <option value="30" ${String(defaultCst) === '30' ? 'selected' : ''}>30 - Isenta/Não Trib. c/ Cobrança</option>
+                        <option value="40" ${String(defaultCst) === '40' ? 'selected' : ''}>40 - Isenta</option>
+                        <option value="41" ${String(defaultCst) === '41' ? 'selected' : ''}>41 - Não Tributada</option>
+                        <option value="50" ${String(defaultCst) === '50' ? 'selected' : ''}>50 - Suspensão</option>
+                        <option value="51" ${String(defaultCst) === '51' ? 'selected' : ''}>51 - Diferimento</option>
+                        <option value="60" ${String(defaultCst) === '60' ? 'selected' : ''}>60 - ICMS cobrado anteriormente por substituição tributária</option>
+                        <option value="70" ${String(defaultCst) === '70' ? 'selected' : ''}>70 - Com redução de base de cálculo e cobrança do ICMS por substituição tributária</option>
+                        <option value="90" ${String(defaultCst) === '90' ? 'selected' : ''}>90 - Outras</option>
                     </select>
+                    ${clfId ? '<input type="hidden" name="servicos[' + servicoIndex + '][clf_id]" value="' + clfId + '">' : ''}
                 </td>
                 <td>
-                    <select name="servicos[${servicoIndex}][cfop]" class="span12" style="margin:0; width: 100%;">
-                        <option value="5303" ${defaultCfop == '5303' ? 'selected' : ''}>5303 - Com. Não Contribuinte</option>
-                        <option value="5307" ${defaultCfop == '5307' ? 'selected' : ''}>5307 - Com. Isenta Não Contrib.</option>
-                        <option value="6303" ${defaultCfop == '6303' ? 'selected' : ''}>6303 - Interstate Não Contrib.</option>
-                        <option value="6307" ${defaultCfop == '6307' ? 'selected' : ''}>6307 - Interstate Isenta</option>
+                    <select name="servicos[${servicoIndex}][cfop]" class="span12" style="margin:0; width: 100%;" id="cfop_${servicoIndex}">
+                        <option value="5301" ${String(defaultCfop) === '5301' ? 'selected' : ''}>5301 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituto</option>
+                        <option value="5302" ${String(defaultCfop) === '5302' ? 'selected' : ''}>5302 - Venda de produção do estabelecimento de produto sujeito ao regime de substituição tributária, em operação entre contribuintes substitutos do mesmo produto</option>
+                        <option value="5303" ${String(defaultCfop) === '5303' ? 'selected' : ''}>5303 - Venda de produção do estabelecimento que não deva por ele entrar na apuração</option>
+                        <option value="5304" ${String(defaultCfop) === '5304' ? 'selected' : ''}>5304 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5305" ${String(defaultCfop) === '5305' ? 'selected' : ''}>5305 - Venda de produção do estabelecimento o que não deva por ele entrar na apuração, em operação com produto sujeito ao regime de substituição tributária na condição de contribuinte substituído</option>
+                        <option value="5306" ${String(defaultCfop) === '5306' ? 'selected' : ''}>5306 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5307" ${String(defaultCfop) === '5307' ? 'selected' : ''}>5307 - Venda de produção do estabelecimento, efetuada fora do estabelecimento</option>
+                        <option value="5308" ${String(defaultCfop) === '5308' ? 'selected' : ''}>5308 - Venda de produção do estabelecimento, efetuada fora do estabelecimento, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5309" ${String(defaultCfop) === '5309' ? 'selected' : ''}>5309 - Venda de produção do estabelecimento a outro estabelecimento da mesma empresa</option>
+                        <option value="5310" ${String(defaultCfop) === '5310' ? 'selected' : ''}>5310 - Venda de produção do estabelecimento a empresa industrial em operação com produto sujeito ao regime de substituição tributária</option>
+                        <option value="5311" ${String(defaultCfop) === '5311' ? 'selected' : ''}>5311 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5312" ${String(defaultCfop) === '5312' ? 'selected' : ''}>5312 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5313" ${String(defaultCfop) === '5313' ? 'selected' : ''}>5313 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5314" ${String(defaultCfop) === '5314' ? 'selected' : ''}>5314 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5315" ${String(defaultCfop) === '5315' ? 'selected' : ''}>5315 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5321" ${String(defaultCfop) === '5321' ? 'selected' : ''}>5321 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5322" ${String(defaultCfop) === '5322' ? 'selected' : ''}>5322 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5323" ${String(defaultCfop) === '5323' ? 'selected' : ''}>5323 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5324" ${String(defaultCfop) === '5324' ? 'selected' : ''}>5324 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5325" ${String(defaultCfop) === '5325' ? 'selected' : ''}>5325 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5351" ${String(defaultCfop) === '5351' ? 'selected' : ''}>5351 - Remessa de produção do estabelecimento para armazenamento</option>
+                        <option value="5352" ${String(defaultCfop) === '5352' ? 'selected' : ''}>5352 - Remessa de produção do estabelecimento com destino a outro estabelecimento da mesma empresa</option>
+                        <option value="5353" ${String(defaultCfop) === '5353' ? 'selected' : ''}>5353 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
+                        <option value="5354" ${String(defaultCfop) === '5354' ? 'selected' : ''}>5354 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
+                        <option value="5355" ${String(defaultCfop) === '5355' ? 'selected' : ''}>5355 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
+                        <option value="5356" ${String(defaultCfop) === '5356' ? 'selected' : ''}>5356 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
+                        <option value="5357" ${String(defaultCfop) === '5357' ? 'selected' : ''}>5357 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
+                        <option value="5358" ${String(defaultCfop) === '5358' ? 'selected' : ''}>5358 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
+                        <option value="5359" ${String(defaultCfop) === '5359' ? 'selected' : ''}>5359 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
+                        <option value="5360" ${String(defaultCfop) === '5360' ? 'selected' : ''}>5360 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
+                        <option value="5401" ${String(defaultCfop) === '5401' ? 'selected' : ''}>5401 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituto</option>
+                        <option value="5402" ${String(defaultCfop) === '5402' ? 'selected' : ''}>5402 - Venda de produção do estabelecimento de produto sujeito ao regime de substituição tributária, em operação entre contribuintes substitutos do mesmo produto</option>
+                        <option value="5403" ${String(defaultCfop) === '5403' ? 'selected' : ''}>5403 - Venda de produção do estabelecimento que não deva por ele entrar na apuração</option>
+                        <option value="5405" ${String(defaultCfop) === '5405' ? 'selected' : ''}>5405 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5408" ${String(defaultCfop) === '5408' ? 'selected' : ''}>5408 - Venda de produção do estabelecimento, efetuada fora do estabelecimento</option>
+                        <option value="5409" ${String(defaultCfop) === '5409' ? 'selected' : ''}>5409 - Venda de produção do estabelecimento a outro estabelecimento da mesma empresa</option>
+                        <option value="5410" ${String(defaultCfop) === '5410' ? 'selected' : ''}>5410 - Venda de produção do estabelecimento a empresa industrial em operação com produto sujeito ao regime de substituição tributária</option>
+                        <option value="5411" ${String(defaultCfop) === '5411' ? 'selected' : ''}>5411 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5412" ${String(defaultCfop) === '5412' ? 'selected' : ''}>5412 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5413" ${String(defaultCfop) === '5413' ? 'selected' : ''}>5413 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5414" ${String(defaultCfop) === '5414' ? 'selected' : ''}>5414 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="5415" ${String(defaultCfop) === '5415' ? 'selected' : ''}>5415 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6301" ${String(defaultCfop) === '6301' ? 'selected' : ''}>6301 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituto</option>
+                        <option value="6302" ${String(defaultCfop) === '6302' ? 'selected' : ''}>6302 - Venda de produção do estabelecimento de produto sujeito ao regime de substituição tributária, em operação entre contribuintes substitutos do mesmo produto</option>
+                        <option value="6303" ${String(defaultCfop) === '6303' ? 'selected' : ''}>6303 - Venda de produção do estabelecimento que não deva por ele entrar na apuração</option>
+                        <option value="6304" ${String(defaultCfop) === '6304' ? 'selected' : ''}>6304 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6305" ${String(defaultCfop) === '6305' ? 'selected' : ''}>6305 - Venda de produção do estabelecimento o que não deva por ele entrar na apuração, em operação com produto sujeito ao regime de substituição tributária na condição de contribuinte substituído</option>
+                        <option value="6306" ${String(defaultCfop) === '6306' ? 'selected' : ''}>6306 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6307" ${String(defaultCfop) === '6307' ? 'selected' : ''}>6307 - Venda de produção do estabelecimento, efetuada fora do estabelecimento</option>
+                        <option value="6308" ${String(defaultCfop) === '6308' ? 'selected' : ''}>6308 - Venda de produção do estabelecimento, efetuada fora do estabelecimento, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6309" ${String(defaultCfop) === '6309' ? 'selected' : ''}>6309 - Venda de produção do estabelecimento a outro estabelecimento da mesma empresa</option>
+                        <option value="6310" ${String(defaultCfop) === '6310' ? 'selected' : ''}>6310 - Venda de produção do estabelecimento a empresa industrial em operação com produto sujeito ao regime de substituição tributária</option>
+                        <option value="6311" ${String(defaultCfop) === '6311' ? 'selected' : ''}>6311 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6312" ${String(defaultCfop) === '6312' ? 'selected' : ''}>6312 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6313" ${String(defaultCfop) === '6313' ? 'selected' : ''}>6313 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6314" ${String(defaultCfop) === '6314' ? 'selected' : ''}>6314 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6315" ${String(defaultCfop) === '6315' ? 'selected' : ''}>6315 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6321" ${String(defaultCfop) === '6321' ? 'selected' : ''}>6321 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6322" ${String(defaultCfop) === '6322' ? 'selected' : ''}>6322 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6323" ${String(defaultCfop) === '6323' ? 'selected' : ''}>6323 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6324" ${String(defaultCfop) === '6324' ? 'selected' : ''}>6324 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6325" ${String(defaultCfop) === '6325' ? 'selected' : ''}>6325 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
+                        <option value="6351" ${String(defaultCfop) === '6351' ? 'selected' : ''}>6351 - Remessa de produção do estabelecimento para armazenamento</option>
+                        <option value="6352" ${String(defaultCfop) === '6352' ? 'selected' : ''}>6352 - Remessa de produção do estabelecimento com destino a outro estabelecimento da mesma empresa</option>
+                        <option value="6353" ${String(defaultCfop) === '6353' ? 'selected' : ''}>6353 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
+                        <option value="6354" ${String(defaultCfop) === '6354' ? 'selected' : ''}>6354 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
+                        <option value="6355" ${String(defaultCfop) === '6355' ? 'selected' : ''}>6355 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
+                        <option value="6356" ${String(defaultCfop) === '6356' ? 'selected' : ''}>6356 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
+                        <option value="6357" ${String(defaultCfop) === '6357' ? 'selected' : ''}>6357 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
+                        <option value="6358" ${String(defaultCfop) === '6358' ? 'selected' : ''}>6358 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
+                        <option value="6359" ${String(defaultCfop) === '6359' ? 'selected' : ''}>6359 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
+                        <option value="6360" ${String(defaultCfop) === '6360' ? 'selected' : ''}>6360 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
                     </select>
                 </td>
                 <td>
@@ -1164,6 +1596,19 @@
         `;
 
             $('#servicos-list-body').append(row);
+            
+            console.log('✅ Serviço adicionado com sucesso:', {
+                index: servicoIndex,
+                id: servicoId,
+                nome: servicoNome,
+                quantidade: quantidade,
+                preco: preco,
+                valorUnitario: preco,
+                valorProduto: valorProduto,
+                cClass: cClass,
+                clfId: clfId
+            });
+            
             servicoIndex++;
             limparServicoFormulario();
             atualizarTotais();

@@ -476,6 +476,23 @@
                                             </select>
                                         </div>
                                     </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Objetivo Comercial</label>
+                                        <div class="controls">
+                                            <select disabled class="span12">
+                                                <option selected>
+                                                    <?php echo $cliente->CLN_OBJETIVO_COMERCIAL ?: 'Consumo'; ?></option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Tipo de Cliente</label>
+                                        <div class="controls">
+                                            <input type="text" readonly value="<?php echo isset($cliente->TPC_NOME) ? $cliente->TPC_NOME : 'Não definido'; ?>" class="span12">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="span4">
                                     <div class="control-group">
@@ -513,28 +530,6 @@
                                                     </div>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row-fluid" style="margin-top: 20px;">
-                                <div class="span4">
-                                    <div class="control-group">
-                                        <label class="control-label">Objetivo Comercial</label>
-                                        <div class="controls">
-                                            <select disabled class="span12">
-                                                <option selected>
-                                                    <?php echo $cliente->CLN_OBJETIVO_COMERCIAL ?: 'Consumo'; ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="span4">
-                                    <div class="control-group">
-                                        <label class="control-label">Tipo de Cliente</label>
-                                        <div class="controls">
-                                            <input type="text" readonly value="<?php echo isset($cliente->TPC_NOME) ? $cliente->TPC_NOME : 'Não definido'; ?>" class="span12">
                                         </div>
                                     </div>
                                 </div>
