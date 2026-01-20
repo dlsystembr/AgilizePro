@@ -245,9 +245,11 @@
                                 if ($r->NFC_STATUS < 2) {
                                     // NFCom nova ou salva - permite gerar
                                     echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Gerar NFCom" style="margin-right: 2px">Gerar NFCom</a>';
+                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 2px">Gerar XML</a>';
                                 } elseif ($r->NFC_STATUS == 4) {
                                     // NFCom rejeitada - permite reemitir
                                     echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn btn-mini btn-success" title="Reemitir Nota" style="margin-right: 2px">Reemitir Nota</a>';
+                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn btn-mini btn-warning" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 2px">Gerar XML</a>';
                                 }
                                 // NFCom autorizada (status 3 ou 5) não mostra botão
                                 // NFCom cancelada (status 7) não mostra botão

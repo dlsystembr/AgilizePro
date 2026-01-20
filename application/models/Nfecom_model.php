@@ -77,7 +77,16 @@ class Nfecom_model extends CI_Model
 
     public function getItens($nfecomId)
     {
-        $this->db->select('*');
+        // Verificar se o campo CLF_ID existe na tabela
+        $fields = $this->db->list_fields('nfecom_itens');
+        $selectFields = '*';
+        if (in_array('CLF_ID', $fields)) {
+            $selectFields = '*, CLF_ID';
+        } elseif (in_array('clf_id', $fields)) {
+            $selectFields = '*, clf_id';
+        }
+        
+        $this->db->select($selectFields);
         $this->db->from('nfecom_itens');
         $this->db->where('NFC_ID', $nfecomId);
         $this->db->order_by('NFI_N_ITEM', 'asc');

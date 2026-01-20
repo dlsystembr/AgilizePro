@@ -329,10 +329,11 @@ class Nfecom extends MY_Controller
                 $valorLiquido = $valorBruto - $comissaoAgencia;
 
                 // Cálculos tributários (valores fixos baseados no XML de exemplo)
+                // PIS e COFINS são apenas informativos, não alteram o valor da nota
                 $pis = $valorLiquido * 0.0065; // 0.65%
                 $cofins = $valorLiquido * 0.03; // 3.0%
                 $irrf = 0.00; // IRRF zerado por enquanto
-                $valorNF = $valorLiquido - $pis - $cofins; // IRRF não altera o valor total
+                $valorNF = $valorLiquido; // Valor da nota = valor líquido (sem descontar PIS/COFINS)
 
                 $nomeServico = implode('; ', $nomesServicos);
 
@@ -919,6 +920,61 @@ class Nfecom extends MY_Controller
         } else {
             $this->session->set_flashdata('nfecom_modal', $modalData);
             redirect(site_url('nfecom'));
+        }
+    }
+
+    public function gerarXmlPreEmissao()
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para gerar XML de NFECom.');
+            redirect(base_url());
+        }
+
+        $id = $this->uri->segment(3);
+        $nfecom = $this->Nfecom_model->getById($id);
+
+        if ($nfecom == null) {
+            $this->session->set_flashdata('error', 'NFECom não encontrada.');
+            redirect(site_url('nfecom'));
+        }
+
+        try {
+            // Se a nota ainda não tem número, usar o número da configuração fiscal ou um placeholder
+            if (empty($nfecom->NFC_NNF) || $nfecom->NFC_NNF == 0) {
+                $configFiscal = $this->getConfiguracaoNfcom();
+                $numeroNota = $configFiscal ? $configFiscal->CFG_NUMERO_ATUAL : '000000000';
+            } else {
+                $numeroNota = $nfecom->NFC_NNF;
+            }
+
+            // Carregar biblioteca para gerar XML
+            $this->load->library('NFComMake');
+
+            // Preparar dados completos para o XML
+            $dados = $this->prepararDadosEnvio($id);
+
+            // Gerar XML (sem assinar, apenas pré-emissão)
+            $nfcomMake = new NFComMake();
+            $xml = $nfcomMake->build($dados);
+
+            // Configurar headers para download
+            $filename = 'NFCom_' . str_pad($numeroNota, 9, '0', STR_PAD_LEFT) . '_' . date('YmdHis') . '.xml';
+            
+            header('Content-Type: application/xml; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Length: ' . strlen($xml));
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Pragma: public');
+
+            // Output do XML
+            echo $xml;
+            exit;
+
+        } catch (Exception $e) {
+            log_message('error', 'Erro ao gerar XML pré-emissão: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+            $this->session->set_flashdata('error', 'Erro ao gerar XML: ' . $e->getMessage());
+            redirect(site_url('nfecom/visualizar/' . $id));
         }
     }
 
@@ -2646,8 +2702,37 @@ class Nfecom extends MY_Controller
         }
 
         $listaItens = [];
-        $itens = $this->Nfecom_model->get('nfecom_itens', '*', ['NFC_ID' => $id]);
+        $itens = $this->Nfecom_model->getItens($id);
+        log_message('info', 'PrepararDadosEnvio - Total de itens encontrados para NFCom ID ' . $id . ': ' . count($itens));
+        
+        // Coletar mensagens fiscais dos itens salvos
+        $mensagensFiscais = [];
+        $fields = $this->db->list_fields('nfecom_itens');
+        $temClfId = in_array('CLF_ID', $fields) || in_array('clf_id', $fields);
+        
         foreach ($itens as $it) {
+            log_message('info', 'Item NFCom - NFI_N_ITEM: ' . $it->NFI_N_ITEM . ', NFI_C_PROD: ' . $it->NFI_C_PROD . ', NFI_X_PROD: ' . $it->NFI_X_PROD);
+            
+            // Buscar mensagem fiscal se o item tiver CLF_ID
+            if ($temClfId) {
+                $clfId = isset($it->CLF_ID) ? $it->CLF_ID : (isset($it->clf_id) ? $it->clf_id : null);
+                if (!empty($clfId)) {
+                    $this->db->select('CLF_MENSAGEM');
+                    $this->db->from('classificacao_fiscal');
+                    $this->db->where('CLF_ID', $clfId);
+                    $clfQuery = $this->db->get();
+                    if ($clfQuery->num_rows() > 0) {
+                        $clf = $clfQuery->row();
+                        if (!empty($clf->CLF_MENSAGEM)) {
+                            // Evitar duplicatas
+                            if (!in_array($clf->CLF_MENSAGEM, $mensagensFiscais)) {
+                                $mensagensFiscais[] = $clf->CLF_MENSAGEM;
+                            }
+                        }
+                    }
+                }
+            }
+            
             $listaItens[] = [
                 'nItem' => $it->NFI_N_ITEM,
                 'codigo' => $it->NFI_C_PROD,
@@ -2679,6 +2764,33 @@ class Nfecom extends MY_Controller
                     ]
                 ]
             ];
+        }
+        
+        // Atualizar NFC_INF_CPL com as mensagens fiscais se necessário
+        $infCplAtual = $nfecom->NFC_INF_CPL ?? '';
+        if (!empty($mensagensFiscais)) {
+            // Verificar se as mensagens já estão no infCpl
+            $mensagensJaIncluidas = true;
+            foreach ($mensagensFiscais as $mensagem) {
+                if (strpos($infCplAtual, $mensagem) === false) {
+                    $mensagensJaIncluidas = false;
+                    break;
+                }
+            }
+            
+            // Se as mensagens não estão incluídas, adicioná-las
+            if (!$mensagensJaIncluidas) {
+                $infCplAtual .= "\n\n";
+                foreach ($mensagensFiscais as $mensagem) {
+                    if (!empty(trim($mensagem))) {
+                        $infCplAtual .= trim($mensagem) . "\n";
+                    }
+                }
+                // Atualizar no banco
+                $this->Nfecom_model->edit('nfecom_capa', ['NFC_INF_CPL' => $infCplAtual], 'NFC_ID', $id);
+                // Recarregar nfecom com o infCpl atualizado
+                $nfecom = $this->Nfecom_model->getById($id);
+            }
         }
 
         return [
