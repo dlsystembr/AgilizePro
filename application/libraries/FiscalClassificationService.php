@@ -209,6 +209,8 @@ class FiscalClassificationService
         // Filtrar apenas classificações ativas (CLF_SITUACAO = 1)
         // Se o campo não existir, a query falhará, mas isso é esperado
         $this->db->where('CLF_SITUACAO', 1);
+        // Filtrar por ten_id
+        $this->db->where('ten_id', $this->CI->session->userdata('ten_id'));
         
         $query = $this->db->get();
         
@@ -234,6 +236,7 @@ class FiscalClassificationService
             $this->db->select('EMP_UF');
             $this->db->from('empresas');
             $this->db->where('EMP_ID', $empresaId);
+            $this->db->where('ten_id', $this->CI->session->userdata('ten_id'));
             $empresaQuery = $this->db->get();
             
             if ($empresaQuery->num_rows() == 0) {
@@ -250,6 +253,7 @@ class FiscalClassificationService
             $this->db->join('municipios M', 'E2.MUN_ID = M.MUN_ID', 'left');
             $this->db->join('estados E3', 'M.EST_ID = E3.EST_ID', 'left');
             $this->db->where('P.PES_ID', $clienteId);
+            $this->db->where('P.ten_id', $this->CI->session->userdata('ten_id'));
             $this->db->limit(1);
             
             $clienteQuery = $this->db->get();
@@ -312,6 +316,8 @@ class FiscalClassificationService
         $this->db->join('estados E3', 'M.EST_ID = E3.EST_ID', 'left');
         $this->db->join('tributacao_estadual te', 'p1.NCM_ID = te.ncm_id AND E3.EST_UF = te.tbe_uf', 'left');
         $this->db->where('p1.PRO_ID', $produtoId);
+        $this->db->where('p1.ten_id', $this->CI->session->userdata('ten_id'));
+        $this->db->where('te.ten_id', $this->CI->session->userdata('ten_id'));
         $this->db->limit(1);
         
         $query = $this->db->get();

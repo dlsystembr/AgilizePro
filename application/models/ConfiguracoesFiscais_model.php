@@ -20,6 +20,7 @@ class ConfiguracoesFiscais_model extends CI_Model
         $this->db->from('configuracoes_fiscais cfg');
         $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'left');
         $this->db->where('cfg.EMP_ID', $empId);
+        $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('cfg.CFG_TIPO_DOCUMENTO', 'ASC');
 
         return $this->db->get()->result();
@@ -35,6 +36,7 @@ class ConfiguracoesFiscais_model extends CI_Model
         $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'left');
         $this->db->where('cfg.EMP_ID', $empId);
         $this->db->where('cfg.CFG_TIPO_DOCUMENTO', $tipoDocumento);
+        $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->get()->row();
     }
@@ -48,6 +50,7 @@ class ConfiguracoesFiscais_model extends CI_Model
         $this->db->from('configuracoes_fiscais cfg');
         $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'left');
         $this->db->where('cfg.CFG_ID', $id);
+        $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->get()->row();
     }
@@ -77,6 +80,7 @@ class ConfiguracoesFiscais_model extends CI_Model
         $this->db->where('cfg.EMP_ID', $empId);
         $this->db->where('cfg.CFG_TIPO_DOCUMENTO', $tipoDocumento);
         $this->db->where('cfg.CFG_ATIVO', 1);
+        $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->get()->row();
     }
@@ -86,6 +90,9 @@ class ConfiguracoesFiscais_model extends CI_Model
      */
     public function add($data)
     {
+        if (!isset($data['ten_id'])) {
+            $data['ten_id'] = $this->session->userdata('ten_id');
+        }
         $this->db->insert('configuracoes_fiscais', $data);
         if ($this->db->affected_rows() == 1) {
             return $this->db->insert_id();
@@ -99,6 +106,7 @@ class ConfiguracoesFiscais_model extends CI_Model
     public function edit($id, $data)
     {
         $this->db->where('CFG_ID', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update('configuracoes_fiscais', $data);
         return $this->db->affected_rows() >= 0;
     }
@@ -110,6 +118,7 @@ class ConfiguracoesFiscais_model extends CI_Model
     {
         $this->db->where('EMP_ID', $empId);
         $this->db->where('CFG_TIPO_DOCUMENTO', $tipoDocumento);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update('configuracoes_fiscais', $data);
         return $this->db->affected_rows() >= 0;
     }
@@ -120,6 +129,7 @@ class ConfiguracoesFiscais_model extends CI_Model
     public function delete($id)
     {
         $this->db->where('CFG_ID', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete('configuracoes_fiscais');
         return $this->db->affected_rows() == 1;
     }
@@ -132,6 +142,7 @@ class ConfiguracoesFiscais_model extends CI_Model
         $this->db->set('CFG_NUMERO_ATUAL', 'CFG_NUMERO_ATUAL + 1', FALSE);
         $this->db->where('EMP_ID', $empId);
         $this->db->where('CFG_TIPO_DOCUMENTO', $tipoDocumento);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update('configuracoes_fiscais');
 
         return $this->db->affected_rows() >= 0;
@@ -144,6 +155,7 @@ class ConfiguracoesFiscais_model extends CI_Model
     {
         $this->db->where('EMP_ID', $empId);
         $this->db->where('CFG_TIPO_DOCUMENTO', $tipoDocumento);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $count = $this->db->count_all_results('configuracoes_fiscais');
 
         return $count > 0;
@@ -159,6 +171,9 @@ class ConfiguracoesFiscais_model extends CI_Model
         } else {
             $data['EMP_ID'] = $empId;
             $data['CFG_TIPO_DOCUMENTO'] = $tipoDocumento;
+            if (!isset($data['ten_id'])) {
+                $data['ten_id'] = $this->session->userdata('ten_id');
+            }
             return $this->add($data);
         }
     }

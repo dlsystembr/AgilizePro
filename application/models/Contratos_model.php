@@ -12,6 +12,7 @@ class Contratos_model extends CI_Model
         $this->db->select('c.*, p.PES_NOME, p.PES_CPFCNPJ, p.PES_RAZAO_SOCIAL');
         $this->db->from('contratos c');
         $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('c.CTR_ID', 'desc');
         
         if ($perPage) {
@@ -38,12 +39,16 @@ class Contratos_model extends CI_Model
         $this->db->from('contratos c');
         $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
         $this->db->where('c.CTR_ID', $id);
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
         return $this->db->get()->row();
     }
 
     public function add($table, $data)
     {
+        if (!isset($data['ten_id'])) {
+            $data['ten_id'] = $this->session->userdata('ten_id');
+        }
         $this->db->insert($table, $data);
         if ($this->db->affected_rows() == 1) {
             return $this->db->insert_id($table);
@@ -54,6 +59,7 @@ class Contratos_model extends CI_Model
     public function edit($table, $data, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update($table, $data);
         return $this->db->affected_rows() >= 0;
     }
@@ -61,6 +67,7 @@ class Contratos_model extends CI_Model
     public function delete($table, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete($table);
         return $this->db->affected_rows() == 1;
     }
@@ -69,6 +76,7 @@ class Contratos_model extends CI_Model
     {
         $this->db->from('contratos c');
         $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
         
         if ($search) {
             $this->db->group_start();

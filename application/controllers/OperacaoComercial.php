@@ -45,7 +45,8 @@ class OperacaoComercial extends MY_Controller
         // Busca as operações com paginação
         $this->data['results'] = $this->OperacaoComercial_model->get($search, $situacao, $per_page, $start);
         $this->data['search'] = $search;
-        $this->data['regime_tributario'] = $this->Mapos_model->getConfiguracao()['regime_tributario'];
+        $configuracao = $this->Mapos_model->getConfiguracao();
+        $this->data['regime_tributario'] = isset($configuracao['regime_tributario']) ? $configuracao['regime_tributario'] : null;
         
         return $this->layout();
     }
@@ -88,7 +89,8 @@ class OperacaoComercial extends MY_Controller
                 $this->data['custom_error'] = '<div class="alert alert-danger">Ocorreu um erro.</div>';
             }
         }
-        $this->data['regime_tributario'] = $this->Mapos_model->getConfiguracao()['regime_tributario'];
+        $configuracao = $this->Mapos_model->getConfiguracao();
+        $this->data['regime_tributario'] = isset($configuracao['regime_tributario']) ? $configuracao['regime_tributario'] : null;
         $this->data['view'] = 'operacaocomercial/adicionarOperacao';
         return $this->layout();
     }
@@ -138,7 +140,8 @@ class OperacaoComercial extends MY_Controller
             }
         }
         $this->data['result'] = $result;
-        $this->data['regime_tributario'] = $this->Mapos_model->getConfiguracao()['regime_tributario'];
+        $configuracao = $this->Mapos_model->getConfiguracao();
+        $this->data['regime_tributario'] = isset($configuracao['regime_tributario']) ? $configuracao['regime_tributario'] : null;
         $this->data['view'] = 'operacaocomercial/editarOperacao';
         return $this->layout();
     }

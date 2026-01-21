@@ -46,10 +46,17 @@ class MY_Controller extends CI_Controller
     {
         parent::__construct();
 
+        // Verificar se é super usuário (não precisa de ten_id)
+        $is_super = $this->session->userdata('is_super');
+        
         if ((! session_id()) || (! $this->session->userdata('logado'))) {
             redirect('login');
         }
-        $this->load_configuration();
+        
+        // Se não for super usuário, carregar configurações normalmente
+        if (!$is_super) {
+            $this->load_configuration();
+        }
     }
 
     private function load_configuration()

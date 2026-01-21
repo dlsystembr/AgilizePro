@@ -12,6 +12,7 @@ class Ncm_model extends CI_Model
     {
         $this->db->select('id, NCM_CODIGO, NCM_DESCRICAO');
         $this->db->from('ncms');
+        // NCMs são compartilhados entre todos os tenants
         
         if (!empty($termo)) {
             $this->db->group_start();

@@ -15,6 +15,7 @@ class Financeiro_model extends CI_Model
     {
         $this->db->select($fields . ', usuarios.*');
         $this->db->from($table);
+        $this->db->where($table . '.ten_id', $this->session->userdata('ten_id'));
         $this->db->join('usuarios', 'usuarios.idUsuarios = usuarios_id', 'left');
         $this->db->order_by('data_vencimento', 'asc');
         $this->db->limit($perpage, $start);
@@ -36,6 +37,7 @@ class Financeiro_model extends CI_Model
             SUM(case when tipo = 'receita' then (IF(valor_desconto = 0, valor, valor_desconto)) end) as receitas
         ");
         $this->db->from('lancamentos');
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
 
         if ($where) {
             $this->db->where($where);
@@ -53,17 +55,18 @@ class Financeiro_model extends CI_Model
                        SUM(CASE WHEN tipo = 'receita' THEN valor END) as total_receita_sem_desconto,
                        SUM(CASE WHEN tipo = 'despesa' THEN valor END) as total_despesa_sem_desconto,
                        SUM(CASE WHEN baixado = 0 AND tipo = 'receita' THEN valor_desconto END) as total_receita_pendente,
-                       SUM(CASE WHEN baixado = 0 AND tipo = 'despesa' THEN valor_desconto END) as total_despesa_pendente FROM lancamentos";
+                       SUM(CASE WHEN baixado = 0 AND tipo = 'despesa' THEN valor_desconto END) as total_despesa_pendente FROM lancamentos WHERE ten_id = " . $this->session->userdata('ten_id');
 
         return $this->db->query($sql)->row();
     }
 
     public function getById($id)
     {
-        $this->db->where('idClientes', $id);
+        $this->db->where('idLancamentos', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
 
-        return $this->db->get('clientes')->row();
+        return $this->db->get('lancamentos')->row();
     }
 
     public function add($table, $data)
@@ -89,6 +92,7 @@ class Financeiro_model extends CI_Model
     public function edit($table, $data, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update($table, $data);
 
         if ($this->db->affected_rows() >= 0) {

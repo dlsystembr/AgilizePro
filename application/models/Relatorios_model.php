@@ -11,6 +11,7 @@ class Relatorios_model extends CI_Model
     {
         $this->db->select($fields);
         $this->db->from($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit($perpage, $start);
         if ($where) {
             $this->db->where($where);
@@ -58,7 +59,8 @@ class Relatorios_model extends CI_Model
 
     public function count($table)
     {
-        return $this->db->count_all($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        return $this->db->count_all_results($table);
     }
 
     public function clientesCustom($dataInicial = null, $dataFinal = null, $tipo = null)
@@ -76,9 +78,9 @@ class Relatorios_model extends CI_Model
         $query = "SELECT idClientes, nomeCliente, sexo, pessoa_fisica,
         documento, telefone, celular, contato, email, fornecedor,
         dataCadastro, rua, numero, complemento, bairro, cidade, estado,
-        cep FROM clientes WHERE dataCadastro $whereData ORDER BY nomeCliente";
+        cep FROM clientes WHERE ten_id = ? AND dataCadastro $whereData ORDER BY nomeCliente";
 
-        return $this->db->query($query, [$dataInicial, $dataFinal])->result();
+        return $this->db->query($query, [$this->session->userdata('ten_id'), $dataInicial, $dataFinal])->result();
     }
 
     public function clientesRapid($array = false)
@@ -88,12 +90,8 @@ class Relatorios_model extends CI_Model
         dataCadastro, rua, numero, complemento, bairro, cidade, estado,
         cep');
 
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('nomeCliente', 'asc');
-
-        $this->db->select('idClientes, nomeCliente, sexo, pessoa_fisica,
-        documento, telefone, celular, contato, email, fornecedor,
-        dataCadastro, rua, numero, complemento, bairro, cidade, estado,
-        cep');
 
         $result = $this->db->get('clientes');
         if ($array) {
@@ -110,11 +108,12 @@ class Relatorios_model extends CI_Model
             SUM(produtos.estoque * produtos.precoVenda) as valorEstoque,
             SUM(produtos.estoque * produtos.precoCompra) as valorEstoqueR
             FROM produtos
+            WHERE ten_id = ?
             GROUP BY produtos.idProdutos
             ORDER BY descricao
         ';
 
-        return $this->db->query($query)->result();
+        return $this->db->query($query, [$this->session->userdata('ten_id')])->result();
     }
 
     public function produtosRapidMin()
@@ -124,12 +123,12 @@ class Relatorios_model extends CI_Model
             SUM(produtos.estoque * produtos.precoVenda) as valorEstoque,
             SUM(produtos.estoque * produtos.precoCompra) as valorEstoqueR
             FROM produtos
-            WHERE estoque <= estoqueMinimo
+            WHERE ten_id = ? AND estoque <= estoqueMinimo
             GROUP BY produtos.idProdutos
             ORDER BY descricao
         ';
 
-        return $this->db->query($query)->result();
+        return $this->db->query($query, [$this->session->userdata('ten_id')])->result();
     }
 
     public function produtosCustom($precoInicial = null, $precoFinal = null, $estoqueInicial = null, $estoqueFinal = null)

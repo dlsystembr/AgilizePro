@@ -68,6 +68,7 @@ class Usuarios extends MY_Controller
                 'situacao' => set_value('situacao'),
                 'permissoes_id' => $this->input->post('permissoes_id'),
                 'dataCadastro' => date('Y-m-d'),
+                'ten_id' => $this->session->userdata('ten_id'),
             ];
 
             if ($this->usuarios_model->add('usuarios', $data) == true) {
@@ -138,6 +139,7 @@ class Usuarios extends MY_Controller
                     'dataExpiracao' => set_value('dataExpiracao'),
                     'situacao' => $this->input->post('situacao'),
                     'permissoes_id' => $this->input->post('permissoes_id'),
+                    'ten_id' => $this->session->userdata('ten_id'),
                 ];
             } else {
                 $data = [
@@ -156,6 +158,7 @@ class Usuarios extends MY_Controller
                     'dataExpiracao' => set_value('dataExpiracao'),
                     'situacao' => $this->input->post('situacao'),
                     'permissoes_id' => $this->input->post('permissoes_id'),
+                    'ten_id' => $this->session->userdata('ten_id'),
                 ];
             }
 

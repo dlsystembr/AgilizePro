@@ -27,6 +27,28 @@ class Mapos extends MY_Controller {
         $this->data['financeiro_mes'] = $this->mapos_model->getEstatisticasFinanceiroMes($this->input->get('year'));
         $this->data['financeiro_mesinadipl'] = $this->mapos_model->getEstatisticasFinanceiroMesInadimplencia($this->input->get('year'));
         $this->data['nfcom_dia'] = $this->mapos_model->getNfcomDia();
+        
+        // Estatísticas do sistema filtradas por ten_id
+        $this->load->model('clientes_model');
+        $this->load->model('produtos_model');
+        $this->load->model('servicos_model');
+        $this->load->model('garantias_model');
+        $this->load->model('vendas_model');
+        $this->load->model('nfecom_model');
+        
+        $this->data['total_clientes'] = $this->clientes_model->count('clientes');
+        $this->data['total_produtos'] = $this->produtos_model->count('produtos');
+        $this->data['total_servicos'] = $this->servicos_model->count('servicos');
+        $this->load->model('os_model');
+        $this->data['total_os'] = $this->os_model->count('os');
+        $this->data['total_garantias'] = $this->garantias_model->count('garantias');
+        $this->data['total_vendas'] = $this->vendas_model->count('vendas');
+        
+        // Contar NFCom autorizadas (status 3 ou 5) filtradas por ten_id
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        $this->db->where_in('NFC_STATUS', [3, 5]);
+        $this->data['total_nfcom_autorizadas'] = $this->db->count_all_results('nfecom_capa');
+        
         $this->data['menuPainel'] = 'Painel';
         $this->data['view'] = 'mapos/painel';
 

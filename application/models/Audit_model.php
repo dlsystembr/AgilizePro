@@ -15,6 +15,7 @@ class Audit_model extends CI_Model
     {
         $this->db->select($fields);
         $this->db->from($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('idLogs', 'desc');
         $this->db->limit($perpage, $start);
         if ($where) {
@@ -30,6 +31,9 @@ class Audit_model extends CI_Model
 
     public function add($data)
     {
+        if (!isset($data['ten_id'])) {
+            $data['ten_id'] = $this->session->userdata('ten_id');
+        }
         $this->db->insert('logs', $data);
         if ($this->db->affected_rows() == '1') {
             return true;
@@ -40,12 +44,14 @@ class Audit_model extends CI_Model
 
     public function count($table)
     {
-        return $this->db->count_all('logs');
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        return $this->db->count_all_results('logs');
     }
 
     public function clean()
     {
         $this->db->where('data <', date('Y-m-d', strtotime('- 30 days')));
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete('logs');
 
         if ($this->db->affected_rows()) {

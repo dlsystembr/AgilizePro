@@ -716,11 +716,14 @@ class Ncms extends MY_Controller
 
             $this->db->where('ncm_id', $ncm_id);
             $this->db->where('tbe_uf', $uf);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $existing = $this->db->get('tributacao_estadual')->row();
             if ($existing) {
                 $this->db->where('tbe_id', $existing->tbe_id);
+                $this->db->where('ten_id', $this->session->userdata('ten_id'));
                 $result = $this->db->update('tributacao_estadual', $data_estadual);
             } else {
+                $data_estadual['ten_id'] = $this->session->userdata('ten_id');
                 $result = $this->db->insert('tributacao_estadual', $data_estadual);
             }
             if ($result === false) {

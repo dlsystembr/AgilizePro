@@ -58,8 +58,9 @@ class Pessoas extends MY_Controller
         // Não remover formatação pois no banco está formatado
         // $cpfCnpj = preg_replace('/[^0-9]/', '', $cpfCnpj);
 
-        // Buscar pessoa com este CPF/CNPJ
+        // Buscar pessoa com este CPF/CNPJ do mesmo tenant
         $this->db->where('PES_CPFCNPJ', $cpfCnpj);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $pessoa = $this->db->get('pessoas')->row();
 
         if ($pessoa) {
@@ -98,7 +99,8 @@ class Pessoas extends MY_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('PES_CPFCNPJ', 'CPF/CNPJ', 'required|trim|is_unique[pessoas.PES_CPFCNPJ]');
+        // Validação customizada para CPF/CNPJ considerando ten_id
+        $this->form_validation->set_rules('PES_CPFCNPJ', 'CPF/CNPJ', 'required|trim|callback_check_cpfcnpj_unique');
         $this->form_validation->set_rules('PES_NOME', 'Nome', 'required|trim');
         $this->form_validation->set_rules('PES_CODIGO', 'Código', 'trim');
         $this->form_validation->set_rules('PES_FISICO_JURIDICO', 'Tipo (F/J)', 'required|in_list[F,J]');
@@ -115,6 +117,7 @@ class Pessoas extends MY_Controller
             }
 
             $data = [
+                'ten_id' => $this->session->userdata('ten_id'),
                 'PES_CPFCNPJ' => set_value('PES_CPFCNPJ'),
                 'PES_NOME' => set_value('PES_NOME'),
                 'PES_RAZAO_SOCIAL' => set_value('PES_RAZAO_SOCIAL'),
@@ -149,6 +152,7 @@ class Pessoas extends MY_Controller
                         $obst = isset($obs[$i]) ? $obs[$i] : null;
                         if ($ddd !== '' && $numero !== '' && in_array($tipo, ['Celular', 'Comercial', 'Residencial', 'Whatsapp', 'Outros'])) {
                             $this->db->insert('telefones', [
+                                'ten_id' => $this->session->userdata('ten_id'),
                                 'PES_ID' => $pessoaId,
                                 'TEL_TIPO' => $tipo,
                                 'TEL_DDD' => substr($ddd, 0, 3),
@@ -171,6 +175,7 @@ class Pessoas extends MY_Controller
                         $email = isset($emailEnderecos[$i]) ? trim($emailEnderecos[$i]) : '';
                         if ($email !== '') {
                             $this->db->insert('emails', [
+                                'ten_id' => $this->session->userdata('ten_id'),
                                 'PES_ID' => $pessoaId,
                                 'EML_TIPO' => $tipo,
                                 'EML_EMAIL' => $email,
@@ -244,6 +249,7 @@ class Pessoas extends MY_Controller
                                 $tipoEndBanco = 'Faturamento';
 
                             $dataEnd = [
+                                'ten_id' => $this->session->userdata('ten_id'),
                                 'PES_ID' => $pessoaId,
                                 'EST_ID' => $estId,
                                 'MUN_ID' => $munId,
@@ -291,6 +297,7 @@ class Pessoas extends MY_Controller
                                 }
                             }
                             $this->db->insert('documentos', [
+                                'ten_id' => $this->session->userdata('ten_id'),
                                 'PES_ID' => $pessoaId,
                                 'DOC_TIPO_DOCUMENTO' => mb_substr($tipo, 0, 60),
                                 'END_ID' => $endeId,
@@ -306,6 +313,7 @@ class Pessoas extends MY_Controller
                 $isCliente = (bool) $this->input->post('CLN_ENABLE');
                 if ($isCliente) {
                     $cliente = [
+                        'ten_id' => $this->session->userdata('ten_id'),
                         'PES_ID' => $pessoaId,
                         'CLN_LIMITE_CREDITO' => $this->input->post('CLN_LIMITE_CREDITO') !== null ? str_replace([','], ['.'], $this->input->post('CLN_LIMITE_CREDITO')) : null,
                         'CLN_SITUACAO' => $this->input->post('CLN_SITUACAO') !== null ? (int) $this->input->post('CLN_SITUACAO') : 1,
@@ -336,6 +344,7 @@ class Pessoas extends MY_Controller
                                     $isPadrao = ($vendedorPadraoPesId && $vendedorPadraoPesId == $vendedorPesId) ? 1 : 0;
 
                                     $this->db->insert('clientes_vendedores', [
+                                        'ten_id' => $this->session->userdata('ten_id'),
                                         'CLN_ID' => $clienteId,
                                         'VEN_ID' => $vendedor->VEN_ID,
                                         'CLV_PADRAO' => $isPadrao
@@ -350,6 +359,7 @@ class Pessoas extends MY_Controller
                 $isVendedor = (bool) $this->input->post('VEN_ENABLE');
                 if ($isVendedor) {
                     $vendedor = [
+                        'ten_id' => $this->session->userdata('ten_id'),
                         'PES_ID' => $pessoaId,
                         'VEN_PERCENTUAL_COMISSAO' => $this->input->post('VEN_PERCENTUAL_COMISSAO') !== null ? str_replace([','], ['.'], $this->input->post('VEN_PERCENTUAL_COMISSAO')) : null,
                         'VEN_TIPO_COMISSAO' => $this->input->post('VEN_TIPO_COMISSAO'),
@@ -364,6 +374,7 @@ class Pessoas extends MY_Controller
                 if (is_array($tiposPessoa) && $this->db->table_exists('pessoa_tipos')) {
                     foreach ($tiposPessoa as $tipoId) {
                         $this->db->insert('pessoa_tipos', [
+                            'ten_id' => $this->session->userdata('ten_id'),
                             'pessoa_id' => $pessoaId,
                             'tipo_id' => $tipoId
                         ]);
@@ -431,7 +442,8 @@ class Pessoas extends MY_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('PES_CPFCNPJ', 'CPF/CNPJ', 'required|trim');
+        // Validação customizada para CPF/CNPJ considerando ten_id (permitindo o próprio registro na edição)
+        $this->form_validation->set_rules('PES_CPFCNPJ', 'CPF/CNPJ', 'required|trim|callback_check_cpfcnpj_unique_edit[' . $id . ']');
         $this->form_validation->set_rules('PES_NOME', 'Nome', 'required|trim');
         $this->form_validation->set_rules('PES_CODIGO', 'Código', 'required|trim');
         $this->form_validation->set_rules('PES_FISICO_JURIDICO', 'Tipo (F/J)', 'required|in_list[F,J]');
@@ -440,6 +452,7 @@ class Pessoas extends MY_Controller
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $data = [
+                'ten_id' => $this->session->userdata('ten_id'),
                 'PES_CPFCNPJ' => $this->input->post('PES_CPFCNPJ'),
                 'PES_NOME' => $this->input->post('PES_NOME'),
                 'PES_RAZAO_SOCIAL' => $this->input->post('PES_RAZAO_SOCIAL'),
@@ -554,6 +567,7 @@ class Pessoas extends MY_Controller
                                 }
 
                                 $enderecoData = [
+                                    'ten_id' => $this->session->userdata('ten_id'),
                                     'PES_ID' => $id,
                                     'EST_ID' => $estId,
                                     'MUN_ID' => $munId, // Este campo é obrigatório devido à constraint
@@ -609,6 +623,7 @@ class Pessoas extends MY_Controller
                 if ($this->db->table_exists('clientes')) {
                     if ($isCliente) {
                         $clienteData = [
+                            'ten_id' => $this->session->userdata('ten_id'),
                             'PES_ID' => $id,
                             'CLN_LIMITE_CREDITO' => $this->input->post('CLN_LIMITE_CREDITO') !== null ? str_replace([','], ['.'], $this->input->post('CLN_LIMITE_CREDITO')) : null,
                             'CLN_SITUACAO' => $this->input->post('CLN_SITUACAO') !== null ? (int) $this->input->post('CLN_SITUACAO') : 1,
@@ -650,6 +665,7 @@ class Pessoas extends MY_Controller
                                         if ($vendedor) {
                                             $isPadrao = ($vendedorPadraoPesId && $vendedorPadraoPesId == $vendedorPesId) ? 1 : 0;
                                             $this->db->insert('clientes_vendedores', [
+                                                'ten_id' => $this->session->userdata('ten_id'),
                                                 'CLN_ID' => $clienteId,
                                                 'VEN_ID' => $vendedor->VEN_ID,
                                                 'CLV_PADRAO' => $isPadrao
@@ -670,6 +686,7 @@ class Pessoas extends MY_Controller
                 if ($this->db->table_exists('vendedores')) {
                     if ($isVendedor) {
                         $vendedorData = [
+                            'ten_id' => $this->session->userdata('ten_id'),
                             'PES_ID' => $id,
                             'VEN_PERCENTUAL_COMISSAO' => $this->input->post('VEN_PERCENTUAL_COMISSAO') !== null ? str_replace([','], ['.'], $this->input->post('VEN_PERCENTUAL_COMISSAO')) : null,
                             'VEN_TIPO_COMISSAO' => $this->input->post('VEN_TIPO_COMISSAO'),
@@ -696,6 +713,7 @@ class Pessoas extends MY_Controller
 
                     foreach ($tiposPessoa as $tipoId) {
                         $this->db->insert('pessoa_tipos', [
+                            'ten_id' => $this->session->userdata('ten_id'),
                             'pessoa_id' => $id,
                             'tipo_id' => $tipoId
                         ]);
@@ -946,6 +964,56 @@ class Pessoas extends MY_Controller
 
         $this->data['view'] = 'pessoas/visualizarPessoa';
         return $this->layout();
+    }
+
+    /**
+     * Validação customizada para verificar se CPF/CNPJ já existe no mesmo tenant (para adicionar)
+     */
+    public function check_cpfcnpj_unique($cpfcnpj)
+    {
+        if (empty($cpfcnpj)) {
+            return true; // Se vazio, outra validação já vai tratar
+        }
+
+        $ten_id = $this->session->userdata('ten_id');
+        
+        // Verificar se já existe CPF/CNPJ para o mesmo tenant
+        $this->db->where('PES_CPFCNPJ', $cpfcnpj);
+        $this->db->where('ten_id', $ten_id);
+        $query = $this->db->get('pessoas');
+
+        if ($query->num_rows() > 0) {
+            $this->form_validation->set_message('check_cpfcnpj_unique', 'Este CPF/CNPJ já está cadastrado.');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validação customizada para verificar se CPF/CNPJ já existe no mesmo tenant (para editar)
+     * Permite que o próprio registro mantenha o mesmo CPF/CNPJ
+     */
+    public function check_cpfcnpj_unique_edit($cpfcnpj, $id)
+    {
+        if (empty($cpfcnpj)) {
+            return true; // Se vazio, outra validação já vai tratar
+        }
+
+        $ten_id = $this->session->userdata('ten_id');
+        
+        // Verificar se já existe CPF/CNPJ para o mesmo tenant, excluindo o próprio registro
+        $this->db->where('PES_CPFCNPJ', $cpfcnpj);
+        $this->db->where('ten_id', $ten_id);
+        $this->db->where('PES_ID !=', $id);
+        $query = $this->db->get('pessoas');
+
+        if ($query->num_rows() > 0) {
+            $this->form_validation->set_message('check_cpfcnpj_unique_edit', 'Este CPF/CNPJ já está cadastrado para outra pessoa.');
+            return false;
+        }
+
+        return true;
     }
 
     public function excluir()

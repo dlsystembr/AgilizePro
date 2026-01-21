@@ -11,6 +11,7 @@ class Pessoas_model extends CI_Model
     {
         $this->db->select($fields);
         $this->db->from($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('PES_ID', 'desc');
         if ($perPage) {
             $this->db->limit($perPage, $start);
@@ -32,12 +33,16 @@ class Pessoas_model extends CI_Model
     public function getById($id)
     {
         $this->db->where('PES_ID', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
         return $this->db->get('pessoas')->row();
     }
 
     public function add($table, $data)
     {
+        if (!isset($data['ten_id'])) {
+            $data['ten_id'] = $this->session->userdata('ten_id');
+        }
         $this->db->insert($table, $data);
         if ($this->db->affected_rows() == 1) {
             return $this->db->insert_id($table);
@@ -48,6 +53,7 @@ class Pessoas_model extends CI_Model
     public function edit($table, $data, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update($table, $data);
         return $this->db->affected_rows() >= 0;
     }
@@ -55,12 +61,14 @@ class Pessoas_model extends CI_Model
     public function delete($table, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete($table);
         return $this->db->affected_rows() == 1;
     }
 
     public function count($table)
     {
-        return $this->db->count_all($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        return $this->db->count_all_results($table);
     }
 }

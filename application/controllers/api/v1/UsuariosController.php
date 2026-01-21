@@ -83,6 +83,7 @@ class UsuariosController extends REST_Controller
             ], REST_Controller::HTTP_BAD_REQUEST);
         }
 
+        $user = $this->logged_user();
         $data = [
             'nome' => $this->post('nome', true),
             'rg' => $this->post('rg', true),
@@ -101,6 +102,7 @@ class UsuariosController extends REST_Controller
             'situacao' => $this->post('situacao', true),
             'permissoes_id' => $this->post('permissoes_id', true),
             'dataCadastro' => date('Y-m-d'),
+            'ten_id' => isset($user->usuario->ten_id) ? $user->usuario->ten_id : null,
         ];
 
         if ($this->usuarios_model->add('usuarios', $data)) {

@@ -19,6 +19,7 @@ class Certificados_model extends CI_Model
         $this->db->select('*');
         $this->db->from('certificados_digitais');
         $this->db->where('EMP_ID', $empId);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
 
         if ($apenasAtivos) {
             $this->db->where('CER_ATIVO', 1);
@@ -35,6 +36,7 @@ class Certificados_model extends CI_Model
     public function getById($id)
     {
         $this->db->where('CER_ID', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->get('certificados_digitais')->row();
     }
 
@@ -43,6 +45,9 @@ class Certificados_model extends CI_Model
      */
     public function add($data)
     {
+        if (!isset($data['ten_id'])) {
+            $data['ten_id'] = $this->session->userdata('ten_id');
+        }
         $this->db->insert('certificados_digitais', $data);
         if ($this->db->affected_rows() == 1) {
             return $this->db->insert_id();
@@ -56,6 +61,7 @@ class Certificados_model extends CI_Model
     public function edit($id, $data)
     {
         $this->db->where('CER_ID', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update('certificados_digitais', $data);
         return $this->db->affected_rows() >= 0;
     }
@@ -66,6 +72,7 @@ class Certificados_model extends CI_Model
     public function delete($id)
     {
         $this->db->where('CER_ID', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete('certificados_digitais');
         return $this->db->affected_rows() == 1;
     }
@@ -78,6 +85,7 @@ class Certificados_model extends CI_Model
         $this->db->select('*');
         $this->db->from('certificados_digitais');
         $this->db->where('EMP_ID', $empId);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->where('CER_ATIVO', 1);
         $this->db->where('CER_VALIDADE_FIM >=', date('Y-m-d'));
         $this->db->order_by('CER_VALIDADE_FIM', 'DESC');
@@ -116,6 +124,7 @@ class Certificados_model extends CI_Model
     public function desativarOutros($empId, $excetoCerId = null)
     {
         $this->db->where('EMP_ID', $empId);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         if ($excetoCerId) {
             $this->db->where('CER_ID !=', $excetoCerId);
         }
@@ -129,6 +138,7 @@ class Certificados_model extends CI_Model
     public function count($empId)
     {
         $this->db->where('EMP_ID', $empId);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->count_all_results('certificados_digitais');
     }
 }

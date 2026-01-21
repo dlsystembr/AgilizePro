@@ -101,6 +101,7 @@ class Produtos extends MY_Controller
             $precoVenda = $this->input->post('PRO_PRECO_VENDA');
             $precoVenda = str_replace(',', '.', $precoVenda);
             $data = [
+                'ten_id' => $this->session->userdata('ten_id'),
                 'PRO_COD_BARRA' => $this->input->post('PRO_COD_BARRA'),
                 'PRO_DESCRICAO' => $this->input->post('PRO_DESCRICAO'),
                 'PRO_UNID_MEDIDA' => $this->input->post('PRO_UNID_MEDIDA'),
@@ -217,6 +218,7 @@ class Produtos extends MY_Controller
             $precoVenda = str_replace(',', '.', $precoVenda);
             
             $data = [
+                'ten_id' => $this->session->userdata('ten_id'),
                 'PRO_COD_BARRA' => $this->input->post('codDeBarra'),
                 'PRO_DESCRICAO' => $this->input->post('descricao'),
                 'PRO_UNID_MEDIDA' => $this->input->post('unidade') ?: $this->input->post('PRO_UNID_MEDIDA'),

@@ -11,8 +11,10 @@ class Ncms_model extends CI_Model
 
     public function get($search = null, $per_page = null, $start = null, $tipo = null)
     {
+        $ten_id = $this->session->userdata('ten_id');
         $this->db->select('ncms.*');
         $this->db->from('ncms');
+        // NCMs são compartilhados entre todos os tenants
         
         if ($search) {
             $this->db->group_start();
@@ -27,20 +29,22 @@ class Ncms_model extends CI_Model
             } else if ($tipo == 'sintetico') {
                 $this->db->where('LENGTH(NCM_CODIGO) < 8');
             } else if ($tipo == 'configurados') {
-                // Subconsulta para NCMs com tributação federal configurada
+                // Subconsulta para NCMs com tributação federal configurada (filtrado por ten_id)
                 $this->db->where("EXISTS (
                     SELECT 1 FROM tributacao_federal tf 
                     WHERE tf.ncm_id = ncms.ncm_id 
+                    AND tf.ten_id = {$ten_id}
                     AND (tf.tbf_cst_ipi_entrada != '' 
                          OR tf.tbf_cst_pis_cofins_entrada != '' 
                          OR tf.tbf_cst_ipi_saida != '' 
                          OR tf.tbf_cst_pis_cofins_saida != '')
                 )");
                 
-                // Subconsulta para NCMs com tributação estadual configurada
+                // Subconsulta para NCMs com tributação estadual configurada (filtrado por ten_id)
                 $this->db->or_where("EXISTS (
                     SELECT 1 FROM tributacao_estadual te 
                     WHERE te.ncm_id = ncms.ncm_id
+                    AND te.ten_id = {$ten_id}
                 )");
             }
         }
@@ -56,8 +60,10 @@ class Ncms_model extends CI_Model
 
     public function count($search = null, $tipo = null)
     {
+        $ten_id = $this->session->userdata('ten_id');
         $this->db->select('COUNT(*) as total');
         $this->db->from('ncms');
+        // NCMs são compartilhados entre todos os tenants
         
         if ($search) {
             $this->db->group_start();
@@ -72,20 +78,22 @@ class Ncms_model extends CI_Model
             } else if ($tipo == 'sintetico') {
                 $this->db->where('LENGTH(NCM_CODIGO) < 8');
             } else if ($tipo == 'configurados') {
-                // Subconsulta para NCMs com tributação federal configurada
+                // Subconsulta para NCMs com tributação federal configurada (filtrado por ten_id)
                 $this->db->where("EXISTS (
                     SELECT 1 FROM tributacao_federal tf 
                     WHERE tf.ncm_id = ncms.ncm_id 
+                    AND tf.ten_id = {$ten_id}
                     AND (tf.tbf_cst_ipi_entrada != '' 
                          OR tf.tbf_cst_pis_cofins_entrada != '' 
                          OR tf.tbf_cst_ipi_saida != '' 
                          OR tf.tbf_cst_pis_cofins_saida != '')
                 )");
                 
-                // Subconsulta para NCMs com tributação estadual configurada
+                // Subconsulta para NCMs com tributação estadual configurada (filtrado por ten_id)
                 $this->db->or_where("EXISTS (
                     SELECT 1 FROM tributacao_estadual te 
                     WHERE te.ncm_id = ncms.ncm_id
+                    AND te.ten_id = {$ten_id}
                 )");
             }
         }
@@ -99,6 +107,7 @@ class Ncms_model extends CI_Model
         $this->db->select('NCM_ID, NCM_CODIGO, NCM_DESCRICAO, data_inicio, data_fim, tipo_ato, numero_ato, ano_ato');
         $this->db->from('ncms');
         $this->db->where('ncm_id', $id);
+        // NCMs são compartilhados entre todos os tenants
         $ncm = $this->db->get()->row();
         log_message('debug', 'NCM encontrado: ' . json_encode($ncm));
         return $ncm;
@@ -106,6 +115,9 @@ class Ncms_model extends CI_Model
 
     public function add($data)
     {
+        if (!isset($data['ten_id'])) {
+            $data['ten_id'] = $this->session->userdata('ten_id');
+        }
         $this->db->insert('ncms', $data);
         return $this->db->insert_id();
     }
@@ -113,12 +125,14 @@ class Ncms_model extends CI_Model
     public function edit($data, $id)
     {
         $this->db->where('ncm_id', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->update('ncms', $data);
     }
 
     public function delete($id)
     {
         $this->db->where('ncm_id', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->delete('ncms');
     }
 
@@ -127,6 +141,7 @@ class Ncms_model extends CI_Model
         // Busca por similaridade em código E descrição (sempre LIKE)
         $this->db->select('*');
         $this->db->from('ncms');
+        // NCMs são compartilhados entre todos os tenants
         $this->db->group_start();
         $this->db->like('NCM_CODIGO', $termo, 'both'); // 'both' adiciona % no início e fim
         $this->db->or_like('NCM_DESCRICAO', $termo, 'both'); // 'both' adiciona % no início e fim
@@ -145,6 +160,7 @@ class Ncms_model extends CI_Model
     public function getTributacao($ncm_id)
     {
         $this->db->where('ncm_id', $ncm_id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->get('tributacao_federal')->row();
     }
 
@@ -200,8 +216,9 @@ class Ncms_model extends CI_Model
                 ];
             }
 
-            // Busca os dados do NCM
+            // Busca os dados do NCM (filtrado por ten_id - tributação é específica por tenant)
             $this->db->where('ncm_id', $ncm_id);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $dados = $this->db->get('tributacao_federal')->row();
 
             if ($dados) {
@@ -284,8 +301,9 @@ class Ncms_model extends CI_Model
             log_message('debug', '=== DADOS RECEBIDOS NO MODELO ===');
             log_message('debug', json_encode($data));
 
-            // Verifica se já existe tributação
+            // Verifica se já existe tributação (filtrado por ten_id)
             $this->db->where('ncm_id', $data['ncm_id']);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $tributacao = $this->db->get('tributacao_federal')->row();
             log_message('debug', 'Tributação existente: ' . json_encode($tributacao));
 
@@ -395,8 +413,9 @@ class Ncms_model extends CI_Model
                 log_message('debug', 'Dados inseridos com sucesso. ID: ' . $this->db->insert_id());
             }
 
-            // Verifica se os dados foram salvos
+            // Verifica se os dados foram salvos (filtrado por ten_id)
             $this->db->where('ncm_id', $data['ncm_id']);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $dados_salvos = $this->db->get('tributacao_federal')->row();
             log_message('debug', '=== DADOS SALVOS NO BANCO ===');
             log_message('debug', json_encode($dados_salvos));
@@ -418,12 +437,14 @@ class Ncms_model extends CI_Model
         $this->db->select('*');
         $this->db->from('ncms');
         $this->db->where('NCM_CODIGO', $NCM_CODIGO);
+        // NCMs são compartilhados entre todos os tenants
         return $this->db->get()->row();
     }
 
     public function getTributacaoEstadual($ncm_id)
     {
         $this->db->where('ncm_id', $ncm_id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->get('tributacao_estadual')->result();
     }
 
@@ -442,6 +463,9 @@ class Ncms_model extends CI_Model
             // Insere nova tributação
             $data['tbe_data_cadastro'] = date('Y-m-d H:i:s');
             $data['tbe_data_alteracao'] = date('Y-m-d H:i:s');
+            if (!isset($data['ten_id'])) {
+                $data['ten_id'] = $this->session->userdata('ten_id');
+            }
             $result = $this->db->insert('tributacao_estadual', $data);
             log_message('debug', 'SQL Insert: ' . $this->db->last_query());
 
@@ -507,6 +531,7 @@ class Ncms_model extends CI_Model
             // Verifica se já existe tributação para este NCM e UF
             $this->db->where('ncm_id', $data['ncm_id']);
             $this->db->where('tbe_uf', $data['tbe_uf']);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $existing = $this->db->get('tributacao_estadual')->row();
             log_message('debug', 'Verificando tributação existente: ' . ($existing ? 'Encontrada' : 'Não encontrada'));
 
@@ -514,12 +539,18 @@ class Ncms_model extends CI_Model
                 // Atualiza a tributação existente
                 $this->db->where('tbe_id', $existing->tbe_id);
                 $data['tbe_data_alteracao'] = date('Y-m-d H:i:s');
+                if (!isset($data['ten_id'])) {
+                    $data['ten_id'] = $this->session->userdata('ten_id');
+                }
                 $result = $this->db->update('tributacao_estadual', $data);
                 log_message('debug', 'SQL Update: ' . $this->db->last_query());
             } else {
                 // Insere nova tributação
                 $data['tbe_data_cadastro'] = date('Y-m-d H:i:s');
                 $data['tbe_data_alteracao'] = date('Y-m-d H:i:s');
+                if (!isset($data['ten_id'])) {
+                    $data['ten_id'] = $this->session->userdata('ten_id');
+                }
                 $result = $this->db->insert('tributacao_estadual', $data);
                 log_message('debug', 'SQL Insert: ' . $this->db->last_query());
             }
@@ -581,9 +612,10 @@ class Ncms_model extends CI_Model
                     'tbe_aliquota_fcp' => $tributacao['aliquota_fcp']
                 ];
 
-                // Verifica se já existe tributação para este NCM e UF
+                // Verifica se já existe tributação para este NCM e UF (filtrado por ten_id)
                 $this->db->where('ncm_id', $ncm_id);
                 $this->db->where('tbe_uf', $uf);
+                $this->db->where('ten_id', $this->session->userdata('ten_id'));
                 $existing = $this->db->get('tributacao_estadual')->row();
 
                 if ($existing) {
@@ -654,6 +686,7 @@ class Ncms_model extends CI_Model
 
             // Verifica se já existe tributação para este NCM
             $this->db->where('ncm_id', $ncm_id);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $existing = $this->db->get('tributacao_federal')->row();
             log_message('debug', 'Verificando tributação existente: ' . ($existing ? 'Encontrada' : 'Não encontrada'));
 
@@ -668,6 +701,9 @@ class Ncms_model extends CI_Model
                 // Insere nova tributação
                 $data['tbf_data_cadastro'] = date('Y-m-d H:i:s');
                 $data['tbf_data_alteracao'] = date('Y-m-d H:i:s');
+                if (!isset($data['ten_id'])) {
+                    $data['ten_id'] = $this->session->userdata('ten_id');
+                }
                 $insert_result = $this->db->insert('tributacao_federal', $data);
                 log_message('debug', 'Resultado da inserção: ' . ($insert_result ? 'Sucesso' : 'Falha'));
                 log_message('debug', 'SQL Insert: ' . $this->db->last_query());

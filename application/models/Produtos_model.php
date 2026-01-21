@@ -11,6 +11,7 @@ class Produtos_model extends CI_Model
     {
         $this->db->select($fields);
         $this->db->from($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('PRO_ID', 'desc');
         $this->db->limit($perpage, $start);
         if ($where) {
@@ -28,6 +29,7 @@ class Produtos_model extends CI_Model
     public function getById($id)
     {
         $this->db->where('PRO_ID', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
 
         return $this->db->get('produtos')->row();
@@ -45,6 +47,7 @@ class Produtos_model extends CI_Model
     public function edit($table, $data, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update($table, $data);
 
         if ($this->db->affected_rows() >= 0) {
@@ -56,6 +59,7 @@ class Produtos_model extends CI_Model
     public function delete($table, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete($table);
         if ($this->db->affected_rows() == '1') {
             return true;
@@ -66,13 +70,14 @@ class Produtos_model extends CI_Model
 
     public function count($table)
     {
-        return $this->db->count_all($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        return $this->db->count_all_results($table);
     }
 
     public function updateEstoque($produto, $quantidade, $operacao = '-')
     {
-        $sql = "UPDATE produtos set PRO_ESTOQUE = PRO_ESTOQUE $operacao ? WHERE PRO_ID = ?";
+        $sql = "UPDATE produtos set PRO_ESTOQUE = PRO_ESTOQUE $operacao ? WHERE PRO_ID = ? AND ten_id = ?";
 
-        return $this->db->query($sql, [$quantidade, $produto]);
+        return $this->db->query($sql, [$quantidade, $produto, $this->session->userdata('ten_id')]);
     }
 }

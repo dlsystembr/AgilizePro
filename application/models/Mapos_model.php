@@ -46,6 +46,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->set('senha', password_hash($senha, PASSWORD_DEFAULT));
         $this->db->where('idUsuarios', $this->session->userdata('id_admin'));
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update('usuarios');
 
         if ($this->db->affected_rows() >= 0) {
@@ -59,6 +60,7 @@ class Mapos_model extends CI_Model
     {
         $data = [];
         // buscando clientes
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->like('nomeCliente', $termo);
         $this->db->or_like('telefone', $termo);
         $this->db->or_like('celular', $termo);
@@ -67,18 +69,21 @@ class Mapos_model extends CI_Model
         $data['clientes'] = $this->db->get('clientes')->result();
 
         // buscando os
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->like('idOs', $termo);
         $this->db->or_like('descricaoProduto', $termo);
         $this->db->limit(15);
         $data['os'] = $this->db->get('os')->result();
 
         // buscando produtos
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->like('PRO_COD_BARRA', $termo);
         $this->db->or_like('PRO_DESCRICAO', $termo);
         $this->db->limit(50);
         $data['produtos'] = $this->db->get('produtos')->result();
 
         //buscando serviços
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->like('nome', $termo);
         $this->db->limit(15);
         $data['servicos'] = $this->db->get('servicos')->result();
@@ -121,13 +126,15 @@ class Mapos_model extends CI_Model
 
     public function count($table)
     {
-        return $this->db->count_all($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        return $this->db->count_all_results($table);
     }
 
     public function getOsOrcamentos()
     {
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
+        $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
         $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
         $this->db->where('os.status', 'Orçamento');
@@ -140,6 +147,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
+        $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
         $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
         $this->db->where('os.status', 'Aberto');
@@ -152,6 +160,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
+        $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
         $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
         $this->db->where('os.status', 'Finalizado');
@@ -165,6 +174,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
+        $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
         $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
         $this->db->where('os.status', 'Aprovado');
@@ -177,6 +187,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
+        $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
         $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
         $this->db->where('os.status', 'Aguardando Peças');
@@ -189,6 +200,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
+        $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
         $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
         $this->db->where('os.status', 'Em Andamento');
@@ -201,6 +213,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
+        $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
         $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
         $this->db->where_in('os.status', $status);
@@ -221,6 +234,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('vendas.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('vendas');
+        $this->db->where('vendas.ten_id', $this->session->userdata('ten_id'));
         $this->db->join('clientes', 'clientes.CLN_ID = vendas.clientes_id');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
         $this->db->where_in('vendas.status', $vstatus);
@@ -234,6 +248,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('idLancamentos, tipo, cliente_fornecedor, descricao, data_vencimento, forma_pgto, valor_desconto, baixado');
         $this->db->from('lancamentos');
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->where('baixado', 0);
         $this->db->order_by('idLancamentos', 'DESC');
         $this->db->limit(10);
@@ -250,6 +265,7 @@ class Mapos_model extends CI_Model
         );
         $this->db->from('ordem_servico');
         $this->db->join('pessoas', 'pessoas.PES_ID = ordem_servico.ORV_PESS_ID');
+        $this->db->where('ordem_servico.ten_id', $this->session->userdata('ten_id'));
         $this->db->where('ordem_servico.ORV_DATA_FINAL >=', $start);
         $this->db->where('ordem_servico.ORV_DATA_FINAL <=', $end);
         $this->db->group_by('ordem_servico.ORV_ID');
@@ -265,6 +281,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('nfecom_capa.*');
         $this->db->from('nfecom_capa');
+        $this->db->where('nfecom_capa.ten_id', $this->session->userdata('ten_id'));
         $this->db->where('nfecom_capa.NFC_DHEMI >=', $start);
         $this->db->where('nfecom_capa.NFC_DHEMI <=', $end);
         $this->db->order_by('nfecom_capa.NFC_DHEMI', 'DESC');
@@ -277,6 +294,7 @@ class Mapos_model extends CI_Model
         $hoje = date('Y-m-d');
         $this->db->select('nfecom_capa.*');
         $this->db->from('nfecom_capa');
+        $this->db->where('nfecom_capa.ten_id', $this->session->userdata('ten_id'));
         $this->db->like('nfecom_capa.NFC_DHEMI', $hoje);
         $this->db->order_by('nfecom_capa.NFC_DHEMI', 'DESC');
         $this->db->limit(10);
@@ -286,16 +304,16 @@ class Mapos_model extends CI_Model
 
     public function getProdutosMinimo()
     {
-        $sql = 'SELECT * FROM produtos WHERE PRO_ESTOQUE <= PRO_ESTOQUE_MINIMO AND PRO_ESTOQUE_MINIMO > 0 LIMIT 10';
+        $sql = 'SELECT * FROM produtos WHERE ten_id = ? AND PRO_ESTOQUE <= PRO_ESTOQUE_MINIMO AND PRO_ESTOQUE_MINIMO > 0 LIMIT 10';
 
-        return $this->db->query($sql)->result();
+        return $this->db->query($sql, [$this->session->userdata('ten_id')])->result();
     }
 
     public function getOsEstatisticas()
     {
-        $sql = 'SELECT status, COUNT(status) as total FROM os GROUP BY status ORDER BY status';
+        $sql = 'SELECT status, COUNT(status) as total FROM os WHERE ten_id = ? GROUP BY status ORDER BY status';
 
-        return $this->db->query($sql)->result();
+        return $this->db->query($sql, [$this->session->userdata('ten_id')])->result();
     }
 
     public function getEstatisticasFinanceiro()
@@ -303,9 +321,9 @@ class Mapos_model extends CI_Model
         $sql = "SELECT SUM(CASE WHEN baixado = 1 AND tipo = 'receita' THEN valor - (IF(tipo_desconto = 'real', desconto, (desconto * valor) / 100))  END) as total_receita,
                        SUM(CASE WHEN baixado = 1 AND tipo = 'despesa' THEN valor END) as total_despesa,
                        SUM(CASE WHEN baixado = 0 AND tipo = 'receita' THEN valor - (IF(tipo_desconto = 'real', desconto, (desconto * valor) / 100))  END) as total_receita_pendente,
-                       SUM(CASE WHEN baixado = 0 AND tipo = 'despesa' THEN valor END) as total_despesa_pendente FROM lancamentos";
-        if ($this->db->query($sql) !== false) {
-            return $this->db->query($sql)->row();
+                       SUM(CASE WHEN baixado = 0 AND tipo = 'despesa' THEN valor END) as total_despesa_pendente FROM lancamentos WHERE ten_id = ?";
+        if ($this->db->query($sql, [$this->session->userdata('ten_id')]) !== false) {
+            return $this->db->query($sql, [$this->session->userdata('ten_id')])->row();
         }
 
         return false;
@@ -346,10 +364,10 @@ class Mapos_model extends CI_Model
                 SUM(CASE WHEN (EXTRACT(MONTH FROM data_pagamento) = 12) AND baixado = 1 AND tipo = 'receita' THEN valor - (IF(tipo_desconto = 'real', desconto, (desconto * valor) / 100))  END) AS VALOR_DEZ_REC,
                 SUM(CASE WHEN (EXTRACT(MONTH FROM data_pagamento) = 12) AND baixado = 1 AND tipo = 'despesa' THEN valor END) AS VALOR_DEZ_DES
             FROM lancamentos
-            WHERE EXTRACT(YEAR FROM data_pagamento) = ?
+            WHERE ten_id = ? AND EXTRACT(YEAR FROM data_pagamento) = ?
         ";
-        if ($this->db->query($sql, [intval($numbersOnly)]) !== false) {
-            return $this->db->query($sql, [intval($numbersOnly)])->row();
+        if ($this->db->query($sql, [$this->session->userdata('ten_id'), intval($numbersOnly)]) !== false) {
+            return $this->db->query($sql, [$this->session->userdata('ten_id'), intval($numbersOnly)])->row();
         }
 
         return false;
@@ -366,10 +384,10 @@ class Mapos_model extends CI_Model
                 SUM(CASE WHEN (EXTRACT(DAY FROM data_pagamento) = ' . date('d') . ') AND EXTRACT(MONTH FROM data_pagamento) = ' . date('m') . " AND baixado = 1 AND tipo = 'receita' THEN valor - (IF(tipo_desconto = 'real', desconto, (desconto * valor) / 100))  END) AS VALOR_" . date('m') . '_REC,
                 SUM(CASE WHEN (EXTRACT(DAY FROM data_pagamento) = ' . date('d') . ') AND EXTRACT(MONTH FROM data_pagamento) = ' . date('m') . " AND baixado = 1 AND tipo = 'despesa' THEN valor END) AS VALOR_" . date('m') . '_DES
             FROM lancamentos
-            WHERE EXTRACT(YEAR FROM data_pagamento) = ?
+            WHERE ten_id = ? AND EXTRACT(YEAR FROM data_pagamento) = ?
         ';
-        if ($this->db->query($sql, [intval($numbersOnly)]) !== false) {
-            return $this->db->query($sql, [intval($numbersOnly)])->row();
+        if ($this->db->query($sql, [$this->session->userdata('ten_id'), intval($numbersOnly)]) !== false) {
+            return $this->db->query($sql, [$this->session->userdata('ten_id'), intval($numbersOnly)])->row();
         }
 
         return false;
@@ -410,10 +428,10 @@ class Mapos_model extends CI_Model
                 SUM(CASE WHEN (EXTRACT(MONTH FROM data_pagamento) = 12) AND baixado = 0 AND tipo = 'receita' THEN valor END) AS VALOR_DEZ_REC,
                 SUM(CASE WHEN (EXTRACT(MONTH FROM data_pagamento) = 12) AND baixado = 0 AND tipo = 'despesa' THEN valor END) AS VALOR_DEZ_DES
             FROM lancamentos
-            WHERE EXTRACT(YEAR FROM data_pagamento) = ?
+            WHERE ten_id = ? AND EXTRACT(YEAR FROM data_pagamento) = ?
         ";
-        if ($this->db->query($sql, [intval($numbersOnly)]) !== false) {
-            return $this->db->query($sql, [intval($numbersOnly)])->row();
+        if ($this->db->query($sql, [$this->session->userdata('ten_id'), intval($numbersOnly)]) !== false) {
+            return $this->db->query($sql, [$this->session->userdata('ten_id'), intval($numbersOnly)])->row();
         }
 
         return false;
@@ -423,6 +441,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->select('*');
         $this->db->from('emitente');
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
         $emitente = $this->db->get()->row();
 
@@ -454,6 +473,7 @@ class Mapos_model extends CI_Model
         $this->db->set('telefone', $telefone);
         $this->db->set('email', $email);
         $this->db->set('url_logo', $url_logo);
+        $this->db->set('ten_id', $this->session->userdata('ten_id'));
         return $this->db->insert('emitente');
     }
 
@@ -472,6 +492,7 @@ class Mapos_model extends CI_Model
         $this->db->set('telefone', $telefone);
         $this->db->set('email', $email);
         $this->db->where('id', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->update('emitente');
     }
 
@@ -479,6 +500,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->set('url_logo', $logo);
         $this->db->where('id', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->update('emitente');
     }
@@ -487,6 +509,7 @@ class Mapos_model extends CI_Model
     {
         $this->db->set('url_image_user', $imageUserPath);
         $this->db->where('idUsuarios', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->update('usuarios');
     }
@@ -559,6 +582,7 @@ class Mapos_model extends CI_Model
 
     public function getConfiguracao($config = null)
     {
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         if ($config) {
             $this->db->where('config', $config);
             $query = $this->db->get('configuracoes');

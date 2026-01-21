@@ -80,6 +80,7 @@ class Nfecom extends MY_Controller
                           END as nomeCliente");
         $this->db->from('clientes c');
         $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by("CASE WHEN p.PES_FISICO_JURIDICO = 'F' THEN p.PES_NOME ELSE COALESCE(p.PES_RAZAO_SOCIAL, p.PES_NOME) END ASC");
         $this->db->limit(1000);
         $query_clientes = $this->db->get();
@@ -108,6 +109,7 @@ class Nfecom extends MY_Controller
         $this->db->select("$primary_key as idServicos, PRO_DESCRICAO as nome");
         $this->db->from('produtos');
         $this->db->where('pro_tipo', 2);
+        $this->db->where('produtos.ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('PRO_DESCRICAO', 'asc');
         $query_servicos = $this->db->get();
         $this->data['servicos'] = $query_servicos ? $query_servicos->result() : [];
@@ -157,6 +159,7 @@ class Nfecom extends MY_Controller
                           p.PES_CPFCNPJ as cpf_cnpj");
         $this->db->from('clientes c');
         $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by("CASE WHEN p.PES_FISICO_JURIDICO = 'F' THEN p.PES_NOME ELSE COALESCE(p.PES_RAZAO_SOCIAL, p.PES_NOME) END ASC"); // Ordem alfabética para melhor UX
         $this->db->limit(50); // Limitar a 50 para não sobrecarregar
         $query_clientes = $this->db->get();
@@ -175,6 +178,7 @@ class Nfecom extends MY_Controller
         $this->db->select("$produtos_primary_key as idServicos, PRO_DESCRICAO as nome");
         $this->db->from('produtos');
         $this->db->where('pro_tipo', 2);
+        $this->db->where('produtos.ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('PRO_DESCRICAO', 'asc');
         $query_servicos = $this->db->get();
         $this->data['servicos'] = $query_servicos ? $query_servicos->result() : [];
@@ -309,6 +313,7 @@ class Nfecom extends MY_Controller
                     $this->db->select('PRO_DESCRICAO as descricao');
                     $this->db->from('produtos');
                     $this->db->where($produtos_primary_key, $servico['id']);
+                    $this->db->where('produtos.ten_id', $this->session->userdata('ten_id'));
                     $servico_query = $this->db->get();
                     $servico_info = $servico_query->row();
                     if ($servico_info) {
@@ -347,6 +352,7 @@ class Nfecom extends MY_Controller
                 $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
                 $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
                 $this->db->where('c.CLN_ID', $data['clientes_id']);
+                $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
                 if (!empty($enderecoId)) {
                     $this->db->where('e.END_ID', $enderecoId);
                 } else {
@@ -460,6 +466,7 @@ class Nfecom extends MY_Controller
                         $this->db->select('CLF_MENSAGEM');
                         $this->db->from('classificacao_fiscal');
                         $this->db->where('CLF_ID', $servico['clf_id']);
+                        $this->db->where('ten_id', $this->session->userdata('ten_id'));
                         $clfQuery = $this->db->get();
                         if ($clfQuery->num_rows() > 0) {
                             $clf = $clfQuery->row();
@@ -512,6 +519,7 @@ class Nfecom extends MY_Controller
                             $this->db->select('PRO_DESCRICAO as descricao');
                             $this->db->from('produtos');
                             $this->db->where($produtos_primary_key, $servico['id']);
+                            $this->db->where('produtos.ten_id', $this->session->userdata('ten_id'));
                             $servico_query = $this->db->get();
                             $servico_info = $servico_query->row();
                             $nomeServicoItem = $servico_info ? $servico_info->descricao : 'Serviço não encontrado';
@@ -1883,6 +1891,7 @@ class Nfecom extends MY_Controller
                 $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
                 $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
                 $this->db->join('documentos d', "d.PES_ID = p.PES_ID AND d.DOC_TIPO_DOCUMENTO = 'Inscrição Estadual'", 'left');
+                $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
                 if (!empty($nfecom->CLN_ID)) {
                     $this->db->where('c.CLN_ID', $nfecom->CLN_ID);
                 } else {
@@ -2692,6 +2701,7 @@ class Nfecom extends MY_Controller
         $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
         $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
         $this->db->where('c.CLN_ID', $id);
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
         $query = $this->db->get();
 
         if ($query->num_rows() > 0) {
@@ -2729,6 +2739,7 @@ class Nfecom extends MY_Controller
             $this->db->select('PES_ID');
             $this->db->from('clientes');
             $this->db->where('CLN_ID', $clienteId);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $clienteQuery = $this->db->get();
 
             if ($clienteQuery->num_rows() == 0) {
@@ -2743,6 +2754,7 @@ class Nfecom extends MY_Controller
             $this->db->select('END_ID as id, END_LOGRADOURO as logradouro, END_NUMERO as numero, END_COMPLEMENTO as complemento, END_CEP as cep, END_PADRAO as enderecoPadrao');
             $this->db->from('enderecos');
             $this->db->where('PES_ID', $pesId);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $this->db->order_by('END_PADRAO', 'desc');
             $query = $this->db->get();
 
@@ -2801,6 +2813,7 @@ class Nfecom extends MY_Controller
             $this->db->select('PES_ID');
             $this->db->from('clientes');
             $this->db->where('CLN_ID', $clienteId);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $clienteQuery = $this->db->get();
 
             if ($clienteQuery->num_rows() == 0) {
@@ -2815,6 +2828,7 @@ class Nfecom extends MY_Controller
             $this->db->select('TEL_TIPO, TEL_DDD, TEL_NUMERO');
             $this->db->from('telefones');
             $this->db->where('PES_ID', $pesId);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $query = $this->db->get();
 
             $telefone = '';
@@ -2863,6 +2877,7 @@ class Nfecom extends MY_Controller
                               p.PES_CPFCNPJ as cpf_cnpj");
             $this->db->from('clientes c');
             $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
+            $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
 
             if (!empty($termo)) {
                 $this->db->group_start();
@@ -2884,6 +2899,7 @@ class Nfecom extends MY_Controller
             $this->db->select('COUNT(*) as total');
             $this->db->from('clientes c');
             $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
+            $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
 
             if (!empty($termo)) {
                 $this->db->group_start();
@@ -2929,6 +2945,7 @@ class Nfecom extends MY_Controller
             $this->db->select('PES_ID');
             $this->db->from('clientes');
             $this->db->where('CLN_ID', $clienteId);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $clienteQuery = $this->db->get();
 
             if ($clienteQuery->num_rows() == 0) {
@@ -2943,6 +2960,7 @@ class Nfecom extends MY_Controller
             $this->db->select('CTR_ID, CTR_NUMERO, CTR_DATA_INICIO, CTR_DATA_FIM, CTR_TIPO_ASSINANTE, CTR_OBSERVACAO');
             $this->db->from('contratos');
             $this->db->where('PES_ID', $pesId);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $this->db->where('CTR_SITUACAO', 1); // Apenas contratos ativos
             $this->db->order_by('CTR_DATA_INICIO', 'desc');
             $query = $this->db->get();
@@ -3114,6 +3132,7 @@ class Nfecom extends MY_Controller
             $this->db->select('PRO_ID, PRO_DESCRICAO, PRO_PRECO_VENDA, PRO_CCLASS_SERV, PRO_UNID_MEDIDA');
             $this->db->from('produtos');
             $this->db->where('PRO_TIPO', 2);
+            $this->db->where('produtos.ten_id', $this->session->userdata('ten_id'));
             if ($q !== '') {
                 $this->db->like('PRO_DESCRICAO', $q);
             }
@@ -3206,6 +3225,7 @@ class Nfecom extends MY_Controller
         $this->db->join('municipios m', 'm.MUN_ID = e.MUN_ID', 'left');
         $this->db->join('estados es', 'es.EST_ID = e.EST_ID', 'left');
         $this->db->join('documentos d', "d.PES_ID = p.PES_ID AND d.DOC_TIPO_DOCUMENTO = 'Inscrição Estadual'", 'left');
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
 
         // Se CLN_ID estiver disponível, usar ele (mais preciso)
         if (!empty($nfecom->CLN_ID)) {
@@ -3249,6 +3269,7 @@ class Nfecom extends MY_Controller
                     $this->db->select('CLF_MENSAGEM');
                     $this->db->from('classificacao_fiscal');
                     $this->db->where('CLF_ID', $clfId);
+                    $this->db->where('ten_id', $this->session->userdata('ten_id'));
                     $clfQuery = $this->db->get();
                     if ($clfQuery->num_rows() > 0) {
                         $clf = $clfQuery->row();

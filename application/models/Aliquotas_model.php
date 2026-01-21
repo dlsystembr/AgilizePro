@@ -12,6 +12,7 @@ class Aliquotas_model extends CI_Model
     {
         $this->db->select($fields);
         $this->db->from($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('uf_origem', 'ASC');
         if ($where) {
             $this->db->where($where);
@@ -33,11 +34,15 @@ class Aliquotas_model extends CI_Model
     public function getById($id)
     {
         $this->db->where('id', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->get('aliquotas')->row();
     }
 
     public function add($data)
     {
+        if (!isset($data['ten_id'])) {
+            $data['ten_id'] = $this->session->userdata('ten_id');
+        }
         $this->db->insert('aliquotas', $data);
         return $this->db->insert_id();
     }
@@ -45,12 +50,14 @@ class Aliquotas_model extends CI_Model
     public function edit($data, $id)
     {
         $this->db->where('id', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->update('aliquotas', $data);
     }
 
     public function delete($id)
     {
         $this->db->where('id', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->delete('aliquotas');
     }
 
@@ -58,6 +65,7 @@ class Aliquotas_model extends CI_Model
     {
         $this->db->where('uf_origem', $uf_origem);
         $this->db->where('uf_destino', $uf_destino);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->get('aliquotas')->row();
     }
 
@@ -66,6 +74,7 @@ class Aliquotas_model extends CI_Model
         $this->db->where('uf_origem', $uf_origem);
         $this->db->where('uf_destino', $uf_destino);
         $this->db->where('id !=', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         return $this->db->get('aliquotas')->row();
     }
 

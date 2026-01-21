@@ -36,6 +36,36 @@ class Login extends CI_Controller
         } else {
             $email = $this->input->post('email');
             $password = $this->input->post('senha');
+            
+            // Primeiro verificar se é super usuário
+            $this->load->model('Usuarios_super_model');
+            $super_user = $this->Usuarios_super_model->getByEmail($email);
+            
+            if ($super_user && password_verify($password, $super_user->USS_SENHA)) {
+                // Verificar se acesso está expirado
+                if ($super_user->USS_DATA_EXPIRACAO && $this->chk_date($super_user->USS_DATA_EXPIRACAO)) {
+                    $json = ['result' => false, 'message' => 'A conta do super usuário está expirada.'];
+                    echo json_encode($json);
+                    exit();
+                }
+                
+                // Login como super usuário
+                $session_super_data = [
+                    'nome_admin' => $super_user->USS_NOME,
+                    'email_admin' => $super_user->USS_EMAIL,
+                    'url_image_user_admin' => $super_user->USS_URL_IMAGE_USER,
+                    'id_admin' => $super_user->USS_ID,
+                    'logado' => true,
+                    'is_super' => true
+                ];
+                $this->session->set_userdata($session_super_data);
+                log_info('Super usuário efetuou login no sistema');
+                $json = ['result' => true, 'is_super' => true, 'redirect' => base_url('index.php/super')];
+                echo json_encode($json);
+                exit();
+            }
+            
+            // Se não for super, verificar usuário normal
             $this->load->model('Mapos_model');
             $user = $this->Mapos_model->check_credentials($email);
 
@@ -49,10 +79,10 @@ class Login extends CI_Controller
 
                 // Verificar credenciais do usuário
                 if (password_verify($password, $user->senha)) {
-                    $session_admin_data = ['nome_admin' => $user->nome, 'email_admin' => $user->email, 'url_image_user_admin' => $user->url_image_user, 'id_admin' => $user->idUsuarios, 'permissao' => $user->permissoes_id, 'logado' => true];
+                    $session_admin_data = ['nome_admin' => $user->nome, 'email_admin' => $user->email, 'url_image_user_admin' => $user->url_image_user, 'id_admin' => $user->idUsuarios, 'permissao' => $user->permissoes_id, 'logado' => true, 'ten_id' => $user->ten_id];
                     $this->session->set_userdata($session_admin_data);
                     log_info('Efetuou login no sistema');
-                    $json = ['result' => true];
+                    $json = ['result' => true, 'ten_id' => $user->ten_id];
                     echo json_encode($json);
                 } else {
                     $json = ['result' => false, 'message' => 'Os dados de acesso estão incorretos.', 'MAPOS_TOKEN' => $this->security->get_csrf_hash()];

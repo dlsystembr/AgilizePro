@@ -145,7 +145,13 @@
             dataType: 'json',
             success: function(data) {
                 if (data.result == true) {
-                    window.location.href = "<?= site_url('mapos'); ?>";
+                    if (data.is_super == true) {
+                        // Redirecionar para painel super
+                        window.location.href = data.redirect || "<?= site_url('super'); ?>";
+                    } else {
+                        localStorage.setItem('ten_id', data.ten_id);
+                        window.location.href = "<?= site_url('mapos'); ?>";
+                    }
                 } else {
                     $('#btn-acessar').removeClass('disabled');
                     $('#progress-acessar').addClass('hide');

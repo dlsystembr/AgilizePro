@@ -29,6 +29,7 @@ class ClassificacaoFiscal_model extends CI_Model
              (SELECT tc.TPC_NOME FROM tipos_clientes tc WHERE tc.TPC_ID = classificacao_fiscal.TPC_ID) as nome_tipo_cliente'
         );
         $this->db->from('classificacao_fiscal');
+        $this->db->where('classificacao_fiscal.ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('classificacao_fiscal.CLF_ID', 'DESC');
 
         $query = $this->db->get();
@@ -63,6 +64,7 @@ class ClassificacaoFiscal_model extends CI_Model
         );
         $this->db->from('classificacao_fiscal');
         $this->db->where('classificacao_fiscal.CLF_ID', $id);
+        $this->db->where('classificacao_fiscal.ten_id', $this->session->userdata('ten_id'));
         $query = $this->db->get();
         if (!$query) {
             log_message('error', 'Erro ao buscar classificacao_fiscal por ID: ' . $this->db->error()['message']);
@@ -74,6 +76,9 @@ class ClassificacaoFiscal_model extends CI_Model
     public function add($table, $data)
     {
         if ($table === 'classificacao_fiscal') {
+            if (!isset($insert['TEN_ID']) && in_array('TEN_ID', $tableFields, true)) {
+                $insert['TEN_ID'] = $this->session->userdata('ten_id');
+            }
             // Mapear chaves lógicas -> colunas reais existentes na tabela
             $tableFields = array_map(function ($f) {
                 return strtoupper($f->name);
@@ -164,6 +169,7 @@ class ClassificacaoFiscal_model extends CI_Model
             }
             $pk = in_array('CLF_ID', $tableFields, true) ? 'CLF_ID' : $fieldID;
             $this->db->where($pk, $ID);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $this->db->update('classificacao_fiscal', $update);
         } else {
             $this->db->where($fieldID, $ID);
@@ -178,6 +184,7 @@ class ClassificacaoFiscal_model extends CI_Model
     public function delete($table, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete($table);
         if ($this->db->affected_rows() == '1') {
             return true;
@@ -187,7 +194,8 @@ class ClassificacaoFiscal_model extends CI_Model
 
     public function count($table)
     {
-        return $this->db->count_all($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        return $this->db->count_all_results($table);
     }
 
     public function getTributacao($operacao_id, $natureza_contribuinte, $destinacao, $objetivo_comercial)
@@ -224,6 +232,7 @@ class ClassificacaoFiscal_model extends CI_Model
             $this->db->where('COALESCE(CLF_NATUREZA_CONTRIB, natureza_contribuinte)', $natureza_contribuinte);
             $this->db->where('COALESCE(CLF_DESTINACAO, destinacao)', $destinacao);
             $this->db->where('COALESCE(CLF_OBJETIVO_COMERCIAL, objetivo_comercial)', $objetivo_comercial);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
 
             // Log da query antes da execução
             $query = $this->db->get();
@@ -234,7 +243,8 @@ class ClassificacaoFiscal_model extends CI_Model
                 // Consulta para verificar todas as classificações fiscais desta operação
                 $this->db->select('COALESCE(CLF_ID, id) as CLF_ID, COALESCE(OPC_ID, OPC_ID, operacao_comercial_id) as OPC_ID, COALESCE(CLF_NATUREZA_CONTRIB, natureza_contribuinte) as CLF_NATUREZA_CONTRIB, COALESCE(CLF_DESTINACAO, destinacao) as CLF_DESTINACAO, COALESCE(CLF_OBJETIVO_COMERCIAL, objetivo_comercial) as CLF_OBJETIVO_COMERCIAL, COALESCE(CLF_CST, cst) as CLF_CST, COALESCE(CLF_CFOP, cfop) as CLF_CFOP');
                 $this->db->from('classificacao_fiscal');
-                $this->db->where('COALESCE(OPC_ID, OPC_ID, operacao_comercial_id)', $operacao_id);
+            $this->db->where('COALESCE(OPC_ID, OPC_ID, operacao_comercial_id)', $operacao_id);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
                 $check_query = $this->db->get();
 
                 log_message('debug', 'Verificando classificações existentes para operação ' . $operacao_id);
@@ -293,6 +303,7 @@ class ClassificacaoFiscal_model extends CI_Model
             );
             $this->db->from('classificacao_fiscal');
             $this->db->where('COALESCE(OPC_ID, OPC_ID, operacao_comercial_id)', $operacao_id);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $query = $this->db->get();
 
             log_message('debug', 'SQL Query getByOperacao: ' . $this->db->last_query());
@@ -320,6 +331,7 @@ class ClassificacaoFiscal_model extends CI_Model
         $this->db->where('cst', $cst);
         $this->db->where('destinacao', $destinacao);
         $this->db->where('natureza_contribuinte', $natureza_contribuinte);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $query = $this->db->get();
 
         log_message('debug', 'SQL: ' . $this->db->last_query());

@@ -30,6 +30,7 @@ class Vendas_model extends CI_Model
         }
         $this->db->select($fields . ', pessoas.pes_nome as nomeCliente, clientes.CLN_ID as idClientes, operacao_comercial.OPC_NOME as operacao_comercial');
         $this->db->from($table);
+        $this->db->where($table . '.ten_id', $this->session->userdata('ten_id'));
         $this->db->limit($perpage, $start);
         $this->db->join('clientes', 'clientes.CLN_ID = ' . $table . '.clientes_id');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
@@ -75,6 +76,7 @@ class Vendas_model extends CI_Model
         $this->db->join('clientes', 'clientes.CLN_ID = vendas.clientes_id', 'left');
         $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID', 'left');
         $this->db->join('usuarios', 'usuarios.idUsuarios = vendas.usuarios_id', 'left');
+        $this->db->where('vendas.ten_id', $this->session->userdata('ten_id'));
         $this->db->where('vendas.status', 'Faturado');
         $this->db->where('vendas.emitida_nfe', false);
         $this->db->order_by('vendas.idVendas', 'desc');
@@ -98,6 +100,7 @@ class Vendas_model extends CI_Model
         $this->db->join('lancamentos', 'vendas.idVendas = lancamentos.vendas_id', 'LEFT');
         $this->db->join('operacao_comercial', 'operacao_comercial.OPC_ID = vendas.operacao_comercial_id', 'left');
         $this->db->where('vendas.idVendas', $id);
+        $this->db->where('vendas.ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
 
         $query = $this->db->get();
@@ -161,6 +164,7 @@ class Vendas_model extends CI_Model
         $this->db->join('cobrancas', 'cobrancas.vendas_id = vendas.idVendas');
         $this->db->join('lancamentos', 'vendas.idVendas = lancamentos.vendas_id', 'LEFT');
         $this->db->where('vendas.idVendas', $id);
+        $this->db->where('vendas.ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
 
         return $this->db->get()->row();
@@ -172,7 +176,8 @@ class Vendas_model extends CI_Model
         $this->db->from('itens_de_vendas');
         $this->db->join('produtos', 'produtos.PRO_ID = itens_de_vendas.produtos_id');
         $this->db->join('tributacao_produto', 'tributacao_produto.id = produtos.tributacao_produto_id', 'left');
-        $this->db->where('vendas_id', $id);
+        $this->db->where('itens_de_vendas.vendas_id', $id);
+        $this->db->where('itens_de_vendas.ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->get()->result();
     }
@@ -182,6 +187,7 @@ class Vendas_model extends CI_Model
         $this->db->select('cobrancas.*');
         $this->db->from('cobrancas');
         $this->db->where('vendas_id', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->get()->result();
     }
@@ -203,6 +209,7 @@ class Vendas_model extends CI_Model
     public function edit($table, $data, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update($table, $data);
 
         if ($this->db->affected_rows() >= 0) {
@@ -215,6 +222,7 @@ class Vendas_model extends CI_Model
     public function delete($table, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete($table);
         if ($this->db->affected_rows() == '1') {
             return true;
@@ -225,13 +233,15 @@ class Vendas_model extends CI_Model
 
     public function count($table)
     {
-        return $this->db->count_all($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        return $this->db->count_all_results($table);
     }
 
     public function autoCompleteProduto($q)
     {
         $this->db->select('PRO_ID as idProdutos, PRO_DESCRICAO as descricao, PRO_COD_BARRA as codDeBarra, PRO_PRECO_VENDA as preco, PRO_ESTOQUE as estoque');
         $this->db->from('produtos');
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(25);
         $this->db->like('LOWER(PRO_DESCRICAO)', strtolower($q));
         $this->db->or_like('PRO_COD_BARRA', $q);
@@ -256,14 +266,15 @@ class Vendas_model extends CI_Model
         $this->db->select('pessoas.PES_ID, pessoas.PES_NOME, pessoas.PES_CPFCNPJ, clientes.CLN_ID');
         $this->db->from('clientes');
         $this->db->join('pessoas', 'pessoas.PES_ID = clientes.PES_ID');
+        $this->db->where('clientes.ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(25);
-        
+
         // Agrupar as condições OR
         $this->db->group_start();
         $this->db->like('pessoas.PES_NOME', $q);
         $this->db->or_like('pessoas.PES_CPFCNPJ', $q);
         $this->db->group_end();
-        
+
         // Filtrar apenas clientes ativos
         $this->db->where('clientes.CLN_SITUACAO', 1);
         
@@ -287,6 +298,7 @@ class Vendas_model extends CI_Model
     public function autoCompleteUsuario($q)
     {
         $this->db->select('*');
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(25);
         $this->db->like('nome', $q);
         $this->db->where('situacao', 1);
@@ -351,6 +363,7 @@ class Vendas_model extends CI_Model
             $this->db->join('clientes', 'clientes.CLN_ID = vendas.clientes_id');
             $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
             $this->db->where('vendas.idVendas', $venda_id);
+            $this->db->where('vendas.ten_id', $this->session->userdata('ten_id'));
             $this->db->limit(1);
             
             $query = $this->db->get();

@@ -14,6 +14,7 @@ class Os_model extends CI_Model
         $this->db->select($fields . ',pessoas.pes_nome as nomeCliente');
         $this->db->from($table);
         $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.ORV_PESS_ID');
+        $this->db->where('ordem_servico.ten_id', $this->session->userdata('ten_id'));
         $this->db->limit($perpage, $start);
         $this->db->order_by('ORV_ID', 'desc');
         if ($where) {
@@ -51,6 +52,7 @@ class Os_model extends CI_Model
         $this->db->join('garantias', 'garantias.idGarantias = ordem_servico.ORV_GARANTIAS_ID', 'left');
         $this->db->join('produtos_os', 'produtos_os.os_id = ordem_servico.ORV_ID', 'left');
         $this->db->join('servicos_os', 'servicos_os.os_id = ordem_servico.ORV_ID', 'left');
+        $this->db->where('ordem_servico.ten_id', $this->session->userdata('ten_id'));
 
         // condicionais da pesquisa
 
@@ -231,7 +233,13 @@ class Os_model extends CI_Model
 
     public function count($table)
     {
-        return $this->db->count_all($table);
+        // Verificar qual tabela está sendo contada
+        if ($table == 'os' || $table == 'ordem_servico') {
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+            return $this->db->count_all_results('os');
+        }
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        return $this->db->count_all_results($table);
     }
 
     public function autoCompleteProduto($q)

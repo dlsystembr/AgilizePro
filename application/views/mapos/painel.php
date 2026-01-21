@@ -163,7 +163,7 @@
                     <a href="<?php echo base_url(); ?>index.php/clientes/adicionar" class="card tip-top" title="Add Clientes e Fornecedores">
                         <div><i class='bx bxs-group iconBx'></i></div>
                         <div>
-                            <div class="cardName2"><?= $this->db->count_all('clientes'); ?></div>
+                            <div class="cardName2"><?= isset($total_clientes) ? $total_clientes : 0; ?></div>
                             <div class="cardName">Clientes</div>
                         </div>
                     </a>
@@ -171,7 +171,7 @@
                     <a href="<?php echo base_url(); ?>index.php/produtos/adicionar" class="card tip-top" title="Adicionar Produtos">
                         <div><i class='bx bxs-package iconBx2'></i></div>
                         <div>
-                            <div class="cardName2"><?= $this->db->count_all('produtos'); ?></div>
+                            <div class="cardName2"><?= isset($total_produtos) ? $total_produtos : 0; ?></div>
                             <div class="cardName">Produtos</div>
                         </div>
                     </a>
@@ -179,7 +179,7 @@
                     <a href="<?php echo base_url() ?>index.php/servicos/adicionar" class="card tip-top" title="Adicionar serviços">
                         <div><i class='bx bxs-stopwatch iconBx3'></i></div>
                         <div>
-                            <div class="cardName2"><?= $this->db->count_all('servicos'); ?></div>
+                            <div class="cardName2"><?= isset($total_servicos) ? $total_servicos : 0; ?></div>
                             <div class="cardName">Serviços</div>
                         </div>
                     </a>
@@ -187,7 +187,7 @@
                     <a href="<?php echo base_url(); ?>index.php/os/adicionar" class="card tip-top" title="Adicionar OS">
                         <div><i class='bx bxs-spreadsheet iconBx4'></i></div>
                         <div>
-                            <div class="cardName2"><?= $this->db->count_all('os'); ?></div>
+                            <div class="cardName2"><?= isset($total_os) ? $total_os : 0; ?></div>
                             <div class="cardName">Ordens</div>
                         </div>
                     </a>
@@ -195,7 +195,7 @@
                     <a href="<?php echo base_url(); ?>index.php/garantias" class="card tip-top" title="Adicionar garantia">
                         <div><i class='bx bxs-receipt iconBx6'></i></div>
                         <div>
-                            <div class="cardName2"><?= $this->db->count_all('garantias'); ?></div>
+                            <div class="cardName2"><?= isset($total_garantias) ? $total_garantias : 0; ?></div>
                             <div class="cardName">Garantias</div>
                         </div>
                     </a>
@@ -203,7 +203,7 @@
                     <a href="<?php echo base_url() ?>index.php/vendas/adicionar" class="card tip-top" title="Adicionar Vendas">
                         <div><i class='bx bxs-cart-alt iconBx5'></i></div>
                         <div>
-                            <div class="cardName2"><?= $this->db->count_all('vendas'); ?></div>
+                            <div class="cardName2"><?= isset($total_vendas) ? $total_vendas : 0; ?></div>
                             <div class="cardName">Vendas</div>
                         </div>
                     </a>
@@ -212,12 +212,7 @@
                         <a href="<?php echo base_url() ?>index.php/nfecom" class="card tip-top" title="NFCom Autorizadas">
                             <div><i class='bx bxs-file iconBx9'></i></div>
                             <div>
-                                <?php
-                                // Contar NFCom autorizadas (status 3 ou 5)
-                                $this->db->where_in('NFC_STATUS', [3, 5]);
-                                $nfcom_autorizadas = $this->db->count_all_results('nfecom_capa');
-                                ?>
-                                <div class="cardName2"><?= $nfcom_autorizadas; ?></div>
+                                <div class="cardName2"><?= isset($total_nfcom_autorizadas) ? $total_nfcom_autorizadas : 0; ?></div>
                                 <div class="cardName">NFCom Autorizadas</div>
                             </div>
                         </a>

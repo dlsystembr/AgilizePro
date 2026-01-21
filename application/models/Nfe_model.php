@@ -20,6 +20,7 @@ class Nfe_model extends CI_Model
         if (is_numeric($param)) {
             $this->db->select('nfe_emitidas.*, clientes.nomeCliente');
             $this->db->from('nfe_emitidas');
+            $this->db->where('nfe_emitidas.ten_id', $this->session->userdata('ten_id'));
             // Verifica se a tabela nfe_emitidas tem o campo cliente_id
             $fields = $this->db->field_data('nfe_emitidas');
             $hasClienteId = false;
@@ -55,6 +56,7 @@ class Nfe_model extends CI_Model
         }
         $this->db->select('nfe_emitidas.*, clientes.nomeCliente');
         $this->db->from('nfe_emitidas');
+        $this->db->where('nfe_emitidas.ten_id', $this->session->userdata('ten_id'));
         if ($hasClienteId) {
             $this->db->join('clientes', 'clientes.idClientes = nfe_emitidas.cliente_id', 'left');
         } else {
@@ -85,6 +87,7 @@ class Nfe_model extends CI_Model
         $this->db->select('cer.CER_ARQUIVO, cer.CER_SENHA, cer.CER_VALIDADE_FIM, cer.CER_TIPO, cer.CER_CNPJ');
         $this->db->from('configuracoes_fiscais cfg');
         $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'inner');
+        $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
         $this->db->where('cfg.CFG_TIPO_DOCUMENTO', 'NFE');
         $this->db->where('cfg.CFG_ATIVO', 1);
         $this->db->where('cer.CER_ATIVO', 1);

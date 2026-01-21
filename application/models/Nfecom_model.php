@@ -15,6 +15,7 @@ class Nfecom_model extends CI_Model
     {
         $this->db->select($fields);
         $this->db->from($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('NFC_ID', 'desc');
 
         if ($perpage > 0) {
@@ -59,6 +60,7 @@ class Nfecom_model extends CI_Model
         $this->db->select('*');
         $this->db->from('nfecom_capa');
         $this->db->where('NFC_ID', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $query = $this->db->get();
 
         return $query->row();
@@ -69,7 +71,8 @@ class Nfecom_model extends CI_Model
         $this->db->select('nfecom_capa.*, operacao_comercial.OPC_NOME as operacao_nome');
         $this->db->from('nfecom_capa');
         $this->db->join('operacao_comercial', 'operacao_comercial.OPC_ID = nfecom_capa.OPC_ID', 'left');
-        $this->db->where('NFC_ID', $id);
+        $this->db->where('nfecom_capa.NFC_ID', $id);
+        $this->db->where('nfecom_capa.ten_id', $this->session->userdata('ten_id'));
         $query = $this->db->get();
 
         return $query->row();
@@ -89,6 +92,7 @@ class Nfecom_model extends CI_Model
         $this->db->select($selectFields);
         $this->db->from('nfecom_itens');
         $this->db->where('NFC_ID', $nfecomId);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->order_by('NFI_N_ITEM', 'asc');
         $query = $this->db->get();
 

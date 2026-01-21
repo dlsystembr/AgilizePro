@@ -15,6 +15,7 @@ class Empresas_model extends CI_Model
     {
         $this->db->select($fields);
         $this->db->from($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
 
         if ($searchTerm) {
             $this->db->group_start();
@@ -34,12 +35,16 @@ class Empresas_model extends CI_Model
     public function getById($id)
     {
         $this->db->where('EMP_ID', $id);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
         return $this->db->get('empresas')->row();
     }
 
     public function add($table, $data)
     {
+        if (!isset($data['ten_id'])) {
+            $data['ten_id'] = $this->session->userdata('ten_id');
+        }
         $this->db->insert($table, $data);
         if ($this->db->affected_rows() == '1') {
             return true;
@@ -51,6 +56,7 @@ class Empresas_model extends CI_Model
     public function edit($table, $data, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update($table, $data);
 
         if ($this->db->affected_rows() >= 0) {
@@ -63,6 +69,7 @@ class Empresas_model extends CI_Model
     public function delete($table, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete($table);
         if ($this->db->affected_rows() == '1') {
             return true;
@@ -73,6 +80,7 @@ class Empresas_model extends CI_Model
 
     public function count($table)
     {
-        return $this->db->count_all($table);
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        return $this->db->count_all_results($table);
     }
 }

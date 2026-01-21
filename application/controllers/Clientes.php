@@ -72,6 +72,7 @@ class Clientes extends MY_Controller
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $data = [
+                'ten_id' => $this->session->userdata('ten_id'),
                 'nomeCliente' => $this->input->post('nomeCliente'),
                 'contato' => set_value('contato'),
                 'pessoa_fisica' => $pessoa_fisica,
@@ -135,6 +136,7 @@ class Clientes extends MY_Controller
                 $senha = password_hash($senha, PASSWORD_DEFAULT);
 
                 $data = [
+                    'ten_id' => $this->session->userdata('ten_id'),
                     'nomeCliente' => $this->input->post('nomeCliente'),
                     'contato' => $this->input->post('contato'),
                     'documento' => $this->input->post('documento'),
@@ -157,6 +159,7 @@ class Clientes extends MY_Controller
                 ];
             } else {
                 $data = [
+                    'ten_id' => $this->session->userdata('ten_id'),
                     'nomeCliente' => $this->input->post('nomeCliente'),
                     'contato' => $this->input->post('contato'),
                     'documento' => $this->input->post('documento'),
