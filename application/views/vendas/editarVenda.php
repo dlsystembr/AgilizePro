@@ -528,13 +528,27 @@ foreach ($produtos as $p) {
             select: function(event, ui) {
                 event.preventDefault();
                 if (ui.item) {
-                $("#idProduto").val(ui.item.id);
+                    $("#idProduto").val(ui.item.id);
                     $("#produto").val(ui.item.label);
-                $("#estoque").val(ui.item.estoque);
-                $("#preco").val(ui.item.preco);
-                $("#quantidade").focus();
+                    $("#estoque").val(ui.item.estoque);
+                    $("#preco").val(ui.item.preco);
+                    $("#preco").focus();
                 }
                 return false;
+            }
+        });
+
+        $('#preco').keypress(function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                $('#quantidade').focus();
+            }
+        });
+
+        $('#quantidade').keypress(function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                $('#btnAdicionarProduto').click();
             }
         });
         $("#cliente").autocomplete({

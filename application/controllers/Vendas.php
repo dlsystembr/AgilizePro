@@ -12,6 +12,7 @@ class Vendas extends MY_Controller
 
         $this->load->helper('form');
         $this->load->model('vendas_model');
+        $this->load->model('pedidos_model');
         $this->load->model('OperacaoComercial_model');
         $this->data['menuVendas'] = 'Vendas';
     }
@@ -78,47 +79,10 @@ class Vendas extends MY_Controller
             redirect(base_url());
         }
 
-        $this->load->library('form_validation');
-        $this->data['custom_error'] = '';
-
-        if ($this->form_validation->run('vendas') == false) {
-            $this->data['custom_error'] = (validation_errors() ? true : false);
-        } else {
-            $dataVenda = $this->input->post('dataVenda');
-
-            try {
-                $dataVenda = explode('/', $dataVenda);
-                $dataVenda = $dataVenda[2] . '-' . $dataVenda[1] . '-' . $dataVenda[0];
-            } catch (Exception $e) {
-                $dataVenda = date('Y-m-d');
-            }
-
-            $data = [
-                'dataVenda' => $dataVenda,
-                'observacoes' => $this->input->post('observacoes'),
-                'observacoes_cliente' => $this->input->post('observacoes_cliente'),
-                'clientes_id' => $this->input->post('clientes_id'),
-                'operacao_comercial_id' => $this->input->post('operacao_comercial_id'),
-                'usuarios_id' => $this->input->post('usuarios_id'),
-                'faturado' => 0,
-                'status' => $this->input->post('status'),
-                'garantia' => $this->input->post('garantia')
-            ];
-
-            $id = $this->vendas_model->add('vendas', $data, true);
-
-            if (is_numeric($id)) {
-                $this->session->set_flashdata('success', 'Venda iniciada com sucesso, adicione os produtos.');
-                log_info('Adicionou uma venda. ID: ' . $id);
-                redirect(site_url('vendas/editar/') . $id);
-            } else {
-                $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro.</p></div>';
-            }
-        }
-
-        // Load operacoes data
+        // Carregar operações comerciais para o formulário
         $this->load->model('OperacaoComercial_model');
         $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
+        $this->data['custom_error'] = '';
         $this->data['view'] = 'vendas/adicionarVenda';
 
         return $this->layout();
@@ -136,18 +100,34 @@ class Vendas extends MY_Controller
 
         $id = $this->uri->segment(3);
         if (!$id) {
-            $this->session->set_flashdata('error', 'Venda não encontrada.');
+            $this->session->set_flashdata('error', 'Pedido não encontrado.');
             redirect(site_url('vendas/gerenciar'));
         }
 
-        $result = $this->vendas_model->getById($id);
+        // Tentar buscar primeiro nas novas tabelas (PEDIDOS)
+        $result = $this->pedidos_model->getById($id);
+        
+        // Se não encontrar, buscar nas tabelas antigas (vendas) para compatibilidade
         if (!$result) {
-            $this->session->set_flashdata('error', 'Venda não encontrada.');
+            $result = $this->vendas_model->getById($id);
+        }
+
+        if (!$result) {
+            $this->session->set_flashdata('error', 'Pedido não encontrado.');
             redirect(site_url('vendas/gerenciar'));
         }
 
         $this->data['result'] = $result;
-        $this->data['produtos'] = $this->vendas_model->getProdutos($id);
+        
+        // Buscar produtos da tabela correspondente
+        if (isset($result->PDS_ID)) {
+            // É um pedido novo (PEDIDOS)
+            $this->data['produtos'] = $this->pedidos_model->getProdutos($id);
+        } else {
+            // É uma venda antiga (vendas)
+            $this->data['produtos'] = $this->vendas_model->getProdutos($id);
+        }
+        
         $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
         $this->data['view'] = 'vendas/editarVenda';
 
@@ -688,49 +668,101 @@ class Vendas extends MY_Controller
         $this->load->view('vendas/vendas', $data);
     }
     
-    public function atualizar()
+    
+    /**
+     * Salvar pedido completo (cabeçalho + itens) em uma única operação
+     * Usa as novas tabelas PEDIDOS e ITENS_PEDIDOS
+     */
+    public function salvarPedidoCompleto()
     {
-        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eVenda')) {
-            $this->session->set_flashdata('error', 'Você não tem permissão para editar Vendas.');
-            redirect(base_url());
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'aVenda')) {
+            echo json_encode(['result' => false, 'message' => 'Você não tem permissão para adicionar vendas.']);
+            return;
         }
 
         $this->load->library('form_validation');
-        $this->data['custom_error'] = '';
+        
+        // Validar dados do pedido
+        $this->form_validation->set_rules('dataVenda', 'Data da Venda', 'required');
+        $this->form_validation->set_rules('clientes_id', 'Cliente', 'required');
+        $this->form_validation->set_rules('usuarios_id', 'Vendedor', 'required');
+        $this->form_validation->set_rules('operacao_comercial_id', 'Operação Comercial', 'required');
+        $this->form_validation->set_rules('status', 'Status', 'required');
 
-        if ($this->form_validation->run('vendas') == false) {
-            $this->data['custom_error'] = (validation_errors() ? true : false);
-            $this->session->set_flashdata('error', 'Campos obrigatórios não foram preenchidos.');
-            redirect(site_url('vendas/editar/') . $this->input->post('idVendas'));
-        } else {
-            $dataVenda = $this->input->post('dataVenda');
+        if ($this->form_validation->run() == false) {
+            echo json_encode(['result' => false, 'message' => validation_errors()]);
+            return;
+        }
 
-            try {
-                $dataVenda = explode('/', $dataVenda);
-                $dataVenda = $dataVenda[2] . '-' . $dataVenda[1] . '-' . $dataVenda[0];
-            } catch (Exception $e) {
-                $dataVenda = date('Y-m-d');
-            }
+        // Receber produtos (JSON)
+        $produtosJson = $this->input->post('produtos');
+        $produtos = json_decode($produtosJson, true);
 
-            $data = [
-                'dataVenda' => $dataVenda,
-                'observacoes' => $this->input->post('observacoes'),
-                'observacoes_cliente' => $this->input->post('observacoes_cliente'),
-                'clientes_id' => $this->input->post('clientes_id'),
-                'operacao_comercial_id' => $this->input->post('operacao_comercial_id'),
-                'usuarios_id' => $this->input->post('usuarios_id'),
-                'status' => $this->input->post('status'),
-                'garantia' => $this->input->post('garantia')
+        if (empty($produtos)) {
+            echo json_encode(['result' => false, 'message' => 'É necessário adicionar pelo menos um produto ao pedido.']);
+            return;
+        }
+
+        // Preparar dados do pedido
+        $dataVenda = $this->input->post('dataVenda');
+        try {
+            $dataVenda = explode('/', $dataVenda);
+            $dataVenda = $dataVenda[2] . '-' . $dataVenda[1] . '-' . $dataVenda[0];
+        } catch (Exception $e) {
+            $dataVenda = date('Y-m-d');
+        }
+
+        $dadosPedido = [
+            'PDS_DATA' => $dataVenda,
+            'PDS_OBSERVACOES' => $this->input->post('observacoes'),
+            'PDS_OBSERVACOES_CLIENTE' => $this->input->post('observacoes_cliente'),
+            'PES_ID' => $this->input->post('clientes_id'),
+            'USU_ID' => $this->input->post('usuarios_id'),
+            'PDS_OPERACAO_COMERCIAL' => $this->input->post('operacao_comercial_id'),
+            'PDS_FATURADO' => 0,
+            'PDS_STATUS' => $this->input->post('status'),
+            'PDS_GARANTIA' => $this->input->post('garantia'),
+            'PDS_TIPO' => 'VENDA', // Sempre VENDA para este módulo
+            'PDS_VALOR_TOTAL' => 0,
+            'PDS_DESCONTO' => 0,
+            'PDS_VALOR_DESCONTO' => 0
+        ];
+
+        // Preparar itens do pedido
+        $itensPedido = [];
+        $valorTotal = 0;
+
+        foreach ($produtos as $produto) {
+            $subtotal = $produto['preco'] * $produto['quantidade'];
+            $valorTotal += $subtotal;
+
+            $itensPedido[] = [
+                'ITP_QUANTIDADE' => $produto['quantidade'],
+                'ITP_PRECO' => $produto['preco'],
+                'ITP_SUBTOTAL' => $subtotal,
+                'PRO_ID' => $produto['idProduto']
             ];
+        }
 
-            if ($this->vendas_model->edit('vendas', $data, 'idVendas', $this->input->post('idVendas')) == true) {
-                $this->session->set_flashdata('success', 'Venda editada com sucesso!');
-                log_info('Alterou uma venda. ID: ' . $this->input->post('idVendas'));
-                redirect(site_url('vendas/editar/') . $this->input->post('idVendas'));
-            } else {
-                $this->session->set_flashdata('error', 'Erro ao editar venda!');
-                redirect(site_url('vendas/editar/') . $this->input->post('idVendas'));
-            }
+        $dadosPedido['PDS_VALOR_TOTAL'] = $valorTotal;
+        $dadosPedido['PDS_VALOR_DESCONTO'] = $valorTotal;
+
+        // Salvar pedido completo
+        $pedidoId = $this->pedidos_model->addPedidoCompleto($dadosPedido, $itensPedido);
+
+        if ($pedidoId) {
+            log_info('Adicionou um pedido completo. ID: ' . $pedidoId);
+            echo json_encode([
+                'result' => true,
+                'message' => 'Pedido salvo com sucesso!',
+                'pedidoId' => $pedidoId
+            ]);
+        } else {
+            echo json_encode([
+                'result' => false,
+                'message' => 'Ocorreu um erro ao salvar o pedido.'
+            ]);
         }
     }
 }
+

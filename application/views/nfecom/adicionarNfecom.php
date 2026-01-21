@@ -1301,7 +1301,7 @@
                 $("#precoServicoNfecom").val(precoFormatado);
                 $("#cClassServicoNfecom").val(ui.item.cClass);
                 $("#uMedServicoNfecom").val(ui.item.uMed);
-                $("#quantidadeServicoNfecom").focus();
+                $("#precoServicoNfecom").focus();
             }
         });
 
@@ -1316,16 +1316,16 @@
         });
 
         // Evitar submit com Enter e navegar entre campos do item
-        $(document).on('keydown', '#servicoNfecom, #precoServicoNfecom, #quantidadeServicoNfecom, #btnAdicionarServicoNfecom', function (e) {
+        $(document).on('keydown', '#servicoNfecom, #precoServicoNfecom, #quantidadeServicoNfecom, #descontoServicoNfecom, #outrosServicoNfecom, #btnAdicionarServicoNfecom', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
 
-                const fields = ['#servicoNfecom', '#precoServicoNfecom', '#quantidadeServicoNfecom', '#btnAdicionarServicoNfecom'];
+                const fields = ['#servicoNfecom', '#precoServicoNfecom', '#quantidadeServicoNfecom', '#descontoServicoNfecom', '#outrosServicoNfecom', '#btnAdicionarServicoNfecom'];
                 const currentIndex = fields.indexOf('#' + e.target.id);
                 const nextIndex = Math.min(currentIndex + 1, fields.length - 1);
 
                 if (nextIndex === fields.length - 1) {
-                    $('#btnAdicionarServicoNfecom').focus();
+                    $('#btnAdicionarServicoNfecom').click();
                 } else {
                     $(fields[nextIndex]).focus();
                 }

@@ -684,7 +684,7 @@ class Nfecom extends MY_Controller
                 'NFC_D_VENC_FAT' => $this->input->post('nfc_d_venc_fat'),
                 'NFC_D_PER_USO_INI' => $this->input->post('nfc_d_per_uso_ini'),
                 'NFC_D_PER_USO_FIM' => $this->input->post('nfc_d_per_uso_fim'),
-                'NFC_INF_CPL' => $this->input->post('nfc_inf_cpl'),
+                'NFC_INF_CPL' => str_replace(["\r\n", "\r", "\n"], '; ', $this->input->post('nfc_inf_cpl')),
                 'NFC_I_COD_ASSINANTE' => $this->input->post('nfc_i_cod_assinante'),
                 'NFC_TP_ASSINANTE' => $this->input->post('nfc_tp_assinante'),
                 'NFC_TP_SERV_UTIL' => $this->input->post('nfc_tp_serv_util'),
@@ -2437,6 +2437,8 @@ class Nfecom extends MY_Controller
         // Adicionar observação digitada pelo usuário (se houver)
         $observacaoDigitada = isset($data['observacoes']) ? trim($data['observacoes']) : '';
         if (!empty($observacaoDigitada)) {
+            // Substituir quebras de linha por ponto e vírgula e espaço
+            $observacaoDigitada = str_replace(["\r\n", "\r", "\n"], '; ', $observacaoDigitada);
             $info = $observacaoDigitada;
         }
 

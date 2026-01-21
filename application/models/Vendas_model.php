@@ -253,18 +253,33 @@ class Vendas_model extends CI_Model
 
     public function autoCompleteCliente($q)
     {
-        $this->db->select('*');
+        $this->db->select('pessoas.PES_ID, pessoas.PES_NOME, pessoas.PES_CPFCNPJ, clientes.CLN_ID');
+        $this->db->from('clientes');
+        $this->db->join('pessoas', 'pessoas.PES_ID = clientes.PES_ID');
         $this->db->limit(25);
-        $this->db->like('nomeCliente', $q);
-        $this->db->or_like('documento', $q);
-        $query = $this->db->get('clientes');
+        
+        // Agrupar as condições OR
+        $this->db->group_start();
+        $this->db->like('pessoas.PES_NOME', $q);
+        $this->db->or_like('pessoas.PES_CPFCNPJ', $q);
+        $this->db->group_end();
+        
+        // Filtrar apenas clientes ativos
+        $this->db->where('clientes.CLN_SITUACAO', 1);
+        
+        $query = $this->db->get();
+        
         if ($query->num_rows() > 0) {
+            $row_set = [];
             foreach ($query->result_array() as $row) {
-                $row_set[] = ['label'=>$row['nomeCliente'].' | Celular: '.$row['celular'].' | Documento: '.$row['documento'],'id'=>$row['idClientes']];
+                $row_set[] = [
+                    'label' => $row['PES_NOME'] . ' | Documento: ' . ($row['PES_CPFCNPJ'] ?? ''),
+                    'id' => $row['CLN_ID'] // Retorna CLN_ID para o campo clientes_id
+                ];
             }
             echo json_encode($row_set);
         } else {
-            $row_set[] = ['label' => 'Adicionar cliente...', 'id' => null];
+            $row_set = [['label' => 'Nenhum cliente encontrado', 'id' => null]];
             echo json_encode($row_set);
         }
     }

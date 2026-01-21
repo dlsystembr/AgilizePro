@@ -335,9 +335,38 @@ class NFComPreview
         $yBottomLimit = $pageH - $marginBottom;
 
         $areaH = 50;
-        $infoH = 20;
+
+        // Preparar texto das informações complementares
+        $rawInfo = $dados['informacoes_adicionais'] ?? '';
+        // Reverter ; para quebras de linha
+        $infoText = str_replace(['; ', ';'], ["\n", "\n"], $rawInfo);
+
+        // Calcular altura necessária
         $headerInfoH = 5;
-        $infoTotalH = $infoH + $headerInfoH;
+        $infoLineH = 3.5;
+        $infoWidth = $w - 4;
+
+        // Calcular número real de linhas considerando quebras manuais E wrapping automático
+        $pdf->SetFont('helvetica', '', 7);
+        $manualLines = explode("\n", $infoText);
+        $totalLines = 0;
+
+        foreach ($manualLines as $line) {
+            if (empty(trim($line))) {
+                $totalLines += 1; // Linha vazia conta como 1
+            } else {
+                // Calcular quantas linhas esta linha ocupará após wrapping
+                $wrappedLines = $this->wrapHeaderText($pdf, $line, $infoWidth);
+                $totalLines += max(1, count($wrappedLines));
+            }
+        }
+
+        $numInfoLines = max(1, $totalLines);
+
+        // Altura do corpo das informações (mínimo de 20mm para manter padrão visual se vazio)
+        $infoBodyH = max(20, ($numInfoLines * $infoLineH) + 4);
+        $infoTotalH = $headerInfoH + $infoBodyH;
+
         $boxTotaisH = 28;
         $footerGap = 2;
 
@@ -478,8 +507,7 @@ class NFComPreview
 
         $pdf->SetFont('helvetica', '', 7);
         $pdf->SetXY($x + 2, $infoY + $headerInfoH + 2);
-        $info = $dados['informacoes_adicionais'] ?? '';
-        $pdf->MultiCell($w - 4, 3.5, $this->safeText($info), 0, 'L');
+        $pdf->MultiCell($w - 4, $infoLineH, $this->safeText($infoText), 0, 'L');
 
         // Marca d'água SEM VALOR FISCAL se não autorizado
         if ($status != 3 && $status != 5 && $status != 7) {

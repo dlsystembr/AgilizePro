@@ -16,23 +16,23 @@ class Tipos_clientes_model extends CI_Model
     {
         $this->db->select($fields);
         $this->db->from($table);
-        
+
         $order_field = $order_field ?: 'TPC_NOME';
         $order_direction = $order_direction ?: 'asc';
         $this->db->order_by($order_field, $order_direction);
-        
+
         // Só aplica limit se perpage for maior que 0
         if ($perpage > 0) {
             $this->db->limit($perpage, $start);
         }
-        
+
         if ($where) {
             $this->db->where($where);
         }
 
         $query = $this->db->get();
 
-        $result = ! $one ? $query->result($array === 'object' || $array === 'array' ? $array : 'object') : $query->row();
+        $result = !$one ? $query->result($array === 'object' || $array === 'array' ? $array : 'object') : $query->row();
 
         return $result;
     }
@@ -42,7 +42,7 @@ class Tipos_clientes_model extends CI_Model
         $this->db->where('TPC_ID', $id);
         $this->db->limit(1);
 
-        return $this->db->get('TIPOS_CLIENTES')->row();
+        return $this->db->get('tipos_clientes')->row();
     }
 
     public function add($table, $data)

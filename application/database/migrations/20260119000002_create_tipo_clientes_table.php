@@ -28,11 +28,11 @@ class Migration_Create_tipo_clientes_table extends CI_Migration
             ],
         ]);
         $this->dbforge->add_key('TPC_ID', true);
-        $this->dbforge->create_table('TIPOS_CLIENTES');
+        $this->dbforge->create_table('tipos_clientes');
     }
 
     public function down()
     {
-        $this->dbforge->drop_table('TIPOS_CLIENTES');
+        $this->dbforge->drop_table('tipos_clientes');
     }
 }

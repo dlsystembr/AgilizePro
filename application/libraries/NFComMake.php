@@ -339,6 +339,10 @@ class NFComMake
     {
         if (empty($string))
             return '';
+
+        // Replace line breaks with semicolon + space
+        $string = str_replace(["\r\n", "\r", "\n"], '; ', $string);
+
         // Ensure UTF-8
         if (!mb_check_encoding($string, 'UTF-8')) {
             $string = mb_convert_encoding($string, 'UTF-8', 'ISO-8859-1');
