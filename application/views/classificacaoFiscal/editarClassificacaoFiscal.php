@@ -1,3 +1,7 @@
+<?php if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+} ?>
+
 <style>
     /* Estilos organizados para Classificação Fiscal - mesmo design de pessoas */
     .form-section {
@@ -198,7 +202,7 @@
                                 <div class="controls">
                                     <select name="tipo_icms" id="tipo_icms" required class="span12">
                                         <option value="normal" <?= (set_value('tipo_icms', $result->tipo_icms) == 'normal') ? 'selected' : '' ?>>ICMS Normal</option>
-                                        <option value="st" <?= (set_value('tipo_icms', $result->tipo_icms) == 'st') ? 'selected' : '' ?>>Substituição Tributária (ST)</option>
+                                        <option value="st" <?= (set_value('tipo_icms', $result->tipo_icms) == 'st') ? 'selected' : '' ?>>Substituição Tributária</option>
                                         <option value="servico" <?= (set_value('tipo_icms', $result->tipo_icms) == 'servico' || set_value('tipo_icms', $result->tipo_icms) == 'Serviço') ? 'selected' : '' ?>>Serviço</option>
                                     </select>
                                 </div>
@@ -208,7 +212,7 @@
                                 <label for="natureza_contribuinte" class="control-label">Natureza do Contribuinte<span
                                         class="required">*</span></label>
                                 <div class="controls">
-                                    <select name="natureza_contribuinte" id="natureza_contribuinte" class="span12">
+                                    <select name="natureza_contribuinte" id="natureza_contribuinte" required class="span12">
                                         <option value="">Selecione</option>
                                         <option value="Contribuinte" <?= (set_value('natureza_contribuinte', $result->natureza_contribuinte) == 'Contribuinte') ? 'selected' : '' ?>>Contribuinte</option>
                                         <option value="Não Contribuinte" <?= (set_value('natureza_contribuinte', $result->natureza_contribuinte) == 'Não Contribuinte') ? 'selected' : '' ?>>Não Contribuinte</option>
@@ -245,6 +249,27 @@
                                         <option value="Industrialização" <?= $result->objetivo_comercial == 'Industrialização' ? 'selected' : '' ?>>Industrialização</option>
                                         <option value="Orgão Público" <?= $result->objetivo_comercial == 'Orgão Público' ? 'selected' : '' ?>>Orgão Público</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <?php
+                                $finalidadeSelecionada = set_value('finalidade', $result->finalidade ?? 'Comercialização');
+                                if ($finalidadeSelecionada === 'COMERCIALIZACAO') {
+                                    $finalidadeSelecionada = 'Comercialização';
+                                }
+                            ?>
+                            <div class="control-group">
+                                <label for="finalidade" class="control-label">Finalidade<span class="required">*</span></label>
+                                <div class="controls">
+                                    <select name="finalidade" id="finalidade" class="span12">
+                                        <?php foreach ($finalidadesFiscal as $valor => $rotulo) { ?>
+                                            <option value="<?= $valor ?>" <?= $finalidadeSelecionada === $valor ? 'selected' : '' ?>>
+                                                <?= $rotulo ?>
+                                            </option>
+                                        <?php } ?>
+                                    </select>
+                                    <input type="hidden" name="finalidade_hidden" id="finalidade_hidden" value="<?= $finalidadeSelecionada ?>" />
+                                    <span class="help-inline">Se o Tipo ICMS for "Serviço", a finalidade será forçada para Serviço.</span>
                                 </div>
                             </div>
 
@@ -309,6 +334,9 @@
                 },
                 objetivo_comercial: {
                     required: true
+                },
+                finalidade: {
+                    required: true
                 }
             },
             messages: {
@@ -325,6 +353,9 @@
                     required: 'Campo obrigatório'
                 },
                 objetivo_comercial: {
+                    required: 'Campo obrigatório'
+                },
+                finalidade: {
                     required: 'Campo obrigatório'
                 }
             },
@@ -355,5 +386,41 @@
                 }
             });
         }
+
+        // Controlar a exibição/valor da finalidade quando o Tipo ICMS for serviço
+        function syncFinalidadeComTipoIcms() {
+            var tipo = $('#tipo_icms').val();
+            var isServico = (tipo === 'servico' || tipo === 'Serviço' || tipo === 'Serviço' || tipo === 'serviço');
+            if (isServico) {
+                $('#finalidade option[value="Serviço"]').show();
+                $('#finalidade').val('Serviço');
+                $('#finalidade_hidden').val('Serviço');
+                $('#finalidade').prop('disabled', true);
+            } else {
+                $('#finalidade').prop('disabled', false);
+                $('#finalidade option[value="Serviço"]').hide();
+                if ($('#finalidade').val() === 'Serviço') {
+                    $('#finalidade').val('Comercialização');
+                    $('#finalidade_hidden').val('Comercialização');
+                }
+            }
+        }
+
+        // Sincronizar campo hidden quando o select mudar
+        $('#finalidade').on('change', function() {
+            $('#finalidade_hidden').val($(this).val());
+        });
+
+        // Antes de enviar o formulário, garantir que o valor está no campo correto
+        $('#formClassificacaoFiscal').on('submit', function() {
+            if ($('#finalidade').prop('disabled')) {
+                // Se estiver desabilitado, usar o valor do hidden
+                $('#finalidade').prop('disabled', false);
+                $('#finalidade').val($('#finalidade_hidden').val());
+            }
+        });
+
+        $('#tipo_icms').on('change', syncFinalidadeComTipoIcms);
+        syncFinalidadeComTipoIcms();
     });
 </script>

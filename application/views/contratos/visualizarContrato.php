@@ -143,6 +143,56 @@
                     </div>
                 </div>
 
+                <!-- Itens do Contrato -->
+                <?php if (!empty($itens)): ?>
+                <div class="info-box" style="margin-top: 20px;">
+                    <div class="info-box-header">
+                        <i class="fas fa-list"></i>
+                        <span>Itens do Contrato (Serviços)</span>
+                    </div>
+                    <div class="info-box-content">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Serviço</th>
+                                    <th style="width: 120px; text-align: right;">Preço</th>
+                                    <th style="width: 120px; text-align: right;">Quantidade</th>
+                                    <th style="width: 120px; text-align: right;">Subtotal</th>
+                                    <th>Observação</th>
+                                    <th style="width: 80px; text-align: center;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $totalGeral = 0;
+                                foreach ($itens as $item): 
+                                    $subtotal = floatval($item->CTI_PRECO) * floatval($item->CTI_QUANTIDADE);
+                                    $totalGeral += $subtotal;
+                                ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($item->PRO_DESCRICAO) ?></td>
+                                    <td style="text-align: right;">R$ <?= number_format($item->CTI_PRECO, 2, ',', '.') ?></td>
+                                    <td style="text-align: right;"><?= number_format($item->CTI_QUANTIDADE, 4, ',', '.') ?> <?= htmlspecialchars($item->PRO_UNID_MEDIDA) ?></td>
+                                    <td style="text-align: right;"><strong>R$ <?= number_format($subtotal, 2, ',', '.') ?></strong></td>
+                                    <td><?= $item->CTI_OBSERVACAO ? htmlspecialchars($item->CTI_OBSERVACAO) : '<em>Sem observação</em>' ?></td>
+                                    <td style="text-align: center;">
+                                        <?= (int)$item->CTI_ATIVO === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>' ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" style="text-align: right;">Total Geral:</th>
+                                    <th style="text-align: right;">R$ <?= number_format($totalGeral, 2, ',', '.') ?></th>
+                                    <th colspan="2"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <!-- Botões de ação -->
                 <div class="form-actions">
                     <div class="span12">

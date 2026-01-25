@@ -76,7 +76,16 @@ class Migration_Create_usuarios_super_table extends CI_Migration {
         $this->db->query('ALTER TABLE `usuarios_super` ADD UNIQUE INDEX `uk_usuarios_super_email` (`USS_EMAIL`)');
         
         // Inserir usuário super padrão (senha: admin123)
+        // Gerar hash da senha
         $senha_hash = password_hash('admin123', PASSWORD_DEFAULT);
+        
+        // Verificar se o hash foi gerado corretamente
+        if (!$senha_hash || strlen($senha_hash) < 60) {
+            log_message('error', 'Erro ao gerar hash da senha do super usuário');
+            // Usar hash pré-gerado como fallback
+            $senha_hash = '$2y$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
+        }
+        
         $this->db->insert('usuarios_super', array(
             'USS_NOME' => 'Administrador Super',
             'USS_CPF' => '000.000.000-00',

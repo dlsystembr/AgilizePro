@@ -1,0 +1,137 @@
+[
+    {
+        "table": "bairros",
+        "old": "BAI_DATA_INCLUSAO",
+        "new": "bai_data_inclusao"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "CER_DATA_UPLOAD",
+        "new": "cer_data_upload"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_DATA_INCLUSAO",
+        "new": "cln_data_inclusao"
+    },
+    {
+        "table": "clientes_vendedores",
+        "old": "CLV_DATA_INCLUSAO",
+        "new": "clv_data_inclusao"
+    },
+    {
+        "table": "clientes_vendedores",
+        "old": "CLV_DATA_ATUALIZACAO",
+        "new": "clv_data_atualizacao"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_DATA_CADASTRO",
+        "new": "cfg_data_cadastro"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_DATA_ATUALIZACAO",
+        "new": "cfg_data_atualizacao"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTI_DATA_CADASTRO",
+        "new": "cti_data_cadastro"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTI_DATA_ATUALIZACAO",
+        "new": "cti_data_atualizacao"
+    },
+    {
+        "table": "documentos",
+        "old": "DOC_DATA_INCLUSAO",
+        "new": "doc_data_inclusao"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_LASTUPDATE",
+        "new": "dcf_lastupdate"
+    },
+    {
+        "table": "emails",
+        "old": "EML_DATA_INCLUSAO",
+        "new": "eml_data_inclusao"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_DATA_CADASTRO",
+        "new": "emp_data_cadastro"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_DATA_ATUALIZACAO",
+        "new": "emp_data_atualizacao"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_DATA_INCLUSAO",
+        "new": "end_data_inclusao"
+    },
+    {
+        "table": "estados",
+        "old": "EST_DATA_INCLUSAO",
+        "new": "est_data_inclusao"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_LASTUPDATE",
+        "new": "itf_lastupdate"
+    },
+    {
+        "table": "municipios",
+        "old": "MUN_DATA_INCLUSAO",
+        "new": "mun_data_inclusao"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_DATA_CADASTRO",
+        "new": "nfc_data_cadastro"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_DATA_ATUALIZACAO",
+        "new": "nfc_data_atualizacao"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_DATA_CADASTRO",
+        "new": "nfi_data_cadastro"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_DATA_ATUALIZACAO",
+        "new": "nfi_data_atualizacao"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_DATA_INCLUSAO",
+        "new": "opc_data_inclusao"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_DATA_INCLUSAO",
+        "new": "pes_data_inclusao"
+    },
+    {
+        "table": "telefones",
+        "old": "TEL_DATA_INCLUSAO",
+        "new": "tel_data_inclusao"
+    },
+    {
+        "table": "vendedores",
+        "old": "VEN_DATA_CADASTRO",
+        "new": "ven_data_cadastro"
+    },
+    {
+        "table": "vendedores",
+        "old": "VEN_DATA_ATUALIZACAO",
+        "new": "ven_data_atualizacao"
+    }
+]

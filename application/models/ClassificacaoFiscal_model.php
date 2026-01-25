@@ -15,11 +15,12 @@ class ClassificacaoFiscal_model extends CI_Model
              classificacao_fiscal.OPC_ID as operacao_comercial_id,
              classificacao_fiscal.CLF_CST as cst,
              classificacao_fiscal.CLF_CSOSN as csosn,
-             classificacao_fiscal.CLF_NATUREZA_CONTRIB as natureza_contribuinte,
+             classificacao_fiscal.CLF_NATUREZA_CONTRIBUINTE as natureza_contribuinte,
              classificacao_fiscal.CLF_CFOP as cfop,
              classificacao_fiscal.CLF_DESTINACAO as destinacao,
              classificacao_fiscal.CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
-             classificacao_fiscal.CLF_TIPO_ICMS as tipo_icms,
+             classificacao_fiscal.CLF_FINALIDADE as finalidade,
+             classificacao_fiscal.CLF_TIPO_TRIBUTACAO as tipo_icms,
              classificacao_fiscal.CLF_CCLASSTRIB as cClassTrib,
              classificacao_fiscal.CLF_MENSAGEM as mensagem_fiscal,
              classificacao_fiscal.CLF_DATA_INCLUSAO as created_at,
@@ -49,11 +50,12 @@ class ClassificacaoFiscal_model extends CI_Model
              classificacao_fiscal.OPC_ID as operacao_comercial_id,
              classificacao_fiscal.CLF_CST as cst,
              classificacao_fiscal.CLF_CSOSN as csosn,
-             classificacao_fiscal.CLF_NATUREZA_CONTRIB as natureza_contribuinte,
+             classificacao_fiscal.CLF_NATUREZA_CONTRIBUINTE as natureza_contribuinte,
              classificacao_fiscal.CLF_CFOP as cfop,
              classificacao_fiscal.CLF_DESTINACAO as destinacao,
              classificacao_fiscal.CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
-             classificacao_fiscal.CLF_TIPO_ICMS as tipo_icms,
+             classificacao_fiscal.CLF_FINALIDADE as finalidade,
+             classificacao_fiscal.CLF_TIPO_TRIBUTACAO as tipo_icms,
              classificacao_fiscal.CLF_CCLASSTRIB as cClassTrib,
              classificacao_fiscal.CLF_MENSAGEM as mensagem_fiscal,
              classificacao_fiscal.CLF_DATA_INCLUSAO as created_at,
@@ -89,11 +91,12 @@ class ClassificacaoFiscal_model extends CI_Model
                 'tipo_cliente_id' => ['TPC_ID', 'tipo_cliente_id'],
                 'cst' => ['CLF_CST', 'cst'],
                 'csosn' => ['CLF_CSOSN', 'csosn'],
-                'natureza_contribuinte' => ['CLF_NATUREZA_CONTRIB', 'natureza_contribuinte'],
+                'natureza_contribuinte' => ['CLF_NATUREZA_CONTRIBUINTE', 'natureza_contribuinte'],
                 'cfop' => ['CLF_CFOP', 'cfop'],
                 'destinacao' => ['CLF_DESTINACAO', 'destinacao'],
                 'objetivo_comercial' => ['CLF_OBJETIVO_COMERCIAL', 'objetivo_comercial'],
-                'tipo_icms' => ['CLF_TIPO_ICMS', 'tipo_icms'],
+                'finalidade' => ['CLF_FINALIDADE', 'finalidade'],
+                'tipo_icms' => ['CLF_TIPO_TRIBUTACAO', 'tipo_icms'],
                 'cClassTrib' => ['CLF_CCLASSTRIB', 'cClassTrib'],
                 'mensagem_fiscal' => ['CLF_MENSAGEM', 'mensagem_fiscal'],
                 'created_at' => ['CLF_DATA_INCLUSAO', 'created_at'],
@@ -143,11 +146,12 @@ class ClassificacaoFiscal_model extends CI_Model
                 'tipo_cliente_id' => ['TPC_ID', 'tipo_cliente_id'],
                 'cst' => ['CLF_CST', 'cst'],
                 'csosn' => ['CLF_CSOSN', 'csosn'],
-                'natureza_contribuinte' => ['CLF_NATUREZA_CONTRIB', 'natureza_contribuinte'],
+                'natureza_contribuinte' => ['CLF_NATUREZA_CONTRIBUINTE', 'natureza_contribuinte'],
                 'cfop' => ['CLF_CFOP', 'cfop'],
                 'destinacao' => ['CLF_DESTINACAO', 'destinacao'],
                 'objetivo_comercial' => ['CLF_OBJETIVO_COMERCIAL', 'objetivo_comercial'],
-                'tipo_icms' => ['CLF_TIPO_ICMS', 'tipo_icms'],
+                'finalidade' => ['CLF_FINALIDADE', 'finalidade'],
+                'tipo_icms' => ['CLF_TIPO_TRIBUTACAO', 'tipo_icms'],
                 'cClassTrib' => ['CLF_CCLASSTRIB', 'cClassTrib'],
                 'mensagem_fiscal' => ['CLF_MENSAGEM', 'mensagem_fiscal'],
                 'updated_at' => ['CLF_DATA_ALTERACAO', 'updated_at'],
@@ -215,23 +219,23 @@ class ClassificacaoFiscal_model extends CI_Model
                 return null;
             }
 
-            // Construir a query mapeando colunas CLF_* para nomes antigos
+            // Query usando apenas as colunas que existem na tabela
             $this->db->select(
-                'COALESCE(CLF_ID, id) as id,
-                 COALESCE(OPC_ID, OPC_ID, operacao_comercial_id) as operacao_comercial_id,
-                 COALESCE(CLF_CST, cst) as cst,
-                 COALESCE(CLF_CSOSN, csosn) as csosn,
-                 COALESCE(CLF_NATUREZA_CONTRIB, natureza_contribuinte) as natureza_contribuinte,
-                 COALESCE(CLF_CFOP, cfop) as cfop,
-                 COALESCE(CLF_DESTINACAO, destinacao) as destinacao,
-                 COALESCE(CLF_OBJETIVO_COMERCIAL, objetivo_comercial) as objetivo_comercial,
-                 COALESCE(CLF_TIPO_ICMS, NULL) as tipo_icms'
+                'CLF_ID as id,
+                 OPC_ID as operacao_comercial_id,
+                 CLF_CST as cst,
+                 CLF_CSOSN as csosn,
+                 CLF_NATUREZA_CONTRIBUINTE as natureza_contribuinte,
+                 CLF_CFOP as cfop,
+                 CLF_DESTINACAO as destinacao,
+                 CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
+                 CLF_TIPO_TRIBUTACAO as tipo_icms'
             );
             $this->db->from('classificacao_fiscal');
-            $this->db->where('COALESCE(OPC_ID, OPC_ID, operacao_comercial_id)', $operacao_id);
-            $this->db->where('COALESCE(CLF_NATUREZA_CONTRIB, natureza_contribuinte)', $natureza_contribuinte);
-            $this->db->where('COALESCE(CLF_DESTINACAO, destinacao)', $destinacao);
-            $this->db->where('COALESCE(CLF_OBJETIVO_COMERCIAL, objetivo_comercial)', $objetivo_comercial);
+            $this->db->where('OPC_ID', $operacao_id);
+            $this->db->where('CLF_NATUREZA_CONTRIBUINTE', $natureza_contribuinte);
+            $this->db->where('CLF_DESTINACAO', $destinacao);
+            $this->db->where('CLF_OBJETIVO_COMERCIAL', $objetivo_comercial);
             $this->db->where('ten_id', $this->session->userdata('ten_id'));
 
             // Log da query antes da execução
@@ -241,9 +245,9 @@ class ClassificacaoFiscal_model extends CI_Model
             // Se não encontrou nenhum resultado, vamos logar os dados existentes para debug
             if ($query->num_rows() == 0) {
                 // Consulta para verificar todas as classificações fiscais desta operação
-                $this->db->select('COALESCE(CLF_ID, id) as CLF_ID, COALESCE(OPC_ID, OPC_ID, operacao_comercial_id) as OPC_ID, COALESCE(CLF_NATUREZA_CONTRIB, natureza_contribuinte) as CLF_NATUREZA_CONTRIB, COALESCE(CLF_DESTINACAO, destinacao) as CLF_DESTINACAO, COALESCE(CLF_OBJETIVO_COMERCIAL, objetivo_comercial) as CLF_OBJETIVO_COMERCIAL, COALESCE(CLF_CST, cst) as CLF_CST, COALESCE(CLF_CFOP, cfop) as CLF_CFOP');
+                $this->db->select('CLF_ID, OPC_ID, CLF_NATUREZA_CONTRIBUINTE, CLF_DESTINACAO, CLF_OBJETIVO_COMERCIAL, CLF_CST, CLF_CFOP');
                 $this->db->from('classificacao_fiscal');
-            $this->db->where('COALESCE(OPC_ID, OPC_ID, operacao_comercial_id)', $operacao_id);
+            $this->db->where('OPC_ID', $operacao_id);
             $this->db->where('ten_id', $this->session->userdata('ten_id'));
                 $check_query = $this->db->get();
 
@@ -255,7 +259,7 @@ class ClassificacaoFiscal_model extends CI_Model
                         log_message('debug', 'Classificação encontrada: ' . json_encode([
                             'id' => $row->CLF_ID,
                             'operacao_comercial_id' => $row->OPC_ID,
-                            'natureza_contribuinte' => $row->CLF_NATUREZA_CONTRIB,
+                            'natureza_contribuinte' => $row->CLF_NATUREZA_CONTRIBUINTE,
                             'destinacao' => $row->CLF_DESTINACAO,
                             'objetivo_comercial' => $row->CLF_OBJETIVO_COMERCIAL,
                             'cst' => $row->CLF_CST,
@@ -291,18 +295,18 @@ class ClassificacaoFiscal_model extends CI_Model
             }
 
             $this->db->select(
-                'COALESCE(CLF_ID, id) as id,
-                 COALESCE(OPC_ID, OPC_ID, operacao_comercial_id) as operacao_comercial_id,
-                 COALESCE(CLF_CST, cst) as cst,
-                 COALESCE(CLF_CSOSN, csosn) as csosn,
-                 COALESCE(CLF_NATUREZA_CONTRIB, natureza_contribuinte) as natureza_contribuinte,
-                 COALESCE(CLF_CFOP, cfop) as cfop,
-                 COALESCE(CLF_DESTINACAO, destinacao) as destinacao,
-                 COALESCE(CLF_OBJETIVO_COMERCIAL, objetivo_comercial) as objetivo_comercial,
-                 COALESCE(CLF_TIPO_ICMS, NULL) as tipo_icms'
+                'CLF_ID as id,
+                 OPC_ID as operacao_comercial_id,
+                 CLF_CST as cst,
+                 CLF_CSOSN as csosn,
+                 CLF_NATUREZA_CONTRIBUINTE as natureza_contribuinte,
+                 CLF_CFOP as cfop,
+                 CLF_DESTINACAO as destinacao,
+                 CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
+                 CLF_TIPO_TRIBUTACAO as tipo_icms'
             );
             $this->db->from('classificacao_fiscal');
-            $this->db->where('COALESCE(OPC_ID, OPC_ID, operacao_comercial_id)', $operacao_id);
+            $this->db->where('OPC_ID', $operacao_id);
             $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $query = $this->db->get();
 
@@ -344,5 +348,61 @@ class ClassificacaoFiscal_model extends CI_Model
 
         log_message('debug', 'Nenhuma alíquota encontrada para os parâmetros informados');
         return null;
+    }
+
+    /**
+     * Busca classificações fiscais filtrando por tenant (ten_id) e operação comercial (OPC_ID).
+     * Parâmetros adicionais opcionais: natureza_contribuinte, destinacao, objetivo_comercial.
+     */
+    // Ordem obrigatória: ten_id, opc_id, destinacao, ativa
+    // Opcionais: natureza_contribuinte, objetivo_comercial, finalidade, tipo_tributacao, tipo_cliente
+    public function getByTenantAndOperacao($tenId, $operacaoId, $natureza = null, $destinacao = null, $objetivo = null, $finalidade = null, $tipo_tributacao = null, $tipo_cliente = null, $ativa = null)
+    {
+        try {
+            $this->db->select(
+                'CLF_ID as id,
+                 CLF_CST as cst,
+                 CLF_CSOSN as csosn,
+                 CLF_CFOP as cfop'
+            );
+            $this->db->from('classificacao_fiscal');
+            $this->db->where('ten_id', $tenId);
+            $this->db->where('OPC_ID', $operacaoId);
+
+            if (!empty($natureza)) {
+                $this->db->where('CLF_NATUREZA_CONTRIBUINTE', $natureza);
+            }
+            // destinacao é obrigatório
+            $this->db->where('CLF_DESTINACAO', $destinacao);
+            if (!empty($objetivo)) {
+                $this->db->where('CLF_OBJETIVO_COMERCIAL', $objetivo);
+            }
+            if (!empty($finalidade)) {
+                $this->db->where('CLF_FINALIDADE', $finalidade);
+            }
+            if (!empty($tipo_tributacao)) {
+                $this->db->where('CLF_TIPO_TRIBUTACAO', $tipo_tributacao);
+            }
+            if (!empty($tipo_cliente)) {
+                $tipoClienteInt = (int)$tipo_cliente;
+                $this->db->where('TPC_ID', $tipoClienteInt);
+            }
+            // ativa é obrigatório - garantir que seja inteiro
+            $ativaInt = ($ativa === '0' || $ativa === 0) ? 0 : (($ativa === '1' || $ativa === 1) ? 1 : (int)$ativa);
+            $this->db->where('CLF_SITUACAO', $ativaInt);
+
+            $query = $this->db->get();
+            if (!$query) {
+                log_message('error', 'Erro em getByTenantAndOperacao: ' . $this->db->error()['message']);
+                return [];
+            }
+            $result = $query->result();
+            // Log temporário para debug
+            log_message('debug', 'getByTenantAndOperacao - Parâmetros: tenId=' . $tenId . ', opcId=' . $operacaoId . ', destinacao=' . $destinacao . ', ativa=' . $ativa . ' | Resultados: ' . count($result));
+            return $result;
+        } catch (Exception $e) {
+            log_message('error', 'Erro em getByTenantAndOperacao: ' . $e->getMessage());
+            return [];
+        }
     }
 }

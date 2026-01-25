@@ -72,6 +72,7 @@
                     <th>Cod. Barra</th>
                     <th>Nome</th>
                     <th>Tipo</th>
+                    <th>Finalidade</th>
                     <th>Estoque</th>
                     <th>Preço</th>
                     <th>Ações</th>
@@ -93,12 +94,14 @@
                     } else {
                         $tipoBadge = '<span class="badge-tipo badge-produto"><i class="bx bx-package"></i> Produto</span>';
                     }
+                    $finalidadeLabel = $finalidadesProduto[$r->PRO_FINALIDADE] ?? ($r->PRO_FINALIDADE ?: 'Não informado');
                     
                     echo '<tr>';
                     echo '<td>' . $r->PRO_ID . '</td>';
                     echo '<td>' . $r->PRO_COD_BARRA . '</td>';
                     echo '<td>' . $r->PRO_DESCRICAO . '</td>';
                     echo '<td style="text-align: center;">' . $tipoBadge . '</td>';
+                    echo '<td>' . $finalidadeLabel . '</td>';
                     echo '<td>' . $r->PRO_ESTOQUE . '</td>';
                     echo '<td>R$ ' . number_format($r->PRO_PRECO_VENDA, 2, ',', '.') . '</td>';
                     echo '<td>';
@@ -110,9 +113,6 @@
                     }
                     if ($this->permission->checkPermission($this->session->userdata('permissao'), 'dProduto')) {
                         echo '<a style="margin-right: 1%" href="#modal-excluir" role="button" data-toggle="modal" produto="' . $r->PRO_ID . '" class="btn-nwe4" title="Excluir Produto"><i class="bx bx-trash-alt bx-xs"></i></a>';
-                    }
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eProduto')) {
-                        echo '<a href="#atualizar-estoque" role="button" data-toggle="modal" produto="' . $r->PRO_ID . '" estoque="' . $r->PRO_ESTOQUE . '" class="btn-nwe5" title="Atualizar Estoque"><i class="bx bx-plus-circle bx-xs"></i></a>';
                     }
                     echo '</td>';
                     echo '</tr>';
@@ -139,36 +139,6 @@
             <button class="button btn btn-warning" data-dismiss="modal" aria-hidden="true">
               <span class="button__icon"><i class="bx bx-x"></i></span><span class="button__text2">Cancelar</span></button>
             <button class="button btn btn-danger"><span class="button__icon"><i class='bx bx-trash'></i></span> <span class="button__text2">Excluir</span></button>
-        </div>
-    </form>
-</div>
-
-<!-- Modal Estoque -->
-<div id="atualizar-estoque" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <form action="<?php echo base_url() ?>index.php/produtos/atualizar_estoque" method="post" id="formEstoque">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h5 id="myModalLabel"><i class="fas fa-plus-square"></i> Atualizar Estoque</h5>
-        </div>
-        <div class="modal-body">
-            <div class="control-group">
-                <label for="estoqueAtual" class="control-label">Estoque Atual</label>
-                <div class="controls">
-                    <input id="estoqueAtual" type="text" name="estoqueAtual" value="" readonly />
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label for="estoque" class="control-label">Adicionar Produtos<span class="required">*</span></label>
-                <div class="controls">
-                    <input type="hidden" id="idProduto" class="idProduto" name="id" value=""/>
-                    <input id="estoque" type="text" name="estoque" value=""/>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer" style="display:flex;justify-content: center">
-          <button class="button btn btn-primary"><span class="button__icon"><i class="bx bx-sync"></i></span><span class="button__text2">Atualizar</span></button>
-          <button class="button btn btn-warning"  data-dismiss="modal" aria-hidden="true"><span class="button__icon"><i class="bx bx-x"></i></span><span class="button__text2">Cancelar</span></button>
         </div>
     </form>
 </div>
@@ -226,33 +196,7 @@
     $(document).ready(function () {
         $(document).on('click', 'a', function (event) {
             var produto = $(this).attr('produto');
-            var estoque = $(this).attr('estoque');
             $('.idProduto').val(produto);
-            $('#estoqueAtual').val(estoque);
-        });
-
-        $('#formEstoque').validate({
-            rules: {
-                estoque: {
-                    required: true,
-                    number: true
-                }
-            },
-            messages: {
-                estoque: {
-                    required: 'Campo Requerido.',
-                    number: 'Informe um número válido.'
-                }
-            },
-            errorClass: "help-inline",
-            errorElement: "span",
-            highlight: function (element, errorClass, validClass) {
-                $(element).parents('.control-group').addClass('error');
-            },
-            unhighlight: function (element, errorClass, validClass) {
-                $(element).parents('.control-group').removeClass('error');
-                $(element).parents('.control-group').addClass('success');
-            }
         });
     });
 </script>

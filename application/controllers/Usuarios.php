@@ -81,7 +81,8 @@ class Usuarios extends MY_Controller
         }
 
         $this->load->model('permissoes_model');
-        $this->data['permissoes'] = $this->permissoes_model->getActive('permissoes', 'permissoes.idPermissao,permissoes.nome');
+        $ten_id = $this->session->userdata('ten_id');
+        $this->data['permissoes'] = $this->permissoes_model->getActive('permissoes', 'permissoes.idPermissao,permissoes.nome', $ten_id);
         $this->data['view'] = 'usuarios/adicionarUsuario';
 
         return $this->layout();
@@ -173,7 +174,8 @@ class Usuarios extends MY_Controller
 
         $this->data['result'] = $this->usuarios_model->getById($this->uri->segment(3));
         $this->load->model('permissoes_model');
-        $this->data['permissoes'] = $this->permissoes_model->getActive('permissoes', 'permissoes.idPermissao,permissoes.nome');
+        $ten_id = $this->session->userdata('ten_id');
+        $this->data['permissoes'] = $this->permissoes_model->getActive('permissoes', 'permissoes.idPermissao,permissoes.nome', $ten_id);
 
         $this->data['view'] = 'usuarios/editarUsuario';
 

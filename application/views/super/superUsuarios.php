@@ -1,15 +1,21 @@
-<div class="widget-box">
-  <div class="widget-title">
-    <span class="icon"><i class="icon-star"></i></span>
+<div class="new122">
+  <div class="widget-title" style="margin:-15px -10px 0">
     <h5>Gerenciar Super Usuários</h5>
   </div>
-  <div class="widget-content">
-    <a href="<?= base_url('index.php/super/adicionarSuperUsuario') ?>" class="button btn btn-success">
-      <span class="button__icon"><i class='icon-plus'></i></span>
-      <span class="button__text">Adicionar Super Usuário</span>
-    </a>
+  <a href="<?= base_url('index.php/super/adicionarSuperUsuario') ?>" class="button btn btn-success" style="max-width: 200px">
+    <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
+    <span class="button__text2">Adicionar Super Usuário</span>
+  </a>
 
-    <table class="table table-bordered">
+  <div class="widget-box">
+    <div class="widget-title" style="margin: -20px 0 0">
+      <span class="icon">
+        <i class="icon-star"></i>
+      </span>
+      <h5 style="padding: 3px 0"></h5>
+    </div>
+    <div class="widget-content nopadding tab-content">
+      <table id="tabela" class="table table-bordered">
       <thead>
         <tr>
           <th>ID</th>
@@ -38,9 +44,9 @@
               <td><?= $super->USS_SITUACAO == 1 ? 'Ativo' : 'Inativo' ?></td>
               <td><?= date('d/m/Y', strtotime($super->USS_DATA_CADASTRO)) ?></td>
               <td>
-                <a href="<?= base_url("index.php/super/editarSuperUsuario/{$super->USS_ID}") ?>" class="btn btn-info btn-mini"><i class="icon-edit"></i> Editar</a>
+                <a href="<?= base_url("index.php/super/editarSuperUsuario/{$super->USS_ID}") ?>" class="btn-nwe3" title="Editar"><i class="bx bx-edit"></i></a>
                 <?php if ($super->USS_ID != $this->session->userdata('id_admin')): ?>
-                  <a href="#modal-excluir-<?= $super->USS_ID ?>" data-toggle="modal" class="btn btn-danger btn-mini"><i class="icon-remove"></i> Excluir</a>
+                  <a href="#modal-excluir-<?= $super->USS_ID ?>" data-toggle="modal" class="btn-nwe3" title="Excluir" style="color: #d32f2f;"><i class="bx bx-trash"></i></a>
                   
                   <div id="modal-excluir-<?= $super->USS_ID ?>" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                     <div class="modal-header">
@@ -67,7 +73,10 @@
       </tbody>
     </table>
 
-    <?= $this->pagination->create_links(); ?>
+      </table>
+    </div>
   </div>
 </div>
+
+<?= $this->pagination->create_links(); ?>
 

@@ -19,7 +19,59 @@
                     <div class="box-header">
                         <h3 class="box-title">Visualizar Faturamento de Entrada</h3>
                         <div class="box-tools">
-                            <a href="<?php echo base_url() ?>index.php/faturamentoEntrada/editar/<?php echo $faturamento->id; ?>" class="btn btn-warning btn-xs"><i class="fa fa-edit"></i> Editar</a>
+                            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eFaturamentoEntrada')) { ?>
+                                <?php 
+                                // Verificar se já existe documento_faturado com status ABERTO
+                                $pes_id = null;
+                                
+                                // Tentar buscar PES_ID através da tabela clientes (nova estrutura)
+                                if ($this->db->table_exists('clientes')) {
+                                    $cliente_novo = $this->db->where('CLN_ID', $faturamento->fornecedor_id)->get('clientes')->row();
+                                    if ($cliente_novo) {
+                                        $pes_id = $cliente_novo->PES_ID;
+                                    }
+                                }
+                                
+                                // Se não encontrou, tentar pela tabela antiga clientes_
+                                if (!$pes_id && $this->db->table_exists('clientes_')) {
+                                    $fornecedor = $this->db->where('idClientes', $faturamento->fornecedor_id)->get('clientes_')->row();
+                                    if ($fornecedor) {
+                                        $documento_limpo = preg_replace('/\D/', '', $fornecedor->documento);
+                                        $pessoa = $this->db->where('PES_CPFCNPJ', $documento_limpo)->get('pessoas')->row();
+                                        if ($pessoa) {
+                                            $pes_id = $pessoa->PES_ID;
+                                        }
+                                    }
+                                }
+                                
+                                $dcf_aberto = null;
+                                if ($pes_id) {
+                                    // Buscar pela data de entrada primeiro
+                                    $dcf_aberto = $this->db->where('PES_ID', $pes_id)
+                                                          ->where('DCF_TIPO', 'E')
+                                                          ->where('DCF_STATUS', 'ABERTO')
+                                                          ->where('DCF_DATA_SAIDA', $faturamento->data_entrada)
+                                                          ->get('documentos_faturados')
+                                                          ->row();
+                                    
+                                    // Se não encontrar, tentar pelo número da nota
+                                    if (!$dcf_aberto && $faturamento->numero_nota) {
+                                        $dcf_aberto = $this->db->where('PES_ID', $pes_id)
+                                                              ->where('DCF_TIPO', 'E')
+                                                              ->where('DCF_NUMERO', $faturamento->numero_nota)
+                                                              ->where('DCF_STATUS', 'ABERTO')
+                                                              ->get('documentos_faturados')
+                                                              ->row();
+                                    }
+                                }
+                                if ($dcf_aberto && (empty($faturamento->status) || $faturamento->status != 'fechado')) {
+                                ?>
+                                    <button type="button" class="btn btn-success btn-xs" onclick="finalizarEntrada(<?php echo $faturamento->id; ?>)">
+                                        <i class="fa fa-check-circle"></i> Finalizar Entrada
+                                    </button>
+                                <?php } ?>
+                                <a href="<?php echo base_url() ?>index.php/faturamentoEntrada/editar/<?php echo $faturamento->id; ?>" class="btn btn-warning btn-xs"><i class="fa fa-edit"></i> Editar</a>
+                            <?php } ?>
                             <a href="<?php echo base_url() ?>index.php/faturamentoEntrada" class="btn btn-default btn-xs"><i class="fa fa-arrow-left"></i> Voltar</a>
                         </div>
                     </div>
@@ -161,4 +213,58 @@
             </div>
         </div>
     </section>
-</div> 
+</div>
+
+<script src="<?php echo base_url() ?>assets/js/sweetalert2.all.min.js"></script>
+<script type="text/javascript">
+    function finalizarEntrada(id) {
+        Swal.fire({
+            title: 'Finalizar Entrada',
+            text: 'Deseja realmente finalizar esta entrada? Isso irá atualizar o estoque dos produtos.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sim, finalizar!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '<?php echo base_url(); ?>index.php/faturamentoEntrada/finalizarEntrada',
+                    type: 'POST',
+                    data: { id: id },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Sucesso!',
+                                text: response.message,
+                                showConfirmButton: true,
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        var response = xhr.responseJSON || {};
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro',
+                            text: response.message || 'Erro ao finalizar entrada. Tente novamente.'
+                        });
+                    }
+                });
+            }
+        });
+    }
+</script> 

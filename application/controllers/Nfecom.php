@@ -333,16 +333,10 @@ class Nfecom extends MY_Controller
                 $comissaoAgencia = floatval($data['comissaoAgencia']);
                 $valorLiquido = $valorBruto - $comissaoAgencia;
 
-                // Cálculos tributários (valores fixos baseados no XML de exemplo)
-                // PIS e COFINS são apenas informativos, não alteram o valor da nota
-                $pis = $valorLiquido * 0.0065; // 0.65%
-                $cofins = $valorLiquido * 0.03; // 3.0%
-                $irrf = 0.00; // IRRF zerado por enquanto
-                $valorNF = $valorLiquido; // Valor da nota = valor líquido (sem descontar PIS/COFINS)
-
-                $nomeServico = implode('; ', $nomesServicos);
-
-                // Buscar dados completos do cliente incluindo endereço selecionado
+                // Buscar operação comercial
+                $operacaoId = (int)$this->input->post('opc_id');
+                
+                // Buscar dados completos do cliente incluindo endereço selecionado (ANTES do cálculo de tributação)
                 $enderecoId = $data['enderecoClienteSelect'] ?? null;
                 $this->db->select('p.PES_CPFCNPJ, p.PES_NOME, p.PES_RAZAO_SOCIAL, p.PES_FISICO_JURIDICO, e.END_LOGRADOURO as logradouro, e.END_NUMERO as numero, e.END_COMPLEMENTO as complemento, e.END_CEP as cep, b.BAI_NOME as bairro, m.MUN_NOME as municipio_nome, m.MUN_IBGE, es.EST_UF as estado_uf');
                 $this->db->from('clientes c');
@@ -362,6 +356,22 @@ class Nfecom extends MY_Controller
                 $cliente_query = $this->db->get();
                 $cliente = $cliente_query->row();
 
+                // Validar dados obrigatórios antes de calcular tributação
+                if (!$cliente) {
+                    $this->session->set_flashdata('error', 'Cliente não encontrado ou sem endereço cadastrado. Verifique o cadastro do cliente.');
+                    redirect(site_url('nfecom/adicionar'));
+                }
+
+                if (empty($cliente->estado_uf)) {
+                    $this->session->set_flashdata('error', 'Cliente não possui UF cadastrada no endereço selecionado. Verifique o cadastro do cliente.');
+                    redirect(site_url('nfecom/adicionar'));
+                }
+
+                if (empty($operacaoId)) {
+                    $this->session->set_flashdata('error', 'Operação comercial não informada. Selecione uma operação comercial.');
+                    redirect(site_url('nfecom/adicionar'));
+                }
+
                 if ($cliente) {
                     $data['nomeCliente'] = $cliente->PES_FISICO_JURIDICO == 'F' ? $cliente->PES_NOME : ($cliente->PES_RAZAO_SOCIAL ?: $cliente->PES_NOME);
                     $data['cnpjCliente'] = $cliente->PES_CPFCNPJ ?? '';
@@ -373,6 +383,116 @@ class Nfecom extends MY_Controller
                     $data['cepCliente'] = $cliente->cep ?? '';
                     $data['ufCliente'] = $cliente->estado_uf ?? '';
                 }
+
+                // Validar dados obrigatórios ANTES de calcular tributação
+                if (empty($servicos) || $totalValorBruto == 0) {
+                    $this->session->set_flashdata('error', 'É necessário informar pelo menos um serviço válido com quantidade e valor para gerar a NFeCom.');
+                    redirect(site_url('nfecom/adicionar'));
+                }
+                
+                // Calcular tributação usando a API - SEMPRE usar a API, sem valores fixos
+                $pis = 0;
+                $cofins = 0;
+                $irrf = 0.00;
+                $errosTributacao = [];
+                $servicosSemTributacao = [];
+                
+                // Inicializar totais de ICMS, ICMS ST e FCP
+                $totalIcms = 0;
+                $totalIcmsSt = 0;
+                $totalFcp = 0;
+                $totalBaseIcms = 0;
+                
+                // Calcular tributação para cada serviço e somar os valores
+                if (!empty($servicos) && $operacaoId && !empty($data['clientes_id'])) {
+                    foreach ($servicos as $index => $servico) {
+                        if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
+                            $produtoId = $servico['id'];
+                            $quantidade = floatval($servico['quantidade']);
+                            $valorUnitario = floatval($servico['valorUnitario']);
+                            
+                            // Verificar se o produto tem NCM (obrigatório para cálculo)
+                            $this->db->select('PRO_DESCRICAO, NCM_ID');
+                            $this->db->from('produtos');
+                            $this->db->where($produtos_primary_key, $produtoId);
+                            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+                            $produtoQuery = $this->db->get();
+                            $produto = $produtoQuery->row();
+                            
+                            if (!$produto) {
+                                $errosTributacao[] = "Serviço #" . ($index + 1) . ": Produto não encontrado (ID: $produtoId)";
+                                $servicosSemTributacao[] = $index + 1;
+                                continue;
+                            }
+                            
+                            if (empty($produto->NCM_ID)) {
+                                $errosTributacao[] = "Serviço #" . ($index + 1) . " ({$produto->PRO_DESCRICAO}): NCM não configurado no produto";
+                                $servicosSemTributacao[] = $index + 1;
+                                continue;
+                            }
+                            
+                            // Calcular tributação usando a API (com endereço selecionado)
+                            log_message('debug', "Calculando tributação para serviço #" . ($index + 1) . " - Produto ID: $produtoId, Cliente ID: {$data['clientes_id']}, Operação: $operacaoId, Endereço: " . ($enderecoId ?? 'padrão'));
+                            
+                            $tributacao = $this->calcularTributacao(
+                                $produtoId,
+                                $data['clientes_id'],
+                                $operacaoId,
+                                $valorUnitario,
+                                $quantidade,
+                                'saida',
+                                $enderecoId // Passar endereço selecionado
+                            );
+                            
+                            if (!$tributacao) {
+                                $errosTributacao[] = "Serviço #" . ($index + 1) . " ({$produto->PRO_DESCRICAO}): Não foi possível calcular a tributação. Verifique as configurações fiscais e o log de erros.";
+                                $servicosSemTributacao[] = $index + 1;
+                                continue;
+                            }
+                            
+                            // Validar se retornou dados de PIS/COFINS
+                            if (!isset($tributacao['impostos_federais']['pis']) || !isset($tributacao['impostos_federais']['cofins'])) {
+                                $errosTributacao[] = "Serviço #" . ($index + 1) . " ({$produto->PRO_DESCRICAO}): Dados de tributação incompletos retornados pela API.";
+                                $servicosSemTributacao[] = $index + 1;
+                                continue;
+                            }
+                            
+                            // Somar valores da API
+                            $pis += floatval($tributacao['impostos_federais']['pis']['valor'] ?? 0);
+                            $cofins += floatval($tributacao['impostos_federais']['cofins']['valor'] ?? 0);
+                            
+                            log_message('debug', "Tributação calculada para serviço #" . ($index + 1) . " - PIS: " . ($tributacao['impostos_federais']['pis']['valor'] ?? 0) . ", COFINS: " . ($tributacao['impostos_federais']['cofins']['valor'] ?? 0));
+                        }
+                    }
+                } else {
+                    // Se não tem operação ou cliente, adicionar erro
+                    if (empty($operacaoId)) {
+                        $errosTributacao[] = "Operação comercial não informada.";
+                    }
+                    if (empty($data['clientes_id'])) {
+                        $errosTributacao[] = "Cliente não informado.";
+                    }
+                }
+                
+                // Se houver erros, não permitir salvar
+                if (!empty($errosTributacao)) {
+                    $mensagemErro = "Não foi possível calcular a tributação para os seguintes serviços:\n\n" . implode("\n", $errosTributacao);
+                    $mensagemErro .= "\n\nPor favor, verifique:\n";
+                    $mensagemErro .= "- Se os produtos possuem NCM configurado\n";
+                    $mensagemErro .= "- Se existe tributação federal configurada para o NCM\n";
+                    $mensagemErro .= "- Se a operação comercial está correta\n";
+                    $mensagemErro .= "- Se o cliente possui endereço com UF cadastrada\n";
+                    $mensagemErro .= "- Verifique o log de erros para mais detalhes";
+                    
+                    log_message('error', 'Erros de tributação na NFeCom: ' . implode(' | ', $errosTributacao));
+                    
+                    $this->session->set_flashdata('error', $mensagemErro);
+                    redirect(site_url('nfecom/adicionar'));
+                }
+                
+                $valorNF = $valorLiquido; // Valor da nota = valor líquido (sem descontar PIS/COFINS)
+
+                $nomeServico = implode('; ', $nomesServicos);
 
 
                 // Carregar dados do emitente da tabela empresas
@@ -434,15 +554,24 @@ class Nfecom extends MY_Controller
                 'NFC_D_CONTRATO_INI' => $data['dataContratoIni'],
                 'NFC_D_CONTRATO_FIM' => !empty($data['dataContratoFim']) ? $data['dataContratoFim'] : null,
                 'NFC_V_PROD' => $valorLiquido,
+                // ICMS e FCP (novos campos)
+                'NFC_V_BC_ICMS' => $totalBaseIcms,
+                'NFC_V_ICMS' => $totalIcms,
+                'NFC_V_ICMS_DESON' => 0.00, // Valor do ICMS Desonerado (preencher se necessário)
+                'NFC_V_FCP' => $totalFcp,
+                // PIS e COFINS
                 'NFC_V_COFINS' => $cofins,
                 'NFC_V_PIS' => $pis,
+                // FUST e FUNTTEL
                 'NFC_V_FUST' => 0.00,
                 'NFC_V_FUNTEL' => 0.00,
+                // Retenções
                 'NFC_V_RET_PIS' => 0.00,
                 'NFC_V_RET_COFINS' => 0.00,
                 'NFC_V_RET_CSLL' => 0.00,
                 'NFC_V_IRRF' => $irrf,
                 'NFC_V_RET_TRIB_TOT' => $irrf,
+                // Descontos e outros
                 'NFC_V_DESC' => 0.00,
                 'NFC_V_OUTRO' => 0.00,
                 'NFC_V_NF' => $valorNF,
@@ -486,6 +615,13 @@ class Nfecom extends MY_Controller
                 // Calcular CDV e Chave
                 $nfecomData['NFC_CDV'] = $this->calculateDV($nfecomData);
                 $nfecomData['NFC_CH_NFCOM'] = $this->generateChave($nfecomData);
+                
+                // Adicionar ten_id obrigatório para foreign key
+                $nfecomData['ten_id'] = $this->session->userdata('ten_id');
+                if (empty($nfecomData['ten_id'])) {
+                    $this->session->set_flashdata('error', 'Erro: Tenant ID não encontrado na sessão. Faça login novamente.');
+                    redirect(site_url('nfecom/adicionar'));
+                }
 
                 // Salvar NFCom
                 $idNfecom = $this->Nfecom_model->add('nfecom_capa', $nfecomData);
@@ -525,12 +661,149 @@ class Nfecom extends MY_Controller
                             $nomeServicoItem = $servico_info ? $servico_info->descricao : 'Serviço não encontrado';
                         }
 
-                        // Calcular tributos proporcionais para este item
-                        $proporcao = ($valorBruto > 0) ? ($valorProduto / $valorBruto) : 0;
-                        $pisItem = $pis * $proporcao;
-                        $cofinsItem = $cofins * $proporcao;
-                        $irrfItem = $irrf * $proporcao;
+                        // Calcular tributação específica para este item usando a API
+                        // SEMPRE calcular pela API (sem valores fixos)
+                        $pisItem = 0;
+                        $cofinsItem = 0;
+                        $cstPis = null;
+                        $cstCofins = null;
+                        $aliqPis = 0;
+                        $aliqCofins = 0;
+                        $basePis = 0;
+                        $baseCofins = 0;
+                        
+                        // Inicializar variáveis de ICMS, ICMS ST e FCP
+                        $baseIcms = 0;
+                        $aliqIcms = 0;
+                        $valorIcms = 0;
+                        $baseIcmsSt = 0;
+                        $aliqIcmsSt = 0;
+                        $valorIcmsSt = 0;
+                        $mva = 0;
+                        $percentualReducaoSt = 0;
+                        $baseFcp = 0;
+                        $aliqFcp = 0;
+                        $valorFcp = 0;
+                        $csosn = null;
+                        
+                        if ($operacaoId && !empty($data['clientes_id'])) {
+                            // Calcular tributação usando a API (com endereço selecionado)
+                            $tributacao = $this->calcularTributacao(
+                                $servico['id'],
+                                $data['clientes_id'],
+                                $operacaoId,
+                                $valorUnitario,
+                                $quantidade,
+                                'saida',
+                                $enderecoId // Passar endereço selecionado
+                            );
+                            
+                            if ($tributacao) {
+                                // Usar valores da API - SEM valores fixos como fallback
+                                $pisItem = floatval($tributacao['impostos_federais']['pis']['valor'] ?? 0);
+                                $cofinsItem = floatval($tributacao['impostos_federais']['cofins']['valor'] ?? 0);
+                                $cstPis = $tributacao['impostos_federais']['pis']['cst'] ?? null;
+                                $cstCofins = $tributacao['impostos_federais']['cofins']['cst'] ?? null;
+                                $aliqPis = floatval($tributacao['impostos_federais']['pis']['aliquota'] ?? 0);
+                                $aliqCofins = floatval($tributacao['impostos_federais']['cofins']['aliquota'] ?? 0);
+                                
+                                // Base de cálculo deve ser o valor do produto (valorProduto), não o valor retornado pela API se estiver incorreto
+                                $basePisApi = floatval($tributacao['impostos_federais']['pis']['base_calculo'] ?? 0);
+                                $baseCofinsApi = floatval($tributacao['impostos_federais']['cofins']['base_calculo'] ?? 0);
+                                
+                                // Validar se a base da API está correta (deve ser igual ao valorProduto para CST 01/02)
+                                // Se a base da API for muito diferente do produto, usar o produto
+                                if ($basePisApi > 0 && abs($basePisApi - $valorProduto) > ($valorProduto * 0.1)) {
+                                    // Base da API está muito diferente (mais de 10% de diferença)
+                                    // Usar o valor do produto como base correta
+                                    log_message('debug', "Base PIS corrigida: API retornou $basePisApi, usando valorProduto $valorProduto");
+                                    $basePis = $valorProduto;
+                                } else {
+                                    $basePis = $basePisApi > 0 ? $basePisApi : $valorProduto;
+                                }
+                                
+                                if ($baseCofinsApi > 0 && abs($baseCofinsApi - $valorProduto) > ($valorProduto * 0.1)) {
+                                    // Base da API está muito diferente (mais de 10% de diferença)
+                                    // Usar o valor do produto como base correta
+                                    log_message('debug', "Base COFINS corrigida: API retornou $baseCofinsApi, usando valorProduto $valorProduto");
+                                    $baseCofins = $valorProduto;
+                                } else {
+                                    $baseCofins = $baseCofinsApi > 0 ? $baseCofinsApi : $valorProduto;
+                                }
+                                
+                                // Extrair dados de ICMS, ICMS ST e FCP da API
+                                $impostosEstaduais = $tributacao['impostos_estaduais'] ?? [];
+                                $icms = $impostosEstaduais['icms'] ?? [];
+                                $icmsSt = $impostosEstaduais['icms_st'] ?? [];
+                                $fcp = $impostosEstaduais['fcp'] ?? [];
+                                
+                                // ICMS básico
+                                $baseIcms = floatval($icms['base_calculo'] ?? 0);
+                                $aliqIcms = floatval($icms['aliquota'] ?? 0);
+                                $valorIcms = floatval($icms['valor'] ?? 0);
+                                
+                                // ICMS ST
+                                $baseIcmsSt = floatval($icmsSt['base_calculo'] ?? 0);
+                                $aliqIcmsSt = floatval($icmsSt['aliquota'] ?? 0);
+                                $valorIcmsSt = floatval($icmsSt['valor'] ?? 0);
+                                $mva = floatval($icmsSt['mva'] ?? 0);
+                                $percentualReducaoSt = floatval($icmsSt['percentual_reducao'] ?? 0);
+                                
+                                // FCP
+                                $baseFcp = floatval($fcp['base_calculo'] ?? 0);
+                                $aliqFcp = floatval($fcp['aliquota'] ?? 0);
+                                $valorFcp = floatval($fcp['valor'] ?? 0);
+                                
+                                // CSOSN (se disponível na classificação fiscal)
+                                $csosn = $tributacao['classificacao_fiscal']['csosn'] ?? null;
+                                
+                                log_message('debug', "Item #$itemNumero - Valor Produto: $valorProduto | Base PIS: $basePis | Base COFINS: $baseCofins | ICMS: base=$baseIcms, aliq=$aliqIcms%, valor=$valorIcms | ICMS ST: base=$baseIcmsSt, valor=$valorIcmsSt | FCP: base=$baseFcp, valor=$valorFcp");
+                            } else {
+                                // Se não houver tributação, inicializar valores com zero
+                                $baseIcms = 0;
+                                $aliqIcms = 0;
+                                $valorIcms = 0;
+                                $baseIcmsSt = 0;
+                                $aliqIcmsSt = 0;
+                                $valorIcmsSt = 0;
+                                $mva = 0;
+                                $percentualReducaoSt = 0;
+                                $baseFcp = 0;
+                                $aliqFcp = 0;
+                                $valorFcp = 0;
+                                $csosn = null;
+                            }
+                        }
+                        
+                        $irrfItem = $irrf * (($valorBruto > 0) ? ($valorProduto / $valorBruto) : 0);
 
+                        // Validar e corrigir bases de cálculo antes de salvar
+                        // Para CST 01/02 (tributável), a base deve ser o valor do produto
+                        // Se a base estiver muito diferente, usar o valor do produto
+                        if (in_array($cstPis, ['01', '02'])) {
+                            // CST tributável: base deve ser igual ao valor do produto
+                            if (abs($basePis - $valorProduto) > ($valorProduto * 0.05)) {
+                                // Diferença maior que 5% - usar valor do produto
+                                log_message('warning', "Base PIS corrigida antes de salvar: $basePis → $valorProduto (CST: $cstPis)");
+                                $basePis = $valorProduto;
+                            }
+                        } else {
+                            // CST isento/não tributado: base deve ser 0
+                            $basePis = 0;
+                        }
+                        
+                        if (in_array($cstCofins, ['01', '02'])) {
+                            // CST tributável: base deve ser igual ao valor do produto
+                            if (abs($baseCofins - $valorProduto) > ($valorProduto * 0.05)) {
+                                // Diferença maior que 5% - usar valor do produto
+                                log_message('warning', "Base COFINS corrigida antes de salvar: $baseCofins → $valorProduto (CST: $cstCofins)");
+                                $baseCofins = $valorProduto;
+                            }
+                        } else {
+                            // CST isento/não tributado: base deve ser 0
+                            $baseCofins = 0;
+                        }
+                        
                         $itemData = [
                             'NFC_ID' => $idNfecom,
                             'NFI_N_ITEM' => $itemNumero,
@@ -545,20 +818,46 @@ class Nfecom extends MY_Controller
                             'NFI_V_OUTRO' => $valorOutros,
                             'NFI_V_PROD' => $valorProduto,
                             'NFI_CST_ICMS' => $cstIcms,
-                            'NFI_CST_PIS' => '01',
-                            'NFI_V_BC_PIS' => $valorProduto,
-                            'NFI_P_PIS' => 0.65,
+                            // ICMS básico
+                            'NFI_V_BC_ICMS' => $baseIcms ?? 0,
+                            'NFI_P_ICMS' => $aliqIcms ?? 0,
+                            'NFI_V_ICMS' => $valorIcms ?? 0,
+                            'NFI_V_ICMS_DESON' => 0.00, // Valor do ICMS Desonerado (preencher se necessário)
+                            'NFI_MOT_DES_ICMS' => null, // Motivo da Desoneração (preencher se necessário)
+                            // ICMS ST
+                            'NFI_V_BC_ICMS_ST' => $baseIcmsSt ?? 0,
+                            'NFI_P_ICMS_ST' => $aliqIcmsSt ?? 0,
+                            'NFI_V_ICMS_ST' => $valorIcmsSt ?? 0,
+                            'NFI_V_BC_ST_RET' => 0.00, // Base de Cálculo do ST Retido (preencher se necessário)
+                            'NFI_V_ICMS_ST_RET' => 0.00, // Valor do ICMS ST Retido (preencher se necessário)
+                            'NFI_P_ST' => $percentualReducaoSt > 0 ? $aliqIcmsSt : 0, // Alíquota do ST
+                            'NFI_V_ICMS_SUBST' => 0.00, // Valor do ICMS Próprio do Substituto (preencher se necessário)
+                            // FCP
+                            'NFI_V_BC_FCP' => $baseFcp ?? 0,
+                            'NFI_P_FCP' => $aliqFcp ?? 0,
+                            'NFI_V_FCP' => $valorFcp ?? 0,
+                            'NFI_V_FCP_ST' => 0.00, // Valor do FCP ST (preencher se necessário)
+                            'NFI_V_FCP_ST_RET' => 0.00, // Valor do FCP ST Retido (preencher se necessário)
+                            // CSOSN
+                            'NFI_CSOSN' => $csosn ?? null,
+                            // PIS
+                            'NFI_CST_PIS' => $cstPis,
+                            'NFI_V_BC_PIS' => $basePis,
+                            'NFI_P_PIS' => $aliqPis,
                             'NFI_V_PIS' => $pisItem,
-                            'NFI_CST_COFINS' => '01',
-                            'NFI_V_BC_COFINS' => $valorProduto,
-                            'NFI_P_COFINS' => 3.00,
+                            // COFINS
+                            'NFI_CST_COFINS' => $cstCofins,
+                            'NFI_V_BC_COFINS' => $baseCofins,
+                            'NFI_P_COFINS' => $aliqCofins,
                             'NFI_V_COFINS' => $cofinsItem,
+                            // FUST e FUNTTEL
                             'NFI_V_BC_FUST' => 0.00,
                             'NFI_P_FUST' => 0.00,
                             'NFI_V_FUST' => 0.00,
                             'NFI_V_BC_FUNTEL' => 0.00,
                             'NFI_P_FUNTEL' => 0.00,
                             'NFI_V_FUNTEL' => 0.00,
+                            // IRRF
                             'NFI_V_BC_IRRF' => $valorProduto,
                             'NFI_V_IRRF' => $irrfItem,
                             'NFI_DATA_CADASTRO' => date('Y-m-d H:i:s'),
@@ -578,50 +877,34 @@ class Nfecom extends MY_Controller
                         } else {
                             log_message('info', 'Item NFCom #' . $itemNumero . ' - CLF_ID não fornecido no serviço');
                         }
+                        
+                        // Adicionar ten_id obrigatório para foreign key (se a tabela tiver esse campo)
+                        $tenId = $this->session->userdata('ten_id');
+                        if (!empty($tenId)) {
+                            $fields = $this->db->list_fields('nfecom_itens');
+                            if (in_array('ten_id', $fields)) {
+                                $itemData['ten_id'] = $tenId;
+                            }
+                        }
 
                         $this->Nfecom_model->add('nfecom_itens', $itemData);
                         log_message('info', 'Item NFCom #' . $itemNumero . ' salvo com sucesso. NFI_ID: ' . $this->db->insert_id());
+                        
+                        // Acumular totais de ICMS, ICMS ST e FCP
+                        $totalIcms += $valorIcms ?? 0;
+                        $totalIcmsSt += $valorIcmsSt ?? 0;
+                        $totalFcp += $valorFcp ?? 0;
+                        $totalBaseIcms += $baseIcms ?? 0;
+                        
                         $itemNumero++;
                     }
                 }
 
-                // Se não há serviços válidos, criar um item genérico
+                // Se não há serviços válidos, não permitir criar item genérico sem tributação
                 if ($itemNumero == 1) {
-                    $itemData = [
-                        'NFC_ID' => $idNfecom,
-                        'NFI_N_ITEM' => 1,
-                        'NFI_C_PROD' => '1',
-                        'NFI_X_PROD' => 'Serviços diversos',
-                        'NFI_C_CLASS' => '0600402',
-                        'NFI_CFOP' => '5307',
-                        'NFI_U_MED' => '4',
-                        'NFI_Q_FATURADA' => 1.0000,
-                        'NFI_V_ITEM' => $valorLiquido,
-                        'NFI_V_DESC' => 0.00,
-                        'NFI_V_OUTRO' => 0.00,
-                        'NFI_V_PROD' => $valorLiquido,
-                        'NFI_CST_ICMS' => '41',
-                        'NFI_CST_PIS' => '01',
-                        'NFI_V_BC_PIS' => $valorLiquido,
-                        'NFI_P_PIS' => 0.65,
-                        'NFI_V_PIS' => $pis,
-                        'NFI_CST_COFINS' => '01',
-                        'NFI_V_BC_COFINS' => $valorLiquido,
-                        'NFI_P_COFINS' => 3.00,
-                        'NFI_V_COFINS' => $cofins,
-                        'NFI_V_BC_FUST' => 0.00,
-                        'NFI_P_FUST' => 0.00,
-                        'NFI_V_FUST' => 0.00,
-                        'NFI_V_BC_FUNTEL' => 0.00,
-                        'NFI_P_FUNTEL' => 0.00,
-                        'NFI_V_FUNTEL' => 0.00,
-                        'NFI_V_BC_IRRF' => $valorLiquido,
-                        'NFI_V_IRRF' => $irrf,
-                        'NFI_DATA_CADASTRO' => date('Y-m-d H:i:s'),
-                        'NFI_DATA_ATUALIZACAO' => date('Y-m-d H:i:s')
-                    ];
-
-                    $this->Nfecom_model->add('nfecom_itens', $itemData);
+                    // Não permitir salvar sem serviços válidos
+                    $this->session->set_flashdata('error', 'Não é possível salvar NFeCom sem serviços válidos com tributação calculada.');
+                    redirect(site_url('nfecom/adicionar'));
                 }
 
                 $this->session->set_flashdata('success', 'NFECom adicionada com sucesso!');
@@ -1534,43 +1817,156 @@ class Nfecom extends MY_Controller
             'cod_barras' => $nfecom->NFC_LINHA_DIGITAVEL ?? ''
         ];
 
-        // Preparar itens
+        // Preparar itens - TODOS os dados vêm do banco
         $itensFormatados = [];
         foreach ($itens as $item) {
+            // Log para debug - TODOS os valores de ICMS, ICMS ST e FCP
+            log_message('debug', 'DANFE Item Formatado - NFI_ID: ' . ($item->NFI_ID ?? 'N/A') . 
+                        ' | NFI_V_PROD: ' . ($item->NFI_V_PROD ?? 0) . 
+                        ' | NFI_V_BC_ICMS: ' . ($item->NFI_V_BC_ICMS ?? 0) . 
+                        ' | NFI_P_ICMS: ' . ($item->NFI_P_ICMS ?? 0) . 
+                        ' | NFI_V_ICMS: ' . ($item->NFI_V_ICMS ?? 0) . 
+                        ' | NFI_V_BC_ICMS_ST: ' . ($item->NFI_V_BC_ICMS_ST ?? 0) . 
+                        ' | NFI_V_ICMS_ST: ' . ($item->NFI_V_ICMS_ST ?? 0) . 
+                        ' | NFI_V_BC_FCP: ' . ($item->NFI_V_BC_FCP ?? 0) . 
+                        ' | NFI_V_FCP: ' . ($item->NFI_V_FCP ?? 0) . 
+                        ' | NFI_V_BC_PIS: ' . ($item->NFI_V_BC_PIS ?? 0) . 
+                        ' | NFI_V_BC_COFINS: ' . ($item->NFI_V_BC_COFINS ?? 0) . 
+                        ' | NFI_CST_ICMS: ' . ($item->NFI_CST_ICMS ?? 'N/A') . 
+                        ' | NFI_CST_PIS: ' . ($item->NFI_CST_PIS ?? 'N/A') . 
+                        ' | NFI_CST_COFINS: ' . ($item->NFI_CST_COFINS ?? 'N/A'));
+            
             $itensFormatados[] = [
-                'descricao' => $item->NFI_X_PROD,
-                'cclass' => $item->NFI_C_CLASS,
-                'unidade' => $item->NFI_U_MED,
-                'quantidade' => $item->NFI_Q_FATURADA,
-                'valor_unitario' => $item->NFI_V_ITEM / $item->NFI_Q_FATURADA,
-                'valor_total' => $item->NFI_V_PROD,
-                'desconto' => $item->NFI_V_DESC,
-                'outros' => $item->NFI_V_OUTRO,
-                'base_calculo' => $item->NFI_V_BC_PIS,
-                'aliquota_icms' => 0,
-                'valor_icms' => 0,
+                'descricao' => $item->NFI_X_PROD ?? '',
+                'cclass' => $item->NFI_C_CLASS ?? '',
+                'cfop' => $item->NFI_CFOP ?? '', // Adicionar CFOP
+                'unidade' => $item->NFI_U_MED ?? '',
+                'quantidade' => floatval($item->NFI_Q_FATURADA ?? 0),
+                // Valor unitário = Valor Produto / Quantidade (usar valor do banco, sem cálculo)
+                'valor_unitario' => ($item->NFI_Q_FATURADA > 0 && $item->NFI_Q_FATURADA != 0) ? (floatval($item->NFI_V_PROD ?? 0) / floatval($item->NFI_Q_FATURADA)) : 0,
+                'valor_total' => floatval($item->NFI_V_PROD ?? 0),
+                'desconto' => floatval($item->NFI_V_DESC ?? 0),
+                'outros' => floatval($item->NFI_V_OUTRO ?? 0),
+                'base_calculo' => floatval($item->NFI_V_BC_ICMS ?? 0), // Base de cálculo ICMS (usar valor salvo diretamente do banco)
+                'aliquota_icms' => floatval($item->NFI_P_ICMS ?? 0), // Alíquota ICMS
+                'valor_icms' => floatval($item->NFI_V_ICMS ?? 0), // Valor ICMS
+                'icms' => [
+                    'cst' => $item->NFI_CST_ICMS ?? '',
+                    'csosn' => $item->NFI_CSOSN ?? null, // CSOSN para Simples Nacional
+                    'base_calculo' => floatval($item->NFI_V_BC_ICMS ?? 0),
+                    'aliquota' => floatval($item->NFI_P_ICMS ?? 0),
+                    'valor' => floatval($item->NFI_V_ICMS ?? 0),
+                    'valor_deson' => floatval($item->NFI_V_ICMS_DESON ?? 0), // Valor ICMS Desonerado
+                    'motivo_deson' => $item->NFI_MOT_DES_ICMS ?? null // Motivo da Desoneração
+                ],
+                'icms_st' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_ICMS_ST ?? 0),
+                    'aliquota' => floatval($item->NFI_P_ICMS_ST ?? 0),
+                    'valor' => floatval($item->NFI_V_ICMS_ST ?? 0),
+                    'base_ret' => floatval($item->NFI_V_BC_ST_RET ?? 0), // Base de Cálculo do ST Retido
+                    'valor_ret' => floatval($item->NFI_V_ICMS_ST_RET ?? 0), // Valor do ICMS ST Retido
+                    'aliquota_st' => floatval($item->NFI_P_ST ?? 0), // Alíquota do ST
+                    'valor_subst' => floatval($item->NFI_V_ICMS_SUBST ?? 0) // Valor do ICMS Próprio do Substituto
+                ],
+                'fcp' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_FCP ?? 0),
+                    'aliquota' => floatval($item->NFI_P_FCP ?? 0),
+                    'valor' => floatval($item->NFI_V_FCP ?? 0),
+                    'valor_st' => floatval($item->NFI_V_FCP_ST ?? 0), // Valor do FCP ST
+                    'valor_st_ret' => floatval($item->NFI_V_FCP_ST_RET ?? 0) // Valor do FCP ST Retido
+                ],
                 'pis' => [
-                    'valor' => $item->NFI_V_PIS
+                    'cst' => $item->NFI_CST_PIS ?? '',
+                    'base_calculo' => floatval($item->NFI_V_BC_PIS ?? 0), // Usar valor salvo diretamente do banco
+                    'aliquota' => floatval($item->NFI_P_PIS ?? 0),
+                    'valor' => floatval($item->NFI_V_PIS ?? 0)
                 ],
                 'cofins' => [
-                    'valor' => $item->NFI_V_COFINS
+                    'cst' => $item->NFI_CST_COFINS ?? '',
+                    'base_calculo' => floatval($item->NFI_V_BC_COFINS ?? 0), // Usar valor salvo diretamente do banco
+                    'aliquota' => floatval($item->NFI_P_COFINS ?? 0),
+                    'valor' => floatval($item->NFI_V_COFINS ?? 0)
+                ],
+                'fust' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_FUST ?? 0),
+                    'aliquota' => floatval($item->NFI_P_FUST ?? 0),
+                    'valor' => floatval($item->NFI_V_FUST ?? 0)
+                ],
+                'funtel' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_FUNTEL ?? 0),
+                    'aliquota' => floatval($item->NFI_P_FUNTEL ?? 0),
+                    'valor' => floatval($item->NFI_V_FUNTEL ?? 0)
+                ],
+                'irrf' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_IRRF ?? 0),
+                    'valor' => floatval($item->NFI_V_IRRF ?? 0)
                 ]
             ];
         }
 
-        // Preparar totais
+        // Calcular bases de cálculo totais dos itens (soma direta dos valores salvos no banco)
+        $totalBasePis = 0;
+        $totalBaseCofins = 0;
+        $totalBaseIcms = 0;
+        $totalBaseIcmsSt = 0;
+        $totalBaseFcp = 0;
+        foreach ($itens as $item) {
+            // Usar diretamente os valores salvos no banco de dados (nfecom_itens)
+            $totalBasePis += floatval($item->NFI_V_BC_PIS ?? 0);
+            $totalBaseCofins += floatval($item->NFI_V_BC_COFINS ?? 0);
+            $totalBaseIcms += floatval($item->NFI_V_BC_ICMS ?? 0);
+            $totalBaseIcmsSt += floatval($item->NFI_V_BC_ICMS_ST ?? 0);
+            $totalBaseFcp += floatval($item->NFI_V_BC_FCP ?? 0);
+        }
+        
+        // Preparar totais - TODOS os valores vêm da nota (capa)
         $totais = [
-            'valor_total' => $nfecom->NFC_V_NF,
-            'valor_base_calculo' => $nfecom->NFC_V_PROD,
-            'valor_produtos' => $nfecom->NFC_V_PROD,
-            'valor_icms' => 0,
+            'valor_total' => floatval($nfecom->NFC_V_NF ?? 0),
+            'valor_base_calculo' => floatval($nfecom->NFC_V_BC_ICMS ?? 0), // Base de cálculo ICMS - APENAS valor do banco, sem fallback
+            'valor_produtos' => floatval($nfecom->NFC_V_PROD ?? 0),
+            // ICMS
+            'valor_icms' => floatval($nfecom->NFC_V_ICMS ?? 0), // Valor Total do ICMS
+            'valor_icms_deson' => floatval($nfecom->NFC_V_ICMS_DESON ?? 0), // Valor Total do ICMS Desonerado
+            'base_calculo_icms' => floatval($nfecom->NFC_V_BC_ICMS ?? 0), // Base de Cálculo ICMS total
+            // ICMS ST (somar dos itens, pois não há campo total na capa)
+            'valor_icms_st' => 0, // Será calculado somando dos itens se necessário
+            'base_calculo_icms_st' => floatval($totalBaseIcmsSt), // Base de Cálculo ICMS ST total
+            // FCP
+            'valor_fcp' => floatval($nfecom->NFC_V_FCP ?? 0), // Valor Total do FCP
+            'base_calculo_fcp' => floatval($totalBaseFcp), // Base de Cálculo FCP total
+            // Outros
             'valor_isento' => 0,
-            'valor_outros' => $nfecom->NFC_V_OUTRO,
-            'valor_pis' => $nfecom->NFC_V_PIS,
-            'valor_cofins' => $nfecom->NFC_V_COFINS,
-            'valor_fust' => $nfecom->NFC_V_FUST,
-            'valor_funtel' => $nfecom->NFC_V_FUNTEL
+            'valor_desconto' => floatval($nfecom->NFC_V_DESC ?? 0),
+            'valor_outros' => floatval($nfecom->NFC_V_OUTRO ?? 0),
+            // PIS e COFINS
+            'valor_pis' => floatval($nfecom->NFC_V_PIS ?? 0),
+            'valor_cofins' => floatval($nfecom->NFC_V_COFINS ?? 0),
+            'base_calculo_pis' => floatval($totalBasePis), // Base de cálculo total PIS
+            'base_calculo_cofins' => floatval($totalBaseCofins), // Base de cálculo total COFINS
+            // FUST e FUNTTEL
+            'valor_fust' => floatval($nfecom->NFC_V_FUST ?? 0),
+            'valor_funtel' => floatval($nfecom->NFC_V_FUNTEL ?? 0),
+            // Retenções
+            'valor_ret_pis' => floatval($nfecom->NFC_V_RET_PIS ?? 0),
+            'valor_ret_cofins' => floatval($nfecom->NFC_V_RET_COFINS ?? 0),
+            'valor_ret_csll' => floatval($nfecom->NFC_V_RET_CSLL ?? 0),
+            'valor_irrf' => floatval($nfecom->NFC_V_IRRF ?? 0)
         ];
+        
+        // Calcular total de ICMS ST somando dos itens (se não houver campo na capa)
+        $totalIcmsSt = 0;
+        foreach ($itens as $item) {
+            $totalIcmsSt += floatval($item->NFI_V_ICMS_ST ?? 0);
+        }
+        $totais['valor_icms_st'] = floatval($totalIcmsSt);
+        
+        // Log para debug dos totais
+        log_message('debug', 'DANFE Totais - NFC_V_BC_ICMS: ' . ($nfecom->NFC_V_BC_ICMS ?? 0) . 
+                    ' | NFC_V_ICMS: ' . ($nfecom->NFC_V_ICMS ?? 0) . 
+                    ' | NFC_V_FCP: ' . ($nfecom->NFC_V_FCP ?? 0) . 
+                    ' | Total Base ICMS (soma itens): ' . $totalBaseIcms . 
+                    ' | Total ICMS ST (soma itens): ' . $totalIcmsSt . 
+                    ' | Total Base FCP (soma itens): ' . $totalBaseFcp);
 
         // Preparar dados completos
         $dados = [
@@ -1680,49 +2076,154 @@ class Nfecom extends MY_Controller
             ]
         ];
 
-        // Preparar dados dos itens
+        // Preparar dados dos itens - TODOS os dados vêm do banco
         $produtos = [];
         foreach ($itens as $item) {
+            // Log para debug
+            log_message('debug', 'DANFE Item - NFI_ID: ' . ($item->NFI_ID ?? 'N/A') . 
+                        ' | NFI_V_PROD: ' . ($item->NFI_V_PROD ?? 0) . 
+                        ' | NFI_V_BC_PIS: ' . ($item->NFI_V_BC_PIS ?? 0) . 
+                        ' | NFI_V_BC_COFINS: ' . ($item->NFI_V_BC_COFINS ?? 0) . 
+                        ' | NFI_CST_PIS: ' . ($item->NFI_CST_PIS ?? 'N/A') . 
+                        ' | NFI_CST_COFINS: ' . ($item->NFI_CST_COFINS ?? 'N/A') . 
+                        ' | NFI_P_PIS: ' . ($item->NFI_P_PIS ?? 0) . 
+                        ' | NFI_P_COFINS: ' . ($item->NFI_P_COFINS ?? 0) . 
+                        ' | NFI_V_PIS: ' . ($item->NFI_V_PIS ?? 0) . 
+                        ' | NFI_V_COFINS: ' . ($item->NFI_V_COFINS ?? 0));
+            
             $produtos[] = [
-                'codigo' => $item->NFI_C_PROD,
-                'descricao' => $item->NFI_X_PROD,
-                'ncm' => '',
-                'cfop' => $item->NFI_CFOP,
-                'unidade' => $item->NFI_U_MED,
-                'quantidade' => $item->NFI_Q_FATURADA,
-                'valor_unitario' => $item->NFI_V_ITEM,
-                'valor_total' => $item->NFI_V_PROD,
+                'codigo' => $item->NFI_C_PROD ?? '',
+                'descricao' => $item->NFI_X_PROD ?? '',
+                'ncm' => '', // NCM não está na tabela nfecom_itens
+                'cfop' => $item->NFI_CFOP ?? '',
+                'c_class' => $item->NFI_C_CLASS ?? '', // Adicionar código de classificação
+                'unidade' => $item->NFI_U_MED ?? '',
+                'quantidade' => floatval($item->NFI_Q_FATURADA ?? 0),
+                // Valor unitário = Valor Produto / Quantidade (usar valor do banco, sem cálculo)
+                'valor_unitario' => ($item->NFI_Q_FATURADA > 0 && $item->NFI_Q_FATURADA != 0) ? (floatval($item->NFI_V_PROD ?? 0) / floatval($item->NFI_Q_FATURADA)) : 0,
+                'valor_total' => floatval($item->NFI_V_PROD ?? 0),
+                'desconto' => floatval($item->NFI_V_DESC ?? 0),
+                'outros' => floatval($item->NFI_V_OUTRO ?? 0),
+                'base_calculo' => floatval($item->NFI_V_BC_ICMS ?? 0), // Base de cálculo ICMS
+                'aliquota_icms' => floatval($item->NFI_P_ICMS ?? 0), // Alíquota ICMS
+                'valor_icms' => floatval($item->NFI_V_ICMS ?? 0), // Valor ICMS
                 'icms' => [
-                    'cst' => $item->NFI_CST_ICMS,
-                    'aliquota' => 0,
-                    'valor' => 0
+                    'cst' => $item->NFI_CST_ICMS ?? '',
+                    'csosn' => $item->NFI_CSOSN ?? null, // CSOSN para Simples Nacional
+                    'base_calculo' => floatval($item->NFI_V_BC_ICMS ?? 0),
+                    'aliquota' => floatval($item->NFI_P_ICMS ?? 0),
+                    'valor' => floatval($item->NFI_V_ICMS ?? 0),
+                    'valor_deson' => floatval($item->NFI_V_ICMS_DESON ?? 0), // Valor ICMS Desonerado
+                    'motivo_deson' => $item->NFI_MOT_DES_ICMS ?? null // Motivo da Desoneração
+                ],
+                'icms_st' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_ICMS_ST ?? 0),
+                    'aliquota' => floatval($item->NFI_P_ICMS_ST ?? 0),
+                    'valor' => floatval($item->NFI_V_ICMS_ST ?? 0),
+                    'base_ret' => floatval($item->NFI_V_BC_ST_RET ?? 0), // Base de Cálculo do ST Retido
+                    'valor_ret' => floatval($item->NFI_V_ICMS_ST_RET ?? 0), // Valor do ICMS ST Retido
+                    'aliquota_st' => floatval($item->NFI_P_ST ?? 0), // Alíquota do ST
+                    'valor_subst' => floatval($item->NFI_V_ICMS_SUBST ?? 0) // Valor do ICMS Próprio do Substituto
+                ],
+                'fcp' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_FCP ?? 0),
+                    'aliquota' => floatval($item->NFI_P_FCP ?? 0),
+                    'valor' => floatval($item->NFI_V_FCP ?? 0),
+                    'valor_st' => floatval($item->NFI_V_FCP_ST ?? 0), // Valor do FCP ST
+                    'valor_st_ret' => floatval($item->NFI_V_FCP_ST_RET ?? 0) // Valor do FCP ST Retido
                 ],
                 'pis' => [
-                    'cst' => $item->NFI_CST_PIS,
-                    'aliquota' => $item->NFI_P_PIS,
-                    'valor' => $item->NFI_V_PIS
+                    'cst' => $item->NFI_CST_PIS ?? '',
+                    'base_calculo' => floatval($item->NFI_V_BC_PIS ?? 0), // Usar valor salvo diretamente do banco
+                    'aliquota' => floatval($item->NFI_P_PIS ?? 0),
+                    'valor' => floatval($item->NFI_V_PIS ?? 0)
                 ],
                 'cofins' => [
-                    'cst' => $item->NFI_CST_COFINS,
-                    'aliquota' => $item->NFI_P_COFINS,
-                    'valor' => $item->NFI_V_COFINS
+                    'cst' => $item->NFI_CST_COFINS ?? '',
+                    'base_calculo' => floatval($item->NFI_V_BC_COFINS ?? 0), // Usar valor salvo diretamente do banco
+                    'aliquota' => floatval($item->NFI_P_COFINS ?? 0),
+                    'valor' => floatval($item->NFI_V_COFINS ?? 0)
+                ],
+                'fust' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_FUST ?? 0),
+                    'aliquota' => floatval($item->NFI_P_FUST ?? 0),
+                    'valor' => floatval($item->NFI_V_FUST ?? 0)
+                ],
+                'funtel' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_FUNTEL ?? 0),
+                    'aliquota' => floatval($item->NFI_P_FUNTEL ?? 0),
+                    'valor' => floatval($item->NFI_V_FUNTEL ?? 0)
+                ],
+                'irrf' => [
+                    'base_calculo' => floatval($item->NFI_V_BC_IRRF ?? 0),
+                    'valor' => floatval($item->NFI_V_IRRF ?? 0)
                 ]
             ];
         }
 
-        // Preparar totais
+        // Calcular bases de cálculo totais dos itens (soma direta dos valores salvos no banco)
+        $totalBasePis = 0;
+        $totalBaseCofins = 0;
+        $totalBaseIcms = 0;
+        $totalBaseIcmsSt = 0;
+        $totalBaseFcp = 0;
+        foreach ($itens as $item) {
+            // Usar diretamente os valores salvos no banco de dados (nfecom_itens)
+            $totalBasePis += floatval($item->NFI_V_BC_PIS ?? 0);
+            $totalBaseCofins += floatval($item->NFI_V_BC_COFINS ?? 0);
+            $totalBaseIcms += floatval($item->NFI_V_BC_ICMS ?? 0);
+            $totalBaseIcmsSt += floatval($item->NFI_V_BC_ICMS_ST ?? 0);
+            $totalBaseFcp += floatval($item->NFI_V_BC_FCP ?? 0);
+        }
+        
+        // Preparar totais - TODOS os valores vêm da nota (capa)
         $totais = [
-            'valor_total' => $nfecom->NFC_V_NF,
-            'valor_base_calculo' => $nfecom->NFC_V_PROD,
-            'valor_produtos' => $nfecom->NFC_V_PROD,
-            'valor_icms' => 0,
+            'valor_total' => floatval($nfecom->NFC_V_NF ?? 0),
+            'valor_base_calculo' => floatval($nfecom->NFC_V_BC_ICMS ?? 0), // Base de cálculo ICMS - APENAS valor do banco, sem fallback
+            'valor_produtos' => floatval($nfecom->NFC_V_PROD ?? 0),
+            // ICMS
+            'valor_icms' => floatval($nfecom->NFC_V_ICMS ?? 0), // Valor Total do ICMS
+            'valor_icms_deson' => floatval($nfecom->NFC_V_ICMS_DESON ?? 0), // Valor Total do ICMS Desonerado
+            'base_calculo_icms' => floatval($nfecom->NFC_V_BC_ICMS ?? 0), // Base de Cálculo ICMS total
+            // ICMS ST (somar dos itens, pois não há campo total na capa)
+            'valor_icms_st' => 0, // Será calculado somando dos itens se necessário
+            'base_calculo_icms_st' => floatval($totalBaseIcmsSt), // Base de Cálculo ICMS ST total
+            // FCP
+            'valor_fcp' => floatval($nfecom->NFC_V_FCP ?? 0), // Valor Total do FCP
+            'base_calculo_fcp' => floatval($totalBaseFcp), // Base de Cálculo FCP total
+            // Outros
             'valor_isento' => 0,
-            'valor_outros' => $nfecom->NFC_V_OUTRO,
-            'valor_pis' => $nfecom->NFC_V_PIS,
-            'valor_cofins' => $nfecom->NFC_V_COFINS,
-            'valor_fust' => $nfecom->NFC_V_FUST,
-            'valor_funtel' => $nfecom->NFC_V_FUNTEL
+            'valor_desconto' => floatval($nfecom->NFC_V_DESC ?? 0),
+            'valor_outros' => floatval($nfecom->NFC_V_OUTRO ?? 0),
+            // PIS e COFINS
+            'valor_pis' => floatval($nfecom->NFC_V_PIS ?? 0),
+            'valor_cofins' => floatval($nfecom->NFC_V_COFINS ?? 0),
+            'base_calculo_pis' => floatval($totalBasePis), // Base de cálculo total PIS
+            'base_calculo_cofins' => floatval($totalBaseCofins), // Base de cálculo total COFINS
+            // FUST e FUNTTEL
+            'valor_fust' => floatval($nfecom->NFC_V_FUST ?? 0),
+            'valor_funtel' => floatval($nfecom->NFC_V_FUNTEL ?? 0),
+            // Retenções
+            'valor_ret_pis' => floatval($nfecom->NFC_V_RET_PIS ?? 0),
+            'valor_ret_cofins' => floatval($nfecom->NFC_V_RET_COFINS ?? 0),
+            'valor_ret_csll' => floatval($nfecom->NFC_V_RET_CSLL ?? 0),
+            'valor_irrf' => floatval($nfecom->NFC_V_IRRF ?? 0)
         ];
+        
+        // Calcular total de ICMS ST somando dos itens (se não houver campo na capa)
+        $totalIcmsSt = 0;
+        foreach ($itens as $item) {
+            $totalIcmsSt += floatval($item->NFI_V_ICMS_ST ?? 0);
+        }
+        $totais['valor_icms_st'] = floatval($totalIcmsSt);
+        
+        // Log para debug dos totais
+        log_message('debug', 'DANFE Totais - NFC_V_BC_ICMS: ' . ($nfecom->NFC_V_BC_ICMS ?? 0) . 
+                    ' | NFC_V_ICMS: ' . ($nfecom->NFC_V_ICMS ?? 0) . 
+                    ' | NFC_V_FCP: ' . ($nfecom->NFC_V_FCP ?? 0) . 
+                    ' | Total Base ICMS (soma itens): ' . $totalBaseIcms . 
+                    ' | Total ICMS ST (soma itens): ' . $totalIcmsSt . 
+                    ' | Total Base FCP (soma itens): ' . $totalBaseFcp);
 
         // Preparar dados completos
         $dados = [
@@ -2628,7 +3129,50 @@ class Nfecom extends MY_Controller
             $xml .= '<vProd>' . number_format($item->NFI_V_PROD, 2, '.', '') . '</vProd>' . "\n";
             $xml .= '</prod>' . "\n";
             $xml .= '<imposto>' . "\n";
-            $xml .= '<ICMS40><CST>' . $item->NFI_CST_ICMS . '</CST></ICMS40>' . "\n";
+            
+            // ICMS - Estrutura dinâmica baseada no CST e valores do banco
+            $cstIcms = $item->NFI_CST_ICMS ?? '';
+            $baseIcms = floatval($item->NFI_V_BC_ICMS ?? 0);
+            $aliqIcms = floatval($item->NFI_P_ICMS ?? 0);
+            $valorIcms = floatval($item->NFI_V_ICMS ?? 0);
+            $valorIcmsDeson = floatval($item->NFI_V_ICMS_DESON ?? 0);
+            $motDesIcms = $item->NFI_MOT_DES_ICMS ?? null;
+            
+            // Determinar qual tag ICMS usar baseado no CST
+            // CST 00, 10, 20, 30, 70: têm base e valor
+            // CST 40, 41, 50, 51, 60: isento/não tributado (sem base/valor)
+            if (in_array($cstIcms, ['00', '10', '20', '30', '70']) && ($baseIcms > 0 || $valorIcms > 0)) {
+                // ICMS com base e valor
+                if ($cstIcms == '00') {
+                    $xml .= '<ICMS00><CST>' . $cstIcms . '</CST><vBC>' . number_format($baseIcms, 2, '.', '') . '</vBC><pICMS>' . number_format($aliqIcms, 2, '.', '') . '</pICMS><vICMS>' . number_format($valorIcms, 2, '.', '') . '</vICMS></ICMS00>' . "\n";
+                } elseif ($cstIcms == '10') {
+                    $xml .= '<ICMS10><CST>' . $cstIcms . '</CST><vBC>' . number_format($baseIcms, 2, '.', '') . '</vBC><pICMS>' . number_format($aliqIcms, 2, '.', '') . '</pICMS><vICMS>' . number_format($valorIcms, 2, '.', '') . '</vICMS></ICMS10>' . "\n";
+                } elseif ($cstIcms == '20') {
+                    $xml .= '<ICMS20><CST>' . $cstIcms . '</CST><vBC>' . number_format($baseIcms, 2, '.', '') . '</vBC><pICMS>' . number_format($aliqIcms, 2, '.', '') . '</pICMS><vICMS>' . number_format($valorIcms, 2, '.', '') . '</vICMS></ICMS20>' . "\n";
+                } elseif ($cstIcms == '30') {
+                    $xml .= '<ICMS30><CST>' . $cstIcms . '</CST></ICMS30>' . "\n";
+                } elseif ($cstIcms == '70') {
+                    $xml .= '<ICMS70><CST>' . $cstIcms . '</CST><vBC>' . number_format($baseIcms, 2, '.', '') . '</vBC><pICMS>' . number_format($aliqIcms, 2, '.', '') . '</pICMS><vICMS>' . number_format($valorIcms, 2, '.', '') . '</vICMS></ICMS70>' . "\n";
+                }
+            } else {
+                // ICMS isento/não tributado (CST 40, 41, 50, 51, 60 ou sem valores)
+                $xml .= '<ICMS40><CST>' . $cstIcms . '</CST></ICMS40>' . "\n";
+            }
+            
+            // ICMS ST (se houver valores)
+            $baseIcmsSt = floatval($item->NFI_V_BC_ICMS_ST ?? 0);
+            $valorIcmsSt = floatval($item->NFI_V_ICMS_ST ?? 0);
+            if ($baseIcmsSt > 0 || $valorIcmsSt > 0) {
+                $xml .= '<ICMSST><vBCST>' . number_format($baseIcmsSt, 2, '.', '') . '</vBCST><pICMSST>' . number_format(floatval($item->NFI_P_ICMS_ST ?? 0), 2, '.', '') . '</pICMSST><vICMSST>' . number_format($valorIcmsSt, 2, '.', '') . '</vICMSST></ICMSST>' . "\n";
+            }
+            
+            // FCP (se houver valores)
+            $baseFcp = floatval($item->NFI_V_BC_FCP ?? 0);
+            $valorFcp = floatval($item->NFI_V_FCP ?? 0);
+            if ($baseFcp > 0 || $valorFcp > 0) {
+                $xml .= '<FCP><vBCFCP>' . number_format($baseFcp, 2, '.', '') . '</vBCFCP><pFCP>' . number_format(floatval($item->NFI_P_FCP ?? 0), 2, '.', '') . '</pFCP><vFCP>' . number_format($valorFcp, 2, '.', '') . '</vFCP></FCP>' . "\n";
+            }
+            
             $xml .= '<PIS><CST>' . $item->NFI_CST_PIS . '</CST><vBC>' . number_format($item->NFI_V_BC_PIS, 2, '.', '') . '</vBC><pPIS>' . number_format($item->NFI_P_PIS, 2, '.', '') . '</pPIS><vPIS>' . number_format($item->NFI_V_PIS, 2, '.', '') . '</vPIS></PIS>' . "\n";
             $xml .= '<COFINS><CST>' . $item->NFI_CST_COFINS . '</CST><vBC>' . number_format($item->NFI_V_BC_COFINS, 2, '.', '') . '</vBC><pCOFINS>' . number_format($item->NFI_P_COFINS, 2, '.', '') . '</pCOFINS><vCOFINS>' . number_format($item->NFI_V_COFINS, 2, '.', '') . '</vCOFINS></COFINS>' . "\n";
             $xml .= '<FUST><vBC>' . number_format($item->NFI_V_BC_FUST, 2, '.', '') . '</vBC><pFUST>' . number_format($item->NFI_P_FUST, 2, '.', '') . '</pFUST><vFUST>' . number_format($item->NFI_V_FUST, 2, '.', '') . '</vFUST></FUST>' . "\n";
@@ -2641,7 +3185,13 @@ class Nfecom extends MY_Controller
         // Totais
         $xml .= '<total>' . "\n";
         $xml .= '<vProd>' . number_format($nfecom->NFC_V_PROD, 2, '.', '') . '</vProd>' . "\n";
-        $xml .= '<ICMSTot><vBC>0.00</vBC><vICMS>0.00</vICMS><vICMSDeson>0.00</vICMSDeson><vFCP>0.00</vFCP></ICMSTot>' . "\n";
+        // Totais de ICMS - APENAS valores do banco, sem valores fixos
+        $xml .= '<ICMSTot>' . "\n";
+        $xml .= '<vBC>' . number_format(floatval($nfecom->NFC_V_BC_ICMS ?? 0), 2, '.', '') . '</vBC>' . "\n";
+        $xml .= '<vICMS>' . number_format(floatval($nfecom->NFC_V_ICMS ?? 0), 2, '.', '') . '</vICMS>' . "\n";
+        $xml .= '<vICMSDeson>' . number_format(floatval($nfecom->NFC_V_ICMS_DESON ?? 0), 2, '.', '') . '</vICMSDeson>' . "\n";
+        $xml .= '<vFCP>' . number_format(floatval($nfecom->NFC_V_FCP ?? 0), 2, '.', '') . '</vFCP>' . "\n";
+        $xml .= '</ICMSTot>' . "\n";
         $xml .= '<vCOFINS>' . number_format($nfecom->NFC_V_COFINS, 2, '.', '') . '</vCOFINS>' . "\n";
         $xml .= '<vPIS>' . number_format($nfecom->NFC_V_PIS, 2, '.', '') . '</vPIS>' . "\n";
         $xml .= '<vFUNTTEL>' . number_format($nfecom->NFC_V_FUNTEL, 2, '.', '') . '</vFUNTTEL>' . "\n";
@@ -2992,6 +3542,134 @@ class Nfecom extends MY_Controller
     }
 
     /**
+     * Buscar contrato por código (autocomplete)
+     * GET: /nfecom/buscarContratoPorCodigo?term={codigo}
+     */
+    public function buscarContratoPorCodigo()
+    {
+        $termo = $this->input->get('term');
+        
+        if (!$termo || strlen($termo) < 2) {
+            header('Content-Type: application/json');
+            echo json_encode([]);
+            return;
+        }
+
+        try {
+            $this->load->model('Contratos_model');
+            
+            // Buscar contratos por número
+            $this->db->select('c.CTR_ID, c.CTR_NUMERO, c.CTR_DATA_INICIO, c.CTR_DATA_FIM, c.CTR_TIPO_ASSINANTE, c.CTR_OBSERVACAO, c.PES_ID, p.PES_NOME, p.PES_RAZAO_SOCIAL, p.PES_CPFCNPJ, cl.CLN_ID');
+            $this->db->from('contratos c');
+            $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
+            $this->db->join('clientes cl', 'cl.PES_ID = p.PES_ID AND cl.ten_id = c.ten_id', 'left');
+            $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
+            $this->db->where('c.CTR_SITUACAO', 1); // Apenas contratos ativos
+            $this->db->like('c.CTR_NUMERO', $termo);
+            $this->db->order_by('c.CTR_DATA_INICIO', 'desc');
+            $this->db->limit(20);
+            
+            $query = $this->db->get();
+            $contratos = $query->result();
+            
+            $resultado = [];
+            foreach ($contratos as $contrato) {
+                $label = $contrato->CTR_NUMERO;
+                if ($contrato->CTR_DATA_INICIO) {
+                    $label .= ' - ' . date('d/m/Y', strtotime($contrato->CTR_DATA_INICIO));
+                }
+                if ($contrato->PES_NOME) {
+                    $label .= ' (' . $contrato->PES_NOME . ')';
+                }
+                
+                $resultado[] = [
+                    'id' => $contrato->CTR_ID,
+                    'label' => $label,
+                    'value' => $contrato->CTR_NUMERO,
+                    'CTR_ID' => $contrato->CTR_ID,
+                    'CTR_NUMERO' => $contrato->CTR_NUMERO,
+                    'CTR_DATA_INICIO' => $contrato->CTR_DATA_INICIO ? date('Y-m-d', strtotime($contrato->CTR_DATA_INICIO)) : null,
+                    'CTR_DATA_FIM' => $contrato->CTR_DATA_FIM ? date('Y-m-d', strtotime($contrato->CTR_DATA_FIM)) : null,
+                    'CTR_TIPO_ASSINANTE' => $contrato->CTR_TIPO_ASSINANTE,
+                    'CTR_OBSERVACAO' => $contrato->CTR_OBSERVACAO,
+                    'CLN_ID' => $contrato->CLN_ID,
+                    'PES_ID' => $contrato->PES_ID,
+                    'PES_NOME' => $contrato->PES_NOME,
+                    'PES_RAZAO_SOCIAL' => $contrato->PES_RAZAO_SOCIAL,
+                    'PES_CPFCNPJ' => $contrato->PES_CPFCNPJ
+                ];
+            }
+            
+            header('Content-Type: application/json');
+            echo json_encode($resultado);
+        } catch (Exception $e) {
+            log_message('error', 'Erro ao buscar contrato por código: ' . $e->getMessage());
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Erro interno do servidor']);
+        }
+    }
+
+    /**
+     * Buscar serviços/itens de um contrato
+     * GET: /nfecom/getServicosContrato/{contratoId}
+     */
+    public function getServicosContrato()
+    {
+        $contratoId = $this->uri->segment(3);
+
+        if (!$contratoId) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'ID do contrato não informado']);
+            return;
+        }
+
+        try {
+            $this->load->model('Contratos_model');
+            
+            // Buscar itens do contrato
+            $itens = $this->Contratos_model->getItensByContratoId($contratoId);
+            
+            if (empty($itens)) {
+                header('Content-Type: application/json');
+                echo json_encode([]);
+                return;
+            }
+
+            // Formatar resposta
+            $servicos = [];
+            foreach ($itens as $item) {
+                // Descobrir a chave primária da tabela produtos
+                $primary_key_query = $this->db->query("SHOW KEYS FROM produtos WHERE Key_name = 'PRIMARY'");
+                $primary_key = 'idProdutos';
+                if ($primary_key_query->num_rows() > 0) {
+                    $key_info = $primary_key_query->row();
+                    $primary_key = $key_info->Column_name;
+                }
+
+                $servicos[] = [
+                    'CTI_ID' => $item->CTI_ID,
+                    'PRO_ID' => $item->PRO_ID,
+                    'idServicos' => $item->PRO_ID, // Para compatibilidade com o código existente
+                    'nome' => $item->PRO_DESCRICAO,
+                    'PRO_DESCRICAO' => $item->PRO_DESCRICAO,
+                    'preco' => number_format($item->CTI_PRECO, 2, ',', '.'),
+                    'CTI_PRECO' => $item->CTI_PRECO,
+                    'quantidade' => $item->CTI_QUANTIDADE,
+                    'CTI_QUANTIDADE' => $item->CTI_QUANTIDADE,
+                    'observacao' => $item->CTI_OBSERVACAO
+                ];
+            }
+
+            header('Content-Type: application/json');
+            echo json_encode($servicos);
+        } catch (Exception $e) {
+            log_message('error', 'Erro ao buscar serviços do contrato: ' . $e->getMessage());
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Erro interno do servidor: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
      * Endpoint AJAX para buscar classificação fiscal automaticamente
      * 
      * Parâmetros via POST:
@@ -3060,7 +3738,7 @@ class Nfecom extends MY_Controller
                 $cst = $resultado['CLF_CST'] ?? null;
                 $csosn = $resultado['CLF_CSOSN'] ?? null;
                 $cClassTrib = $resultado['CLF_CCLASSTRIB'] ?? null;
-                $tipoIcms = $resultado['CLF_TIPO_ICMS'] ?? null;
+                $tipoIcms = $resultado['CLF_TIPO_TRIBUTACAO'] ?? null;
                 $mensagemFiscal = $resultado['CLF_MENSAGEM'] ?? null;
                 
                 // Log detalhado para identificação
@@ -3297,8 +3975,29 @@ class Nfecom extends MY_Controller
                 'outros' => $it->NFI_V_OUTRO,
                 'imposto' => [
                     'icms' => [
-                        'cst' => $it->NFI_CST_ICMS
-                        // Para ICMS40 (isenção), não incluir vBC, pICMS, vICMS
+                        'cst' => $it->NFI_CST_ICMS,
+                        'csosn' => $it->NFI_CSOSN ?? null, // CSOSN para Simples Nacional
+                        'vBC' => floatval($it->NFI_V_BC_ICMS ?? 0), // Base de cálculo ICMS - APENAS valor do banco
+                        'pICMS' => floatval($it->NFI_P_ICMS ?? 0), // Alíquota ICMS - APENAS valor do banco
+                        'vICMS' => floatval($it->NFI_V_ICMS ?? 0), // Valor ICMS - APENAS valor do banco
+                        'vICMSDeson' => floatval($it->NFI_V_ICMS_DESON ?? 0), // Valor ICMS Desonerado
+                        'motDesICMS' => $it->NFI_MOT_DES_ICMS ?? null // Motivo da Desoneração
+                    ],
+                    'icms_st' => [
+                        'vBCST' => floatval($it->NFI_V_BC_ICMS_ST ?? 0), // Base de cálculo ICMS ST
+                        'pICMSST' => floatval($it->NFI_P_ICMS_ST ?? 0), // Alíquota ICMS ST
+                        'vICMSST' => floatval($it->NFI_V_ICMS_ST ?? 0), // Valor ICMS ST
+                        'vBCSTRet' => floatval($it->NFI_V_BC_ST_RET ?? 0), // Base de Cálculo do ST Retido
+                        'vICMSSTRet' => floatval($it->NFI_V_ICMS_ST_RET ?? 0), // Valor do ICMS ST Retido
+                        'pST' => floatval($it->NFI_P_ST ?? 0), // Alíquota do ST
+                        'vICMSSubstituto' => floatval($it->NFI_V_ICMS_SUBST ?? 0) // Valor do ICMS Próprio do Substituto
+                    ],
+                    'fcp' => [
+                        'vBCFCP' => floatval($it->NFI_V_BC_FCP ?? 0), // Base de cálculo FCP
+                        'pFCP' => floatval($it->NFI_P_FCP ?? 0), // Alíquota FCP
+                        'vFCP' => floatval($it->NFI_V_FCP ?? 0), // Valor FCP
+                        'vFCPST' => floatval($it->NFI_V_FCP_ST ?? 0), // Valor do FCP ST
+                        'vFCPSTRet' => floatval($it->NFI_V_FCP_ST_RET ?? 0) // Valor do FCP ST Retido
                     ],
                     'pis' => [
                         'cst' => $it->NFI_CST_PIS,
@@ -3449,10 +4148,10 @@ class Nfecom extends MY_Controller
             'totais' => [
                 'vProd' => array_sum(array_column($listaItens, 'valor_total')),
                 'icms' => [
-                    'vBC' => 0.00,
-                    'vICMS' => 0.00,
-                    'vICMSDeson' => 0.00,
-                    'vFCP' => 0.00
+                    'vBC' => floatval($nfecom->NFC_V_BC_ICMS ?? 0), // Base de cálculo ICMS - APENAS valor do banco
+                    'vICMS' => floatval($nfecom->NFC_V_ICMS ?? 0), // Valor ICMS - APENAS valor do banco
+                    'vICMSDeson' => floatval($nfecom->NFC_V_ICMS_DESON ?? 0), // Valor ICMS Desonerado - APENAS valor do banco
+                    'vFCP' => floatval($nfecom->NFC_V_FCP ?? 0) // Valor FCP - APENAS valor do banco
                 ],
                 'vCOFINS' => array_sum(array_map(function ($item) {
                     return $item['imposto']['cofins']['vCOFINS'];
@@ -3498,5 +4197,163 @@ class Nfecom extends MY_Controller
         $this->db->limit(1);
         $res = $this->db->get()->row();
         return $res ? $res->MUN_IBGE : '5218300'; // Fallback Posse-GO (7 dígitos)
+    }
+
+    /**
+     * Retorna a base de cálculo correta para PIS/COFINS baseado no CST
+     * Se o CST for isento/não tributado (03-09), retorna 0
+     * Caso contrário, retorna o valor salvo ou o valor do produto se a base estiver incorreta
+     * @param string $cst CST do PIS ou COFINS
+     * @param float $baseSalva Base de cálculo salva no banco
+     * @param float $valorProduto Valor do produto (para validação)
+     * @return float Base de cálculo correta
+     */
+    private function getBaseCalculoPisCofins($cst, $baseSalva, $valorProduto = null)
+    {
+        // CSTs que NÃO calculam PIS/COFINS: 03-09, 49, 50-99 (isento, não tributado, suspenso, etc.)
+        // CSTs que CALCULAM: 01, 02
+        $cstsQueNaoCalculam = ['03', '04', '05', '06', '07', '08', '09', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99'];
+        
+        if (in_array($cst, $cstsQueNaoCalculam)) {
+            // CST isento/não tributado - base de cálculo deve ser 0
+            return 0;
+        }
+        
+        // Para CST 01 e 02 (tributável)
+        $baseSalva = floatval($baseSalva);
+        $valorProduto = $valorProduto !== null ? floatval($valorProduto) : null;
+        
+        // Se não temos valor do produto, usar a base salva (ou 0 se não houver)
+        if ($valorProduto === null || $valorProduto == 0) {
+            return $baseSalva > 0 ? $baseSalva : 0;
+        }
+        
+        // Validar se a base salva está correta
+        // A base de cálculo PIS/COFINS geralmente é igual ao valor do produto (ou valor do produto - desconto + outros)
+        // Se a base salva for muito diferente do produto, provavelmente está errada
+        
+        // Se a base salva for mais de 50% maior que o produto, está claramente errada
+        if ($baseSalva > $valorProduto * 1.5) {
+            // Usar o valor do produto como base correta
+            log_message('debug', "Base de cálculo PIS/COFINS corrigida: base salva ($baseSalva) muito maior que produto ($valorProduto). Usando produto como base.");
+            return $valorProduto;
+        }
+        
+        // Se a base salva for 0 ou muito pequena, usar o valor do produto
+        if ($baseSalva == 0 || $baseSalva < 0.01) {
+            return $valorProduto;
+        }
+        
+        // Se a base salva estiver dentro de uma faixa razoável (até 50% maior que o produto), usar a base salva
+        // Isso permite casos onde há acréscimos legais na base
+        return $baseSalva;
+    }
+
+    /**
+     * Calcula tributação usando a API CalculoTributacaoApi
+     * @param int $produtoId ID do produto/serviço
+     * @param int $clienteId ID do cliente
+     * @param int $operacaoId ID da operação comercial
+     * @param float $valor Valor unitário do produto
+     * @param int $quantidade Quantidade
+     * @param string $tipoOperacao 'entrada' ou 'saida' (padrão: 'saida')
+     * @param int|null $enderecoId ID do endereço selecionado (opcional)
+     * @return array|null Dados da tributação calculada ou null em caso de erro
+     */
+    private function calcularTributacao($produtoId, $clienteId, $operacaoId, $valor, $quantidade = 1, $tipoOperacao = 'saida', $enderecoId = null)
+    {
+        try {
+            $tenId = $this->session->userdata('ten_id');
+            
+            // Construir URL da API - usar base_url para evitar redirecionamentos
+            $baseUrl = rtrim(base_url(), '/');
+            $url = $baseUrl . '/index.php/calculotributacaoapi/calcular';
+            $params = [
+                'ten_id' => $tenId,
+                'produto_id' => $produtoId,
+                'cliente_id' => $clienteId,
+                'operacao_id' => $operacaoId,
+                'valor' => number_format($valor, 2, '.', ''),
+                'quantidade' => $quantidade,
+                'tipo_operacao' => $tipoOperacao
+            ];
+            
+            // Adicionar endereco_id se fornecido
+            if (!empty($enderecoId)) {
+                $params['endereco_id'] = (int)$enderecoId;
+            }
+            
+            $url .= '?' . http_build_query($params);
+            
+            log_message('debug', 'Chamando API de tributação: ' . $url);
+            
+            // Fazer requisição HTTP
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Seguir redirecionamentos
+            curl_setopt($ch, CURLOPT_MAXREDIRS, 5); // Máximo de 5 redirecionamentos
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+            
+            if ($curlError) {
+                log_message('error', 'Erro cURL ao calcular tributação: ' . $curlError . ' | URL: ' . $url);
+                return null;
+            }
+            
+            if ($httpCode !== 200 || !$response) {
+                log_message('error', 'Erro ao calcular tributação - HTTP Code: ' . $httpCode . ' | URL: ' . $url . ' | Response: ' . substr($response, 0, 1000));
+                return null;
+            }
+            
+            // Verificar se a resposta é HTML (erro do CodeIgniter)
+            if (strpos($response, '<!DOCTYPE') !== false || strpos($response, '<html') !== false) {
+                log_message('error', 'API retornou HTML ao invés de JSON - URL: ' . $url . ' | Response: ' . substr($response, 0, 1000));
+                return null;
+            }
+            
+            $result = json_decode($response, true);
+            $jsonError = json_last_error();
+            
+            if ($jsonError !== JSON_ERROR_NONE) {
+                log_message('error', 'Erro ao decodificar JSON da API - JSON Error: ' . $jsonError . ' | URL: ' . $url . ' | Response: ' . substr($response, 0, 1000));
+                return null;
+            }
+            
+            if (!$result) {
+                log_message('error', 'Resposta JSON vazia ou inválida - URL: ' . $url . ' | Response: ' . substr($response, 0, 500));
+                return null;
+            }
+            
+            if (!isset($result['sucesso'])) {
+                log_message('error', 'Resposta da API sem campo "sucesso" - URL: ' . $url . ' | Response: ' . json_encode($result));
+                return null;
+            }
+            
+            if (!$result['sucesso']) {
+                $mensagem = $result['mensagem'] ?? 'Erro desconhecido na API';
+                log_message('error', 'API retornou erro: ' . $mensagem . ' | URL: ' . $url . ' | Response completa: ' . json_encode($result));
+                return null;
+            }
+            
+            if (!isset($result['dados'])) {
+                log_message('error', 'API retornou sucesso mas sem campo "dados" - URL: ' . $url . ' | Response: ' . json_encode($result));
+                return null;
+            }
+            
+            log_message('debug', 'Tributação calculada com sucesso para Produto ID: ' . $produtoId . ' | Cliente ID: ' . $clienteId);
+            
+            return $result['dados'];
+            
+        } catch (Exception $e) {
+            log_message('error', 'Exceção ao calcular tributação: ' . $e->getMessage());
+            return null;
+        }
     }
 }

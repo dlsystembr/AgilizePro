@@ -159,6 +159,33 @@
           </ul>
         </li>
         <li class="dropdown">
+          <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Tributação"><i
+              class='bx bx-calculator iconN'></i><span class="text"></span></a>
+          <ul class="dropdown-menu">
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vCliente')) { ?>
+              <li><a href="<?= site_url('simuladortributacao') ?>">Simulador de Tributação</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vTributacaoProduto')) { ?>
+              <li><a href="<?= site_url('tributacaoproduto') ?>">Tributação Produto</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vClassificacaoFiscal')) { ?>
+              <li><a href="<?= site_url('classificacaofiscal') ?>">Classificação Fiscal</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOperacaoComercial')) { ?>
+              <li><a href="<?= site_url('operacaocomercial') ?>">Operação Comercial</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vAliquota')) { ?>
+              <li><a href="<?= site_url('aliquotas') ?>">Alíquotas</a></li>
+            <?php } ?>
+            <?php
+            $permissao = $this->session->userdata('permissao');
+            if ($this->permission->checkPermission($permissao, 'vNcm') === true) {
+              ?>
+              <li><a href="<?= site_url('ncms') ?>">NCMs</a></li>
+            <?php } ?>
+          </ul>
+        </li>
+        <li class="dropdown">
           <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Configurações"><i
               class='bx bx-cog iconN'></i><span class="text"></span></a>
           <ul class="dropdown-menu">
@@ -169,29 +196,11 @@
             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vEmpresa')) { ?>
               <li><a href="<?= site_url('empresas') ?>">Empresas</a></li>
             <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vTributacaoProduto')) { ?>
-              <li><a href="<?= site_url('tributacaoproduto') ?>">Tributação Produto</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOperacaoComercial')) { ?>
-              <li><a href="<?= site_url('operacaocomercial') ?>">Operação Comercial</a></li>
-            <?php } ?>
             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vCertificado')) { ?>
               <li><a href="<?= site_url('certificados') ?>">Certificados</a></li>
             <?php } ?>
             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vConfigFiscal')) { ?>
               <li><a href="<?= site_url('configuracoesfiscais') ?>">Configurações Fiscais</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vClassificacaoFiscal')) { ?>
-              <li><a href="<?= site_url('classificacaofiscal') ?>">Classificação Fiscal</a></li>
-            <?php } ?>
-            <?php
-            $permissao = $this->session->userdata('permissao');
-            if ($this->permission->checkPermission($permissao, 'vNcm') === true) {
-              ?>
-              <li><a href="<?= site_url('ncms') ?>">NCMs</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vAliquota')) { ?>
-              <li><a href="<?= site_url('aliquotas') ?>">Alíquotas</a></li>
             <?php } ?>
             <li><a href="<?= site_url('auditoria') ?>">Auditoria</a></li>
             <li><a href="<?= site_url('mapos/emails') ?>">Emails</a></li>

@@ -342,14 +342,101 @@ class FaturamentoEntrada extends MY_Controller
                                 throw new Exception('Erro ao adicionar item: ' . $db_error['message']);
                             }
 
-                        // Atualizar estoque do produto
-                        $produto = $this->Produtos_model->getById($produto_id);
-                        if ($produto) {
-                            $quantidade_item = isset($quantidades[$i]) ? str_replace(',', '.', $quantidades[$i]) : 0;
-                            $estoque_atual = $produto->estoque + $quantidade_item;
-                            $this->Produtos_model->edit('produtos', array('estoque' => $estoque_atual), 'idProdutos', $produto_id);
-                            log_message('debug', 'Estoque atualizado para o produto ' . $produto_id . ': ' . $estoque_atual);
                         }
+                    }
+                    
+                    // Criar documento_faturado e itens_faturados com status ABERTO
+                    // Buscar PES_ID do fornecedor
+                    $pes_id = null;
+                    
+                    // Tentar buscar PES_ID através da tabela clientes (nova estrutura)
+                    if ($this->db->table_exists('clientes')) {
+                        $cliente_novo = $this->db->where('CLN_ID', $data['fornecedor_id'])->get('clientes')->row();
+                        if ($cliente_novo) {
+                            $pes_id = $cliente_novo->PES_ID;
+                        }
+                    }
+                    
+                    // Se não encontrou, tentar pela tabela antiga clientes_
+                    if (!$pes_id && $this->db->table_exists('clientes_')) {
+                        $fornecedor = $this->db->where('idClientes', $data['fornecedor_id'])->get('clientes_')->row();
+                        if ($fornecedor) {
+                            // Tentar buscar por documento
+                            $documento_limpo = preg_replace('/\D/', '', $fornecedor->documento);
+                            $pessoa = $this->db->where('PES_CPFCNPJ', $documento_limpo)->get('pessoas')->row();
+                            if ($pessoa) {
+                                $pes_id = $pessoa->PES_ID;
+                            }
+                        }
+                    }
+                    
+                    if ($pes_id) {
+                        // Criar documento_faturado
+                        $dcf_data = [
+                            'ORV_ID' => null, // NULL para faturamento de entrada
+                            'PES_ID' => $pes_id,
+                            'DCF_NUMERO' => $data['numero_nota'] ?: '',
+                            'DCF_SERIE' => '',
+                            'DCF_MODELO' => '55', // NFe
+                            'DCF_TIPO' => 'E', // ENTRADA
+                            'DCF_DATA_EMISSAO' => $data['data_emissao'],
+                            'DCF_DATA_SAIDA' => $data['data_entrada'],
+                            'DCF_VALOR_PRODUTOS' => $data['valor_produtos'],
+                            'DCF_VALOR_FRETE' => $data['valor_frete'],
+                            'DCF_VALOR_ICMS' => $data['valor_icms'],
+                            'DCF_VALOR_IPI' => $data['valor_ipi'],
+                            'DCF_VALOR_TOTAL' => $data['valor_total'],
+                            'DCF_STATUS' => 'ABERTO',
+                            'DCF_DATA_FATURAMENTO' => null
+                        ];
+                        
+                        $this->db->insert('documentos_faturados', $dcf_data);
+                        $dcf_id = $this->db->insert_id();
+                        
+                        // Criar itens_faturados
+                        for ($i = 0; $i < count($produtos); $i++) {
+                            if (!empty($produtos[$i])) {
+                                $produto_id = $produtos[$i];
+                                
+                                // Buscar dados do produto
+                                $produto = $this->Produtos_model->getById($produto_id);
+                                if ($produto) {
+                                    $quantidade_item = isset($quantidades[$i]) ? str_replace(',', '.', $quantidades[$i]) : 0;
+                                    $valor_unitario = isset($valores[$i]) ? str_replace(',', '.', $valores[$i]) : 0;
+                                    
+                                    // Buscar classificação fiscal do produto (se houver)
+                                    $clf_id = null;
+                                    if (isset($produto->CLF_ID)) {
+                                        $clf_id = $produto->CLF_ID;
+                                    }
+                                    
+                                    // Buscar descrição do produto
+                                    $produto_desc = $produto->PRO_DESCRICAO;
+                                    $produto_ncm = isset($produto->PRO_NCM) ? $produto->PRO_NCM : '';
+                                    
+                                    $itf_data = [
+                                        'DCF_ID' => $dcf_id,
+                                        'PRO_ID' => $produto_id,
+                                        'CLF_ID' => $clf_id,
+                                        'ITF_QUANTIDADE' => $quantidade_item,
+                                        'ITF_VALOR_UNITARIO' => $valor_unitario,
+                                        'ITF_VALOR_TOTAL' => isset($totais[$i]) ? str_replace(',', '.', $totais[$i]) : ($quantidade_item * $valor_unitario),
+                                        'ITF_DESCONTO' => isset($descontos[$i]) ? str_replace(',', '.', $descontos[$i]) : 0,
+                                        'ITF_UNIDADE' => isset($produto->PRO_UNID_MEDIDA) ? $produto->PRO_UNID_MEDIDA : '',
+                                        'ITF_PRO_DESCRICAO' => $produto_desc,
+                                        'ITF_PRO_NCM' => $produto_ncm,
+                                        'ITF_CFOP' => isset($cfop) ? $cfop : '',
+                                        'ITF_ICMS_CST' => isset($cst[$i]) ? $cst[$i] : '00',
+                                        'ITF_ICMS_ALIQUOTA' => isset($aliquotas[$i]) ? str_replace(',', '.', $aliquotas[$i]) : 0,
+                                        'ITF_ICMS_VALOR_BASE' => isset($bases_icms[$i]) ? str_replace(',', '.', $bases_icms[$i]) : 0,
+                                        'ITF_ICMS_VALOR' => isset($valores_icms[$i]) ? str_replace(',', '.', $valores_icms[$i]) : 0,
+                                        'ITF_IPI_VALOR' => isset($valores_ipi[$i]) ? str_replace(',', '.', $valores_ipi[$i]) : 0
+                                    ];
+                                    
+                                    $this->db->insert('itens_faturados', $itf_data);
+                                    $itf_id = $this->db->insert_id();
+                                }
+                            }
                         }
                     }
 
@@ -2247,6 +2334,113 @@ class FaturamentoEntrada extends MY_Controller
         ];
 
         echo json_encode($response);
+    }
+
+    public function finalizarEntrada()
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eFaturamentoEntrada')) {
+            $this->output->set_status_header(403);
+            echo json_encode(['success' => false, 'message' => 'Você não tem permissão para finalizar faturamento de entrada.']);
+            return;
+        }
+
+        $id = $this->input->post('id');
+
+        if (!$id) {
+            $this->output->set_status_header(400);
+            echo json_encode(['success' => false, 'message' => 'ID do faturamento não informado.']);
+            return;
+        }
+
+        $this->db->trans_start();
+
+        try {
+            // Buscar faturamento_entrada
+            $faturamento = $this->db->where('id', $id)->get('faturamento_entrada')->row();
+            if (!$faturamento) {
+                throw new Exception('Faturamento não encontrado.');
+            }
+
+            // Buscar documento_faturado relacionado
+            $pes_id = null;
+            
+            // Tentar buscar PES_ID através da tabela clientes (nova estrutura)
+            if ($this->db->table_exists('clientes')) {
+                $cliente_novo = $this->db->where('CLN_ID', $faturamento->fornecedor_id)->get('clientes')->row();
+                if ($cliente_novo) {
+                    $pes_id = $cliente_novo->PES_ID;
+                }
+            }
+            
+            // Se não encontrou, tentar pela tabela antiga clientes_
+            if (!$pes_id && $this->db->table_exists('clientes_')) {
+                $fornecedor = $this->db->where('idClientes', $faturamento->fornecedor_id)->get('clientes_')->row();
+                if ($fornecedor) {
+                    $documento_limpo = preg_replace('/\D/', '', $fornecedor->documento);
+                    $pessoa = $this->db->where('PES_CPFCNPJ', $documento_limpo)->get('pessoas')->row();
+                    if ($pessoa) {
+                        $pes_id = $pessoa->PES_ID;
+                    }
+                }
+            }
+
+            if ($pes_id) {
+                // Buscar documento_faturado relacionado ao faturamento_entrada
+                // Buscar pela data de entrada primeiro
+                $dcf = $this->db->where('PES_ID', $pes_id)
+                                ->where('DCF_TIPO', 'E')
+                                ->where('DCF_STATUS', 'ABERTO')
+                                ->where('DCF_DATA_SAIDA', $faturamento->data_entrada)
+                                ->get('documentos_faturados')
+                                ->row();
+                
+                // Se não encontrar, tentar pelo número da nota
+                if (!$dcf && $faturamento->numero_nota) {
+                    $dcf = $this->db->where('PES_ID', $pes_id)
+                                    ->where('DCF_TIPO', 'E')
+                                    ->where('DCF_NUMERO', $faturamento->numero_nota)
+                                    ->where('DCF_STATUS', 'ABERTO')
+                                    ->get('documentos_faturados')
+                                    ->row();
+                }
+
+                if ($dcf) {
+                    // Atualizar status para FATURADO
+                    $this->db->where('DCF_ID', $dcf->DCF_ID);
+                    $this->db->update('documentos_faturados', [
+                        'DCF_STATUS' => 'FATURADO',
+                        'DCF_DATA_FATURAMENTO' => date('Y-m-d')
+                    ]);
+
+                    // Buscar itens_faturados e criar movimentações de estoque
+                    $itens = $this->db->where('DCF_ID', $dcf->DCF_ID)->get('itens_faturados')->result();
+                    
+                    foreach ($itens as $item) {
+                        // Criar movimentação de estoque (ENTRADA)
+                        $this->Produtos_model->criarMovimentacaoEstoque($item->ITF_ID, $item->ITF_QUANTIDADE, 'ENTRADA');
+                    }
+                }
+            }
+
+            // Atualizar status do faturamento_entrada
+            $this->db->where('id', $id);
+            $this->db->update('faturamento_entrada', [
+                'status' => 'fechado',
+                'data_atualizacao' => date('Y-m-d H:i:s')
+            ]);
+
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status() === FALSE) {
+                throw new Exception('Erro na transação: ' . $this->db->error()['message']);
+            }
+
+            echo json_encode(['success' => true, 'message' => 'Entrada finalizada com sucesso!']);
+        } catch (Exception $e) {
+            $this->db->trans_rollback();
+            $this->output->set_status_header(500);
+            echo json_encode(['success' => false, 'message' => 'Erro ao finalizar entrada: ' . $e->getMessage()]);
+        }
     }
 
     public function atualizarStatus()

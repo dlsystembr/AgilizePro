@@ -115,6 +115,25 @@ class Contratos extends MY_Controller
 
                 if ($this->Contratos_model->add('contratos', $data)) {
                     $contratoId = $this->db->insert_id();
+                    
+                    // Salvar itens do contrato (serviços)
+                    $itens = $this->input->post('itens');
+                    if (!empty($itens) && is_array($itens)) {
+                        foreach ($itens as $item) {
+                            if (!empty($item['PRO_ID']) && !empty($item['CTI_PRECO'])) {
+                                $itemData = [
+                                    'CTR_ID' => $contratoId,
+                                    'PRO_ID' => $item['PRO_ID'],
+                                    'CTI_PRECO' => str_replace(',', '.', $item['CTI_PRECO']),
+                                    'CTI_QUANTIDADE' => !empty($item['CTI_QUANTIDADE']) ? str_replace(',', '.', $item['CTI_QUANTIDADE']) : 1.0000,
+                                    'CTI_OBSERVACAO' => !empty($item['CTI_OBSERVACAO']) ? $item['CTI_OBSERVACAO'] : null,
+                                    'CTI_ATIVO' => 1
+                                ];
+                                $this->Contratos_model->addItem($itemData);
+                            }
+                        }
+                    }
+                    
                     $this->session->set_flashdata('success', 'Contrato adicionado com sucesso!');
                     log_info('Adicionou um contrato.');
                     redirect(base_url('index.php/contratos/visualizar/' . $contratoId));
@@ -208,6 +227,62 @@ class Contratos extends MY_Controller
                 ];
 
                 if ($this->Contratos_model->edit('contratos', $data, 'CTR_ID', $id)) {
+                    // Processar itens do contrato
+                    $itens = $this->input->post('itens');
+                    $itensExistentes = $this->input->post('itens_existentes'); // IDs dos itens que devem ser mantidos
+                    
+                    // IDs dos itens que vieram no formulário (para manter)
+                    $itensIdsForm = [];
+                    
+                    // Log para debug (remover depois)
+                    log_message('debug', 'Itens recebidos no POST: ' . print_r($itens, true));
+                    log_message('debug', 'Itens existentes: ' . print_r($itensExistentes, true));
+                    
+                    if (!empty($itens) && is_array($itens)) {
+                        foreach ($itens as $index => $item) {
+                            // Validar se tem PRO_ID e CTI_PRECO
+                            if (!empty($item['PRO_ID']) && isset($item['CTI_PRECO']) && trim($item['CTI_PRECO']) !== '') {
+                                $itemData = [
+                                    'CTR_ID' => $id,
+                                    'PRO_ID' => $item['PRO_ID'],
+                                    'CTI_PRECO' => str_replace(',', '.', $item['CTI_PRECO']),
+                                    'CTI_QUANTIDADE' => !empty($item['CTI_QUANTIDADE']) ? str_replace(',', '.', $item['CTI_QUANTIDADE']) : 1.0000,
+                                    'CTI_OBSERVACAO' => !empty($item['CTI_OBSERVACAO']) ? $item['CTI_OBSERVACAO'] : null,
+                                    'CTI_ATIVO' => isset($item['CTI_ATIVO']) ? (int)$item['CTI_ATIVO'] : 1
+                                ];
+                                
+                                // Se tem CTI_ID, é atualização
+                                if (!empty($item['CTI_ID'])) {
+                                    $this->Contratos_model->updateItem($item['CTI_ID'], $itemData);
+                                    $itensIdsForm[] = $item['CTI_ID'];
+                                    log_message('debug', 'Item atualizado: CTI_ID=' . $item['CTI_ID']);
+                                } else {
+                                    // É novo item
+                                    $resultado = $this->Contratos_model->addItem($itemData);
+                                    if ($resultado) {
+                                        $itensIdsForm[] = $resultado; // Adicionar o ID do novo item
+                                        log_message('debug', 'Novo item adicionado: CTI_ID=' . $resultado);
+                                    } else {
+                                        log_message('error', 'Erro ao adicionar novo item');
+                                    }
+                                }
+                            } else {
+                                log_message('debug', 'Item ignorado - PRO_ID ou CTI_PRECO vazio: ' . print_r($item, true));
+                            }
+                        }
+                    } else {
+                        log_message('debug', 'Nenhum item recebido no POST ou não é array');
+                    }
+                    
+                    // Remover itens que não vieram no formulário
+                    $itensAtuais = $this->Contratos_model->getItensByContratoId($id);
+                    foreach ($itensAtuais as $itemAtual) {
+                        if (!in_array($itemAtual->CTI_ID, $itensIdsForm)) {
+                            $this->Contratos_model->deleteItem($itemAtual->CTI_ID);
+                            log_message('debug', 'Item removido: CTI_ID=' . $itemAtual->CTI_ID);
+                        }
+                    }
+                    
                     $this->session->set_flashdata('success', 'Contrato editado com sucesso!');
                     log_info('Alterou um contrato. ID ' . $id);
                     redirect(base_url('index.php/contratos/visualizar/' . $id));
@@ -219,6 +294,10 @@ class Contratos extends MY_Controller
 
         $this->data['result'] = $this->Contratos_model->getById($id);
         $this->data['tiposAssinante'] = $this->Contratos_model->getTiposAssinante();
+        
+        // Carregar itens do contrato
+        $this->data['itens'] = $this->Contratos_model->getItensByContratoId($id);
+        
         $this->data['view'] = 'contratos/editarContrato';
         return $this->layout();
     }
@@ -242,6 +321,9 @@ class Contratos extends MY_Controller
             $this->session->set_flashdata('error', 'Contrato não encontrado.');
             redirect(base_url('index.php/contratos'));
         }
+
+        // Carregar itens do contrato
+        $this->data['itens'] = $this->Contratos_model->getItensByContratoId($id);
 
         $this->data['view'] = 'contratos/visualizarContrato';
         return $this->layout();
@@ -353,6 +435,50 @@ class Contratos extends MY_Controller
             ];
         }
         
+        echo json_encode($resultado);
+    }
+
+    /**
+     * Autocomplete para buscar serviços (produtos com pro_tipo = 2)
+     */
+    public function autoCompleteServico()
+    {
+        $termo = $this->input->get('term');
+        
+        if (strlen($termo) < 2) {
+            echo json_encode([]);
+            return;
+        }
+
+        // Descobrir a chave primária da tabela produtos
+        $primary_key_query = $this->db->query("SHOW KEYS FROM produtos WHERE Key_name = 'PRIMARY'");
+        $primary_key = 'PRO_ID';
+        if ($primary_key_query->num_rows() > 0) {
+            $key_info = $primary_key_query->row();
+            $primary_key = $key_info->Column_name;
+        }
+
+        $this->db->select("$primary_key as id, PRO_DESCRICAO as label, PRO_DESCRICAO as value, PRO_PRECO_VENDA as preco");
+        $this->db->from('produtos');
+        $this->db->where('pro_tipo', 2); // Serviços
+        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        $this->db->like('PRO_DESCRICAO', $termo);
+        $this->db->order_by('PRO_DESCRICAO', 'asc');
+        $this->db->limit(20);
+        
+        $servicos = $this->db->get()->result();
+        
+        $resultado = [];
+        foreach ($servicos as $servico) {
+            $resultado[] = [
+                'id' => $servico->id,
+                'label' => $servico->label,
+                'value' => $servico->value,
+                'preco' => floatval($servico->preco ?? 0)
+            ];
+        }
+        
+        header('Content-Type: application/json');
         echo json_encode($resultado);
     }
 }

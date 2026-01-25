@@ -367,6 +367,26 @@ L<style>
                                 value="<?php echo (isset($result->NCM_ID) && $result->NCM_ID !== null && $result->NCM_ID !== '') ? htmlspecialchars($result->NCM_ID) : ''; ?>" />
                         </div>
                     </div>
+                    <?php
+                        $finalidadeSelecionada = $result->PRO_FINALIDADE ?? 'Comercialização';
+                        // Normalizar valores antigos
+                        if ($finalidadeSelecionada === 'COMERCIALIZACAO') {
+                            $finalidadeSelecionada = 'Comercialização';
+                        }
+                    ?>
+                    <div class="control-group field-produto">
+                        <label for="PRO_FINALIDADE" class="control-label">Finalidade<span class="required">*</span></label>
+                        <div class="controls">
+                            <select id="PRO_FINALIDADE" name="PRO_FINALIDADE">
+                                <?php foreach ($finalidadesProduto as $valor => $rotulo) : ?>
+                                    <option value="<?php echo $valor; ?>" <?php echo $finalidadeSelecionada === $valor ? 'selected' : ''; ?>>
+                                        <?php echo $rotulo; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <span class="help-inline">Indique se o item é para revenda, consumo ou ativo.</span>
+                        </div>
+                    </div>
                     <div class="control-group field-servico" style="display: none;">
                         <label for="PRO_UNID_MEDIDA" class="control-label">Unidade<span class="required">*</span></label>
                         <div class="controls">
@@ -428,12 +448,6 @@ L<style>
                         <label for="precoVenda_produto" class="control-label">Preço de Venda<span class="required">*</span></label>
                         <div class="controls">
                             <input id="precoVenda_produto" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->PRO_PRECO_VENDA; ?>" placeholder="0,00" />
-                        </div>
-                    </div>
-                    <div class="control-group field-produto">
-                        <label for="estoque" class="control-label">Estoque<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="estoque" type="number" name="estoque" value="<?php echo $result->PRO_ESTOQUE; ?>" />
                         </div>
                     </div>
                             <div class="control-group field-produto">
@@ -861,6 +875,9 @@ L<style>
                 unidade: {
                     required: true
                 },
+                PRO_FINALIDADE: {
+                    required: true
+                },
                 precoCompra: {
                     required: true
                 },
@@ -892,6 +909,9 @@ L<style>
                 },
                 unidade: {
                     required: 'Campo Requerido.'
+                },
+                PRO_FINALIDADE: {
+                    required: 'Selecione a finalidade do produto.'
                 },
                 precoCompra: {
                     required: 'Campo Requerido.'
@@ -1135,6 +1155,8 @@ L<style>
                 $('.field-servico').show();
                 $('#PRO_TIPO_TOGGLE').prop('checked', true);
                 $('#tipo_label').text('Serviço');
+                $('#PRO_FINALIDADE option[value="Serviço"]').show();
+                $('#PRO_FINALIDADE').val('Serviço').prop('disabled', true);
 
                 // Alterar label do código para "Código do Serviço"
                 $('#codigo-label').text('Código do Serviço');
@@ -1178,6 +1200,11 @@ L<style>
                 $('.field-servico').hide();
                 $('#PRO_TIPO_TOGGLE').prop('checked', false);
                 $('#tipo_label').text('Produto');
+                $('#PRO_FINALIDADE').prop('disabled', false);
+                $('#PRO_FINALIDADE option[value="Serviço"]').hide();
+                if ($('#PRO_FINALIDADE').val() === 'Serviço') {
+                    $('#PRO_FINALIDADE').val('Comercialização');
+                }
 
                 // Alterar label do código de volta para "Código do Produto"
                 $('#codigo-label').text('Código do Produto');

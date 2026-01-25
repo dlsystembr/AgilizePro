@@ -97,6 +97,7 @@
 | CLF_CFOP | varchar(4) | NO |  |  |  |
 | CLF_DESTINACAO | varchar(100) | NO |  |  |  |
 | CLF_OBJETIVO_COMERCIAL | enum('Consumo','Revenda','Industrialização','Orgão Público') | NO |  | Consumo |  |
+| CLF_FINALIDADE | varchar(30) | YES |  |  |  |
 | CLF_TIPO_ICMS | enum('ICMS Normal','Substituição Tributaria','Serviço') | NO |  | ICMS Normal |  |
 | CLF_CCLASSTRIB | varchar(6) | YES |  |  |  |
 | CLF_CST_IBS | varchar(3) | YES |  |  |  |
@@ -1257,6 +1258,7 @@
 | PRO_SAIDA | tinyint(1) | YES |  |  |  |
 | PRO_ENTRADA | tinyint(1) | YES |  |  |  |
 | PRO_TIPO | tinyint(1) | YES |  | 1 |  |
+| PRO_FINALIDADE | varchar(30) | YES |  |  |  |
 | PRO_CCLASS_SERV | varchar(7) | YES |  |  |  |
 
 ---

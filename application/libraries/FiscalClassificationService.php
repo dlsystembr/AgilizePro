@@ -197,8 +197,8 @@ class FiscalClassificationService
             CLF_CSOSN as csosn,
             CLF_CFOP as cfop,
             CLF_DESTINACAO as destinacao,
-            CLF_TIPO_ICMS as tipo_icms,
-            CLF_NATUREZA_CONTRIB as natureza_contribuinte,
+            CLF_TIPO_TRIBUTACAO as tipo_icms,
+            CLF_NATUREZA_CONTRIBUINTE as natureza_contribuinte,
             CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
             CLF_CCLASSTRIB as cClassTrib,
             CLF_MENSAGEM as mensagem_fiscal,
@@ -324,7 +324,7 @@ class FiscalClassificationService
         $result = $query->row();
         
         if ($result && $result->tbe_tipo_tributacao) {
-            // Normalizar para comparar com CLF_TIPO_ICMS
+            // Normalizar para comparar com CLF_TIPO_TRIBUTACAO
             $tipo = $result->tbe_tipo_tributacao;
             if ($tipo === 'ICMS Normal') {
                 return 'normal';
@@ -552,7 +552,7 @@ class FiscalClassificationService
             'CLF_CST' => $classificacao->cst ?? null,
             'CLF_CSOSN' => $classificacao->csosn ?? null,
             'CLF_CCLASSTRIB' => $classificacao->cClassTrib ?? null,
-            'CLF_TIPO_ICMS' => $classificacao->tipo_icms ?? null,
+            'CLF_TIPO_TRIBUTACAO' => $classificacao->tipo_icms ?? null,
             'CLF_ID' => $classificacao->id ?? null,
             'CLF_MENSAGEM' => $classificacao->mensagem_fiscal ?? null
         ];

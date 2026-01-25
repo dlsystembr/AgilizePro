@@ -15,7 +15,7 @@ class Permissoes extends MY_Controller
             redirect(base_url());
         }
 
-        $this->load->helper(['form', 'codegen_helper']);
+        $this->load->helper(['form', 'codegen_helper', 'permission']);
         $this->load->model('permissoes_model');
         $this->data['menuConfiguracoes'] = 'Permissões';
     }
@@ -29,12 +29,38 @@ class Permissoes extends MY_Controller
     {
         $this->load->library('pagination');
 
+        // Buscar ten_id da sessão
+        $ten_id = $this->session->userdata('ten_id');
+        
+        // Filtrar por ten_id se existir
+        $where = '';
+        if ($ten_id) {
+            $where = ['ten_id' => $ten_id];
+        }
+
         $this->data['configuration']['base_url'] = site_url('permissoes/gerenciar/');
-        $this->data['configuration']['total_rows'] = $this->permissoes_model->count('permissoes');
+        
+        // Contar apenas permissões do tenant
+        if ($ten_id) {
+            $this->db->where('ten_id', $ten_id);
+            $this->data['configuration']['total_rows'] = $this->db->count_all_results('permissoes');
+        } else {
+            $this->data['configuration']['total_rows'] = $this->permissoes_model->count('permissoes');
+        }
 
         $this->pagination->initialize($this->data['configuration']);
 
-        $this->data['results'] = $this->permissoes_model->get('permissoes', 'idPermissao,nome,data,situacao', '', $this->data['configuration']['per_page'], $this->uri->segment(3));
+        // Buscar permissões do tenant
+        if ($ten_id) {
+            $this->db->select('idPermissao,nome,data,situacao');
+            $this->db->from('permissoes');
+            $this->db->where('ten_id', $ten_id);
+            $this->db->order_by('idPermissao', 'desc');
+            $this->db->limit($this->data['configuration']['per_page'], $this->uri->segment(3));
+            $this->data['results'] = $this->db->get()->result();
+        } else {
+            $this->data['results'] = $this->permissoes_model->get('permissoes', 'idPermissao,nome,data,situacao', $where, $this->data['configuration']['per_page'], $this->uri->segment(3));
+        }
 
         $this->data['view'] = 'permissoes/permissoes';
 
@@ -45,6 +71,22 @@ class Permissoes extends MY_Controller
     {
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
+
+        // Buscar permissões habilitadas para o tenant do usuário logado
+        $ten_id = $this->session->userdata('ten_id');
+        $permissoes_habilitadas = [];
+        
+        if ($ten_id) {
+            $this->db->where('TPM_TEN_ID', $ten_id);
+            $this->db->where('TPM_ATIVO', 1);
+            $permissoes_tenant = $this->db->get('tenant_permissoes_menu')->result();
+            
+            foreach ($permissoes_tenant as $perm) {
+                $permissoes_habilitadas[] = $perm->TPM_PERMISSAO;
+            }
+        }
+        
+        $this->data['permissoes_habilitadas'] = $permissoes_habilitadas;
 
         $this->form_validation->set_rules('nome', 'Nome', 'trim|required');
         if ($this->form_validation->run() == false) {
@@ -206,6 +248,11 @@ class Permissoes extends MY_Controller
                 'situacao' => $situacao,
             ];
 
+            // Adicionar ten_id se existir na sessão
+            if ($ten_id) {
+                $data['ten_id'] = $ten_id;
+            }
+
             if ($this->permissoes_model->add('permissoes', $data) == true) {
                 $this->session->set_flashdata('success', 'Permissão adicionada com sucesso!');
                 log_info('Adicionou uma permissão');
@@ -224,6 +271,22 @@ class Permissoes extends MY_Controller
     {
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
+
+        // Buscar permissões habilitadas para o tenant do usuário logado
+        $ten_id = $this->session->userdata('ten_id');
+        $permissoes_habilitadas = [];
+        
+        if ($ten_id) {
+            $this->db->where('TPM_TEN_ID', $ten_id);
+            $this->db->where('TPM_ATIVO', 1);
+            $permissoes_tenant = $this->db->get('tenant_permissoes_menu')->result();
+            
+            foreach ($permissoes_tenant as $perm) {
+                $permissoes_habilitadas[] = $perm->TPM_PERMISSAO;
+            }
+        }
+        
+        $this->data['permissoes_habilitadas'] = $permissoes_habilitadas;
 
         $this->form_validation->set_rules('nome', 'Nome', 'trim|required');
         if ($this->form_validation->run() == false) {
@@ -382,7 +445,17 @@ class Permissoes extends MY_Controller
                 'situacao' => $situacao,
             ];
 
-            if ($this->permissoes_model->edit('permissoes', $data, 'idPermissao', $this->input->post('idPermissao')) == true) {
+            // Verificar se a permissão pertence ao tenant antes de editar
+            $permissao_id = $this->input->post('idPermissao');
+            $this->db->where('idPermissao', $permissao_id);
+            if ($ten_id) {
+                $this->db->where('ten_id', $ten_id);
+            }
+            $permissao_existente = $this->db->get('permissoes')->row();
+            
+            if (!$permissao_existente) {
+                $this->data['custom_error'] = '<div class="form_error"><p>Permissão não encontrada ou você não tem acesso a ela.</p></div>';
+            } elseif ($this->permissoes_model->edit('permissoes', $data, 'idPermissao', $permissao_id) == true) {
                 $this->session->set_flashdata('success', 'Permissão editada com sucesso!');
                 log_info('Alterou uma permissão. ID: ' . $this->input->post('idPermissao'));
                 redirect(site_url('permissoes/editar/') . $this->input->post('idPermissao'));
@@ -391,7 +464,20 @@ class Permissoes extends MY_Controller
             }
         }
 
-        $this->data['result'] = $this->permissoes_model->getById($this->uri->segment(3));
+        $permissao_id = $this->uri->segment(3);
+        $ten_id = $this->session->userdata('ten_id');
+        
+        // Buscar permissão e verificar se pertence ao tenant
+        $this->db->where('idPermissao', $permissao_id);
+        if ($ten_id) {
+            $this->db->where('ten_id', $ten_id);
+        }
+        $this->data['result'] = $this->db->get('permissoes')->row();
+        
+        if (!$this->data['result']) {
+            $this->session->set_flashdata('error', 'Permissão não encontrada ou você não tem acesso a ela.');
+            redirect(site_url('permissoes/gerenciar/'));
+        }
 
         $this->data['view'] = 'permissoes/editarPermissao';
 
@@ -405,6 +491,21 @@ class Permissoes extends MY_Controller
             $this->session->set_flashdata('error', 'Erro ao tentar desativar permissão.');
             redirect(site_url('permissoes/gerenciar/'));
         }
+        
+        $ten_id = $this->session->userdata('ten_id');
+        
+        // Verificar se a permissão pertence ao tenant
+        $this->db->where('idPermissao', $id);
+        if ($ten_id) {
+            $this->db->where('ten_id', $ten_id);
+        }
+        $permissao = $this->db->get('permissoes')->row();
+        
+        if (!$permissao) {
+            $this->session->set_flashdata('error', 'Permissão não encontrada ou você não tem acesso a ela.');
+            redirect(site_url('permissoes/gerenciar/'));
+        }
+        
         $data = [
             'situacao' => false,
         ];

@@ -14,7 +14,11 @@ class Permissoes_model extends CI_Model
         $this->db->order_by('idPermissao', 'desc');
         $this->db->limit($perpage, $start);
         if ($where) {
-            $this->db->where($where);
+            if (is_array($where)) {
+                $this->db->where($where);
+            } else {
+                $this->db->where($where);
+            }
         }
 
         $query = $this->db->get();
@@ -24,20 +28,26 @@ class Permissoes_model extends CI_Model
         return $result;
     }
 
-    public function getActive($table, $fields)
+    public function getActive($table, $fields, $ten_id = null)
     {
         $this->db->select($fields);
         $this->db->from($table);
         $this->db->where('situacao', 1);
+        if ($ten_id) {
+            $this->db->where('ten_id', $ten_id);
+        }
         $query = $this->db->get();
 
         return $query->result();
 
     }
 
-    public function getById($id)
+    public function getById($id, $ten_id = null)
     {
         $this->db->where('idPermissao', $id);
+        if ($ten_id) {
+            $this->db->where('ten_id', $ten_id);
+        }
         $this->db->limit(1);
 
         return $this->db->get('permissoes')->row();

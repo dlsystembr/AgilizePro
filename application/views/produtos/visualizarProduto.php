@@ -110,6 +110,24 @@
                                     <input id="ncm_id" class="form-control" type="hidden" name="ncm_id" value="<?php echo $result->NCM_ID; ?>" />
                                 </div>
                             </div>
+                            <?php
+                                $finalidadeSelecionada = $result->PRO_FINALIDADE ?? 'Comercialização';
+                                if ($finalidadeSelecionada === 'COMERCIALIZACAO') {
+                                    $finalidadeSelecionada = 'Comercialização';
+                                }
+                            ?>
+                            <div class="control-group field-produto">
+                                <label for="finalidade" class="control-label">Finalidade<span class="required">*</span></label>
+                                <div class="controls">
+                                    <select id="finalidade" name="finalidade" disabled>
+                                        <?php foreach ($finalidadesProduto as $valor => $rotulo) : ?>
+                                            <option value="<?php echo $valor; ?>" <?php echo $finalidadeSelecionada === $valor ? 'selected' : ''; ?>>
+                                                <?php echo $rotulo; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="control-group field-servico">
                                 <label for="cclass_serv" class="control-label">cClass (Serviço)</label>
                                 <div class="controls">

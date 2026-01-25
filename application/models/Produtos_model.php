@@ -22,8 +22,47 @@ class Produtos_model extends CI_Model
         $query = $this->db->get();
 
         $result = ! $one ? $query->result() : $query->row();
+        
+        // Calcular estoque baseado em produtos_movimentados
+        if ($one) {
+            $result = $this->calcularEstoque($result);
+        } else {
+            foreach ($result as $row) {
+                $this->calcularEstoque($row);
+            }
+        }
 
         return $result;
+    }
+    
+    /**
+     * Calcula o estoque do produto baseado em produtos_movimentados
+     * Considera apenas documentos com status FATURADO
+     */
+    private function calcularEstoque($produto)
+    {
+        if (!$produto) {
+            return $produto;
+        }
+        
+        // Buscar movimentações do produto através de itens_faturados
+        // Soma ENTRADAs e subtrai SAIDAs
+        // Apenas de documentos com status FATURADO
+        $this->db->select('SUM(CASE WHEN PDM_TIPO = "ENTRADA" THEN PDM_QTDE ELSE -PDM_QTDE END) as estoque_calculado');
+        $this->db->from('produtos_movimentados');
+        $this->db->join('itens_faturados', 'itens_faturados.ITF_ID = produtos_movimentados.ITF_ID');
+        $this->db->join('documentos_faturados', 'documentos_faturados.DCF_ID = itens_faturados.DCF_ID');
+        $this->db->where('itens_faturados.PRO_ID', $produto->PRO_ID);
+        $this->db->where('documentos_faturados.DCF_STATUS', 'FATURADO');
+        $query = $this->db->get();
+        $estoque_result = $query->row();
+        
+        // Atualizar o estoque no objeto
+        $produto->PRO_ESTOQUE = ($estoque_result && $estoque_result->estoque_calculado !== null) 
+            ? floatval($estoque_result->estoque_calculado) 
+            : 0.00;
+        
+        return $produto;
     }
 
     public function getById($id)
@@ -32,7 +71,10 @@ class Produtos_model extends CI_Model
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
 
-        return $this->db->get('produtos')->row();
+        $result = $this->db->get('produtos')->row();
+        
+        // Calcular estoque baseado em produtos_movimentados
+        return $this->calcularEstoque($result);
     }
 
     public function add($table, $data)
@@ -79,5 +121,28 @@ class Produtos_model extends CI_Model
         $sql = "UPDATE produtos set PRO_ESTOQUE = PRO_ESTOQUE $operacao ? WHERE PRO_ID = ? AND ten_id = ?";
 
         return $this->db->query($sql, [$quantidade, $produto, $this->session->userdata('ten_id')]);
+    }
+    
+    /**
+     * Cria registro de movimentação de estoque em produtos_movimentados
+     * @param int $itf_id ID do item faturado
+     * @param decimal $quantidade Quantidade movimentada
+     * @param string $tipo Tipo de movimentação: ENTRADA ou SAIDA
+     * @return bool
+     */
+    public function criarMovimentacaoEstoque($itf_id, $quantidade, $tipo = 'ENTRADA')
+    {
+        if (!in_array($tipo, ['ENTRADA', 'SAIDA'])) {
+            $tipo = 'ENTRADA';
+        }
+        
+        $data = [
+            'PDM_QTDE' => $quantidade,
+            'PDM_TIPO' => $tipo,
+            'ITF_ID' => $itf_id,
+            'PDM_DATA' => date('Y-m-d H:i:s')
+        ];
+        
+        return $this->db->insert('produtos_movimentados', $data);
     }
 }

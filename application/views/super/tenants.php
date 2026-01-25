@@ -1,13 +1,20 @@
-<div class="widget-box">
-  <div class="widget-title">
-    <span class="icon"><i class="icon-building"></i></span>
+<div class="new122">
+  <div class="widget-title" style="margin:-15px -10px 0">
     <h5>Gerenciar Tenants</h5>
   </div>
-  <div class="widget-content">
-    <a href="<?= base_url('index.php/super/adicionarTenant') ?>" class="button btn btn-success">
-      <span class="button__icon"><i class='icon-plus'></i></span>
-      <span class="button__text">Adicionar Tenant</span>
-    </a>
+  <a href="<?= base_url('index.php/super/adicionarTenant') ?>" class="button btn btn-success" style="max-width: 160px">
+    <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
+    <span class="button__text2">Adicionar Tenant</span>
+  </a>
+
+  <div class="widget-box">
+    <div class="widget-title" style="margin: -20px 0 0">
+      <span class="icon">
+        <i class="icon-building"></i>
+      </span>
+      <h5 style="padding: 3px 0"></h5>
+    </div>
+    <div class="widget-content nopadding tab-content">
 
     <form method="get" action="<?= base_url('index.php/super/tenants') ?>" style="margin: 20px 0;">
       <div class="input-append">
@@ -16,37 +23,37 @@
       </div>
     </form>
 
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome</th>
-          <th>CNPJ</th>
-          <th>E-mail</th>
-          <th>Telefone</th>
-          <th>Data Cadastro</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php if (empty($results)): ?>
+      <table id="tabela" class="table table-bordered">
+        <thead>
           <tr>
-            <td colspan="7">Nenhum tenant cadastrado.</td>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>CNPJ</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>Data Cadastro</th>
+            <th>Ações</th>
           </tr>
-        <?php else: ?>
-          <?php foreach ($results as $tenant): ?>
+        </thead>
+        <tbody>
+          <?php if (empty($results)): ?>
             <tr>
-              <td><?= $tenant->ten_id ?></td>
-              <td><?= $tenant->ten_nome ?></td>
-              <td><?= $tenant->ten_cnpj ?></td>
-              <td><?= $tenant->ten_email ?></td>
-              <td><?= $tenant->ten_telefone ?></td>
-              <td><?= date('d/m/Y H:i', strtotime($tenant->ten_data_cadastro)) ?></td>
-              <td>
-                <a href="<?= base_url("index.php/super/editarTenant/{$tenant->ten_id}") ?>" class="btn btn-info btn-mini"><i class="icon-edit"></i> Editar</a>
-                <a href="<?= base_url("index.php/super/usuariosTenant/{$tenant->ten_id}") ?>" class="btn btn-success btn-mini"><i class="icon-user"></i> Usuários</a>
-                <a href="<?= base_url("index.php/super/permissoesMenu/{$tenant->ten_id}") ?>" class="btn btn-warning btn-mini"><i class="icon-lock"></i> Permissões</a>
-                <a href="#modal-excluir-<?= $tenant->ten_id ?>" data-toggle="modal" class="btn btn-danger btn-mini"><i class="icon-remove"></i> Excluir</a>
+              <td colspan="7">Nenhum tenant cadastrado.</td>
+            </tr>
+          <?php else: ?>
+            <?php foreach ($results as $tenant): ?>
+              <tr>
+                <td><?= $tenant->ten_id ?></td>
+                <td><?= $tenant->ten_nome ?></td>
+                <td><?= $tenant->ten_cnpj ?: '-' ?></td>
+                <td><?= $tenant->ten_email ?: '-' ?></td>
+                <td><?= $tenant->ten_telefone ?: '-' ?></td>
+                <td><?= !empty($tenant->ten_data_cadastro) && $tenant->ten_data_cadastro != '0000-00-00 00:00:00' && $tenant->ten_data_cadastro != '1969-12-31' ? date('d/m/Y H:i', strtotime($tenant->ten_data_cadastro)) : '-' ?></td>
+                <td>
+                  <a href="<?= base_url("index.php/super/editarTenant/{$tenant->ten_id}") ?>" class="btn-nwe3" title="Editar"><i class="bx bx-edit"></i></a>
+                  <a href="<?= base_url("index.php/super/usuariosTenant/{$tenant->ten_id}") ?>" class="btn-nwe3" title="Usuários"><i class="bx bx-user"></i></a>
+                  <a href="<?= base_url("index.php/super/permissoesMenu/{$tenant->ten_id}") ?>" class="btn-nwe3" title="Permissões"><i class="bx bx-lock"></i></a>
+                  <a href="#modal-excluir-<?= $tenant->ten_id ?>" data-toggle="modal" class="btn-nwe3" title="Excluir" style="color: #d32f2f;"><i class="bx bx-trash"></i></a>
                 
                 <div id="modal-excluir-<?= $tenant->ten_id ?>" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                   <div class="modal-header">
@@ -69,10 +76,11 @@
             </tr>
           <?php endforeach; ?>
         <?php endif; ?>
-      </tbody>
-    </table>
-
-    <?= $this->pagination->create_links(); ?>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
+<?= $this->pagination->create_links(); ?>
 

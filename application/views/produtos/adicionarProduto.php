@@ -423,6 +423,20 @@
                                         value="<?php echo set_value('NCM_ID'); ?>" />
                                 </div>
                             </div>
+                            <?php $finalidadeSelecionada = set_value('PRO_FINALIDADE', 'Comercialização'); ?>
+                            <div class="control-group field-produto">
+                                <label for="PRO_FINALIDADE" class="control-label">Finalidade<span class="required">*</span></label>
+                                <div class="controls">
+                                    <select id="PRO_FINALIDADE" name="PRO_FINALIDADE">
+                                        <?php foreach ($finalidadesProduto as $valor => $rotulo) : ?>
+                                            <option value="<?php echo $valor; ?>" <?php echo $finalidadeSelecionada === $valor ? 'selected' : ''; ?>>
+                                                <?php echo $rotulo; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <span class="help-inline">Identifique se o item é para revenda, consumo ou ativo.</span>
+                                </div>
+                            </div>
                             <div class="control-group field-servico" style="display: none;">
                                 <label for="PRO_CCLASS_SERV" class="control-label">cClass (Serviço)</label>
                                 <div class="controls">
@@ -486,14 +500,6 @@
                                 <div class="controls">
                                     <input id="PRO_PRECO_VENDA_PRODUTO" class="preco-simples" type="text" name="PRO_PRECO_VENDA"
                                         value="<?php echo set_value('PRO_PRECO_VENDA'); ?>" placeholder="0,00" />
-                                </div>
-                            </div>
-                            <div class="control-group field-produto">
-                                <label for="PRO_ESTOQUE" class="control-label">Estoque<span
-                                        class="required">*</span></label>
-                                <div class="controls">
-                                    <input id="PRO_ESTOQUE" type="number" name="PRO_ESTOQUE"
-                                        value="<?php echo set_value('PRO_ESTOQUE'); ?>" />
                                 </div>
                             </div>
                             <div class="control-group field-produto">
@@ -929,6 +935,8 @@
                 $('.field-servico').show();
                 $('#PRO_TIPO_TOGGLE').prop('checked', true);
                 $('#tipo_label').text('Serviço');
+                $('#PRO_FINALIDADE option[value="Serviço"]').show();
+                $('#PRO_FINALIDADE').val('Serviço').prop('disabled', true);
 
                 // Alterar label do código para "Código do Serviço"
                 $('label[for="codigo"]').text('Código do Serviço');
@@ -955,6 +963,11 @@
                 $('.field-servico').hide();
                 $('#PRO_TIPO_TOGGLE').prop('checked', false);
                 $('#tipo_label').text('Produto');
+                $('#PRO_FINALIDADE').prop('disabled', false);
+                $('#PRO_FINALIDADE option[value="Serviço"]').hide();
+                if ($('#PRO_FINALIDADE').val() === 'Serviço') {
+                    $('#PRO_FINALIDADE').val('Comercialização');
+                }
 
                 // Alterar label do código de volta para "Código do Produto"
                 $('label[for="codigo"]').text('Código do Produto');
@@ -1035,6 +1048,11 @@
                         return $('#PRO_TIPO').val() == '1';
                     }
                 },
+                PRO_FINALIDADE: {
+                    required: function () {
+                        return $('#PRO_TIPO').val() == '1';
+                    }
+                },
                 PRO_REFERENCIA: {
                     maxlength: 50
                 }
@@ -1060,6 +1078,9 @@
                 },
                 PRO_ORIGEM: {
                     required: 'Campo obrigatório'
+                },
+                PRO_FINALIDADE: {
+                    required: 'Selecione a finalidade do produto'
                 },
                 PRO_REFERENCIA: {
                     maxlength: 'A referência não pode ter mais que 50 caracteres'

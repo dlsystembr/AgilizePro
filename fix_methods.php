@@ -1,0 +1,78 @@
+<?php
+$file = 'c:/xampp/htdocs/mapos/application/controllers/SimuladorTributacao.php';
+$content = file_get_contents($file);
+
+// Encontrar e substituir o método autoCompleteCliente completo
+$pattern1 = '/\/\/ Autocomplete para clientes\s+public function autoCompleteCliente\(\)[\s\S]*?}\s+}/';
+
+$replacement1 = '// Autocomplete para clientes
+    public function autoCompleteCliente()
+    {
+        header(\'Content-Type: application/json\');
+        
+        try {
+            $termo = $this->input->get(\'term\');
+            
+            if (empty($termo)) {
+                echo json_encode([]);
+                return;
+            }
+            
+            $ten_id = $this->session->userdata(\'ten_id\');
+            
+            $this->db->select(\'c.CLN_ID as id, p.PES_NOME as label, p.PES_NOME as value\');
+            $this->db->from(\'clientes c\');
+            $this->db->join(\'pessoas p\', \'c.PES_ID = p.PES_ID\');
+            $this->db->where(\'c.ten_id\', $ten_id);
+            $this->db->group_start();
+            $this->db->like(\'p.PES_NOME\', $termo);
+            $this->db->or_like(\'p.PES_CPFCNPJ\', $termo);
+            $this->db->group_end();
+            $this->db->limit(10);
+            
+            $query = $this->db->get();
+            echo json_encode($query->result());
+        } catch (Exception $e) {
+            log_message(\'error\', \'Erro autoCompleteCliente: \' . $e->getMessage());
+            echo json_encode([]);
+        }
+    }
+    
+    // Autocomplete para produtos
+    public function autoCompleteProduto()
+    {
+        header(\'Content-Type: application/json\');
+        
+        try {
+            $termo = $this->input->get(\'term\');
+            
+            if (empty($termo)) {
+                echo json_encode([]);
+                return;
+            }
+            
+            $ten_id = $this->session->userdata(\'ten_id\');
+            
+            $this->db->select(\'PRO_ID as id, PRO_DESCRICAO as label, PRO_DESCRICAO as value, PRO_PRECO_VENDA as precoVenda\');
+            $this->db->from(\'produtos\');
+            $this->db->where(\'ten_id\', $ten_id);
+            $this->db->group_start();
+            $this->db->like(\'PRO_DESCRICAO\', $termo);
+            $this->db->or_like(\'PRO_COD_BARRA\', $termo);
+            $this->db->group_end();
+            $this->db->limit(10);
+            
+            $query = $this->db->get();
+            echo json_encode($query->result());
+        } catch (Exception $e) {
+            log_message(\'error\', \'Erro autoCompleteProduto: \' . $e->getMessage());
+            echo json_encode([]);
+        }
+    }
+}';
+
+$content = preg_replace($pattern1, $replacement1, $content);
+
+file_put_contents($file, $content);
+echo "Métodos substituídos com sucesso!\n";
+?>

@@ -129,6 +129,7 @@
                     <div style="margin-top: 20px;">
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#tab1" data-toggle="tab">Itens/Serviços</a></li>
+                            <li><a href="#tab1b" data-toggle="tab">Tributos dos Itens</a></li>
                             <li><a href="#tab2" data-toggle="tab">Informações Gerais</a></li>
                             <li><a href="#tab3" data-toggle="tab">Totais e Impostos</a></li>
                         </ul>
@@ -161,6 +162,134 @@
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <div class="tab-pane" id="tab1b">
+                                <h4 style="margin-top: 0;">Tributos e Classificações Fiscais dos Itens</h4>
+                                <?php foreach ($itens as $index => $item): ?>
+                                    <div class="well" style="margin-bottom: 15px;">
+                                        <h5 style="margin-top: 0; color: #2D335B;">
+                                            <strong>Item <?php echo $index + 1; ?>:</strong> <?php echo $item->NFI_X_PROD; ?>
+                                        </h5>
+                                        <table class="table table-bordered table-condensed" style="margin-bottom: 0;">
+                                            <tbody>
+                                                <tr style="background-color: #e8f4f8;">
+                                                    <td colspan="4"><b>Informações do Item</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width: 20%;"><b>Código:</b></td>
+                                                    <td><?php echo $item->NFI_C_PROD; ?></td>
+                                                    <td style="width: 20%;"><b>Unidade:</b></td>
+                                                    <td><?php echo $item->NFI_U_MED ?? '-'; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Quantidade:</b></td>
+                                                    <td><?php echo number_format($item->NFI_Q_FATURADA ?? 0, 4, ',', '.'); ?></td>
+                                                    <td><b>Valor Unitário:</b></td>
+                                                    <td>R$ <?php echo number_format(($item->NFI_V_ITEM ?? 0) / ($item->NFI_Q_FATURADA ?? 1), 2, ',', '.'); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Valor Total:</b></td>
+                                                    <td>R$ <?php echo number_format($item->NFI_V_PROD ?? 0, 2, ',', '.'); ?></td>
+                                                    <td><b>Desconto:</b></td>
+                                                    <td>R$ <?php echo number_format($item->NFI_V_DESC ?? 0, 2, ',', '.'); ?></td>
+                                                </tr>
+                                                <tr style="background-color: #e8f4f8;">
+                                                    <td colspan="4"><b>Classificação Fiscal</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width: 20%;"><b>CFOP:</b></td>
+                                                    <td><?php echo $item->NFI_CFOP ?? '-'; ?></td>
+                                                    <td style="width: 20%;"><b>Cód. Classificação:</b></td>
+                                                    <td><?php echo $item->NFI_C_CLASS ?? '-'; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>CST ICMS:</b></td>
+                                                    <td><?php echo $item->NFI_CST_ICMS ?? '-'; ?></td>
+                                                    <td><b>CST PIS:</b></td>
+                                                    <td><?php echo $item->NFI_CST_PIS ?? '-'; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>CST COFINS:</b></td>
+                                                    <td colspan="3"><?php echo $item->NFI_CST_COFINS ?? '-'; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>CST PIS:</b></td>
+                                                    <td><?php echo $item->NFI_CST_PIS ?? '-'; ?></td>
+                                                    <td><b>CST COFINS:</b></td>
+                                                    <td><?php echo $item->NFI_CST_COFINS ?? '-'; ?></td>
+                                                </tr>
+                                                <tr style="background-color: #f9f9f9;">
+                                                    <td colspan="4"><b>PIS</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Base de Cálculo PIS:</b></td>
+                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_PIS ?? 0, 2, ',', '.'); ?></td>
+                                                    <td><b>Alíquota PIS (%):</b></td>
+                                                    <td><?php echo number_format($item->NFI_P_PIS ?? 0, 2, ',', '.'); ?>%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Valor PIS:</b></td>
+                                                    <td colspan="3">R$ <?php echo number_format($item->NFI_V_PIS ?? 0, 2, ',', '.'); ?></td>
+                                                </tr>
+                                                <tr style="background-color: #f9f9f9;">
+                                                    <td colspan="4"><b>COFINS</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Base de Cálculo COFINS:</b></td>
+                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_COFINS ?? 0, 2, ',', '.'); ?></td>
+                                                    <td><b>Alíquota COFINS (%):</b></td>
+                                                    <td><?php echo number_format($item->NFI_P_COFINS ?? 0, 2, ',', '.'); ?>%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Valor COFINS:</b></td>
+                                                    <td colspan="3">R$ <?php echo number_format($item->NFI_V_COFINS ?? 0, 2, ',', '.'); ?></td>
+                                                </tr>
+                                                <?php if (isset($item->NFI_V_BC_FUST) && $item->NFI_V_BC_FUST > 0): ?>
+                                                <tr style="background-color: #f9f9f9;">
+                                                    <td colspan="4"><b>FUST</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Base de Cálculo FUST:</b></td>
+                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_FUST ?? 0, 2, ',', '.'); ?></td>
+                                                    <td><b>Alíquota FUST (%):</b></td>
+                                                    <td><?php echo number_format($item->NFI_P_FUST ?? 0, 2, ',', '.'); ?>%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Valor FUST:</b></td>
+                                                    <td colspan="3">R$ <?php echo number_format($item->NFI_V_FUST ?? 0, 2, ',', '.'); ?></td>
+                                                </tr>
+                                                <?php endif; ?>
+                                                <?php if (isset($item->NFI_V_BC_FUNTEL) && $item->NFI_V_BC_FUNTEL > 0): ?>
+                                                <tr style="background-color: #f9f9f9;">
+                                                    <td colspan="4"><b>FUNTTEL</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Base de Cálculo FUNTTEL:</b></td>
+                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_FUNTEL ?? 0, 2, ',', '.'); ?></td>
+                                                    <td><b>Alíquota FUNTTEL (%):</b></td>
+                                                    <td><?php echo number_format($item->NFI_P_FUNTEL ?? 0, 2, ',', '.'); ?>%</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Valor FUNTTEL:</b></td>
+                                                    <td colspan="3">R$ <?php echo number_format($item->NFI_V_FUNTEL ?? 0, 2, ',', '.'); ?></td>
+                                                </tr>
+                                                <?php endif; ?>
+                                                <?php if (isset($item->NFI_V_BC_IRRF) && $item->NFI_V_BC_IRRF > 0): ?>
+                                                <tr style="background-color: #f9f9f9;">
+                                                    <td colspan="4"><b>IRRF</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Base de Cálculo IRRF:</b></td>
+                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_IRRF ?? 0, 2, ',', '.'); ?></td>
+                                                    <td><b>Valor IRRF:</b></td>
+                                                    <td>R$ <?php echo number_format($item->NFI_V_IRRF ?? 0, 2, ',', '.'); ?></td>
+                                                </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
 
                             <div class="tab-pane" id="tab2">

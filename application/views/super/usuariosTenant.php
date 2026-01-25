@@ -1,26 +1,25 @@
-<div class="widget-box">
-  <div class="widget-title">
-    <span class="icon"><i class="icon-user"></i></span>
+<div class="new122">
+  <div class="widget-title" style="margin:-15px -10px 0">
     <h5>Usuários do Tenant: <?= $tenant->ten_nome ?></h5>
   </div>
-  <div class="widget-content">
-    <a href="<?= base_url("index.php/super/adicionarUsuarioTenant/{$tenant->ten_id}") ?>" class="button btn btn-success">
-      <span class="button__icon"><i class='icon-plus'></i></span>
-      <span class="button__text">Adicionar Usuário</span>
-    </a>
-    <a href="<?= base_url('index.php/super/tenants') ?>" class="button btn">
-      <span class="button__icon"><i class='icon-arrow-left'></i></span>
-      <span class="button__text">Voltar</span>
-    </a>
+  <a href="<?= base_url("index.php/super/adicionarUsuarioTenant/{$tenant->ten_id}") ?>" class="button btn btn-success" style="max-width: 160px">
+    <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
+    <span class="button__text2">Adicionar Usuário</span>
+  </a>
+  <a href="<?= base_url('index.php/super/tenants') ?>" class="button btn" style="max-width: 120px">
+    <span class="button__icon"><i class='bx bx-arrow-back'></i></span>
+    <span class="button__text2">Voltar</span>
+  </a>
 
-    <form method="get" action="<?= base_url("index.php/super/usuariosTenant/{$tenant->ten_id}") ?>" style="margin: 20px 0;">
-      <div class="input-append">
-        <input type="text" name="pesquisa" placeholder="Pesquisar..." value="<?= isset($search) ? $search : '' ?>" />
-        <button type="submit" class="btn"><i class="icon-search"></i></button>
-      </div>
-    </form>
-
-    <table class="table table-bordered">
+  <div class="widget-box">
+    <div class="widget-title" style="margin: -20px 0 0">
+      <span class="icon">
+        <i class="icon-user"></i>
+      </span>
+      <h5 style="padding: 3px 0"></h5>
+    </div>
+    <div class="widget-content nopadding tab-content">
+      <table id="tabela" class="table table-bordered">
       <thead>
         <tr>
           <th>ID</th>
@@ -49,15 +48,16 @@
               <td><?= $usuario->permissao ?></td>
               <td><?= $usuario->situacao == 1 ? 'Ativo' : 'Inativo' ?></td>
               <td>
-                <a href="<?= base_url("index.php/super/editarUsuarioTenant/{$tenant->ten_id}/{$usuario->idUsuarios}") ?>" class="btn btn-info btn-mini"><i class="icon-edit"></i> Editar</a>
+                <a href="<?= base_url("index.php/super/editarUsuarioTenant/{$tenant->ten_id}/{$usuario->idUsuarios}") ?>" class="btn-nwe3" title="Editar"><i class="bx bx-edit"></i></a>
               </td>
             </tr>
           <?php endforeach; ?>
         <?php endif; ?>
       </tbody>
     </table>
-
-    <?= $this->pagination->create_links(); ?>
+    </div>
   </div>
 </div>
+
+<?= $this->pagination->create_links(); ?>
 

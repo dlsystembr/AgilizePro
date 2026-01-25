@@ -1,9 +1,15 @@
-<div class="widget-box">
-  <div class="widget-title">
-    <span class="icon"><i class="icon-plus"></i></span>
+<div class="new122">
+  <div class="widget-title" style="margin:-15px -10px 0">
     <h5>Adicionar Usuário ao Tenant: <?= $tenant->ten_nome ?></h5>
   </div>
-  <div class="widget-content nopadding">
+  <div class="widget-box">
+    <div class="widget-title" style="margin: -20px 0 0">
+      <span class="icon">
+        <i class="icon-plus"></i>
+      </span>
+      <h5 style="padding: 3px 0"></h5>
+    </div>
+    <div class="widget-content nopadding tab-content">
     <?php if (isset($custom_error) && $custom_error): ?>
       <?= $custom_error ?>
     <?php endif; ?>

@@ -249,6 +249,21 @@
                                 </div>
                             </div>
 
+                            <?php $finalidadeSelecionada = set_value('finalidade', 'Comercialização'); ?>
+                            <div class="control-group">
+                                <label for="finalidade" class="control-label">Finalidade<span class="required">*</span></label>
+                                <div class="controls">
+                                    <select name="finalidade" id="finalidade" class="span12">
+                                        <?php foreach ($finalidadesFiscal as $valor => $rotulo) { ?>
+                                            <option value="<?= $valor ?>" <?= $finalidadeSelecionada === $valor ? 'selected' : '' ?>>
+                                                <?= $rotulo ?>
+                                            </option>
+                                        <?php } ?>
+                                    </select>
+                                    <span class="help-inline">Se o Tipo ICMS for “Serviço”, a finalidade será forçada para Serviço.</span>
+                                </div>
+                            </div>
+
                             <div class="control-group">
                                 <label for="cClassTrib" class="control-label">Classe Tributária (cClassTrib)</label>
                                 <div class="controls">
@@ -310,6 +325,9 @@
                 },
                 objetivo_comercial: {
                     required: true
+                },
+                finalidade: {
+                    required: true
                 }
             },
             messages: {
@@ -326,6 +344,9 @@
                     required: 'Campo obrigatório'
                 },
                 objetivo_comercial: {
+                    required: 'Campo obrigatório'
+                },
+                finalidade: {
                     required: 'Campo obrigatório'
                 }
             },
@@ -356,5 +377,41 @@
                 }
             });
         }
+
+        // Controlar a exibição/valor da finalidade quando o Tipo ICMS for serviço
+        function syncFinalidadeComTipoIcms() {
+            var tipo = $('#tipo_icms').val();
+            var isServico = (tipo === 'servico' || tipo === 'Serviço' || tipo === 'Serviço' || tipo === 'serviço');
+            if (isServico) {
+                $('#finalidade option[value="Serviço"]').show();
+                $('#finalidade').val('Serviço');
+                $('#finalidade_hidden').val('Serviço');
+                $('#finalidade').prop('disabled', true);
+            } else {
+                $('#finalidade').prop('disabled', false);
+                $('#finalidade option[value="Serviço"]').hide();
+                if ($('#finalidade').val() === 'Serviço') {
+                    $('#finalidade').val('Comercialização');
+                    $('#finalidade_hidden').val('Comercialização');
+                }
+            }
+        }
+
+        // Sincronizar campo hidden quando o select mudar
+        $('#finalidade').on('change', function() {
+            $('#finalidade_hidden').val($(this).val());
+        });
+
+        // Antes de enviar o formulário, garantir que o valor está no campo correto
+        $('#formClassificacaoFiscal').on('submit', function() {
+            if ($('#finalidade').prop('disabled')) {
+                // Se estiver desabilitado, usar o valor do hidden
+                $('#finalidade').prop('disabled', false);
+                $('#finalidade').val($('#finalidade_hidden').val());
+            }
+        });
+
+        $('#tipo_icms').on('change', syncFinalidadeComTipoIcms);
+        syncFinalidadeComTipoIcms();
     });
 </script>

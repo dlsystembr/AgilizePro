@@ -127,7 +127,7 @@
                         echo 'active';
                     }
                     ; ?>">
-                        <a class="tip-bottom" title="" href="<?= site_url('faturamento_entrada') ?>"><i class='bx bx-receipt iconX'></i>
+                        <a class="tip-bottom" title="" href="<?= site_url('faturamentoEntrada') ?>"><i class='bx bx-receipt iconX'></i>
                             <span class="title">Faturamento Entrada</span>
                             <span class="title-tooltip">Faturamento Entrada</span>
                         </a>

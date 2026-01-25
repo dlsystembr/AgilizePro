@@ -410,7 +410,7 @@ class NFComPreview
         $tot = $dados['totais'];
         $totLines = [
             ['VALOR TOTAL NF', $tot['valor_total'] ?? 0.00],
-            ['BASE CÁLCULO', $tot['valor_base_calculo'] ?? ($tot['valor_produtos'] ?? 0.00)],
+            ['BASE CÁLCULO', $tot['valor_base_calculo'] ?? 0.00], // APENAS valor do banco, sem fallback
             ['VALOR ICMS', $tot['valor_icms'] ?? 0.00],
             ['VALOR ISENTO', $tot['valor_isento'] ?? 0.00],
             ['VALOR OUTROS', $tot['valor_outros'] ?? 0.00],
@@ -742,7 +742,8 @@ class NFComPreview
             foreach ($pageItems as $item) {
                 $qtd = $item['quantidade'] ?? 1;
                 $vTotal = $item['valor_total'] ?? 0.00;
-                $vUnit = $item['valor_unitario'] ?? ($qtd > 0 ? $vTotal / $qtd : 0.00);
+                // Usar APENAS valor_unitario do item (vem do banco), sem cálculo de fallback
+                $vUnit = $item['valor_unitario'] ?? 0.00;
                 $pis = $item['pis']['valor'] ?? 0.00;
                 $cof = $item['cofins']['valor'] ?? 0.00;
 

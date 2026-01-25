@@ -3,90 +3,94 @@
 <script type="text/javascript" src="<?php echo base_url() ?>assets/js/sweetalert2.all.min.js"></script>
 <!-- jQuery Mask Money -->
 <script type="text/javascript" src="<?php echo base_url() ?>assets/js/jquery.maskMoney.min.js"></script>
-    <div class="span12" style="margin-top:0">
-        <div class="widget-box" style="background-color: #2c3e50; color: white;">
-            <div class="widget-title" style="margin: -20px 0 0; background-color: #2c3e50; color: white; border-bottom: 1px solid #34495e;">
-                <span class="icon">
-                    <i class="fas fa-file-invoice"></i>
-                </span>
-                <h5 style="color: white;">Faturamento de Entrada</h5>
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'aFaturamentoEntrada')) { ?>
-                    <div class="buttons">
-                        <a title="Adicionar Novo Faturamento de Entrada" class="btn btn-mini btn-success" href="<?php echo base_url() ?>index.php/faturamentoEntrada/adicionar">
-                            <i class="fas fa-plus"></i> Adicionar Novo
-                        </a>
-                    </div>
-                <?php } ?>
-            </div>
-            <div class="widget-content nopadding" style="background-color: #2c3e50;">
-                <table class="table table-bordered" style="background-color: #2c3e50; color: white;">
-                    <thead>
-                        <tr style="background-color: #2c3e50; color: white;">
-                            <th style="border-color: #34495e;">Fornecedor</th>
-                            <th style="border-color: #34495e;">Data Emissão</th>
-                            <th style="border-color: #34495e;">Data Entrada</th>
-                            <th style="border-color: #34495e;">Número NF</th>
-                            <th style="border-color: #34495e;">Valor Total</th>
-                            <th style="border-color: #34495e;">Status</th>
-                            <th style="border-color: #34495e;">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!$results) { ?>
-                            <tr style="background-color: #34495e; color: white;">
-                                <td colspan="7" style="border-color: #34495e;">Nenhum faturamento de entrada encontrado</td>
-                            </tr>
-                        <?php } else { ?>
-                            <?php foreach ($results as $r) { ?>
-                                <tr style="background-color: #34495e; color: white;">
-                                    <td style="border-color: #34495e;"><?php echo $r->nomeCliente; ?></td>
-                                    <td style="border-color: #34495e;"><?php echo date('d/m/Y', strtotime($r->data_emissao)); ?></td>
-                                    <td style="border-color: #34495e;"><?php echo date('d/m/Y', strtotime($r->data_entrada)); ?></td>
-                                    <td style="border-color: #34495e;"><?php echo $r->numero_nota; ?></td>
-                                    <td style="border-color: #34495e;">R$ <?php echo number_format($r->valor_total, 2, ',', '.'); ?></td>
-                                    <td style="border-color: #34495e;">
-                                        <?php 
-                                            $statusClass = '';
-                                            $statusText = empty($r->status) ? 'Pendente' : ucfirst($r->status);
-                                            switch(strtolower($statusText)) {
-                                                case 'fechado':
-                                                    $statusClass = 'label-success';
-                                                    break;
-                                                case 'pendente':
-                                                    $statusClass = 'label-warning';
-                                                    break;
-                                                default:
-                                                    $statusClass = 'label-default';
-                                            }
-                                        ?>
-                                        <span class="label <?php echo $statusClass; ?>"><?php echo $statusText; ?></span>
-                                    </td>
-                                    <td style="border-color: #34495e;">
-                                        <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vFaturamentoEntrada')) { ?>
-                                            <a href="<?php echo base_url() ?>index.php/faturamentoEntrada/visualizar/<?php echo $r->id; ?>" style="margin-right: 1%" class="btn btn-info tip-top" title="Ver mais detalhes"><i class="fas fa-eye"></i></a>
-                                            <?php if (empty($r->status) || $r->status != 'fechado') { ?>
-                                                <button type="button" class="btn btn-success tip-top" title="Fechar Documento" onclick="fecharDocumento(<?php echo $r->id; ?>)"><i class="fas fa-check-circle"></i></button>
-                                            <?php } ?>
-                                            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfe')) { ?>
-                                                <button type="button" class="btn btn-warning tip-top" title="Fazer devolução de compra" onclick="fazerDevolucaoCompra(<?php echo $r->id; ?>)"><i class="fas fa-undo"></i></button>
-                                            <?php } ?>
-                                        <?php } ?>
-                                        <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eFaturamentoEntrada')) { ?>
-                                            <a href="<?php echo base_url() ?>index.php/faturamentoEntrada/editar/<?php echo $r->id; ?>" style="margin-right: 1%" class="btn btn-warning tip-top" title="Editar faturamento"><i class="fas fa-edit"></i></a>
-                                        <?php } ?>
-                                        <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'dFaturamentoEntrada')) { ?>
-                                            <a href="javascript:void(0)" onclick="abrirModalExcluir(<?php echo $r->id; ?>)" style="margin-right: 1%" class="btn btn-danger tip-top" title="Excluir faturamento"><i class="fas fa-trash-alt"></i></a>
-                                        <?php } ?>
-                                    </td>
-                                </tr>
-                            <?php } ?>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <?php echo $this->pagination->create_links(); ?>
+<div class="new122">
+    <div class="widget-title" style="margin: -20px 0 0">
+        <span class="icon">
+            <i class="fas fa-file-invoice"></i>
+        </span>
+        <h5>Faturamento de Entrada</h5>
     </div>
+    <div class="span12" style="margin-left: 0">
+        <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'aFaturamentoEntrada')) : ?>
+            <div class="span3 flexxn" style="display: flex;">
+                <a href="<?= base_url() ?>index.php/faturamentoEntrada/adicionar" class="button btn btn-mini btn-success" style="max-width: 160px">
+                    <span class="button__icon"><i class='bx bx-plus-circle'></i></span><span class="button__text2"> Nova Entrada</span>
+                </a>
+            </div>
+        <?php endif; ?>
+        <form class="span9" method="get" action="<?= base_url() ?>index.php/faturamentoEntrada" style="display: flex; justify-content: flex-end;">
+            <div class="span3">
+                <input type="text" name="pesquisa" id="pesquisa" placeholder="Buscar..." class="span12" value="<?=$this->input->get('pesquisa')?>">
+            </div>
+            <div class="span1">
+                <button class="button btn btn-mini btn-warning" style="min-width: 30px">
+                    <span class="button__icon"><i class='bx bx-search-alt'></i></span></button>
+            </div>
+        </form>
+    </div>
+
+    <div class="widget-box">
+        <h5 style="padding: 3px 0"></h5>
+        <div class="widget-content nopadding tab-content">
+            <table id="tabela" class="table table-bordered ">
+                <thead>
+                <tr>
+                    <th>Fornecedor</th>
+                    <th>Data Emissão</th>
+                    <th>Data Entrada</th>
+                    <th>Número NF</th>
+                    <th>Valor Total</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                if (!$results) {
+                    echo '<tr>
+                                    <td colspan="7">Nenhum faturamento de entrada encontrado</td>
+                                    </tr>';
+                }
+                foreach ($results as $r) {
+                    $statusClass = '';
+                    $statusText = empty($r->status) ? 'Pendente' : ucfirst($r->status);
+                    switch(strtolower($statusText)) {
+                        case 'fechado':
+                            $statusClass = 'label-success';
+                            break;
+                        case 'pendente':
+                            $statusClass = 'label-warning';
+                            break;
+                        default:
+                            $statusClass = 'label-default';
+                    }
+                    
+                    echo '<tr>';
+                    echo '<td>' . $r->nomeCliente . '</td>';
+                    echo '<td>' . date('d/m/Y', strtotime($r->data_emissao)) . '</td>';
+                    echo '<td>' . date('d/m/Y', strtotime($r->data_entrada)) . '</td>';
+                    echo '<td>' . $r->numero_nota . '</td>';
+                    echo '<td>R$ ' . number_format($r->valor_total, 2, ',', '.') . '</td>';
+                    echo '<td><span class="label ' . $statusClass . '">' . $statusText . '</span></td>';
+                    echo '<td>';
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vFaturamentoEntrada')) {
+                        echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/faturamentoEntrada/visualizar/' . $r->id . '" class="btn-nwe" title="Visualizar"><i class="bx bx-show bx-xs"></i></a>  ';
+                    }
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eFaturamentoEntrada')) {
+                        echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/faturamentoEntrada/editar/' . $r->id . '" class="btn-nwe3" title="Editar"><i class="bx bx-edit bx-xs"></i></a>';
+                    }
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'dFaturamentoEntrada')) {
+                        echo '<a style="margin-right: 1%" href="#modal-excluir" role="button" data-toggle="modal" faturamento="' . $r->id . '" class="btn-nwe4" title="Excluir"><i class="bx bx-trash-alt bx-xs"></i></a>';
+                    }
+                    echo '</td>';
+                    echo '</tr>';
+                } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php echo $this->pagination->create_links(); ?>
 <?php } ?>
 
 <!-- Modal Excluir -->
@@ -94,15 +98,16 @@
     <form action="<?php echo base_url() ?>index.php/faturamentoEntrada/excluir" method="post">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h5 id="myModalLabel">Excluir Faturamento de Entrada</h5>
+            <h5 id="myModalLabel"><i class="fas fa-trash-alt"></i> Excluir Faturamento de Entrada</h5>
         </div>
         <div class="modal-body">
-            <input type="hidden" id="idFaturamento" name="id" value="" />
+            <input type="hidden" id="idFaturamento" class="idFaturamento" name="id" value="" />
             <h5 style="text-align: center">Deseja realmente excluir este faturamento de entrada?</h5>
         </div>
         <div class="modal-footer" style="display:flex;justify-content: center">
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancelar</button>
-            <button class="btn btn-danger">Excluir</button>
+            <button class="button btn btn-warning" data-dismiss="modal" aria-hidden="true">
+              <span class="button__icon"><i class="bx bx-x"></i></span><span class="button__text2">Cancelar</span></button>
+            <button class="button btn btn-danger"><span class="button__icon"><i class='bx bx-trash'></i></span> <span class="button__text2">Excluir</span></button>
         </div>
     </form>
 </div>
@@ -629,13 +634,20 @@
 
     function abrirModalExcluir(id) {
         console.log('Abrindo modal para excluir faturamento ID:', id);
-        $('#idFaturamento').val(id);
+        $('.idFaturamento').val(id);
         $('#modal-excluir').modal('show');
     }
 
     // Quando o modal for fechado, limpar o ID
     $('#modal-excluir').on('hidden.bs.modal', function () {
-        $('#idFaturamento').val('');
+        $('.idFaturamento').val('');
+    });
+    
+    $(document).on('click', 'a', function (event) {
+        var faturamento = $(this).attr('faturamento');
+        if (faturamento) {
+            $('.idFaturamento').val(faturamento);
+        }
     });
 </script>
 

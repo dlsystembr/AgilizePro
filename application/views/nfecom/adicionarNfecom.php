@@ -452,19 +452,19 @@
                                         </div>
                                     </div>
 
-
-                                    <!-- Linha 3: Seleção de Contrato -->
+                                    <!-- Linha 3: Código do Contrato -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="contratoSelect" class="control-label">Contrato</label>
+                                                <label for="codigoContrato" class="control-label">Código do Contrato</label>
                                                 <small style="display: block; color: #666; margin-top: 2px;">
-                                                    Selecione um contrato para preencher automaticamente os dados.
+                                                    Digite o código do contrato para preencher automaticamente cliente e serviços.
                                                 </small>
                                                 <div class="controls">
-                                                    <select name="contratoSelect" id="contratoSelect" style="width: 100%;">
-                                                        <option value="">Selecione um contrato...</option>
-                                                    </select>
+                                                    <input type="hidden" id="contratoId" name="contratoId" value="">
+                                                    <input type="text" id="codigoContrato" name="codigoContrato" 
+                                                        class="span12" placeholder="Digite o código do contrato..." 
+                                                        autocomplete="off" style="width: 100%;">
                                                 </div>
                                             </div>
                                         </div>
@@ -958,6 +958,8 @@
             $('#dadosClienteSection').slideUp(300);
             // Desabilitar campo de serviço quando cliente for removido
             $('#servicoNfecom').prop('disabled', true).attr('placeholder', 'Selecione um cliente primeiro');
+            // Limpar código do contrato
+            $('#codigoContrato, #contratoId').val('');
         }).on('select2:open', function () {
             // Garantir que as opções iniciais estejam sempre disponíveis
             console.log('📋 Select2 aberto - opções iniciais disponíveis');
@@ -975,11 +977,11 @@
                 // Habilitar campo de serviço quando cliente for selecionado
                 $('#servicoNfecom').prop('disabled', false).attr('placeholder', 'Digite o nome do serviço');
                 // Limpar campos de contrato
-                $('#contratoSelect').html('<option value="">Selecione um contrato...</option>');
+                $('#codigoContrato, #contratoId').val('');
                 $('#numeroContrato, #dataContratoIni, #dataContratoFim, #observacoes').val('');
                 $('#tpAssinante').val('3'); // Resetar para padrão
 
-                // Buscar contratos do cliente
+                // Buscar contratos do cliente (opcional - manter para compatibilidade)
                 $.ajax({
                     url: '<?php echo base_url(); ?>index.php/nfecom/getContratosCliente/' + clienteId,
                     type: 'GET',
@@ -992,35 +994,18 @@
                             return;
                         }
 
-                        if (contratos.length === 0) {
-                            console.log('ℹ️ Nenhum contrato ativo encontrado para este cliente');
-                            $('#contratoSelect').html('<option value="">Nenhum contrato ativo encontrado</option>');
-                            return;
-                        }
-
-                        // Popular select de contratos
-                        var options = '<option value="">Selecione um contrato...</option>';
-                        contratos.forEach(function(contrato) {
-                            var numero = contrato.CTR_NUMERO || '';
-                            var dataIni = contrato.CTR_DATA_INICIO ? new Date(contrato.CTR_DATA_INICIO).toLocaleDateString('pt-BR') : '';
-                            var label = numero + (dataIni ? ' (Início: ' + dataIni + ')' : '');
-                            options += '<option value="' + contrato.CTR_ID + '" data-contrato=\'' + JSON.stringify(contrato).replace(/'/g, "&#39;") + '\'>' + label + '</option>';
-                        });
-                        $('#contratoSelect').html(options);
-
                         // Se houver apenas 1 contrato, preencher automaticamente
                         if (contratos.length === 1) {
                             console.log('✅ Apenas 1 contrato encontrado, preenchendo automaticamente...');
                             var contrato = contratos[0];
                             preencherDadosContrato(contrato);
-                            $('#contratoSelect').val(contrato.CTR_ID);
-                        } else {
-                            console.log('📋 Múltiplos contratos encontrados (' + contratos.length + '), aguardando seleção do usuário');
+                            $('#codigoContrato').val(contrato.CTR_NUMERO);
+                            $('#contratoId').val(contrato.CTR_ID);
+                            buscarServicosContrato(contrato.CTR_ID);
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('❌ Erro ao buscar contratos:', error);
-                        $('#contratoSelect').html('<option value="">Erro ao carregar contratos</option>');
                     }
                 });
 
@@ -1105,7 +1090,7 @@
                 $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
                 $('#enderecoClienteSelect').prop('disabled', true).html('<option value="">Selecione um cliente primeiro</option>');
                 $('#contatoCliente').val('');
-                $('#contratoSelect').html('<option value="">Selecione um contrato...</option>');
+                $('#codigoContrato, #contratoId').val('');
                 $('#numeroContrato, #dataContratoIni, #dataContratoFim, #observacoes').val('');
                 $('#tpAssinante').val('3');
             }
@@ -1138,24 +1123,163 @@
             console.log('✅ Dados do contrato preenchidos com sucesso');
         }
 
-        // Evento de mudança no select de contratos
-        $('#contratoSelect').change(function() {
-            var contratoId = $(this).val();
-            if (contratoId) {
-                var contratoData = $(this).find('option:selected').data('contrato');
-                if (contratoData) {
-                    // Converter string JSON para objeto se necessário
-                    if (typeof contratoData === 'string') {
-                        contratoData = JSON.parse(contratoData.replace(/&#39;/g, "'"));
+        // Autocomplete para código do contrato
+        $('#codigoContrato').autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: '<?php echo base_url(); ?>index.php/nfecom/buscarContratoPorCodigo',
+                    dataType: 'json',
+                    data: {
+                        term: request.term
+                    },
+                    success: function(data) {
+                        response(data);
+                    },
+                    error: function() {
+                        response([]);
                     }
-                    preencherDadosContrato(contratoData);
+                });
+            },
+            minLength: 2,
+            select: function(event, ui) {
+                event.preventDefault();
+                
+                // Preencher dados do contrato
+                $('#codigoContrato').val(ui.item.CTR_NUMERO);
+                $('#contratoId').val(ui.item.CTR_ID);
+                $('#numeroContrato').val(ui.item.CTR_NUMERO);
+                
+                if (ui.item.CTR_DATA_INICIO) {
+                    $('#dataContratoIni').val(ui.item.CTR_DATA_INICIO);
                 }
-            } else {
-                // Limpar campos quando nenhum contrato selecionado
-                $('#numeroContrato, #dataContratoIni, #dataContratoFim, #observacoes').val('');
-                $('#tpAssinante').val('3');
+                if (ui.item.CTR_DATA_FIM) {
+                    $('#dataContratoFim').val(ui.item.CTR_DATA_FIM);
+                }
+                if (ui.item.CTR_OBSERVACAO) {
+                    $('#observacoes').val(ui.item.CTR_OBSERVACAO);
+                }
+                if (ui.item.CTR_TIPO_ASSINANTE) {
+                    $('#tpAssinante').val(ui.item.CTR_TIPO_ASSINANTE);
+                }
+                
+                // Preencher cliente se não estiver preenchido
+                if (ui.item.CLN_ID) {
+                    var clienteAtual = $('#cliente').val();
+                    if (!clienteAtual || clienteAtual != ui.item.CLN_ID) {
+                        // Buscar o cliente no select2 ou criar nova opção
+                        var clienteExiste = $('#cliente option[value="' + ui.item.CLN_ID + '"]').length > 0;
+                        
+                        if (!clienteExiste) {
+                            // Criar nova opção
+                            var labelCliente = ui.item.PES_NOME;
+                            if (ui.item.PES_RAZAO_SOCIAL) {
+                                labelCliente = ui.item.PES_RAZAO_SOCIAL + ' (' + ui.item.PES_NOME + ')';
+                            }
+                            if (ui.item.PES_CPFCNPJ) {
+                                labelCliente += ' (' + ui.item.PES_CPFCNPJ + ')';
+                            }
+                            var newOption = new Option(labelCliente, ui.item.CLN_ID, true, true);
+                            $('#cliente').append(newOption);
+                        }
+                        
+                        // Selecionar o cliente
+                        $('#cliente').val(ui.item.CLN_ID).trigger('change');
+                    }
+                }
+                
+                // Buscar e preencher serviços do contrato
+                buscarServicosContrato(ui.item.CTR_ID);
+                
+                return false;
+            },
+            focus: function(event, ui) {
+                event.preventDefault();
+                return false;
             }
-        });
+        }).autocomplete("instance")._renderItem = function(ul, item) {
+            var label = item.CTR_NUMERO;
+            if (item.CTR_DATA_INICIO) {
+                label += ' - ' + new Date(item.CTR_DATA_INICIO).toLocaleDateString('pt-BR');
+            }
+            if (item.PES_NOME) {
+                label += ' (' + item.PES_NOME + ')';
+            }
+            return $("<li>")
+                .append("<div>" + label + "</div>")
+                .appendTo(ul);
+        };
+
+        // Função para buscar serviços do contrato e preencher automaticamente
+        function buscarServicosContrato(contratoId) {
+            if (!contratoId) {
+                return;
+            }
+
+            $.ajax({
+                url: '<?php echo base_url(); ?>index.php/nfecom/getServicosContrato/' + contratoId,
+                type: 'GET',
+                dataType: 'json',
+                success: function(servicosContrato) {
+                    if (servicosContrato && servicosContrato.length > 0) {
+                        // Limpar serviços existentes primeiro
+                        servicos = [];
+                        $('#servicos-container').empty();
+                        
+                        // Adicionar cada serviço do contrato usando a função existente
+                        servicosContrato.forEach(function(servico) {
+                            // Preencher campos do formulário
+                            var servicoId = servico.PRO_ID || servico.idServicos;
+                            var servicoNome = servico.nome || servico.PRO_DESCRICAO || '';
+                            var servicoPreco = parseFloat(servico.CTI_PRECO || servico.preco || 0);
+                            var servicoQuantidade = parseFloat(servico.CTI_QUANTIDADE || servico.quantidade || 1);
+                            
+                            // Preencher campos do formulário
+                            $("#idServicoNfecom").val(servicoId);
+                            $("#servicoNfecom").val(servicoNome);
+                            $("#precoServicoNfecom").val(formatMoney(servicoPreco));
+                            $("#quantidadeServicoNfecom").val(formatarQuantidade(servicoQuantidade));
+                            $("#descontoServicoNfecom").val('0,00');
+                            $("#outrosServicoNfecom").val('0,00');
+                            
+                            // Buscar dados completos do serviço via autocomplete para obter cClass e uMed
+                            $.ajax({
+                                url: "<?php echo base_url(); ?>index.php/nfecom/autoCompleteServico",
+                                dataType: "json",
+                                data: { term: servicoNome },
+                                success: function(data) {
+                                    if (data && data.length > 0) {
+                                        var servicoCompleto = data.find(function(s) {
+                                            return s.id == servicoId || s.label == servicoNome;
+                                        }) || data[0];
+                                        
+                                        if (servicoCompleto) {
+                                            $("#cClassServicoNfecom").val(servicoCompleto.cClass || '');
+                                            $("#uMedServicoNfecom").val(servicoCompleto.uMed || 'UN');
+                                        }
+                                    }
+                                    
+                                    // Adicionar serviço usando a função existente
+                                    adicionarServicoNfecom();
+                                },
+                                error: function() {
+                                    // Se não encontrar, adicionar mesmo assim com valores padrão
+                                    $("#cClassServicoNfecom").val('');
+                                    $("#uMedServicoNfecom").val('UN');
+                                    adicionarServicoNfecom();
+                                }
+                            });
+                        });
+                        
+                        console.log('✅ ' + servicosContrato.length + ' serviço(s) do contrato adicionado(s) automaticamente');
+                    } else {
+                        console.log('ℹ️ Nenhum serviço encontrado para este contrato');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao buscar serviços do contrato:', error);
+                }
+            });
+        }
 
         // Preencher datas com a data atual (exceto período fim)
         const hoje = new Date().toISOString().split('T')[0];

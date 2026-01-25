@@ -283,6 +283,19 @@
                                         ?>" readonly />
                                     </div>
                                 </div>
+
+                                <div class="control-group">
+                                    <label class="control-label">Finalidade</label>
+                                    <div class="controls">
+                                        <input type="text" value="<?php
+                                            $finalidade = $result->finalidade ?? 'Comercialização';
+                                            if ($finalidade === 'COMERCIALIZACAO') {
+                                                $finalidade = 'Comercialização';
+                                            }
+                                            echo $finalidade ?: 'Não informado';
+                                        ?>" readonly />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

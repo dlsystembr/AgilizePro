@@ -7,6 +7,12 @@ if (!defined('BASEPATH')) {
 class Produtos extends MY_Controller
 {
     /**
+     * Catálogo de finalidades aplicáveis aos produtos.
+     *
+     * @var array
+     */
+    private $finalidadesProduto = [];
+    /**
      * @property CI_Input $input
      * @property CI_Session $session
      * @property CI_Loader $load
@@ -25,6 +31,15 @@ class Produtos extends MY_Controller
         $this->load->model('TributacaoProduto_model');
         $this->load->model('Ncm_model');
         $this->data['menuProdutos'] = 'Produtos';
+
+        $this->finalidadesProduto = [
+            'Comercialização' => 'Comercialização / Revenda',
+            'Consumo' => 'Consumo / Uso próprio',
+            'Ativo Imobilizado' => 'Ativo imobilizado',
+            'Serviço' => 'Serviço',
+            'Outros' => 'Outros'
+        ];
+        $this->data['finalidadesProduto'] = $this->finalidadesProduto;
     }
 
     public function index()
@@ -75,7 +90,6 @@ class Produtos extends MY_Controller
         if ($tipo == '2') { // Serviço
             $_POST['PRO_PRECO_COMPRA'] = $_POST['PRO_PRECO_COMPRA'] ?: '0';
             $_POST['PRO_PRECO_VENDA'] = $_POST['PRO_PRECO_VENDA'] ?: '0';
-            $_POST['PRO_ESTOQUE'] = $_POST['PRO_ESTOQUE'] ?: '0';
             $_POST['PRO_ESTOQUE_MINIMO'] = $_POST['PRO_ESTOQUE_MINIMO'] ?: '0';
             $_POST['PRO_ORIGEM'] = $_POST['PRO_ORIGEM'] ?: '0';
 
@@ -89,9 +103,11 @@ class Produtos extends MY_Controller
             $this->form_validation->set_rules('PRO_UNID_MEDIDA', 'Unidade', 'required|trim');
             $this->form_validation->set_rules('PRO_PRECO_COMPRA', 'Preço de Compra', 'required|trim');
             $this->form_validation->set_rules('PRO_PRECO_VENDA', 'Preço de Venda', 'required|trim');
-            $this->form_validation->set_rules('PRO_ESTOQUE', 'Estoque', 'required|trim');
             $this->form_validation->set_rules('PRO_ORIGEM', 'Origem do Produto', 'required|trim|integer|greater_than_equal_to[0]|less_than_equal_to[8]');
         }
+
+        $finalidadesLista = implode(',', array_keys($this->finalidadesProduto));
+        $this->form_validation->set_rules('PRO_FINALIDADE', 'Finalidade', 'required|trim|in_list[' . $finalidadesLista . ']');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="form_error">' . validation_errors() . '</div>' : false);
@@ -107,13 +123,15 @@ class Produtos extends MY_Controller
                 'PRO_UNID_MEDIDA' => $this->input->post('PRO_UNID_MEDIDA'),
                 'PRO_PRECO_COMPRA' => $precoCompra,
                 'PRO_PRECO_VENDA' => $precoVenda,
-                'PRO_ESTOQUE' => $this->input->post('PRO_ESTOQUE'),
                 'PRO_ESTOQUE_MINIMO' => $this->input->post('PRO_ESTOQUE_MINIMO'),
                 'PRO_NCM' => $this->input->post('PRO_NCM'),
                 'NCM_ID' => $this->input->post('NCM_ID'),
                 'PRO_ORIGEM' => $this->input->post('PRO_ORIGEM'),
                 'PRO_TIPO' => $this->input->post('PRO_TIPO') ?: 1,
                 'PRO_CCLASS_SERV' => $this->input->post('PRO_CCLASS_SERV'),
+                'PRO_FINALIDADE' => $tipo == '2'
+                    ? 'Serviço'
+                    : ($this->input->post('PRO_FINALIDADE') ?: 'Comercialização'),
                 'PRO_PESO_BRUTO' => $this->input->post('PRO_PESO_BRUTO') ? str_replace(',', '.', $this->input->post('PRO_PESO_BRUTO')) : null,
                 'PRO_PESO_LIQUIDO' => $this->input->post('PRO_PESO_LIQUIDO') ? str_replace(',', '.', $this->input->post('PRO_PESO_LIQUIDO')) : null,
                 'PRO_LARGURA' => $this->input->post('PRO_LARGURA') ? str_replace(',', '.', $this->input->post('PRO_LARGURA')) : null,
@@ -162,7 +180,6 @@ class Produtos extends MY_Controller
             if (empty($_POST['precoVenda']) || trim($_POST['precoVenda']) == '') {
                 $_POST['precoVenda'] = '0';
             }
-            $_POST['estoque'] = $_POST['estoque'] ?: '0';
             $_POST['estoqueMinimo'] = $_POST['estoqueMinimo'] ?: '0';
             $_POST['PRO_ORIGEM'] = $_POST['PRO_ORIGEM'] ?: '0';
             $_POST['peso_bruto'] = '0.000';
@@ -182,9 +199,11 @@ class Produtos extends MY_Controller
             $this->form_validation->set_rules('unidade', 'Unidade', 'required|trim');
             $this->form_validation->set_rules('precoCompra', 'Preço de Compra', 'required|trim');
             $this->form_validation->set_rules('precoVenda', 'Preço de Venda', 'required|trim');
-            $this->form_validation->set_rules('estoque', 'Estoque', 'required|trim');
             $this->form_validation->set_rules('PRO_ORIGEM', 'Origem do Produto', 'required|trim|integer|greater_than_equal_to[0]|less_than_equal_to[8]');
         }
+
+        $finalidadesLista = implode(',', array_keys($this->finalidadesProduto));
+        $this->form_validation->set_rules('PRO_FINALIDADE', 'Finalidade', 'required|trim|in_list[' . $finalidadesLista . ']');
 
         // Sanitiza campos decimais para validação (substitui vírgula por ponto)
         $decimalFields = ['peso_bruto', 'peso_liquido', 'largura', 'altura', 'comprimento'];
@@ -224,13 +243,15 @@ class Produtos extends MY_Controller
                 'PRO_UNID_MEDIDA' => $this->input->post('unidade') ?: $this->input->post('PRO_UNID_MEDIDA'),
                 'PRO_PRECO_COMPRA' => $precoCompra,
                 'PRO_PRECO_VENDA' => $precoVenda,
-                'PRO_ESTOQUE' => $this->input->post('estoque'),
                 'PRO_ESTOQUE_MINIMO' => $this->input->post('estoqueMinimo'),
                 'PRO_NCM' => $this->input->post('PRO_NCM'),
                 'NCM_ID' => $this->input->post('NCM_ID'),
                 'PRO_ORIGEM' => $this->input->post('PRO_ORIGEM'),
                 'PRO_TIPO' => $tipo,
                 'PRO_CCLASS_SERV' => $this->input->post('PRO_CCLASS_SERV'),
+                'PRO_FINALIDADE' => $tipo == '2'
+                    ? 'Serviço'
+                    : ($this->input->post('PRO_FINALIDADE') ?: 'Comercialização'),
                 'PRO_PESO_BRUTO' => $this->input->post('peso_bruto') ? str_replace(',', '.', $this->input->post('peso_bruto')) : null,
                 'PRO_PESO_LIQUIDO' => $this->input->post('peso_liquido') ? str_replace(',', '.', $this->input->post('peso_liquido')) : null,
                 'PRO_LARGURA' => $this->input->post('largura') ? str_replace(',', '.', $this->input->post('largura')) : null,
@@ -258,6 +279,11 @@ class Produtos extends MY_Controller
         }
 
         $this->data['result'] = $this->produtos_model->getById($this->uri->segment(3));
+        if ($this->data['result'] && empty($this->data['result']->PRO_FINALIDADE)) {
+            $this->data['result']->PRO_FINALIDADE = $this->data['result']->PRO_TIPO == '2'
+                ? 'Serviço'
+                : 'Comercialização';
+        }
         
         // Normalizar NCM para exibição (alguns registros antigos podem ter apenas NCM_ID ou apenas PRO_NCM)
         if ($this->data['result']) {
@@ -326,6 +352,10 @@ class Produtos extends MY_Controller
             redirect(site_url('produtos/editar/') . $this->input->post('PRO_ID'));
         }
 
+        if ($this->data['result'] && empty($this->data['result']->PRO_FINALIDADE)) {
+            $this->data['result']->PRO_FINALIDADE = 'COMERCIALIZACAO';
+        }
+
         $this->data['tributacoes'] = $this->TributacaoProduto_model->get();
         $this->data['view'] = 'produtos/visualizarProduto';
 
@@ -364,31 +394,6 @@ class Produtos extends MY_Controller
         redirect(site_url('produtos/gerenciar/'));
     }
 
-    public function atualizar_estoque()
-    {
-        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eProduto')) {
-            $this->session->set_flashdata('error', 'Você não tem permissão para atualizar estoque de produtos.');
-            redirect(base_url());
-        }
-
-        $idProduto = $this->input->post('id');
-        $novoEstoque = $this->input->post('estoque');
-        $estoqueAtual = $this->input->post('estoqueAtual');
-
-        $estoque = $estoqueAtual + $novoEstoque;
-
-        $data = [
-            'PRO_ESTOQUE' => $estoque,
-        ];
-
-        if ($this->produtos_model->edit('produtos', $data, 'PRO_ID', $idProduto) == true) {
-            $this->session->set_flashdata('success', 'Estoque de Produto atualizado com sucesso!');
-            log_info('Atualizou estoque de um produto. ID: ' . $idProduto);
-            redirect(site_url('produtos/visualizar/') . $idProduto);
-        } else {
-            $this->data['custom_error'] = '<div class="alert">Ocorreu um erro.</div>';
-        }
-    }
 
     private function validarCodigoBarra($codigo)
     {

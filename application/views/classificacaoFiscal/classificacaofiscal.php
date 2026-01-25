@@ -49,6 +49,7 @@
                         <th>CFOP</th>
                         <th>Destinação</th>
                         <th>Objetivo Comercial</th>
+                        <th>Finalidade</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -84,6 +85,11 @@
                                 $destinacao_display = 'Interestadual';
                             }
 
+                            $finalidade_display = $r->finalidade ?? 'Não informado';
+                            if ($finalidade_display === 'COMERCIALIZACAO') {
+                                $finalidade_display = 'Comercialização';
+                            }
+
                             echo '<tr>';
                             echo '<td>' . ($r->nome_operacao ?: '-') . '</td>';
                             echo '<td>' . ($r->nome_tipo_cliente ?: '-') . '</td>';
@@ -93,6 +99,7 @@
                             echo '<td>' . ($r->cfop ?: '-') . '</td>';
                             echo '<td>' . $destinacao_display . '</td>';
                             echo '<td>' . ($r->objetivo_comercial ?: '-') . '</td>';
+                            echo '<td>' . ($finalidadesFiscal[$finalidade_display] ?? $finalidade_display ?: '-') . '</td>';
                             echo '<td>';
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vClassificacaoFiscal')) {
                                 echo '<a href="' . base_url() . 'index.php/classificacaofiscal/visualizar/' . $r->id . '" style="margin-right: 1%" class="btn-nwe" title="Visualizar Classificação Fiscal"><i class="bx bx-show bx-xs"></i></a>';

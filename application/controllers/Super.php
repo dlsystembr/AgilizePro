@@ -95,8 +95,101 @@ class Super extends CI_Controller
             ];
 
             if ($this->db->insert('tenants', $data)) {
-                $this->session->set_flashdata('success', 'Tenant adicionado com sucesso!');
-                log_info('Super usuário adicionou um tenant.');
+                $ten_id = $this->db->insert_id();
+                
+                // Criar permissão padrão para o tenant
+                $permissoes_padrao = [
+                    'vCliente' => 1,
+                    'aCliente' => 1,
+                    'eCliente' => 1,
+                    'dCliente' => 1,
+                    'vPessoa' => 1,
+                    'aPessoa' => 1,
+                    'ePessoa' => 1,
+                    'dPessoa' => 1,
+                    'vProduto' => 1,
+                    'aProduto' => 1,
+                    'eProduto' => 1,
+                    'dProduto' => 1,
+                    'vServico' => 1,
+                    'aServico' => 1,
+                    'eServico' => 1,
+                    'dServico' => 1,
+                    'vOs' => 1,
+                    'aOs' => 1,
+                    'eOs' => 1,
+                    'dOs' => 1,
+                    'vVenda' => 1,
+                    'aVenda' => 1,
+                    'eVenda' => 1,
+                    'dVenda' => 1,
+                    'vLancamento' => 1,
+                    'aLancamento' => 1,
+                    'eLancamento' => 1,
+                    'dLancamento' => 1,
+                    'cUsuario' => 1,
+                    'cEmitente' => 1,
+                    'cPermissao' => 1,
+                    'cSistema' => 1,
+                ];
+                
+                $permissao_data = [
+                    'nome' => 'Permissão Padrão - ' . $data['ten_nome'],
+                    'data' => date('Y-m-d'),
+                    'permissoes' => serialize($permissoes_padrao),
+                    'situacao' => 1,
+                    'ten_id' => $ten_id,
+                ];
+                
+                $this->db->insert('permissoes', $permissao_data);
+                $permissao_id = $this->db->insert_id();
+                
+                // Habilitar todas as permissões padrão para o tenant em tenant_permissoes_menu
+                foreach ($permissoes_padrao as $codigo_perm => $valor) {
+                    if ($valor == 1) {
+                        $perm_menu_data = [
+                            'TPM_TEN_ID' => $ten_id,
+                            'TPM_MENU_CODIGO' => $codigo_perm,
+                            'TPM_PERMISSAO' => $codigo_perm,
+                            'TPM_ATIVO' => 1,
+                            'TPM_DATA_CADASTRO' => date('Y-m-d H:i:s'),
+                        ];
+                        $this->db->insert('tenant_permissoes_menu', $perm_menu_data);
+                    }
+                }
+                
+                // Criar usuário se os campos foram preenchidos
+                $usuario_nome = $this->input->post('usuario_nome');
+                $usuario_email = $this->input->post('usuario_email');
+                $usuario_senha = $this->input->post('usuario_senha');
+                
+                if (!empty($usuario_nome) && !empty($usuario_email) && !empty($usuario_senha)) {
+                    $usuario_data = [
+                        'nome' => $usuario_nome,
+                        'email' => $usuario_email,
+                        'senha' => password_hash($usuario_senha, PASSWORD_DEFAULT),
+                        'cpf' => '000.000.000-00', // CPF padrão, pode ser alterado depois
+                        'cep' => '00000-000', // CEP padrão
+                        'telefone' => $data['ten_telefone'] ?: '(00) 0000-0000',
+                        'situacao' => 1,
+                        'dataCadastro' => date('Y-m-d'),
+                        'dataExpiracao' => '3000-01-01', // Data de expiração distante
+                        'permissoes_id' => $permissao_id, // Usar a permissão padrão criada
+                        'ten_id' => $ten_id,
+                    ];
+                    
+                    if ($this->db->insert('usuarios', $usuario_data)) {
+                        $this->session->set_flashdata('success', 'Tenant adicionado com sucesso! Permissão padrão e usuário administrador criados.');
+                        log_info('Super usuário adicionou um tenant com usuário. Tenant ID: ' . $ten_id . ', Usuário: ' . $usuario_email);
+                    } else {
+                        $this->session->set_flashdata('success', 'Tenant adicionado com sucesso! Permissão padrão criada. Erro ao criar usuário.');
+                        log_info('Super usuário adicionou um tenant. ID: ' . $ten_id . ' (erro ao criar usuário)');
+                    }
+                } else {
+                    $this->session->set_flashdata('success', 'Tenant adicionado com sucesso! Permissão padrão criada.');
+                    log_info('Super usuário adicionou um tenant. ID: ' . $ten_id);
+                }
+                
                 redirect(base_url('index.php/super/tenants'));
             } else {
                 $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro.</p></div>';
@@ -373,97 +466,178 @@ class Super extends CI_Controller
             redirect(base_url('index.php/super/tenants'));
         }
 
-        // Lista de menus disponíveis no sistema
-        $menus = [
-            'vCliente' => 'Visualizar Clientes',
-            'aCliente' => 'Adicionar Clientes',
-            'eCliente' => 'Editar Clientes',
-            'dCliente' => 'Excluir Clientes',
-            'vProduto' => 'Visualizar Produtos',
-            'aProduto' => 'Adicionar Produtos',
-            'eProduto' => 'Editar Produtos',
-            'dProduto' => 'Excluir Produtos',
-            'vServico' => 'Visualizar Serviços',
-            'aServico' => 'Adicionar Serviços',
-            'eServico' => 'Editar Serviços',
-            'dServico' => 'Excluir Serviços',
-            'vOs' => 'Visualizar OS',
-            'aOs' => 'Adicionar OS',
-            'eOs' => 'Editar OS',
-            'dOs' => 'Excluir OS',
-            'vVenda' => 'Visualizar Vendas',
-            'aVenda' => 'Adicionar Vendas',
-            'eVenda' => 'Editar Vendas',
-            'dVenda' => 'Excluir Vendas',
-            'vFinanceiro' => 'Visualizar Financeiro',
-            'aFinanceiro' => 'Adicionar Financeiro',
-            'eFinanceiro' => 'Editar Financeiro',
-            'dFinanceiro' => 'Excluir Financeiro',
-            'vPessoa' => 'Visualizar Pessoas',
-            'aPessoa' => 'Adicionar Pessoas',
-            'ePessoa' => 'Editar Pessoas',
-            'dPessoa' => 'Excluir Pessoas',
-            'vNfecom' => 'Visualizar NFCom',
-            'aNfecom' => 'Adicionar NFCom',
-            'eNfecom' => 'Editar NFCom',
-            'dNfecom' => 'Excluir NFCom',
-            'cAuditoria' => 'Visualizar Auditoria',
-            'rFinanceiro' => 'Relatórios Financeiro',
-            'rCliente' => 'Relatórios Clientes',
-            'rProduto' => 'Relatórios Produtos',
-            'rOs' => 'Relatórios OS',
-            'rVenda' => 'Relatórios Vendas',
-            'vOperacaoComercial' => 'Visualizar Operação Comercial',
-            'aOperacaoComercial' => 'Adicionar Operação Comercial',
-            'eOperacaoComercial' => 'Editar Operação Comercial',
-            'dOperacaoComercial' => 'Excluir Operação Comercial',
-            'vNcm' => 'Visualizar NCM',
-            'aNcm' => 'Adicionar NCM',
-            'eNcm' => 'Editar NCM',
-            'dNcm' => 'Excluir NCM',
-        ];
-
-        // Buscar permissões já configuradas para este tenant
-        $this->db->where('TPM_TEN_ID', $tenant_id);
-        $permissoes_configuradas = $this->db->get('tenant_permissoes_menu')->result();
+        // Carregar todas as permissões do sistema
+        $this->load->config('permission');
+        $all_permissions = $this->config->item('permission');
         
-        $permissoes_array = [];
-        foreach ($permissoes_configuradas as $perm) {
-            $permissoes_array[$perm->TPM_PERMISSAO] = $perm->TPM_ATIVO;
+        // Agrupar permissões por módulo
+        $menus_agrupados = [];
+        foreach ($all_permissions as $codigo => $nome) {
+            // Extrair o módulo (ex: 'Cliente' de 'vCliente', 'FaturamentoEntrada' de 'vFaturamentoEntrada')
+            // Remove prefixos: v, a, e, d, c, r
+            $modulo = preg_replace('/^[vaedcr]/', '', $codigo);
+            
+            // Se não removeu nada, pode ser que não tenha prefixo (caso raro)
+            if ($modulo == $codigo && strlen($codigo) > 0) {
+                // Tentar identificar módulo de outra forma (ex: ClassificacaoFiscal)
+                // Se começar com letra minúscula seguida de maiúscula, é um módulo composto
+                if (preg_match('/^[a-z]+([A-Z][a-zA-Z]+)$/', $codigo, $matches)) {
+                    $modulo = $matches[1];
+                } else {
+                    // Se não conseguir identificar, usar o código completo
+                    $modulo = $codigo;
+                }
+            }
+            
+            // Garantir que o módulo começa com maiúscula (para consistência)
+            if (strlen($modulo) > 0) {
+                $modulo = ucfirst($modulo);
+            }
+            
+            if (!isset($menus_agrupados[$modulo])) {
+                $menus_agrupados[$modulo] = [];
+            }
+            $menus_agrupados[$modulo][$codigo] = $nome;
         }
-
-        if ($this->input->post()) {
-            // Salvar permissões
-            $this->db->where('TPM_TEN_ID', $tenant_id);
-            $this->db->delete('tenant_permissoes_menu');
-
-            $permissoes_post = $this->input->post('permissoes');
-            if (is_array($permissoes_post)) {
-                foreach ($permissoes_post as $menu_codigo => $permissoes_menu) {
-                    if (is_array($permissoes_menu)) {
-                        foreach ($permissoes_menu as $permissao => $ativo) {
-                            if ($ativo == '1') {
-                                $this->db->insert('tenant_permissoes_menu', [
-                                    'TPM_TEN_ID' => $tenant_id,
-                                    'TPM_MENU_CODIGO' => $permissao,
-                                    'TPM_PERMISSAO' => $permissao,
-                                    'TPM_ATIVO' => 1,
-                                    'TPM_DATA_CADASTRO' => date('Y-m-d H:i:s'),
-                                ]);
-                            }
-                        }
+        
+        // Usar TODAS as permissões do config como disponíveis
+        // O super admin pode habilitar qualquer permissão definida no config
+        $permissoes_sistema = array_keys($all_permissions);
+        
+        // Opcional: também verificar quais permissões já foram usadas em algum perfil
+        // Isso ajuda a identificar permissões que realmente existem no sistema
+        $this->db->select('permissoes');
+        $this->db->from('permissoes');
+        $this->db->where('situacao', 1);
+        $permissoes_db = $this->db->get()->result();
+        
+        $permissoes_usadas = [];
+        foreach ($permissoes_db as $perm) {
+            $perm_array = @unserialize($perm->permissoes);
+            if ($perm_array === false) {
+                $perm_array = json_decode($perm->permissoes, true);
+            }
+            
+            if (is_array($perm_array)) {
+                foreach ($perm_array as $key => $value) {
+                    if ($value == 1 && !in_array($key, $permissoes_usadas)) {
+                        $permissoes_usadas[] = $key;
                     }
                 }
             }
+        }
+        
+        // Se encontrou permissões usadas, adicionar às disponíveis (para garantir que todas estejam)
+        if (!empty($permissoes_usadas)) {
+            $permissoes_sistema = array_unique(array_merge($permissoes_sistema, $permissoes_usadas));
+        }
 
-            $this->session->set_flashdata('success', 'Permissões de menu salvas com sucesso!');
+        // Buscar permissões já configuradas para este tenant
+        $this->db->where('TPM_TEN_ID', $tenant_id);
+        $this->db->where('TPM_ATIVO', 1);
+        $permissoes_configuradas = $this->db->get('tenant_permissoes_menu')->result();
+        
+        // Verificar quais módulos estão habilitados (se pelo menos uma permissão do módulo estiver ativa)
+        $modulos_habilitados = [];
+        foreach ($permissoes_configuradas as $perm) {
+            $codigo = $perm->TPM_PERMISSAO;
+            // Extrair módulo da mesma forma que foi feito no agrupamento
+            $modulo = preg_replace('/^[vaedcr]/', '', $codigo);
+            
+            if ($modulo == $codigo && strlen($codigo) > 0) {
+                if (preg_match('/^[a-z]+([A-Z][a-zA-Z]+)$/', $codigo, $matches)) {
+                    $modulo = $matches[1];
+                } else {
+                    $modulo = $codigo;
+                }
+            }
+            
+            // Garantir que o módulo começa com maiúscula (para consistência)
+            if (strlen($modulo) > 0) {
+                $modulo = ucfirst($modulo);
+            }
+            // Verificar se o módulo existe no agrupamento antes de adicionar
+            if (isset($menus_agrupados[$modulo]) && !in_array($modulo, $modulos_habilitados)) {
+                $modulos_habilitados[] = $modulo;
+            }
+        }
+
+        if ($this->input->post()) {
+            // Salvar permissões por módulo
+            $this->db->where('TPM_TEN_ID', $tenant_id);
+            $this->db->delete('tenant_permissoes_menu');
+
+            $modulos_post = $this->input->post('modulos');
+            
+            log_message('debug', 'Módulos recebidos: ' . print_r($modulos_post, true));
+            
+            $permissoes_salvas = 0;
+            $modulos_salvos = 0;
+            $erros = [];
+            
+            if (is_array($modulos_post) && !empty($modulos_post)) {
+                foreach ($modulos_post as $modulo => $habilitado) {
+                    // Verificar se o módulo está habilitado (valor = 1)
+                    if ($habilitado == '1' || $habilitado === 1 || $habilitado === '1') {
+                        // Buscar todas as permissões deste módulo
+                        if (isset($menus_agrupados[$modulo]) && is_array($menus_agrupados[$modulo])) {
+                            foreach ($menus_agrupados[$modulo] as $codigo_permissao => $nome_permissao) {
+                                // Verificar se a permissão existe no sistema
+                                if (in_array($codigo_permissao, $permissoes_sistema)) {
+                                    $data = [
+                                        'TPM_TEN_ID' => $tenant_id,
+                                        'TPM_MENU_CODIGO' => $codigo_permissao,
+                                        'TPM_PERMISSAO' => $codigo_permissao,
+                                        'TPM_ATIVO' => 1,
+                                        'TPM_DATA_CADASTRO' => date('Y-m-d H:i:s'),
+                                    ];
+                                    
+                                    $insert_result = $this->db->insert('tenant_permissoes_menu', $data);
+                                    
+                                    if ($insert_result) {
+                                        $permissoes_salvas++;
+                                    } else {
+                                        $db_error = $this->db->error();
+                                        // Se for erro de duplicata, ignorar (pode acontecer em race conditions)
+                                        if (isset($db_error['code']) && $db_error['code'] == 1062) {
+                                            // Duplicata - atualizar para ativo
+                                            $this->db->where('TPM_TEN_ID', $tenant_id);
+                                            $this->db->where('TPM_PERMISSAO', $codigo_permissao);
+                                            $this->db->update('tenant_permissoes_menu', ['TPM_ATIVO' => 1]);
+                                            $permissoes_salvas++;
+                                        } else {
+                                            $erro_msg = isset($db_error['message']) ? $db_error['message'] : 'Erro desconhecido';
+                                            log_message('error', "Erro ao inserir permissão {$codigo_permissao}: {$erro_msg}");
+                                            $erros[] = "Erro ao salvar permissão {$codigo_permissao}: {$erro_msg}";
+                                        }
+                                    }
+                                }
+                            }
+                            $modulos_salvos++;
+                        }
+                    }
+                }
+            } else {
+                log_message('debug', 'Nenhum módulo foi enviado ou array vazio');
+            }
+            
+            log_message('debug', "Total de módulos salvos: {$modulos_salvos}, Total de permissões salvas: {$permissoes_salvas}");
+            
+            if (!empty($erros)) {
+                $this->session->set_flashdata('error', 'Algumas permissões não puderam ser salvas. Verifique os logs.');
+            } else {
+                $this->session->set_flashdata('success', "Permissões de menu salvas com sucesso! ({$modulos_salvos} módulos, {$permissoes_salvas} permissões)");
+            }
+
             log_info('Super usuário atualizou permissões de menu do tenant ' . $tenant_id);
             redirect(base_url("index.php/super/permissoesMenu/{$tenant_id}"));
         }
 
         $this->data['tenant'] = $tenant;
-        $this->data['menus'] = $menus;
-        $this->data['permissoes_configuradas'] = $permissoes_array;
+        $this->data['menus_agrupados'] = $menus_agrupados;
+        $this->data['permissoes_sistema'] = $permissoes_sistema;
+        $this->data['modulos_habilitados'] = $modulos_habilitados;
+        $this->data['all_permissions'] = $all_permissions;
         $this->data['view'] = 'super/permissoesMenu';
         $this->load->view('super/layout', $this->data);
     }

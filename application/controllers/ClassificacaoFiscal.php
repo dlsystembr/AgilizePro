@@ -3,6 +3,13 @@
 
 class ClassificacaoFiscal extends MY_Controller
 {
+    /**
+     * Catálogo de finalidades aplicáveis às classificações fiscais.
+     *
+     * @var array
+     */
+    private $finalidadesFiscal = [];
+
     public function __construct()
     {
         parent::__construct();
@@ -18,6 +25,15 @@ class ClassificacaoFiscal extends MY_Controller
         $this->load->helper('form');
         $this->data['menuConfiguracoes'] = 'Configurações';
         $this->data['menuClassificacaoFiscal'] = 'Classificação Fiscal';
+
+        $this->finalidadesFiscal = [
+            'Comercialização' => 'Comercialização',
+            'Consumo' => 'Consumo',
+            'Ativo Imobilizado' => 'Ativo Imobilizado',
+            'Serviço' => 'Serviço',
+            'Outros' => 'Outros',
+        ];
+        $this->data['finalidadesFiscal'] = $this->finalidadesFiscal;
     }
 
     public function index()
@@ -50,6 +66,11 @@ class ClassificacaoFiscal extends MY_Controller
         $this->form_validation->set_rules('destinacao', 'Destinação', 'required|trim');
         $this->form_validation->set_rules('objetivo_comercial', 'Objetivo Comercial', 'required|trim');
         $this->form_validation->set_rules('tipo_icms', 'Tipo ICMS', 'required|in_list[normal,st,servico,ICMS Normal,Substituição Tributaria,Substituição Tributária,Serviço]');
+        // Validação condicional para finalidade - só valida se for enviado
+        if ($this->input->post('finalidade') || $this->input->post('finalidade_hidden')) {
+            $finalidade_value = $this->input->post('finalidade') ?: $this->input->post('finalidade_hidden');
+            $this->form_validation->set_rules('finalidade', 'Finalidade', 'trim|in_list[' . implode(',', array_keys($this->finalidadesFiscal)) . ']');
+        }
 
         // Get tax regime from configuration
         $this->load->model('Mapos_model');
@@ -113,6 +134,13 @@ class ClassificacaoFiscal extends MY_Controller
                 $destinacao = $destinacao_map[strtolower($destinacao)];
             }
 
+            // Finalidade: se tipo ICMS for serviço, força "Serviço"
+            // Se o campo estiver desabilitado, pegar do hidden
+            $finalidade = $this->input->post('finalidade') ?: $this->input->post('finalidade_hidden') ?: 'Comercialização';
+            if (strtolower($tipo_icms) === 'servico' || strtolower($tipo_icms) === 'serviço') {
+                $finalidade = 'Serviço';
+            }
+
             $data = [
                 'operacao_comercial_id' => $this->input->post('operacao_comercial_id'),
                 'tipo_cliente_id' => $this->input->post('tipo_cliente_id') ?: null,
@@ -121,6 +149,7 @@ class ClassificacaoFiscal extends MY_Controller
                 'destinacao' => $destinacao,
                 'CLF_DESTINACAO' => $destinacao, // Campo adicional para garantir gravação
                 'objetivo_comercial' => $objetivo_comercial,
+                'finalidade' => $finalidade,
                 'tipo_icms' => $tipo_icms,
                 'cClassTrib' => $this->input->post('cClassTrib') ?: null,
                 'mensagem_fiscal' => $this->input->post('mensagem_fiscal'),
@@ -170,6 +199,11 @@ class ClassificacaoFiscal extends MY_Controller
         $this->form_validation->set_rules('destinacao', 'Destinação', 'required|trim');
         $this->form_validation->set_rules('objetivo_comercial', 'Objetivo Comercial', 'required|trim');
         $this->form_validation->set_rules('tipo_icms', 'Tipo ICMS', 'required|in_list[normal,st,servico,ICMS Normal,Substituição Tributaria,Substituição Tributária,Serviço]');
+        // Validação condicional para finalidade - só valida se for enviado
+        if ($this->input->post('finalidade') || $this->input->post('finalidade_hidden')) {
+            $finalidade_value = $this->input->post('finalidade') ?: $this->input->post('finalidade_hidden');
+            $this->form_validation->set_rules('finalidade', 'Finalidade', 'trim|in_list[' . implode(',', array_keys($this->finalidadesFiscal)) . ']');
+        }
 
         // Get tax regime from configuration
         $this->load->model('Mapos_model');
@@ -233,6 +267,13 @@ class ClassificacaoFiscal extends MY_Controller
                 $destinacao = $destinacao_map[strtolower($destinacao)];
             }
 
+            // Finalidade: se tipo ICMS for serviço, força "Serviço"
+            // Se o campo estiver desabilitado, pegar do hidden
+            $finalidade = $this->input->post('finalidade') ?: $this->input->post('finalidade_hidden') ?: 'Comercialização';
+            if (strtolower($tipo_icms) === 'servico' || strtolower($tipo_icms) === 'serviço') {
+                $finalidade = 'Serviço';
+            }
+
             $data = [
                 'operacao_comercial_id' => $this->input->post('operacao_comercial_id'),
                 'tipo_cliente_id' => $this->input->post('tipo_cliente_id') ?: null,
@@ -241,6 +282,7 @@ class ClassificacaoFiscal extends MY_Controller
                 'destinacao' => $destinacao,
                 'CLF_DESTINACAO' => $destinacao, // Campo adicional para garantir gravação
                 'objetivo_comercial' => $objetivo_comercial,
+                'finalidade' => $finalidade,
                 'tipo_icms' => $tipo_icms,
                 'cClassTrib' => $this->input->post('cClassTrib') ?: null,
                 'mensagem_fiscal' => $this->input->post('mensagem_fiscal'),

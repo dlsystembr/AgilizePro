@@ -1,0 +1,3022 @@
+[
+    {
+        "table": "anexos",
+        "old": "idAnexos",
+        "new": "idanexos"
+    },
+    {
+        "table": "anotacoes_os",
+        "old": "idAnotacoes",
+        "new": "idanotacoes"
+    },
+    {
+        "table": "bairros",
+        "old": "BAI_ID",
+        "new": "bai_id"
+    },
+    {
+        "table": "bairros",
+        "old": "BAI_NOME",
+        "new": "bai_nome"
+    },
+    {
+        "table": "bairros",
+        "old": "MUN_ID",
+        "new": "mun_id"
+    },
+    {
+        "table": "bairros",
+        "old": "BAI_DATA_INCLUSAO",
+        "new": "bai_data_inclusao"
+    },
+    {
+        "table": "bairros",
+        "old": "BAI_DATA_ATUALIZACAO",
+        "new": "bai_data_atualizacao"
+    },
+    {
+        "table": "categorias",
+        "old": "idCategorias",
+        "new": "idcategorias"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "CER_ID",
+        "new": "cer_id"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "EMP_ID",
+        "new": "emp_id"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "CER_ARQUIVO",
+        "new": "cer_arquivo"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "CER_SENHA",
+        "new": "cer_senha"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "CER_TIPO",
+        "new": "cer_tipo"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "CER_CNPJ",
+        "new": "cer_cnpj"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "CER_VALIDADE_FIM",
+        "new": "cer_validade_fim"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "CER_ATIVO",
+        "new": "cer_ativo"
+    },
+    {
+        "table": "certificados_digitais",
+        "old": "CER_DATA_UPLOAD",
+        "new": "cer_data_upload"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_ID",
+        "new": "clf_id"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "OPC_ID",
+        "new": "opc_id"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "TPC_ID",
+        "new": "tpc_id"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_CST",
+        "new": "clf_cst"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_CSOSN",
+        "new": "clf_csosn"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_NATUREZA_CONTRIBUINTE",
+        "new": "clf_natureza_contribuinte"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_CFOP",
+        "new": "clf_cfop"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_DESTINACAO",
+        "new": "clf_destinacao"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_OBJETIVO_COMERCIAL",
+        "new": "clf_objetivo_comercial"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_FINALIDADE",
+        "new": "clf_finalidade"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_TIPO_TRIBUTACAO",
+        "new": "clf_tipo_tributacao"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_MENSAGEM",
+        "new": "clf_mensagem"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_CCLASSTRIB",
+        "new": "clf_cclasstrib"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_CST_IBS",
+        "new": "clf_cst_ibs"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_ALIQ_IBS",
+        "new": "clf_aliq_ibs"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_CST_CBS",
+        "new": "clf_cst_cbs"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_ALIQ_CBS",
+        "new": "clf_aliq_cbs"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_DATA_INCLUSAO",
+        "new": "clf_data_inclusao"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_DATA_ALTERACAO",
+        "new": "clf_data_alteracao"
+    },
+    {
+        "table": "classificacao_fiscal",
+        "old": "CLF_SITUACAO",
+        "new": "clf_situacao"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_ID",
+        "new": "cln_id"
+    },
+    {
+        "table": "clientes",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "clientes",
+        "old": "TPC_ID",
+        "new": "tpc_id"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_LIMITE_CREDITO",
+        "new": "cln_limite_credito"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_SITUACAO",
+        "new": "cln_situacao"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_DATA_CADASTRO",
+        "new": "cln_data_cadastro"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_LASTUPDATE",
+        "new": "cln_lastupdate"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_COMPRAR_APRAZO",
+        "new": "cln_comprar_aprazo"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_BLOQUEIO_FINANCEIRO",
+        "new": "cln_bloqueio_financeiro"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_DIAS_CARENCIA",
+        "new": "cln_dias_carencia"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_EMITIR_NFE",
+        "new": "cln_emitir_nfe"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_DATA_INCLUSAO",
+        "new": "cln_data_inclusao"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_DATA_ALTERACAO",
+        "new": "cln_data_alteracao"
+    },
+    {
+        "table": "clientes",
+        "old": "CLN_OBJETIVO_COMERCIAL",
+        "new": "cln_objetivo_comercial"
+    },
+    {
+        "table": "clientes_",
+        "old": "idClientes",
+        "new": "idclientes"
+    },
+    {
+        "table": "clientes_",
+        "old": "nomeCliente",
+        "new": "nomecliente"
+    },
+    {
+        "table": "clientes_",
+        "old": "dataCadastro",
+        "new": "datacadastro"
+    },
+    {
+        "table": "clientes_vendedores",
+        "old": "CLV_ID",
+        "new": "clv_id"
+    },
+    {
+        "table": "clientes_vendedores",
+        "old": "CLN_ID",
+        "new": "cln_id"
+    },
+    {
+        "table": "clientes_vendedores",
+        "old": "VEN_ID",
+        "new": "ven_id"
+    },
+    {
+        "table": "clientes_vendedores",
+        "old": "CLV_PADRAO",
+        "new": "clv_padrao"
+    },
+    {
+        "table": "clientes_vendedores",
+        "old": "CLV_DATA_INCLUSAO",
+        "new": "clv_data_inclusao"
+    },
+    {
+        "table": "clientes_vendedores",
+        "old": "CLV_DATA_ATUALIZACAO",
+        "new": "clv_data_atualizacao"
+    },
+    {
+        "table": "cobrancas",
+        "old": "idCobranca",
+        "new": "idcobranca"
+    },
+    {
+        "table": "configuracoes",
+        "old": "idConfig",
+        "new": "idconfig"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_ID",
+        "new": "cfg_id"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "EMP_ID",
+        "new": "emp_id"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CER_ID",
+        "new": "cer_id"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_TIPO_DOCUMENTO",
+        "new": "cfg_tipo_documento"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_AMBIENTE",
+        "new": "cfg_ambiente"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_SERIE",
+        "new": "cfg_serie"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_NUMERO_ATUAL",
+        "new": "cfg_numero_atual"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_CSC_ID",
+        "new": "cfg_csc_id"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_CSC_TOKEN",
+        "new": "cfg_csc_token"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_ALIQUOTA_ISS",
+        "new": "cfg_aliquota_iss"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_REGIME_ESPECIAL",
+        "new": "cfg_regime_especial"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_FORMATO_IMPRESSAO",
+        "new": "cfg_formato_impressao"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_ATIVO",
+        "new": "cfg_ativo"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_DATA_CADASTRO",
+        "new": "cfg_data_cadastro"
+    },
+    {
+        "table": "configuracoes_fiscais",
+        "old": "CFG_DATA_ATUALIZACAO",
+        "new": "cfg_data_atualizacao"
+    },
+    {
+        "table": "configuracoes_nfe",
+        "old": "idConfiguracao",
+        "new": "idconfiguracao"
+    },
+    {
+        "table": "contas",
+        "old": "idContas",
+        "new": "idcontas"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_ID",
+        "new": "ctr_id"
+    },
+    {
+        "table": "contratos",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_NUMERO",
+        "new": "ctr_numero"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_DATA_INICIO",
+        "new": "ctr_data_inicio"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_DATA_FIM",
+        "new": "ctr_data_fim"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_TIPO_ASSINANTE",
+        "new": "ctr_tipo_assinante"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_ANEXO",
+        "new": "ctr_anexo"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_OBSERVACAO",
+        "new": "ctr_observacao"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_SITUACAO",
+        "new": "ctr_situacao"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_DATA_CADASTRO",
+        "new": "ctr_data_cadastro"
+    },
+    {
+        "table": "contratos",
+        "old": "CTR_DATA_ALTERACAO",
+        "new": "ctr_data_alteracao"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTI_ID",
+        "new": "cti_id"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTR_ID",
+        "new": "ctr_id"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "PRO_ID",
+        "new": "pro_id"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTI_PRECO",
+        "new": "cti_preco"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTI_QUANTIDADE",
+        "new": "cti_quantidade"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTI_ATIVO",
+        "new": "cti_ativo"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTI_OBSERVACAO",
+        "new": "cti_observacao"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTI_DATA_CADASTRO",
+        "new": "cti_data_cadastro"
+    },
+    {
+        "table": "contratos_itens",
+        "old": "CTI_DATA_ATUALIZACAO",
+        "new": "cti_data_atualizacao"
+    },
+    {
+        "table": "documentos",
+        "old": "DOC_ID",
+        "new": "doc_id"
+    },
+    {
+        "table": "documentos",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "documentos",
+        "old": "DOC_TIPO_DOCUMENTO",
+        "new": "doc_tipo_documento"
+    },
+    {
+        "table": "documentos",
+        "old": "END_ID",
+        "new": "end_id"
+    },
+    {
+        "table": "documentos",
+        "old": "DOC_ORGAO_EXPEDIDOR",
+        "new": "doc_orgao_expedidor"
+    },
+    {
+        "table": "documentos",
+        "old": "DOC_NUMERO",
+        "new": "doc_numero"
+    },
+    {
+        "table": "documentos",
+        "old": "DOC_NATUREZA_CONTRIBUINTE",
+        "new": "doc_natureza_contribuinte"
+    },
+    {
+        "table": "documentos",
+        "old": "DOC_DATA_INCLUSAO",
+        "new": "doc_data_inclusao"
+    },
+    {
+        "table": "documentos",
+        "old": "DOC_DATA_ATUALIZACAO",
+        "new": "doc_data_atualizacao"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_ID",
+        "new": "dcf_id"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "ORV_ID",
+        "new": "orv_id"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_NUMERO",
+        "new": "dcf_numero"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_SERIE",
+        "new": "dcf_serie"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_MODELO",
+        "new": "dcf_modelo"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_TIPO",
+        "new": "dcf_tipo"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_DATA_EMISSAO",
+        "new": "dcf_data_emissao"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_DATA_SAIDA",
+        "new": "dcf_data_saida"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_PRODUTOS",
+        "new": "dcf_valor_produtos"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_DESCONTO",
+        "new": "dcf_valor_desconto"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_FRETE",
+        "new": "dcf_valor_frete"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_SEGURO",
+        "new": "dcf_valor_seguro"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_OUTRAS_DESPESAS",
+        "new": "dcf_valor_outras_despesas"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_BASE_ICMS",
+        "new": "dcf_base_icms"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_ICMS",
+        "new": "dcf_valor_icms"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_ICMS_DESONERADO",
+        "new": "dcf_valor_icms_desonerado"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_BASE_IPI",
+        "new": "dcf_base_ipi"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_IPI",
+        "new": "dcf_valor_ipi"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_BASE_PIS",
+        "new": "dcf_base_pis"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_PIS",
+        "new": "dcf_valor_pis"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_BASE_COFINS",
+        "new": "dcf_base_cofins"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_COFINS",
+        "new": "dcf_valor_cofins"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_BASE_IBS",
+        "new": "dcf_base_ibs"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_IBS",
+        "new": "dcf_valor_ibs"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_BASE_CBS",
+        "new": "dcf_base_cbs"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_CBS",
+        "new": "dcf_valor_cbs"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_RETENCAO_IRRF",
+        "new": "dcf_retencao_irrf"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_RETENCAO_PIS",
+        "new": "dcf_retencao_pis"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_RETENCAO_COFINS",
+        "new": "dcf_retencao_cofins"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_RETENCAO_CSLL",
+        "new": "dcf_retencao_csll"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_VALOR_TOTAL",
+        "new": "dcf_valor_total"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_STATUS",
+        "new": "dcf_status"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_INFORMACOES_ADICIONAIS",
+        "new": "dcf_informacoes_adicionais"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_LASTUPDATE",
+        "new": "dcf_lastupdate"
+    },
+    {
+        "table": "documentos_faturados",
+        "old": "DCF_DATA_FATURAMENTO",
+        "new": "dcf_data_faturamento"
+    },
+    {
+        "table": "emails",
+        "old": "EML_ID",
+        "new": "eml_id"
+    },
+    {
+        "table": "emails",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "emails",
+        "old": "EML_TIPO",
+        "new": "eml_tipo"
+    },
+    {
+        "table": "emails",
+        "old": "EML_EMAIL",
+        "new": "eml_email"
+    },
+    {
+        "table": "emails",
+        "old": "EML_NOME",
+        "new": "eml_nome"
+    },
+    {
+        "table": "emails",
+        "old": "EML_DATA_INCLUSAO",
+        "new": "eml_data_inclusao"
+    },
+    {
+        "table": "emails",
+        "old": "EML_DATA_ATUALIZACAO",
+        "new": "eml_data_atualizacao"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_ID",
+        "new": "emp_id"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_RAZAO_SOCIAL",
+        "new": "emp_razao_social"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_NOME_FANTASIA",
+        "new": "emp_nome_fantasia"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_CNPJ",
+        "new": "emp_cnpj"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_IE",
+        "new": "emp_ie"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_IM",
+        "new": "emp_im"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_CNAE",
+        "new": "emp_cnae"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_CEP",
+        "new": "emp_cep"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_LOGRADOURO",
+        "new": "emp_logradouro"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_NUMERO",
+        "new": "emp_numero"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_COMPLEMENTO",
+        "new": "emp_complemento"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_BAIRRO",
+        "new": "emp_bairro"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_CIDADE",
+        "new": "emp_cidade"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_UF",
+        "new": "emp_uf"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_IBGE",
+        "new": "emp_ibge"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_TELEFONE",
+        "new": "emp_telefone"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_CELULAR",
+        "new": "emp_celular"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_EMAIL",
+        "new": "emp_email"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_SITE",
+        "new": "emp_site"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_REGIME_TRIBUTARIO",
+        "new": "emp_regime_tributario"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_ALIQ_CRED_ICMS",
+        "new": "emp_aliq_cred_icms"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_MENSAGEM_SIMPLES",
+        "new": "emp_mensagem_simples"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_LOGO_PATH",
+        "new": "emp_logo_path"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_MENSAGEM_NOTA",
+        "new": "emp_mensagem_nota"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_COR_PRIMARIA",
+        "new": "emp_cor_primaria"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_COR_SECUNDARIA",
+        "new": "emp_cor_secundaria"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_ATIVO",
+        "new": "emp_ativo"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_DATA_CADASTRO",
+        "new": "emp_data_cadastro"
+    },
+    {
+        "table": "empresas",
+        "old": "EMP_DATA_ATUALIZACAO",
+        "new": "emp_data_atualizacao"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_ID",
+        "new": "end_id"
+    },
+    {
+        "table": "enderecos",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "enderecos",
+        "old": "EST_ID",
+        "new": "est_id"
+    },
+    {
+        "table": "enderecos",
+        "old": "MUN_ID",
+        "new": "mun_id"
+    },
+    {
+        "table": "enderecos",
+        "old": "BAI_ID",
+        "new": "bai_id"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_TIPO_ENDENRECO",
+        "new": "end_tipo_endenreco"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_TIPO_LOGRADOURO",
+        "new": "end_tipo_logradouro"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_LOGRADOURO",
+        "new": "end_logradouro"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_NUMERO",
+        "new": "end_numero"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_COMPLEMENTO",
+        "new": "end_complemento"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_CEP",
+        "new": "end_cep"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_ZONA",
+        "new": "end_zona"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_OBSERVACAO",
+        "new": "end_observacao"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_PADRAO",
+        "new": "end_padrao"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_SITUACAO",
+        "new": "end_situacao"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_DATA_INCLUSAO",
+        "new": "end_data_inclusao"
+    },
+    {
+        "table": "enderecos",
+        "old": "END_DATA_ATUALIZACAO",
+        "new": "end_data_atualizacao"
+    },
+    {
+        "table": "equipamentos",
+        "old": "idEquipamentos",
+        "new": "idequipamentos"
+    },
+    {
+        "table": "equipamentos_os",
+        "old": "idEquipamentos_os",
+        "new": "idequipamentos_os"
+    },
+    {
+        "table": "estados",
+        "old": "EST_ID",
+        "new": "est_id"
+    },
+    {
+        "table": "estados",
+        "old": "EST_NOME",
+        "new": "est_nome"
+    },
+    {
+        "table": "estados",
+        "old": "EST_UF",
+        "new": "est_uf"
+    },
+    {
+        "table": "estados",
+        "old": "EST_CODIGO_UF",
+        "new": "est_codigo_uf"
+    },
+    {
+        "table": "estados",
+        "old": "EST_DATA_INCLUSAO",
+        "new": "est_data_inclusao"
+    },
+    {
+        "table": "estados",
+        "old": "EST_DATA_ALTERACAO",
+        "new": "est_data_alteracao"
+    },
+    {
+        "table": "faturamento_entrada_itens",
+        "old": "FEI_ID",
+        "new": "fei_id"
+    },
+    {
+        "table": "faturamento_entrada_itens",
+        "old": "PRO_ID",
+        "new": "pro_id"
+    },
+    {
+        "table": "faturamento_entrada_itens",
+        "old": "FEI_QUANTIDADE",
+        "new": "fei_quantidade"
+    },
+    {
+        "table": "faturamento_entrada_itens",
+        "old": "FEI_VALOR_TOTAL",
+        "new": "fei_valor_total"
+    },
+    {
+        "table": "fornecedores",
+        "old": "idFornecedores",
+        "new": "idfornecedores"
+    },
+    {
+        "table": "fornecedores",
+        "old": "nomeFornecedor",
+        "new": "nomefornecedor"
+    },
+    {
+        "table": "garantias",
+        "old": "idGarantias",
+        "new": "idgarantias"
+    },
+    {
+        "table": "garantias",
+        "old": "dataGarantia",
+        "new": "datagarantia"
+    },
+    {
+        "table": "garantias",
+        "old": "refGarantia",
+        "new": "refgarantia"
+    },
+    {
+        "table": "garantias",
+        "old": "textoGarantia",
+        "new": "textogarantia"
+    },
+    {
+        "table": "itens_de_vendas",
+        "old": "ITV_ID",
+        "new": "itv_id"
+    },
+    {
+        "table": "itens_de_vendas",
+        "old": "ITV_SUBTOTAL",
+        "new": "itv_subtotal"
+    },
+    {
+        "table": "itens_de_vendas",
+        "old": "ITV_QUANTIDADE",
+        "new": "itv_quantidade"
+    },
+    {
+        "table": "itens_de_vendas",
+        "old": "ITV_PRECO",
+        "new": "itv_preco"
+    },
+    {
+        "table": "itens_de_vendas",
+        "old": "PRO_ID",
+        "new": "pro_id"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_ID",
+        "new": "itf_id"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_QUANTIDADE",
+        "new": "itf_quantidade"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_VALOR_UNITARIO",
+        "new": "itf_valor_unitario"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_VALOR_TOTAL",
+        "new": "itf_valor_total"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_DESCONTO",
+        "new": "itf_desconto"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_UNIDADE",
+        "new": "itf_unidade"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "DCF_ID",
+        "new": "dcf_id"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "PRO_ID",
+        "new": "pro_id"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "NCM_ID",
+        "new": "ncm_id"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "CLF_ID",
+        "new": "clf_id"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_PRO_DESCRICAO",
+        "new": "itf_pro_descricao"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_PRO_NCM",
+        "new": "itf_pro_ncm"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_NCM_CEST",
+        "new": "itf_ncm_cest"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_CFOP",
+        "new": "itf_cfop"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_ICMS_CST",
+        "new": "itf_icms_cst"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_CSOSN",
+        "new": "itf_csosn"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_ICMS_ALIQUOTA",
+        "new": "itf_icms_aliquota"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_ICMS_VALOR_BASE",
+        "new": "itf_icms_valor_base"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_ICMS_VALOR",
+        "new": "itf_icms_valor"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_COD_BENEFICIO",
+        "new": "itf_cod_beneficio"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_MOT_DESONERADO",
+        "new": "itf_mot_desonerado"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_BASE_DESONERADO_ICMS",
+        "new": "itf_base_desonerado_icms"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_VALOR_DESONERADO_ICMS",
+        "new": "itf_valor_desonerado_icms"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_PIS_CST",
+        "new": "itf_pis_cst"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_PIS_ALIQUOTA",
+        "new": "itf_pis_aliquota"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_PIS_VALOR_BASE",
+        "new": "itf_pis_valor_base"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_PIS_VALOR",
+        "new": "itf_pis_valor"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_COFINS_CST",
+        "new": "itf_cofins_cst"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_COFINS_ALIQUOTA",
+        "new": "itf_cofins_aliquota"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_COFINS_VALOR_BASE",
+        "new": "itf_cofins_valor_base"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_COFINS_VALOR",
+        "new": "itf_cofins_valor"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_IPI_CST",
+        "new": "itf_ipi_cst"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_IPI_ALIQUOTA",
+        "new": "itf_ipi_aliquota"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_IPI_VALOR_BASE",
+        "new": "itf_ipi_valor_base"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_IPI_VALOR",
+        "new": "itf_ipi_valor"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_CCLASS_TRIB",
+        "new": "itf_cclass_trib"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_ALIQ_IBS",
+        "new": "itf_aliq_ibs"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_VALOR_IBS",
+        "new": "itf_valor_ibs"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_ALIQ_CBS",
+        "new": "itf_aliq_cbs"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_VALOR_CBS",
+        "new": "itf_valor_cbs"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_RETENCAO_IRRF",
+        "new": "itf_retencao_irrf"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_RETENCAO_PIS",
+        "new": "itf_retencao_pis"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_RETENCAO_COFINS",
+        "new": "itf_retencao_cofins"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_RETENCAO_CSLL",
+        "new": "itf_retencao_csll"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_IBT",
+        "new": "itf_ibt"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_IBT_CST",
+        "new": "itf_ibt_cst"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_IBT_ALIQUOTA",
+        "new": "itf_ibt_aliquota"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_IBT_VALOR_BASE",
+        "new": "itf_ibt_valor_base"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_IBT_VALOR",
+        "new": "itf_ibt_valor"
+    },
+    {
+        "table": "itens_faturados",
+        "old": "ITF_LASTUPDATE",
+        "new": "itf_lastupdate"
+    },
+    {
+        "table": "itens_pedido",
+        "old": "ITP_ID",
+        "new": "itp_id"
+    },
+    {
+        "table": "itens_pedido",
+        "old": "PRO_ID",
+        "new": "pro_id"
+    },
+    {
+        "table": "itens_pedido",
+        "old": "ITP_QUANTIDADE",
+        "new": "itp_quantidade"
+    },
+    {
+        "table": "itens_pedido",
+        "old": "ITP_PRECO_UNIT",
+        "new": "itp_preco_unit"
+    },
+    {
+        "table": "itens_pedido",
+        "old": "ITP_SUBTOTAL",
+        "new": "itp_subtotal"
+    },
+    {
+        "table": "itens_pedidos",
+        "old": "ITP_ID",
+        "new": "itp_id"
+    },
+    {
+        "table": "itens_pedidos",
+        "old": "ITP_SUBTOTAL",
+        "new": "itp_subtotal"
+    },
+    {
+        "table": "itens_pedidos",
+        "old": "ITP_QUANTIDADE",
+        "new": "itp_quantidade"
+    },
+    {
+        "table": "itens_pedidos",
+        "old": "ITP_PRECO",
+        "new": "itp_preco"
+    },
+    {
+        "table": "itens_pedidos",
+        "old": "PDS_ID",
+        "new": "pds_id"
+    },
+    {
+        "table": "itens_pedidos",
+        "old": "PRO_ID",
+        "new": "pro_id"
+    },
+    {
+        "table": "lancamentos",
+        "old": "idLancamentos",
+        "new": "idlancamentos"
+    },
+    {
+        "table": "logs",
+        "old": "idLogs",
+        "new": "idlogs"
+    },
+    {
+        "table": "marcas_equipamentos",
+        "old": "idMarcas",
+        "new": "idmarcas"
+    },
+    {
+        "table": "municipios",
+        "old": "MUN_ID",
+        "new": "mun_id"
+    },
+    {
+        "table": "municipios",
+        "old": "EST_ID",
+        "new": "est_id"
+    },
+    {
+        "table": "municipios",
+        "old": "MUN_NOME",
+        "new": "mun_nome"
+    },
+    {
+        "table": "municipios",
+        "old": "MUN_IBGE",
+        "new": "mun_ibge"
+    },
+    {
+        "table": "municipios",
+        "old": "MUN_DATA_INCLUSAO",
+        "new": "mun_data_inclusao"
+    },
+    {
+        "table": "municipios",
+        "old": "MUN_DATA_ATUALIZACAO",
+        "new": "mun_data_atualizacao"
+    },
+    {
+        "table": "ncms",
+        "old": "NCM_ID",
+        "new": "ncm_id"
+    },
+    {
+        "table": "ncms",
+        "old": "NCM_CODIGO",
+        "new": "ncm_codigo"
+    },
+    {
+        "table": "ncms",
+        "old": "NCM_DESCRICAO",
+        "new": "ncm_descricao"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_ID",
+        "new": "nfc_id"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "CLN_ID",
+        "new": "cln_id"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CUF",
+        "new": "nfc_cuf"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_TIPO_AMBIENTE",
+        "new": "nfc_tipo_ambiente"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_MOD",
+        "new": "nfc_mod"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_SERIE",
+        "new": "nfc_serie"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_NNF",
+        "new": "nfc_nnf"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CNF",
+        "new": "nfc_cnf"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CDV",
+        "new": "nfc_cdv"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_DHEMI",
+        "new": "nfc_dhemi"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_TP_EMIS",
+        "new": "nfc_tp_emis"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_N_SITE_AUTORIZ",
+        "new": "nfc_n_site_autoriz"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_C_MUN_FG",
+        "new": "nfc_c_mun_fg"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_FIN_NFCOM",
+        "new": "nfc_fin_nfcom"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_TP_FAT",
+        "new": "nfc_tp_fat"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_VER_PROC",
+        "new": "nfc_ver_proc"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CNPJ_EMIT",
+        "new": "nfc_cnpj_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_IE_EMIT",
+        "new": "nfc_ie_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CRT_EMIT",
+        "new": "nfc_crt_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_NOME_EMIT",
+        "new": "nfc_x_nome_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_FANT_EMIT",
+        "new": "nfc_x_fant_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_LGR_EMIT",
+        "new": "nfc_x_lgr_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_NRO_EMIT",
+        "new": "nfc_nro_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_CPL_EMIT",
+        "new": "nfc_x_cpl_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_BAIRRO_EMIT",
+        "new": "nfc_x_bairro_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_C_MUN_EMIT",
+        "new": "nfc_c_mun_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_MUN_EMIT",
+        "new": "nfc_x_mun_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CEP_EMIT",
+        "new": "nfc_cep_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_UF_EMIT",
+        "new": "nfc_uf_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_FONE_EMIT",
+        "new": "nfc_fone_emit"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_NOME_DEST",
+        "new": "nfc_x_nome_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CNPJ_DEST",
+        "new": "nfc_cnpj_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_IND_IE_DEST",
+        "new": "nfc_ind_ie_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_LGR_DEST",
+        "new": "nfc_x_lgr_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_NRO_DEST",
+        "new": "nfc_nro_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_BAIRRO_DEST",
+        "new": "nfc_x_bairro_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_C_MUN_DEST",
+        "new": "nfc_c_mun_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_MUN_DEST",
+        "new": "nfc_x_mun_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_CPL_DEST",
+        "new": "nfc_x_cpl_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CEP_DEST",
+        "new": "nfc_cep_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_UF_DEST",
+        "new": "nfc_uf_dest"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_I_COD_ASSINANTE",
+        "new": "nfc_i_cod_assinante"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_TP_ASSINANTE",
+        "new": "nfc_tp_assinante"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_TP_SERV_UTIL",
+        "new": "nfc_tp_serv_util"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_N_CONTRATO",
+        "new": "nfc_n_contrato"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_D_CONTRATO_INI",
+        "new": "nfc_d_contrato_ini"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_D_CONTRATO_FIM",
+        "new": "nfc_d_contrato_fim"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_PROD",
+        "new": "nfc_v_prod"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_BC_ICMS",
+        "new": "nfc_v_bc_icms"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_ICMS",
+        "new": "nfc_v_icms"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_ICMS_DESON",
+        "new": "nfc_v_icms_deson"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_FCP",
+        "new": "nfc_v_fcp"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_COFINS",
+        "new": "nfc_v_cofins"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_PIS",
+        "new": "nfc_v_pis"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_FUST",
+        "new": "nfc_v_fust"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_FUNTEL",
+        "new": "nfc_v_funtel"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_RET_PIS",
+        "new": "nfc_v_ret_pis"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_RET_COFINS",
+        "new": "nfc_v_ret_cofins"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_RET_CSLL",
+        "new": "nfc_v_ret_csll"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_IRRF",
+        "new": "nfc_v_irrf"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_RET_TRIB_TOT",
+        "new": "nfc_v_ret_trib_tot"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_DESC",
+        "new": "nfc_v_desc"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_OUTRO",
+        "new": "nfc_v_outro"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_V_NF",
+        "new": "nfc_v_nf"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_COMPET_FAT",
+        "new": "nfc_compet_fat"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_D_VENC_FAT",
+        "new": "nfc_d_venc_fat"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_D_PER_USO_INI",
+        "new": "nfc_d_per_uso_ini"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_D_PER_USO_FIM",
+        "new": "nfc_d_per_uso_fim"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_COD_BARRAS",
+        "new": "nfc_cod_barras"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_INF_CPL",
+        "new": "nfc_inf_cpl"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_STATUS",
+        "new": "nfc_status"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CH_NFCOM",
+        "new": "nfc_ch_nfcom"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_N_PROT",
+        "new": "nfc_n_prot"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_DH_RECBTO",
+        "new": "nfc_dh_recbto"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_C_STAT",
+        "new": "nfc_c_stat"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_X_MOTIVO",
+        "new": "nfc_x_motivo"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_DIG_VAL",
+        "new": "nfc_dig_val"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_XML",
+        "new": "nfc_xml"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_DATA_CADASTRO",
+        "new": "nfc_data_cadastro"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_DATA_ATUALIZACAO",
+        "new": "nfc_data_atualizacao"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_CHAVE_PIX",
+        "new": "nfc_chave_pix"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_LINHA_DIGITAVEL",
+        "new": "nfc_linha_digitavel"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "OPC_ID",
+        "new": "opc_id"
+    },
+    {
+        "table": "nfecom_capa",
+        "old": "NFC_N_PROT_CANC",
+        "new": "nfc_n_prot_canc"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_ID",
+        "new": "nfi_id"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFC_ID",
+        "new": "nfc_id"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_N_ITEM",
+        "new": "nfi_n_item"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_C_PROD",
+        "new": "nfi_c_prod"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_X_PROD",
+        "new": "nfi_x_prod"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_C_CLASS",
+        "new": "nfi_c_class"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_CFOP",
+        "new": "nfi_cfop"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_U_MED",
+        "new": "nfi_u_med"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_Q_FATURADA",
+        "new": "nfi_q_faturada"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_ITEM",
+        "new": "nfi_v_item"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_DESC",
+        "new": "nfi_v_desc"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_OUTRO",
+        "new": "nfi_v_outro"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_PROD",
+        "new": "nfi_v_prod"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_CST_ICMS",
+        "new": "nfi_cst_icms"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_CSOSN",
+        "new": "nfi_csosn"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_BC_ICMS",
+        "new": "nfi_v_bc_icms"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_P_ICMS",
+        "new": "nfi_p_icms"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_ICMS",
+        "new": "nfi_v_icms"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_ICMS_DESON",
+        "new": "nfi_v_icms_deson"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_MOT_DES_ICMS",
+        "new": "nfi_mot_des_icms"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_BC_ICMS_ST",
+        "new": "nfi_v_bc_icms_st"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_P_ICMS_ST",
+        "new": "nfi_p_icms_st"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_ICMS_ST",
+        "new": "nfi_v_icms_st"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_BC_ST_RET",
+        "new": "nfi_v_bc_st_ret"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_ICMS_ST_RET",
+        "new": "nfi_v_icms_st_ret"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_P_ST",
+        "new": "nfi_p_st"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_ICMS_SUBST",
+        "new": "nfi_v_icms_subst"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_BC_FCP",
+        "new": "nfi_v_bc_fcp"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_P_FCP",
+        "new": "nfi_p_fcp"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_FCP",
+        "new": "nfi_v_fcp"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_FCP_ST",
+        "new": "nfi_v_fcp_st"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_FCP_ST_RET",
+        "new": "nfi_v_fcp_st_ret"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_CST_PIS",
+        "new": "nfi_cst_pis"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_BC_PIS",
+        "new": "nfi_v_bc_pis"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_P_PIS",
+        "new": "nfi_p_pis"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_PIS",
+        "new": "nfi_v_pis"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_CST_COFINS",
+        "new": "nfi_cst_cofins"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_BC_COFINS",
+        "new": "nfi_v_bc_cofins"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_P_COFINS",
+        "new": "nfi_p_cofins"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_COFINS",
+        "new": "nfi_v_cofins"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_BC_FUST",
+        "new": "nfi_v_bc_fust"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_P_FUST",
+        "new": "nfi_p_fust"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_FUST",
+        "new": "nfi_v_fust"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_BC_FUNTEL",
+        "new": "nfi_v_bc_funtel"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_P_FUNTEL",
+        "new": "nfi_p_funtel"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_FUNTEL",
+        "new": "nfi_v_funtel"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_BC_IRRF",
+        "new": "nfi_v_bc_irrf"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_V_IRRF",
+        "new": "nfi_v_irrf"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_DATA_CADASTRO",
+        "new": "nfi_data_cadastro"
+    },
+    {
+        "table": "nfecom_itens",
+        "old": "NFI_DATA_ATUALIZACAO",
+        "new": "nfi_data_atualizacao"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_ID",
+        "new": "opc_id"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_SIGLA",
+        "new": "opc_sigla"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_NOME",
+        "new": "opc_nome"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_NATUREZA_OPERACAO",
+        "new": "opc_natureza_operacao"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_TIPO_MOVIMENTO",
+        "new": "opc_tipo_movimento"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_AFETA_CUSTO",
+        "new": "opc_afeta_custo"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_FATO_FISCAL",
+        "new": "opc_fato_fiscal"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_GERA_FINANCEIRO",
+        "new": "opc_gera_financeiro"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_MOVIMENTA_ESTOQUE",
+        "new": "opc_movimenta_estoque"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_SITUACAO",
+        "new": "opc_situacao"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_FINALIDADE_NFE",
+        "new": "opc_finalidade_nfe"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_DATA_INCLUSAO",
+        "new": "opc_data_inclusao"
+    },
+    {
+        "table": "operacao_comercial",
+        "old": "OPC_DATA_ALTERACAO",
+        "new": "opc_data_alteracao"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_ID",
+        "new": "orv_id"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_DATA_INICIAL",
+        "new": "orv_data_inicial"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_DATA_FINAL",
+        "new": "orv_data_final"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_GARANTIA",
+        "new": "orv_garantia"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_DESCRICAO_PRODUTO",
+        "new": "orv_descricao_produto"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_DEFEITO",
+        "new": "orv_defeito"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_STATUS",
+        "new": "orv_status"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_OBSERVACOES",
+        "new": "orv_observacoes"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_LAUDO_TECNICO",
+        "new": "orv_laudo_tecnico"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_VALOR_TOTAL",
+        "new": "orv_valor_total"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_DESCONTO",
+        "new": "orv_desconto"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_VALOR_DESCONTO",
+        "new": "orv_valor_desconto"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_TIPO_DESCONTO",
+        "new": "orv_tipo_desconto"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_PESS_ID",
+        "new": "orv_pess_id"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_USUARIOS_ID",
+        "new": "orv_usuarios_id"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_LANCAMENTO",
+        "new": "orv_lancamento"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_FATURADO",
+        "new": "orv_faturado"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_GARANTIAS_ID",
+        "new": "orv_garantias_id"
+    },
+    {
+        "table": "ordem_servico",
+        "old": "ORV_OPC_ID",
+        "new": "orv_opc_id"
+    },
+    {
+        "table": "os",
+        "old": "idOs",
+        "new": "idos"
+    },
+    {
+        "table": "os",
+        "old": "dataInicial",
+        "new": "datainicial"
+    },
+    {
+        "table": "os",
+        "old": "dataFinal",
+        "new": "datafinal"
+    },
+    {
+        "table": "os",
+        "old": "descricaoProduto",
+        "new": "descricaoproduto"
+    },
+    {
+        "table": "os",
+        "old": "laudoTecnico",
+        "new": "laudotecnico"
+    },
+    {
+        "table": "os",
+        "old": "valorTotal",
+        "new": "valortotal"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_ID",
+        "new": "pds_id"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_DATA",
+        "new": "pds_data"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_VALOR_TOTAL",
+        "new": "pds_valor_total"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_DESCONTO",
+        "new": "pds_desconto"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_VALOR_DESCONTO",
+        "new": "pds_valor_desconto"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_TIPO_DESCONTO",
+        "new": "pds_tipo_desconto"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_FATURADO",
+        "new": "pds_faturado"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_OBSERVACOES",
+        "new": "pds_observacoes"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_OBSERVACOES_CLIENTE",
+        "new": "pds_observacoes_cliente"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_STATUS",
+        "new": "pds_status"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_GARANTIA",
+        "new": "pds_garantia"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_TIPO",
+        "new": "pds_tipo"
+    },
+    {
+        "table": "pedidos",
+        "old": "PDS_OPERACAO_COMERCIAL",
+        "new": "pds_operacao_comercial"
+    },
+    {
+        "table": "pedidos",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "pedidos",
+        "old": "CLN_ID",
+        "new": "cln_id"
+    },
+    {
+        "table": "pedidos",
+        "old": "USU_ID",
+        "new": "usu_id"
+    },
+    {
+        "table": "pedidos",
+        "old": "LAN_ID",
+        "new": "lan_id"
+    },
+    {
+        "table": "pedidos_compra",
+        "old": "idPedido",
+        "new": "idpedido"
+    },
+    {
+        "table": "permissoes",
+        "old": "idPermissao",
+        "new": "idpermissao"
+    },
+    {
+        "table": "permissoes",
+        "old": "vEmpresa",
+        "new": "vempresa"
+    },
+    {
+        "table": "permissoes",
+        "old": "eEmpresa",
+        "new": "eempresa"
+    },
+    {
+        "table": "permissoes",
+        "old": "cEmpresa",
+        "new": "cempresa"
+    },
+    {
+        "table": "permissoes",
+        "old": "vClassificacaoFiscal",
+        "new": "vclassificacaofiscal"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_CPFCNPJ",
+        "new": "pes_cpfcnpj"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_NOME",
+        "new": "pes_nome"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_RAZAO_SOCIAL",
+        "new": "pes_razao_social"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_CODIGO",
+        "new": "pes_codigo"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_FISICO_JURIDICO",
+        "new": "pes_fisico_juridico"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_NASCIMENTO_ABERTURA",
+        "new": "pes_nascimento_abertura"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_NACIONALIDADES",
+        "new": "pes_nacionalidades"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_RG",
+        "new": "pes_rg"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_ORGAO_EXPEDIDOR",
+        "new": "pes_orgao_expedidor"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_SEXO",
+        "new": "pes_sexo"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_ESTADO_CIVIL",
+        "new": "pes_estado_civil"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_ESCOLARIDADE",
+        "new": "pes_escolaridade"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_PROFISSAO",
+        "new": "pes_profissao"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_OBSERVACAO",
+        "new": "pes_observacao"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_SITUACAO",
+        "new": "pes_situacao"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_DATA_INCLUSAO",
+        "new": "pes_data_inclusao"
+    },
+    {
+        "table": "pessoas",
+        "old": "PES_DATA_ATUALIZACAO",
+        "new": "pes_data_atualizacao"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_ID",
+        "new": "pro_id"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_COD_BARRA",
+        "new": "pro_cod_barra"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_DESCRICAO",
+        "new": "pro_descricao"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_UNID_MEDIDA",
+        "new": "pro_unid_medida"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_NCM",
+        "new": "pro_ncm"
+    },
+    {
+        "table": "produtos",
+        "old": "NCM_ID",
+        "new": "ncm_id"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_PESO_BRUTO",
+        "new": "pro_peso_bruto"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_PESO_LIQUIDO",
+        "new": "pro_peso_liquido"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_LARGURA",
+        "new": "pro_largura"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_ALTURA",
+        "new": "pro_altura"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_COMPRIMENTO",
+        "new": "pro_comprimento"
+    },
+    {
+        "table": "produtos",
+        "old": "TBP_ID",
+        "new": "tbp_id"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_PRECO_COMPRA",
+        "new": "pro_preco_compra"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_PRECO_VENDA",
+        "new": "pro_preco_venda"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_ESTOQUE",
+        "new": "pro_estoque"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_ORIGEM",
+        "new": "pro_origem"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_ESTOQUE_MINIMO",
+        "new": "pro_estoque_minimo"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_SAIDA",
+        "new": "pro_saida"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_ENTRADA",
+        "new": "pro_entrada"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_TIPO",
+        "new": "pro_tipo"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_FINALIDADE",
+        "new": "pro_finalidade"
+    },
+    {
+        "table": "produtos",
+        "old": "PRO_CCLASS_SERV",
+        "new": "pro_cclass_serv"
+    },
+    {
+        "table": "produtos_movimentados",
+        "old": "PDM_ID",
+        "new": "pdm_id"
+    },
+    {
+        "table": "produtos_movimentados",
+        "old": "PDM_QTDE",
+        "new": "pdm_qtde"
+    },
+    {
+        "table": "produtos_movimentados",
+        "old": "PDM_TIPO",
+        "new": "pdm_tipo"
+    },
+    {
+        "table": "produtos_movimentados",
+        "old": "ITF_ID",
+        "new": "itf_id"
+    },
+    {
+        "table": "produtos_movimentados",
+        "old": "PDM_DATA",
+        "new": "pdm_data"
+    },
+    {
+        "table": "produtos_os",
+        "old": "PRO_OS_ID",
+        "new": "pro_os_id"
+    },
+    {
+        "table": "produtos_os",
+        "old": "PRO_OS_QUANTIDADE",
+        "new": "pro_os_quantidade"
+    },
+    {
+        "table": "produtos_os",
+        "old": "PRO_OS_DESCRICAO",
+        "new": "pro_os_descricao"
+    },
+    {
+        "table": "produtos_os",
+        "old": "PRO_OS_PRECO",
+        "new": "pro_os_preco"
+    },
+    {
+        "table": "produtos_os",
+        "old": "PRO_ID",
+        "new": "pro_id"
+    },
+    {
+        "table": "produtos_os",
+        "old": "PRO_OS_SUBTOTAL",
+        "new": "pro_os_subtotal"
+    },
+    {
+        "table": "protocolos",
+        "old": "PRT_ID",
+        "new": "prt_id"
+    },
+    {
+        "table": "protocolos",
+        "old": "NFC_ID",
+        "new": "nfc_id"
+    },
+    {
+        "table": "protocolos",
+        "old": "PRT_NUMERO_PROTOCOLO",
+        "new": "prt_numero_protocolo"
+    },
+    {
+        "table": "protocolos",
+        "old": "PRT_TIPO",
+        "new": "prt_tipo"
+    },
+    {
+        "table": "protocolos",
+        "old": "PRT_MOTIVO",
+        "new": "prt_motivo"
+    },
+    {
+        "table": "protocolos",
+        "old": "PRT_DATA",
+        "new": "prt_data"
+    },
+    {
+        "table": "servicos",
+        "old": "SRV_ID",
+        "new": "srv_id"
+    },
+    {
+        "table": "servicos",
+        "old": "SRV_NOME",
+        "new": "srv_nome"
+    },
+    {
+        "table": "servicos",
+        "old": "SRV_DESCRICAO",
+        "new": "srv_descricao"
+    },
+    {
+        "table": "servicos",
+        "old": "SRV_CODIGO",
+        "new": "srv_codigo"
+    },
+    {
+        "table": "servicos",
+        "old": "SRV_CCLASS",
+        "new": "srv_cclass"
+    },
+    {
+        "table": "servicos",
+        "old": "SRV_UNID_MEDIDA",
+        "new": "srv_unid_medida"
+    },
+    {
+        "table": "servicos",
+        "old": "SRV_PRECO",
+        "new": "srv_preco"
+    },
+    {
+        "table": "servicos_os",
+        "old": "SOS_ID",
+        "new": "sos_id"
+    },
+    {
+        "table": "servicos_os",
+        "old": "SOS_QUANTIDADE",
+        "new": "sos_quantidade"
+    },
+    {
+        "table": "servicos_os",
+        "old": "SOS_PRECO",
+        "new": "sos_preco"
+    },
+    {
+        "table": "servicos_os",
+        "old": "PRO_ID",
+        "new": "pro_id"
+    },
+    {
+        "table": "servicos_os",
+        "old": "SOS_SUBTOTAL",
+        "new": "sos_subtotal"
+    },
+    {
+        "table": "telefones",
+        "old": "TEL_ID",
+        "new": "tel_id"
+    },
+    {
+        "table": "telefones",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "telefones",
+        "old": "TEL_TIPO",
+        "new": "tel_tipo"
+    },
+    {
+        "table": "telefones",
+        "old": "TEL_DDD",
+        "new": "tel_ddd"
+    },
+    {
+        "table": "telefones",
+        "old": "TEL_NUMERO",
+        "new": "tel_numero"
+    },
+    {
+        "table": "telefones",
+        "old": "TEL_OBSERVACAO",
+        "new": "tel_observacao"
+    },
+    {
+        "table": "telefones",
+        "old": "TEL_DATA_INCLUSAO",
+        "new": "tel_data_inclusao"
+    },
+    {
+        "table": "telefones",
+        "old": "TEL_DATA_ATUALIZACAO",
+        "new": "tel_data_atualizacao"
+    },
+    {
+        "table": "tenant_permissoes_menu",
+        "old": "TPM_ID",
+        "new": "tpm_id"
+    },
+    {
+        "table": "tenant_permissoes_menu",
+        "old": "TPM_TEN_ID",
+        "new": "tpm_ten_id"
+    },
+    {
+        "table": "tenant_permissoes_menu",
+        "old": "TPM_MENU_CODIGO",
+        "new": "tpm_menu_codigo"
+    },
+    {
+        "table": "tenant_permissoes_menu",
+        "old": "TPM_PERMISSAO",
+        "new": "tpm_permissao"
+    },
+    {
+        "table": "tenant_permissoes_menu",
+        "old": "TPM_ATIVO",
+        "new": "tpm_ativo"
+    },
+    {
+        "table": "tenant_permissoes_menu",
+        "old": "TPM_DATA_CADASTRO",
+        "new": "tpm_data_cadastro"
+    },
+    {
+        "table": "tipos_clientes",
+        "old": "TPC_ID",
+        "new": "tpc_id"
+    },
+    {
+        "table": "tipos_clientes",
+        "old": "TPC_NOME",
+        "new": "tpc_nome"
+    },
+    {
+        "table": "tipos_clientes",
+        "old": "TPC_CODIGO_CLIENTE",
+        "new": "tpc_codigo_cliente"
+    },
+    {
+        "table": "tipos_clientes",
+        "old": "TPC_DATA_CADASTRO",
+        "new": "tpc_data_cadastro"
+    },
+    {
+        "table": "tributacao_produto",
+        "old": "TBP_ID",
+        "new": "tbp_id"
+    },
+    {
+        "table": "tributacao_produto",
+        "old": "TBP_DESCRICAO",
+        "new": "tbp_descricao"
+    },
+    {
+        "table": "tributacao_produto",
+        "old": "TBP_CST_IPI_SAIDA",
+        "new": "tbp_cst_ipi_saida"
+    },
+    {
+        "table": "usuarios",
+        "old": "idUsuarios",
+        "new": "idusuarios"
+    },
+    {
+        "table": "usuarios",
+        "old": "dataCadastro",
+        "new": "datacadastro"
+    },
+    {
+        "table": "usuarios",
+        "old": "dataExpiracao",
+        "new": "dataexpiracao"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_ID",
+        "new": "uss_id"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_NOME",
+        "new": "uss_nome"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_RG",
+        "new": "uss_rg"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_CPF",
+        "new": "uss_cpf"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_EMAIL",
+        "new": "uss_email"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_SENHA",
+        "new": "uss_senha"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_TELEFONE",
+        "new": "uss_telefone"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_CELULAR",
+        "new": "uss_celular"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_SITUACAO",
+        "new": "uss_situacao"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_DATA_CADASTRO",
+        "new": "uss_data_cadastro"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_DATA_EXPIRACAO",
+        "new": "uss_data_expiracao"
+    },
+    {
+        "table": "usuarios_super",
+        "old": "USS_URL_IMAGE_USER",
+        "new": "uss_url_image_user"
+    },
+    {
+        "table": "vendas",
+        "old": "idVendas",
+        "new": "idvendas"
+    },
+    {
+        "table": "vendas",
+        "old": "dataVenda",
+        "new": "datavenda"
+    },
+    {
+        "table": "vendas",
+        "old": "valorTotal",
+        "new": "valortotal"
+    },
+    {
+        "table": "vendedores",
+        "old": "VEN_ID",
+        "new": "ven_id"
+    },
+    {
+        "table": "vendedores",
+        "old": "PES_ID",
+        "new": "pes_id"
+    },
+    {
+        "table": "vendedores",
+        "old": "VEN_PERCENTUAL_COMISSAO",
+        "new": "ven_percentual_comissao"
+    },
+    {
+        "table": "vendedores",
+        "old": "VEN_TIPO_COMISSAO",
+        "new": "ven_tipo_comissao"
+    },
+    {
+        "table": "vendedores",
+        "old": "VEN_META_MENSAL",
+        "new": "ven_meta_mensal"
+    },
+    {
+        "table": "vendedores",
+        "old": "VEN_SITUACAO",
+        "new": "ven_situacao"
+    },
+    {
+        "table": "vendedores",
+        "old": "VEN_DATA_CADASTRO",
+        "new": "ven_data_cadastro"
+    },
+    {
+        "table": "vendedores",
+        "old": "VEN_DATA_ATUALIZACAO",
+        "new": "ven_data_atualizacao"
+    }
+]
