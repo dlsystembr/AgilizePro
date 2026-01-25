@@ -7,43 +7,43 @@ class Migration_Create_protocolos_table extends CI_Migration
     public function up()
     {
         $this->dbforge->add_field([
-            'PRT_ID' => [
+            'prt_id' => [
                 'type' => 'INT',
                 'constraint' => 11,
                 'unsigned' => true,
                 'auto_increment' => true,
             ],
-            'NFC_ID' => [
+            'nfc_id' => [
                 'type' => 'INT',
                 'constraint' => 11,
                 'unsigned' => true,
                 'null' => false,
             ],
-            'PRT_NUMERO_PROTOCOLO' => [
+            'prt_numero_protocolo' => [
                 'type' => 'VARCHAR',
                 'constraint' => 60,
                 'null' => false,
             ],
-            'PRT_TIPO' => [
+            'prt_tipo' => [
                 'type' => 'VARCHAR',
                 'constraint' => 30,
                 'null' => false,
             ],
-            'PRT_MOTIVO' => [
+            'prt_motivo' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,
                 'null' => true,
             ],
-            'PRT_DATA' => [
+            'prt_data' => [
                 'type' => 'DATETIME',
                 'null' => false,
             ],
         ]);
 
-        $this->dbforge->add_key('PRT_ID', true);
-        $this->dbforge->add_key('NFC_ID');
+        $this->dbforge->add_key('prt_id', true);
+        $this->dbforge->add_key('nfc_id');
         $this->dbforge->create_table('protocolos');
-        $this->db->query('ALTER TABLE `protocolos` ADD CONSTRAINT `fk_protocolos_nfecom` FOREIGN KEY (`NFC_ID`) REFERENCES `nfecom_capa` (`NFC_ID`) ON DELETE CASCADE ON UPDATE CASCADE');
+        $this->db->query('ALTER TABLE `protocolos` ADD CONSTRAINT `fk_protocolos_nfecom` FOREIGN KEY (`nfc_id`) REFERENCES `nfecom_capa` (`nfc_id`) ON DELETE CASCADE ON UPDATE CASCADE');
     }
 
     public function down()

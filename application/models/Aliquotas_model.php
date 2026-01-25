@@ -107,7 +107,7 @@ class Aliquotas_model extends CI_Model
             'SC' => 'Santa Catarina',
             'SP' => 'São Paulo',
             'SE' => 'Sergipe',
-            'TO' => 'Tocantins'
+            'to' => 'Tocantins'
         ];
     }
 } 

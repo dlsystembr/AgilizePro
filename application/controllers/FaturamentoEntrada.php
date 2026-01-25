@@ -346,14 +346,14 @@ class FaturamentoEntrada extends MY_Controller
                     }
                     
                     // Criar documento_faturado e itens_faturados com status ABERTO
-                    // Buscar PES_ID do fornecedor
+                    // Buscar pes_id do fornecedor
                     $pes_id = null;
                     
-                    // Tentar buscar PES_ID através da tabela clientes (nova estrutura)
+                    // Tentar buscar pes_id através da tabela clientes (nova estrutura)
                     if ($this->db->table_exists('clientes')) {
-                        $cliente_novo = $this->db->where('CLN_ID', $data['fornecedor_id'])->get('clientes')->row();
+                        $cliente_novo = $this->db->where('cln_id', $data['fornecedor_id'])->get('clientes')->row();
                         if ($cliente_novo) {
-                            $pes_id = $cliente_novo->PES_ID;
+                            $pes_id = $cliente_novo->pes_id;
                         }
                     }
                     
@@ -363,9 +363,9 @@ class FaturamentoEntrada extends MY_Controller
                         if ($fornecedor) {
                             // Tentar buscar por documento
                             $documento_limpo = preg_replace('/\D/', '', $fornecedor->documento);
-                            $pessoa = $this->db->where('PES_CPFCNPJ', $documento_limpo)->get('pessoas')->row();
+                            $pessoa = $this->db->where('pes_cpfcnpj', $documento_limpo)->get('pessoas')->row();
                             if ($pessoa) {
-                                $pes_id = $pessoa->PES_ID;
+                                $pes_id = $pessoa->pes_id;
                             }
                         }
                     }
@@ -373,21 +373,21 @@ class FaturamentoEntrada extends MY_Controller
                     if ($pes_id) {
                         // Criar documento_faturado
                         $dcf_data = [
-                            'ORV_ID' => null, // NULL para faturamento de entrada
-                            'PES_ID' => $pes_id,
-                            'DCF_NUMERO' => $data['numero_nota'] ?: '',
-                            'DCF_SERIE' => '',
-                            'DCF_MODELO' => '55', // NFe
-                            'DCF_TIPO' => 'E', // ENTRADA
-                            'DCF_DATA_EMISSAO' => $data['data_emissao'],
-                            'DCF_DATA_SAIDA' => $data['data_entrada'],
-                            'DCF_VALOR_PRODUTOS' => $data['valor_produtos'],
-                            'DCF_VALOR_FRETE' => $data['valor_frete'],
-                            'DCF_VALOR_ICMS' => $data['valor_icms'],
-                            'DCF_VALOR_IPI' => $data['valor_ipi'],
-                            'DCF_VALOR_TOTAL' => $data['valor_total'],
-                            'DCF_STATUS' => 'ABERTO',
-                            'DCF_DATA_FATURAMENTO' => null
+                            'orv_id' => null, // NULL para faturamento de entrada
+                            'pes_id' => $pes_id,
+                            'dcf_numero' => $data['numero_nota'] ?: '',
+                            'dcf_serie' => '',
+                            'dcf_modelo' => '55', // NFe
+                            'dcf_tipo' => 'E', // ENTRADA
+                            'dcf_data_emissao' => $data['data_emissao'],
+                            'dcf_data_saida' => $data['data_entrada'],
+                            'dcf_valor_produtos' => $data['valor_produtos'],
+                            'dcf_valor_frete' => $data['valor_frete'],
+                            'dcf_valor_icms' => $data['valor_icms'],
+                            'dcf_valor_ipi' => $data['valor_ipi'],
+                            'dcf_valor_total' => $data['valor_total'],
+                            'dcf_status' => 'ABERTO',
+                            'dcf_data_faturamento' => null
                         ];
                         
                         $this->db->insert('documentos_faturados', $dcf_data);
@@ -406,31 +406,31 @@ class FaturamentoEntrada extends MY_Controller
                                     
                                     // Buscar classificação fiscal do produto (se houver)
                                     $clf_id = null;
-                                    if (isset($produto->CLF_ID)) {
-                                        $clf_id = $produto->CLF_ID;
+                                    if (isset($produto->clf_id)) {
+                                        $clf_id = $produto->clf_id;
                                     }
                                     
                                     // Buscar descrição do produto
-                                    $produto_desc = $produto->PRO_DESCRICAO;
-                                    $produto_ncm = isset($produto->PRO_NCM) ? $produto->PRO_NCM : '';
+                                    $produto_desc = $produto->pro_descricao;
+                                    $produto_ncm = isset($produto->pro_ncm) ? $produto->pro_ncm : '';
                                     
                                     $itf_data = [
-                                        'DCF_ID' => $dcf_id,
-                                        'PRO_ID' => $produto_id,
-                                        'CLF_ID' => $clf_id,
-                                        'ITF_QUANTIDADE' => $quantidade_item,
-                                        'ITF_VALOR_UNITARIO' => $valor_unitario,
-                                        'ITF_VALOR_TOTAL' => isset($totais[$i]) ? str_replace(',', '.', $totais[$i]) : ($quantidade_item * $valor_unitario),
-                                        'ITF_DESCONTO' => isset($descontos[$i]) ? str_replace(',', '.', $descontos[$i]) : 0,
-                                        'ITF_UNIDADE' => isset($produto->PRO_UNID_MEDIDA) ? $produto->PRO_UNID_MEDIDA : '',
-                                        'ITF_PRO_DESCRICAO' => $produto_desc,
-                                        'ITF_PRO_NCM' => $produto_ncm,
-                                        'ITF_CFOP' => isset($cfop) ? $cfop : '',
-                                        'ITF_ICMS_CST' => isset($cst[$i]) ? $cst[$i] : '00',
-                                        'ITF_ICMS_ALIQUOTA' => isset($aliquotas[$i]) ? str_replace(',', '.', $aliquotas[$i]) : 0,
-                                        'ITF_ICMS_VALOR_BASE' => isset($bases_icms[$i]) ? str_replace(',', '.', $bases_icms[$i]) : 0,
-                                        'ITF_ICMS_VALOR' => isset($valores_icms[$i]) ? str_replace(',', '.', $valores_icms[$i]) : 0,
-                                        'ITF_IPI_VALOR' => isset($valores_ipi[$i]) ? str_replace(',', '.', $valores_ipi[$i]) : 0
+                                        'dcf_id' => $dcf_id,
+                                        'pro_id' => $produto_id,
+                                        'clf_id' => $clf_id,
+                                        'itf_quantidade' => $quantidade_item,
+                                        'itf_valor_unitario' => $valor_unitario,
+                                        'itf_valor_total' => isset($totais[$i]) ? str_replace(',', '.', $totais[$i]) : ($quantidade_item * $valor_unitario),
+                                        'itf_desconto' => isset($descontos[$i]) ? str_replace(',', '.', $descontos[$i]) : 0,
+                                        'itf_unidade' => isset($produto->pro_unid_medida) ? $produto->pro_unid_medida : '',
+                                        'itf_pro_descricao' => $produto_desc,
+                                        'itf_pro_ncm' => $produto_ncm,
+                                        'itf_cfop' => isset($cfop) ? $cfop : '',
+                                        'itf_icms_cst' => isset($cst[$i]) ? $cst[$i] : '00',
+                                        'itf_icms_aliquota' => isset($aliquotas[$i]) ? str_replace(',', '.', $aliquotas[$i]) : 0,
+                                        'itf_icms_valor_base' => isset($bases_icms[$i]) ? str_replace(',', '.', $bases_icms[$i]) : 0,
+                                        'itf_icms_valor' => isset($valores_icms[$i]) ? str_replace(',', '.', $valores_icms[$i]) : 0,
+                                        'itf_ipi_valor' => isset($valores_ipi[$i]) ? str_replace(',', '.', $valores_ipi[$i]) : 0
                                     ];
                                     
                                     $this->db->insert('itens_faturados', $itf_data);
@@ -1074,7 +1074,7 @@ class FaturamentoEntrada extends MY_Controller
                 'schemes' => 'PL_009_V4',
                 'versao' => '4.00',
                 'tokenIBPT' => '',
-                'CSC' => '',
+                'csc' => '',
                 'CSCid' => '',
                 'proxyConf' => [
                     'proxyIp' => '',
@@ -1248,8 +1248,8 @@ class FaturamentoEntrada extends MY_Controller
                                             
                                             // Get IPI value from IPITrib
                                             $valorIpiProduto = 0.00;
-                                            if (isset($imposto->IPI->IPITrib)) {
-                                                $valorIpiProduto = isset($imposto->IPI->IPITrib->vIPI) ? (float)$imposto->IPI->IPITrib->vIPI : 0.00;
+                                            if (isset($imposto->ipI->ipITrib)) {
+                                                $valorIpiProduto = isset($imposto->ipI->ipITrib->vIPI) ? (float)$imposto->ipI->ipITrib->vIPI : 0.00;
                                             }
 
                                             $produtos[] = [
@@ -1257,8 +1257,8 @@ class FaturamentoEntrada extends MY_Controller
                                                 'quantidade' => (float)$prod->qCom,
                                                 'valor_unitario' => number_format((float)$prod->vUnCom, 4, ',', '.'),
                                                 'valor_total' => (float)$prod->vProd,
-                                                'cfop' => (string)$prod->CFOP,
-                                                'cst' => isset($imposto->ICMS->ICMS00->CST) ? (string)$imposto->ICMS->ICMS00->CST : '',
+                                                'cfop' => (string)$prod->cfop,
+                                                'cst' => isset($imposto->ICMS->ICMS00->cst) ? (string)$imposto->ICMS->ICMS00->cst : '',
                                                 'base_icms' => isset($imposto->ICMS->ICMS00->vBC) ? (float)$imposto->ICMS->ICMS00->vBC : 0.00,
                                                 'aliquota_icms' => isset($imposto->ICMS->ICMS00->pICMS) ? (float)$imposto->ICMS->ICMS00->pICMS : 0.00,
                                                 'valor_icms' => isset($imposto->ICMS->ICMS00->vICMS) ? (float)$imposto->ICMS->ICMS00->vICMS : 0.00,
@@ -1276,18 +1276,18 @@ class FaturamentoEntrada extends MY_Controller
                                         $nfeData = [
                                             'fornecedor' => [
                                                 'nome' => $emitente->xNome,
-                                                'documento' => $emitente->CNPJ,
+                                                'documento' => $emitente->cnpj,
                                                 'dados_completos' => [
                                                     'nome' => $emitente->xNome,
-                                                    'cnpj' => $emitente->CNPJ,
+                                                    'cnpj' => $emitente->cnpj,
                                                     'endereco' => [
                                                         'logradouro' => $emitente->enderEmit->xLgr,
                                                         'numero' => $emitente->enderEmit->nro,
                                                         'complemento' => isset($emitente->enderEmit->xCpl) ? $emitente->enderEmit->xCpl : '',
                                                         'bairro' => $emitente->enderEmit->xBairro,
                                                         'cidade' => $emitente->enderEmit->xMun,
-                                                        'uf' => $emitente->enderEmit->UF,
-                                                        'cep' => $emitente->enderEmit->CEP
+                                                        'uf' => $emitente->enderEmit->uf,
+                                                        'cep' => $emitente->enderEmit->cep
                                                     ]
                                                 ]
                                             ],
@@ -1559,7 +1559,7 @@ class FaturamentoEntrada extends MY_Controller
             
             // Dados do emitente (fornecedor)
             $emit = $infNfe->emit;
-            $documento = isset($emit->CNPJ) ? (string)$emit->CNPJ : (string)$emit->CPF;
+            $documento = isset($emit->cnpj) ? (string)$emit->cnpj : (string)$emit->cpf;
             $nomeFornecedor = (string)$emit->xNome;
             
             // Capturar dados completos do emitente para criação do fornecedor
@@ -1571,14 +1571,14 @@ class FaturamentoEntrada extends MY_Controller
                     'xBairro' => (string)$emit->enderEmit->xBairro,
                     'cMun' => (string)$emit->enderEmit->cMun,
                     'xMun' => (string)$emit->enderEmit->xMun,
-                    'UF' => (string)$emit->enderEmit->UF,
-                    'CEP' => (string)$emit->enderEmit->CEP,
+                    'uf' => (string)$emit->enderEmit->uf,
+                    'cep' => (string)$emit->enderEmit->cep,
                     'cPais' => (string)$emit->enderEmit->cPais,
                     'xPais' => (string)$emit->enderEmit->xPais
                 ],
                 'fone' => (string)$emit->fone,
-                'IE' => (string)$emit->IE,
-                'IEST' => isset($emit->IEST) ? (string)$emit->IEST : '',
+                'ie' => (string)$emit->ie,
+                'IEST' => isset($emit->ieST) ? (string)$emit->ieST : '',
                 'IM' => (string)$emit->IM,
                 'CNAE' => (string)$emit->CNAE,
                 'CRT' => (string)$emit->CRT,
@@ -1680,7 +1680,7 @@ class FaturamentoEntrada extends MY_Controller
                 $imposto = $det->imposto;
                 
                 // Conversão do CFOP: trocar primeiro dígito 5->1 e 6->2
-                $cfop = (string)$prod->CFOP;
+                $cfop = (string)$prod->cfop;
                 if (!empty($cfop)) {
                     $primeiro_digito = substr($cfop, 0, 1);
                     if ($primeiro_digito == '5') {
@@ -1712,7 +1712,7 @@ class FaturamentoEntrada extends MY_Controller
                     }
                     
                     if ($icmsData) {
-                        $produto['cst'] = isset($icmsData->CST) ? (string)$icmsData->CST : (isset($icmsData->CSOSN) ? (string)$icmsData->CSOSN : '00');
+                        $produto['cst'] = isset($icmsData->cst) ? (string)$icmsData->cst : (isset($icmsData->CSOSN) ? (string)$icmsData->CSOSN : '00');
                         $produto['base_icms'] = isset($icmsData->vBC) ? number_format((float)$icmsData->vBC, 2, ',', '.') : '0,00';
                         $produto['aliquota_icms'] = isset($icmsData->pICMS) ? number_format((float)$icmsData->pICMS, 2, ',', '.') : '0,00';
                         $produto['valor_icms'] = isset($icmsData->vICMS) ? number_format((float)$icmsData->vICMS, 2, ',', '.') : '0,00';
@@ -1741,12 +1741,12 @@ class FaturamentoEntrada extends MY_Controller
                 }
 
                 // Extrair valor do IPI
-                if (isset($imposto->IPI->IPITrib->vIPI)) {
-                    $produto['valor_ipi'] = number_format((float)$imposto->IPI->IPITrib->vIPI, 2, ',', '.');
-                } else if (isset($imposto->IPI->IPITrib->vBC) && isset($imposto->IPI->IPITrib->pIPI)) {
+                if (isset($imposto->ipI->ipITrib->vIPI)) {
+                    $produto['valor_ipi'] = number_format((float)$imposto->ipI->ipITrib->vIPI, 2, ',', '.');
+                } else if (isset($imposto->ipI->ipITrib->vBC) && isset($imposto->ipI->ipITrib->pIPI)) {
                     // Se não tiver o valor direto, calcula baseado na base e alíquota
-                    $base_ipi = (float)$imposto->IPI->IPITrib->vBC;
-                    $aliquota_ipi = (float)$imposto->IPI->IPITrib->pIPI;
+                    $base_ipi = (float)$imposto->ipI->ipITrib->vBC;
+                    $aliquota_ipi = (float)$imposto->ipI->ipITrib->pIPI;
                     $valor_ipi = ($base_ipi * $aliquota_ipi) / 100;
                     $produto['valor_ipi'] = number_format($valor_ipi, 2, ',', '.');
                 } else {
@@ -1760,13 +1760,13 @@ class FaturamentoEntrada extends MY_Controller
             $transporta = isset($infNfe->transp->transporta) ? $infNfe->transp->transporta : null;
             $dadosTransportadora = null;
             if ($transporta) {
-                $docTransp = isset($transporta->CNPJ) ? (string)$transporta->CNPJ : (isset($transporta->CPF) ? (string)$transporta->CPF : '');
+                $docTransp = isset($transporta->cnpj) ? (string)$transporta->cnpj : (isset($transporta->cpf) ? (string)$transporta->cpf : '');
                 $nomeTransp = (string)$transporta->xNome;
                 $dadosCompletosTransp = [
                     'xEnder' => isset($transporta->xEnder) ? (string)$transporta->xEnder : '',
                     'xMun' => isset($transporta->xMun) ? (string)$transporta->xMun : '',
-                    'UF' => isset($transporta->UF) ? (string)$transporta->UF : '',
-                    'IE' => isset($transporta->IE) ? (string)$transporta->IE : ''
+                    'uf' => isset($transporta->uf) ? (string)$transporta->uf : '',
+                    'ie' => isset($transporta->ie) ? (string)$transporta->ie : ''
                 ];
                 // Checar/cadastrar transportadora
                 $dadosTransportadora = $this->verificarOuCriarTransportadora($docTransp, $nomeTransp, $dadosCompletosTransp);
@@ -1875,11 +1875,11 @@ class FaturamentoEntrada extends MY_Controller
             throw new Exception('Cidade do fornecedor é obrigatória');
         }
 
-        if (empty($endereco->UF)) {
+        if (empty($endereco->uf)) {
             throw new Exception('Estado do fornecedor é obrigatório');
         }
 
-        if (empty($endereco->CEP)) {
+        if (empty($endereco->cep)) {
             throw new Exception('CEP do fornecedor é obrigatório');
         }
 
@@ -1893,8 +1893,8 @@ class FaturamentoEntrada extends MY_Controller
         }
         
         // Se não conseguiu pelo cMunFG, tenta buscar pelo CEP
-        if (empty($ibge) && isset($endereco->CEP)) {
-            $ibge = $this->getIBGEFromCEP($endereco->CEP);
+        if (empty($ibge) && isset($endereco->cep)) {
+            $ibge = $this->getIBGEFromCEP($endereco->cep);
             if ($ibge) {
                 log_message('debug', 'IBGE obtido da API de CEP: ' . $ibge);
             } else {
@@ -1913,8 +1913,8 @@ class FaturamentoEntrada extends MY_Controller
             'complemento' => isset($endereco->xCpl) ? (string)$endereco->xCpl : '',
             'bairro' => isset($endereco->xBairro) ? (string)$endereco->xBairro : '',
             'cidade' => (string)$endereco->xMun,
-            'estado' => (string)$endereco->UF,
-            'cep' => (string)$endereco->CEP,
+            'estado' => (string)$endereco->uf,
+            'cep' => (string)$endereco->cep,
             'objetivo_comercial' => 'REVENDA', // Definir objetivo comercial como REVENDA
             'ibge' => $ibge // Usar o IBGE obtido
         ];
@@ -1922,7 +1922,7 @@ class FaturamentoEntrada extends MY_Controller
         // Adicionar outros dados do emitente
         if ($dadosEmit) {
             $dadosFornecedor['telefone'] = isset($dadosEmit->fone) ? (string)$dadosEmit->fone : '';
-            $dadosFornecedor['inscricao'] = isset($dadosEmit->IE) ? (string)$dadosEmit->IE : '';
+            $dadosFornecedor['inscricao'] = isset($dadosEmit->ie) ? (string)$dadosEmit->ie : '';
             $dadosFornecedor['natureza_contribuinte'] = isset($dadosEmit->CRT) ? (string)$dadosEmit->CRT : '';
         }
         
@@ -2131,7 +2131,7 @@ class FaturamentoEntrada extends MY_Controller
                 $dadosEmit = (object)[
                     'enderEmit' => null,
                     'fone' => isset($dadosCompletos['fone']) ? $dadosCompletos['fone'] : '',
-                    'IE' => isset($dadosCompletos['IE']) ? $dadosCompletos['IE'] : '',
+                    'ie' => isset($dadosCompletos['ie']) ? $dadosCompletos['ie'] : '',
                     'IEST' => isset($dadosCompletos['IEST']) ? $dadosCompletos['IEST'] : '',
                     'IM' => isset($dadosCompletos['IM']) ? $dadosCompletos['IM'] : '',
                     'CNAE' => isset($dadosCompletos['CNAE']) ? $dadosCompletos['CNAE'] : '',
@@ -2148,8 +2148,8 @@ class FaturamentoEntrada extends MY_Controller
                         'xBairro' => isset($endereco['xBairro']) ? $endereco['xBairro'] : '',
                         'cMun' => isset($endereco['cMun']) ? $endereco['cMun'] : '',
                         'xMun' => isset($endereco['xMun']) ? $endereco['xMun'] : '',
-                        'UF' => isset($endereco['UF']) ? $endereco['UF'] : '',
-                        'CEP' => isset($endereco['CEP']) ? $endereco['CEP'] : '',
+                        'uf' => isset($endereco['uf']) ? $endereco['uf'] : '',
+                        'cep' => isset($endereco['cep']) ? $endereco['cep'] : '',
                         'cPais' => isset($endereco['cPais']) ? $endereco['cPais'] : '',
                         'xPais' => isset($endereco['xPais']) ? $endereco['xPais'] : ''
                     ];
@@ -2364,11 +2364,11 @@ class FaturamentoEntrada extends MY_Controller
             // Buscar documento_faturado relacionado
             $pes_id = null;
             
-            // Tentar buscar PES_ID através da tabela clientes (nova estrutura)
+            // Tentar buscar pes_id através da tabela clientes (nova estrutura)
             if ($this->db->table_exists('clientes')) {
-                $cliente_novo = $this->db->where('CLN_ID', $faturamento->fornecedor_id)->get('clientes')->row();
+                $cliente_novo = $this->db->where('cln_id', $faturamento->fornecedor_id)->get('clientes')->row();
                 if ($cliente_novo) {
-                    $pes_id = $cliente_novo->PES_ID;
+                    $pes_id = $cliente_novo->pes_id;
                 }
             }
             
@@ -2377,9 +2377,9 @@ class FaturamentoEntrada extends MY_Controller
                 $fornecedor = $this->db->where('idClientes', $faturamento->fornecedor_id)->get('clientes_')->row();
                 if ($fornecedor) {
                     $documento_limpo = preg_replace('/\D/', '', $fornecedor->documento);
-                    $pessoa = $this->db->where('PES_CPFCNPJ', $documento_limpo)->get('pessoas')->row();
+                    $pessoa = $this->db->where('pes_cpfcnpj', $documento_limpo)->get('pessoas')->row();
                     if ($pessoa) {
-                        $pes_id = $pessoa->PES_ID;
+                        $pes_id = $pessoa->pes_id;
                     }
                 }
             }
@@ -2387,37 +2387,37 @@ class FaturamentoEntrada extends MY_Controller
             if ($pes_id) {
                 // Buscar documento_faturado relacionado ao faturamento_entrada
                 // Buscar pela data de entrada primeiro
-                $dcf = $this->db->where('PES_ID', $pes_id)
-                                ->where('DCF_TIPO', 'E')
-                                ->where('DCF_STATUS', 'ABERTO')
-                                ->where('DCF_DATA_SAIDA', $faturamento->data_entrada)
+                $dcf = $this->db->where('pes_id', $pes_id)
+                                ->where('dcf_tipo', 'E')
+                                ->where('dcf_status', 'ABERTO')
+                                ->where('dcf_data_saida', $faturamento->data_entrada)
                                 ->get('documentos_faturados')
                                 ->row();
                 
                 // Se não encontrar, tentar pelo número da nota
                 if (!$dcf && $faturamento->numero_nota) {
-                    $dcf = $this->db->where('PES_ID', $pes_id)
-                                    ->where('DCF_TIPO', 'E')
-                                    ->where('DCF_NUMERO', $faturamento->numero_nota)
-                                    ->where('DCF_STATUS', 'ABERTO')
+                    $dcf = $this->db->where('pes_id', $pes_id)
+                                    ->where('dcf_tipo', 'E')
+                                    ->where('dcf_numero', $faturamento->numero_nota)
+                                    ->where('dcf_status', 'ABERTO')
                                     ->get('documentos_faturados')
                                     ->row();
                 }
 
                 if ($dcf) {
                     // Atualizar status para FATURADO
-                    $this->db->where('DCF_ID', $dcf->DCF_ID);
+                    $this->db->where('dcf_id', $dcf->dcf_id);
                     $this->db->update('documentos_faturados', [
-                        'DCF_STATUS' => 'FATURADO',
-                        'DCF_DATA_FATURAMENTO' => date('Y-m-d')
+                        'dcf_status' => 'faturado',
+                        'dcf_data_faturamento' => date('Y-m-d')
                     ]);
 
                     // Buscar itens_faturados e criar movimentações de estoque
-                    $itens = $this->db->where('DCF_ID', $dcf->DCF_ID)->get('itens_faturados')->result();
+                    $itens = $this->db->where('dcf_id', $dcf->dcf_id)->get('itens_faturados')->result();
                     
                     foreach ($itens as $item) {
                         // Criar movimentação de estoque (ENTRADA)
-                        $this->Produtos_model->criarMovimentacaoEstoque($item->ITF_ID, $item->ITF_QUANTIDADE, 'ENTRADA');
+                        $this->Produtos_model->criarMovimentacaoEstoque($item->itf_id, $item->itf_quantidade, 'ENTRADA');
                     }
                 }
             }
@@ -2601,8 +2601,8 @@ class FaturamentoEntrada extends MY_Controller
             'dataCadastro' => date('Y-m-d'),
             'rua' => isset($dadosTransp['xEnder']) ? $dadosTransp['xEnder'] : '',
             'cidade' => isset($dadosTransp['xMun']) ? $dadosTransp['xMun'] : '',
-            'estado' => isset($dadosTransp['UF']) ? $dadosTransp['UF'] : '',
-            'inscricao' => isset($dadosTransp['IE']) ? $dadosTransp['IE'] : ''
+            'estado' => isset($dadosTransp['uf']) ? $dadosTransp['uf'] : '',
+            'inscricao' => isset($dadosTransp['ie']) ? $dadosTransp['ie'] : ''
         ];
         $this->db->insert('clientes', $dados);
         $id = $this->db->insert_id();

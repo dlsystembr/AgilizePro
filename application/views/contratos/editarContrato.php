@@ -77,19 +77,19 @@
                             <div class="control-group">
                                 <label for="cliente_busca" class="control-label">Cliente<span class="required">*</span></label>
                                 <div class="controls">
-                                    <input type="text" id="cliente_busca" placeholder="Digite para buscar cliente..." class="span6" autocomplete="off" value="<?= $result->PES_NOME ?>" />
-                                    <input type="hidden" id="PES_ID" name="PES_ID" value="<?= $result->PES_ID ?>" />
+                                    <input type="text" id="cliente_busca" placeholder="Digite para buscar cliente..." class="span6" autocomplete="off" value="<?= $result->pes_nome ?>" />
+                                    <input type="hidden" id="pes_id" name="pes_id" value="<?= $result->pes_id ?>" />
                                     <div id="cliente_selecionado" style="margin-top: 5px; padding: 5px; background: #f0f0f0; border-radius: 3px;">
-                                        <strong>Cliente:</strong> <span id="cliente_nome"><?= $result->PES_NOME ?> - <?= $result->PES_CPFCNPJ ?></span>
+                                        <strong>Cliente:</strong> <span id="cliente_nome"><?= $result->pes_nome ?> - <?= $result->pes_cpfcnpj ?></span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Número do Contrato -->
                             <div class="control-group">
-                                <label for="CTR_NUMERO" class="control-label">Número do Contrato<span class="required">*</span></label>
+                                <label for="ctr_numero" class="control-label">Número do Contrato<span class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="CTR_NUMERO" type="text" name="CTR_NUMERO" value="<?= $result->CTR_NUMERO ?>" class="span6" />
+                                    <input id="ctr_numero" type="text" name="ctr_numero" value="<?= $result->ctr_numero ?>" class="span6" />
                                 </div>
                             </div>
 
@@ -97,17 +97,17 @@
                             <div class="row-fluid">
                                 <div class="span6">
                                     <div class="control-group">
-                                        <label for="CTR_DATA_INICIO" class="control-label">Data de Início<span class="required">*</span></label>
+                                        <label for="ctr_data_inicio" class="control-label">Data de Início<span class="required">*</span></label>
                                         <div class="controls">
-                                            <input id="CTR_DATA_INICIO" type="text" name="CTR_DATA_INICIO" value="<?= date('d/m/Y', strtotime($result->CTR_DATA_INICIO)) ?>" class="datepicker" placeholder="dd/mm/aaaa" />
+                                            <input id="ctr_data_inicio" type="text" name="ctr_data_inicio" value="<?= date('d/m/Y', strtotime($result->ctr_data_inicio)) ?>" class="datepicker" placeholder="dd/mm/aaaa" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="span6">
                                     <div class="control-group">
-                                        <label for="CTR_DATA_FIM" class="control-label">Data de Fim</label>
+                                        <label for="ctr_data_fim" class="control-label">Data de Fim</label>
                                         <div class="controls">
-                                            <input id="CTR_DATA_FIM" type="text" name="CTR_DATA_FIM" value="<?= $result->CTR_DATA_FIM ? date('d/m/Y', strtotime($result->CTR_DATA_FIM)) : '' ?>" class="datepicker" placeholder="dd/mm/aaaa" />
+                                            <input id="ctr_data_fim" type="text" name="ctr_data_fim" value="<?= $result->ctr_data_fim ? date('d/m/Y', strtotime($result->ctr_data_fim)) : '' ?>" class="datepicker" placeholder="dd/mm/aaaa" />
                                             <span class="help-block">Deixe em branco se o contrato não tiver data de término</span>
                                         </div>
                                     </div>
@@ -116,23 +116,23 @@
 
                             <!-- Tipo de Assinante -->
                             <div class="control-group">
-                                <label for="CTR_TIPO_ASSINANTE" class="control-label">Tipo de Assinante<span class="required">*</span></label>
+                                <label for="ctr_tipo_assinante" class="control-label">Tipo de Assinante<span class="required">*</span></label>
                                 <div class="controls">
-                                    <select id="CTR_TIPO_ASSINANTE" name="CTR_TIPO_ASSINANTE" class="span6">
+                                    <select id="ctr_tipo_assinante" name="ctr_tipo_assinante" class="span6">
                                         <option value="">Selecione...</option>
                                         <?php foreach ($tiposAssinante as $key => $value): ?>
-                                            <option value="<?= $key ?>" <?= $result->CTR_TIPO_ASSINANTE == $key ? 'selected' : '' ?>><?= $value ?></option>
+                                            <option value="<?= $key ?>" <?= $result->ctr_tipo_assinante == $key ? 'selected' : '' ?>><?= $value ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
                             </div>
 
                             <!-- Anexo Atual -->
-                            <?php if ($result->CTR_ANEXO): ?>
+                            <?php if ($result->ctr_anexo): ?>
                             <div class="control-group">
                                 <label class="control-label">Anexo Atual</label>
                                 <div class="controls">
-                                    <a href="<?= base_url() ?>index.php/contratos/download_anexo/<?= $result->CTR_ID ?>" class="btn btn-mini btn-info" target="_blank">
+                                    <a href="<?= base_url() ?>index.php/contratos/download_anexo/<?= $result->ctr_id ?>" class="btn btn-mini btn-info" target="_blank">
                                         <i class="fas fa-download"></i> Download do Anexo
                                     </a>
                                 </div>
@@ -141,28 +141,28 @@
 
                             <!-- Novo Anexo -->
                             <div class="control-group">
-                                <label for="CTR_ANEXO" class="control-label">Novo Anexo (PDF/Imagem)</label>
+                                <label for="ctr_anexo" class="control-label">Novo Anexo (PDF/Imagem)</label>
                                 <div class="controls">
-                                    <input id="CTR_ANEXO" type="file" name="CTR_ANEXO" accept=".pdf,.jpg,.jpeg,.png" />
+                                    <input id="ctr_anexo" type="file" name="ctr_anexo" accept=".pdf,.jpg,.jpeg,.png" />
                                     <span class="help-block">Formatos aceitos: PDF, JPG, PNG (máx. 5MB). Deixe em branco para manter o anexo atual.</span>
                                 </div>
                             </div>
 
                             <!-- Observação -->
                             <div class="control-group">
-                                <label for="CTR_OBSERVACAO" class="control-label">Observação</label>
+                                <label for="ctr_observacao" class="control-label">Observação</label>
                                 <div class="controls">
-                                    <textarea id="CTR_OBSERVACAO" name="CTR_OBSERVACAO" rows="4" class="span6"><?= $result->CTR_OBSERVACAO ?></textarea>
+                                    <textarea id="ctr_observacao" name="ctr_observacao" rows="4" class="span6"><?= $result->ctr_observacao ?></textarea>
                                 </div>
                             </div>
 
                             <!-- Situação -->
                             <div class="control-group">
-                                <label for="CTR_SITUACAO" class="control-label">Situação</label>
+                                <label for="ctr_situacao" class="control-label">Situação</label>
                                 <div class="controls">
-                                    <select id="CTR_SITUACAO" name="CTR_SITUACAO">
-                                        <option value="1" <?= $result->CTR_SITUACAO == 1 ? 'selected' : '' ?>>Ativo</option>
-                                        <option value="0" <?= $result->CTR_SITUACAO == 0 ? 'selected' : '' ?>>Inativo</option>
+                                    <select id="ctr_situacao" name="ctr_situacao">
+                                        <option value="1" <?= $result->ctr_situacao == 1 ? 'selected' : '' ?>>Ativo</option>
+                                        <option value="0" <?= $result->ctr_situacao == 0 ? 'selected' : '' ?>>Inativo</option>
                                     </select>
                                 </div>
                             </div>
@@ -238,7 +238,7 @@
                                     <span class="button__icon"><i class='bx bx-save'></i></span>
                                     <span class="button__text2">Salvar</span>
                                 </button>
-                                <a href="<?php echo base_url() ?>index.php/contratos/visualizar/<?= $result->CTR_ID ?>" class="button btn btn-mini btn-warning">
+                                <a href="<?php echo base_url() ?>index.php/contratos/visualizar/<?= $result->ctr_id ?>" class="button btn btn-mini btn-warning">
                                     <span class="button__icon"><i class="bx bx-undo"></i></span>
                                     <span class="button__text2">Voltar</span>
                                 </a>
@@ -284,7 +284,7 @@
             },
             minLength: 2,
             select: function(event, ui) {
-                $("#PES_ID").val(ui.item.id);
+                $("#pes_id").val(ui.item.id);
                 $("#cliente_nome").text(ui.item.label);
                 $("#cliente_selecionado").show();
                 return false;
@@ -314,12 +314,12 @@
         <?php foreach ($itens as $item): ?>
         itensContrato.push({
             index: itemIndex++,
-            CTI_ID: <?= $item->CTI_ID ?>,
-            PRO_ID: <?= $item->PRO_ID ?>,
-            servico_nome: '<?= addslashes($item->PRO_DESCRICAO) ?>',
-            CTI_PRECO: '<?= number_format($item->CTI_PRECO, 2, ',', '.') ?>',
-            CTI_QUANTIDADE: '<?= number_format($item->CTI_QUANTIDADE, 4, ',', '.') ?>',
-            CTI_OBSERVACAO: '<?= addslashes($item->CTI_OBSERVACAO ?? '') ?>'
+            cti_id: <?= $item->cti_id ?>,
+            pro_id: <?= $item->pro_id ?>,
+            servico_nome: '<?= addslashes($item->pro_descricao) ?>',
+            cti_preco: '<?= number_format($item->cti_preco, 2, ',', '.') ?>',
+            cti_quantidade: '<?= number_format($item->cti_quantidade, 4, ',', '.') ?>',
+            cti_observacao: '<?= addslashes($item->cti_observacao ?? '') ?>'
         });
         <?php endforeach; ?>
         // Renderizar itens na tabela
@@ -384,11 +384,11 @@
             // Adicionar ao array
             var item = {
                 index: itemIndex++,
-                PRO_ID: servicoId,
+                pro_id: servicoId,
                 servico_nome: servicoNome,
-                CTI_PRECO: formatMoney(preco),
-                CTI_QUANTIDADE: quantidade.toFixed(4).replace('.', ','),
-                CTI_OBSERVACAO: observacao
+                cti_preco: formatMoney(preco),
+                cti_quantidade: quantidade.toFixed(4).replace('.', ','),
+                cti_observacao: observacao
             };
             itensContrato.push(item);
 
@@ -412,9 +412,9 @@
 
             var row = '<tr data-index="' + item.index + '">' +
                 '<td>' + item.servico_nome + '</td>' +
-                '<td>R$ ' + item.CTI_PRECO + '</td>' +
-                '<td>' + item.CTI_QUANTIDADE + '</td>' +
-                '<td>' + (item.CTI_OBSERVACAO || '-') + '</td>' +
+                '<td>R$ ' + item.cti_preco + '</td>' +
+                '<td>' + item.cti_quantidade + '</td>' +
+                '<td>' + (item.cti_observacao || '-') + '</td>' +
                 '<td><button type="button" class="btn btn-danger btn-mini remover-item" data-index="' + item.index + '"><i class="fas fa-trash"></i></button></td>' +
                 '</tr>';
 
@@ -439,19 +439,19 @@
         $("#formContrato").submit(function(e) {
             var errors = [];
 
-            if (!$("#PES_ID").val()) {
+            if (!$("#pes_id").val()) {
                 errors.push("Selecione um cliente");
             }
 
-            if (!$("#CTR_NUMERO").val()) {
+            if (!$("#ctr_numero").val()) {
                 errors.push("Informe o número do contrato");
             }
 
-            if (!$("#CTR_DATA_INICIO").val()) {
+            if (!$("#ctr_data_inicio").val()) {
                 errors.push("Informe a data de início");
             }
 
-            if (!$("#CTR_TIPO_ASSINANTE").val()) {
+            if (!$("#ctr_tipo_assinante").val()) {
                 errors.push("Selecione o tipo de assinante");
             }
 
@@ -473,43 +473,43 @@
                 // Campos hidden para cada item usando DOM nativo para garantir que sejam incluídos
                 var inputProId = document.createElement('input');
                 inputProId.type = 'hidden';
-                inputProId.name = 'itens[' + index + '][PRO_ID]';
-                inputProId.value = item.PRO_ID;
+                inputProId.name = 'itens[' + index + '][pro_id]';
+                inputProId.value = item.pro_id;
                 form.appendChild(inputProId);
                 
                 var inputPreco = document.createElement('input');
                 inputPreco.type = 'hidden';
-                inputPreco.name = 'itens[' + index + '][CTI_PRECO]';
-                inputPreco.value = item.CTI_PRECO || '0,00';
+                inputPreco.name = 'itens[' + index + '][cti_preco]';
+                inputPreco.value = item.cti_preco || '0,00';
                 form.appendChild(inputPreco);
                 
                 var inputQuantidade = document.createElement('input');
                 inputQuantidade.type = 'hidden';
-                inputQuantidade.name = 'itens[' + index + '][CTI_QUANTIDADE]';
-                inputQuantidade.value = item.CTI_QUANTIDADE || '1,0000';
+                inputQuantidade.name = 'itens[' + index + '][cti_quantidade]';
+                inputQuantidade.value = item.cti_quantidade || '1,0000';
                 form.appendChild(inputQuantidade);
                 
-                if (item.CTI_OBSERVACAO) {
+                if (item.cti_observacao) {
                     var inputObservacao = document.createElement('input');
                     inputObservacao.type = 'hidden';
-                    inputObservacao.name = 'itens[' + index + '][CTI_OBSERVACAO]';
-                    inputObservacao.value = item.CTI_OBSERVACAO;
+                    inputObservacao.name = 'itens[' + index + '][cti_observacao]';
+                    inputObservacao.value = item.cti_observacao;
                     form.appendChild(inputObservacao);
                 }
                 
-                // Se tem CTI_ID, é item existente
-                if (item.CTI_ID) {
+                // Se tem cti_id, é item existente
+                if (item.cti_id) {
                     var inputCtiId = document.createElement('input');
                     inputCtiId.type = 'hidden';
-                    inputCtiId.name = 'itens[' + index + '][CTI_ID]';
-                    inputCtiId.value = item.CTI_ID;
+                    inputCtiId.name = 'itens[' + index + '][cti_id]';
+                    inputCtiId.value = item.cti_id;
                     form.appendChild(inputCtiId);
                     
                     // Adicionar à lista de itens existentes
                     var inputExistente = document.createElement('input');
                     inputExistente.type = 'hidden';
                     inputExistente.name = 'itens_existentes[]';
-                    inputExistente.value = item.CTI_ID;
+                    inputExistente.value = item.cti_id;
                     form.appendChild(inputExistente);
                 }
             });

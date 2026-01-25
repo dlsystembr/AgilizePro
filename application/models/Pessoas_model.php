@@ -12,7 +12,7 @@ class Pessoas_model extends CI_Model
         $this->db->select($fields);
         $this->db->from($table);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
-        $this->db->order_by('PES_ID', 'desc');
+        $this->db->order_by('pes_id', 'desc');
         if ($perPage) {
             $this->db->limit($perPage, $start);
         }
@@ -20,9 +20,9 @@ class Pessoas_model extends CI_Model
         if ($search) {
             // Busca por nome, razão social e documento
             $this->db->group_start();
-            $this->db->like('PES_NOME', $search);
-            $this->db->or_like('PES_RAZAO_SOCIAL', $search);
-            $this->db->or_like('PES_CPFCNPJ', $search);
+            $this->db->like('pes_nome', $search);
+            $this->db->or_like('pes_razao_social', $search);
+            $this->db->or_like('pes_cpfcnpj', $search);
             $this->db->group_end();
         }
 
@@ -32,7 +32,7 @@ class Pessoas_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->where('PES_ID', $id);
+        $this->db->where('pes_id', $id);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
         return $this->db->get('pessoas')->row();

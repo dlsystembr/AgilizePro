@@ -149,20 +149,20 @@
                             <div class="row-fluid">
                                 <div class="span6">
                         <div class="control-group">
-                            <label for="PES_CODIGO" class="control-label">Código</label>
+                            <label for="pes_codigo" class="control-label">Código</label>
                             <div class="controls">
-                                            <input id="PES_CODIGO" type="text" name="PES_CODIGO" value="<?php echo set_value('PES_CODIGO'); ?>" placeholder="Em branco = gerar automaticamente" readonly style="width: 120px;" />
+                                            <input id="pes_codigo" type="text" name="pes_codigo" value="<?php echo set_value('pes_codigo'); ?>" placeholder="Em branco = gerar automaticamente" readonly style="width: 120px;" />
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div class="span6">
                                     <div class="control-group">
-                                        <label for="PES_SITUACAO" class="control-label">Situação</label>
+                                        <label for="pes_situacao" class="control-label">Situação</label>
                                         <div class="controls">
-                                            <select id="PES_SITUACAO" name="PES_SITUACAO">
-                                        <option value="1" <?php echo set_value('PES_SITUACAO', '1') == '1' ? 'selected' : ''; ?>>Ativo</option>
-                                        <option value="0" <?php echo set_value('PES_SITUACAO') == '0' ? 'selected' : ''; ?>>Inativo</option>
+                                            <select id="pes_situacao" name="pes_situacao">
+                                        <option value="1" <?php echo set_value('pes_situacao', '1') == '1' ? 'selected' : ''; ?>>Ativo</option>
+                                        <option value="0" <?php echo set_value('pes_situacao') == '0' ? 'selected' : ''; ?>>Inativo</option>
                                         </select>
                                     </div>
                                 </div>
@@ -172,10 +172,10 @@
                             <div class="row-fluid">
                                 <div class="span6">
                         <div class="control-group">
-                            <label for="PES_CPFCNPJ" class="control-label">CPF/CNPJ<span class="required">*</span></label>
+                            <label for="pes_cpfcnpj" class="control-label">CPF/CNPJ<span class="required">*</span></label>
                                         <div class="controls">
                                             <div style="display: flex; gap: 5px;">
-                                                <input id="PES_CPFCNPJ" type="text" name="PES_CPFCNPJ" value="<?php echo set_value('PES_CPFCNPJ'); ?>" inputmode="numeric" autocomplete="off" style="flex: 1;" />
+                                                <input id="pes_cpfcnpj" type="text" name="pes_cpfcnpj" value="<?php echo set_value('pes_cpfcnpj'); ?>" inputmode="numeric" autocomplete="off" style="flex: 1;" />
                                                 <button type="button" id="btnBuscarCNPJ" class="btn btn-info" style="display:none;">
                                                     <i class="fas fa-search"></i>
                                                 </button>
@@ -186,12 +186,12 @@
                                 
                                 <div class="span6">
                                     <div class="control-group">
-                                        <label for="PES_FISICO_JURIDICO" class="control-label">Tipo</label>
+                                        <label for="pes_fisico_juridico" class="control-label">Tipo</label>
                                         <div class="controls">
-                                            <select id="PES_FISICO_JURIDICO" name="PES_FISICO_JURIDICO">
+                                            <select id="pes_fisico_juridico" name="pes_fisico_juridico">
                                                 <option value="">Selecione</option>
-                                    <option value="F" <?php echo set_value('PES_FISICO_JURIDICO') === 'F' ? 'selected' : ''; ?>>F</option>
-                                    <option value="J" <?php echo set_value('PES_FISICO_JURIDICO') === 'J' ? 'selected' : ''; ?>>J</option>
+                                    <option value="F" <?php echo set_value('pes_fisico_juridico') === 'F' ? 'selected' : ''; ?>>F</option>
+                                    <option value="J" <?php echo set_value('pes_fisico_juridico') === 'J' ? 'selected' : ''; ?>>J</option>
                                 </select>
                                     </div>
                         </div>
@@ -201,18 +201,18 @@
                             <div class="row-fluid">
                                 <div class="span6">
                         <div class="control-group">
-                            <label for="PES_NOME" class="control-label">Nome<span class="required">*</span></label>
+                            <label for="pes_nome" class="control-label">Nome<span class="required">*</span></label>
                             <div class="controls">
-                                            <input id="PES_NOME" type="text" name="PES_NOME" value="<?php echo set_value('PES_NOME'); ?>" />
+                                            <input id="pes_nome" type="text" name="pes_nome" value="<?php echo set_value('pes_nome'); ?>" />
                                 </div>
                             </div>
                                 </div>
                                 
                                 <div class="span6">
                         <div class="control-group">
-                                        <label for="PES_NASCIMENTO_ABERTURA" class="control-label">Nascimento/Abertura</label>
+                                        <label for="pes_nascimento_abertura" class="control-label">Nascimento/Abertura</label>
                             <div class="controls">
-                                            <input id="PES_NASCIMENTO_ABERTURA" type="date" name="PES_NASCIMENTO_ABERTURA" value="<?php echo set_value('PES_NASCIMENTO_ABERTURA'); ?>" />
+                                            <input id="pes_nascimento_abertura" type="date" name="pes_nascimento_abertura" value="<?php echo set_value('pes_nascimento_abertura'); ?>" />
                                     </div>
                     </div>
                                 </div>
@@ -221,9 +221,9 @@
                             <div class="row-fluid">
                                 <div class="span6">
                         <div class="control-group">
-                                        <label for="PES_RAZAO_SOCIAL" class="control-label">Razão Social</label>
+                                        <label for="pes_razao_social" class="control-label">Razão Social</label>
                             <div class="controls">
-                                            <input id="PES_RAZAO_SOCIAL" type="text" name="PES_RAZAO_SOCIAL" value="<?php echo set_value('PES_RAZAO_SOCIAL'); ?>" />
+                                            <input id="pes_razao_social" type="text" name="pes_razao_social" value="<?php echo set_value('pes_razao_social'); ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -338,23 +338,23 @@
                                 <!-- Coluna 1: Dados Financeiros -->
                                 <div class="span4">
                                     <div class="control-group">
-                                        <label for="CLN_LIMITE_CREDITO" class="control-label">Limite de Crédito</label>
+                                        <label for="cln_limite_credito" class="control-label">Limite de Crédito</label>
                                     <div class="controls">
-                                            <input id="CLN_LIMITE_CREDITO" type="text" name="CLN_LIMITE_CREDITO" value="0,00" placeholder="0,00" />
+                                            <input id="cln_limite_credito" type="text" name="cln_limite_credito" value="0,00" placeholder="0,00" />
                                         </div>
                                     </div>
 
                                 <div class="control-group">
-                                        <label for="CLN_DIAS_CARENCIA" class="control-label">Dias de Carência</label>
+                                        <label for="cln_dias_carencia" class="control-label">Dias de Carência</label>
                                     <div class="controls">
-                                            <input id="CLN_DIAS_CARENCIA" type="number" name="CLN_DIAS_CARENCIA" value="0" />
+                                            <input id="cln_dias_carencia" type="number" name="cln_dias_carencia" value="0" />
                                     </div>
                                 </div>
                                     
                                 <div class="control-group">
-                                        <label for="CLN_SITUACAO" class="control-label">Situação</label>
+                                        <label for="cln_situacao" class="control-label">Situação</label>
                                     <div class="controls">
-                                            <select id="CLN_SITUACAO" name="CLN_SITUACAO">
+                                            <select id="cln_situacao" name="cln_situacao">
                                                 <option value="1" selected>Ativo</option>
                                                 <option value="0">Inativo</option>
                                             </select>
@@ -368,13 +368,13 @@
                                         <label class="control-label">Opções</label>
                                     <div class="controls">
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
-                                                <input type="checkbox" id="CLN_COMPRAR_APRAZO" name="CLN_COMPRAR_APRAZO" value="1" /> Comprar a prazo
+                                                <input type="checkbox" id="cln_comprar_aprazo" name="cln_comprar_aprazo" value="1" /> Comprar a prazo
                                             </label>
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
-                                                <input type="checkbox" id="CLN_BLOQUEIO_FINANCEIRO" name="CLN_BLOQUEIO_FINANCEIRO" value="1" checked /> Bloqueio financeiro
+                                                <input type="checkbox" id="cln_bloqueio_financeiro" name="cln_bloqueio_financeiro" value="1" checked /> Bloqueio financeiro
                                             </label>
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
-                                                <input type="checkbox" id="CLN_EMITIR_NFE" name="CLN_EMITIR_NFE" value="1" checked /> Emitir NFe
+                                                <input type="checkbox" id="cln_emitir_nfe" name="cln_emitir_nfe" value="1" checked /> Emitir NFe
                                             </label>
                                     </div>
                                 </div>
@@ -415,21 +415,21 @@
                             <div class="row-fluid">
                                 <div class="span4">
                                 <div class="control-group">
-                                        <label for="VEN_PERCENTUAL_COMISSAO" class="control-label">Percentual de Comissão (%)</label>
+                                        <label for="ven_percentual_comissao" class="control-label">Percentual de Comissão (%)</label>
                                     <div class="controls">
-                                            <input id="VEN_PERCENTUAL_COMISSAO" type="text" name="VEN_PERCENTUAL_COMISSAO" value="<?php echo set_value('VEN_PERCENTUAL_COMISSAO'); ?>" placeholder="0,00" />
+                                            <input id="ven_percentual_comissao" type="text" name="ven_percentual_comissao" value="<?php echo set_value('ven_percentual_comissao'); ?>" placeholder="0,00" />
                                     </div>
                                 </div>
                                 </div>
 
                                 <div class="span4">
                                 <div class="control-group">
-                                        <label for="VEN_TIPO_COMISSAO" class="control-label">Tipo de Comissão</label>
+                                        <label for="ven_tipo_comissao" class="control-label">Tipo de Comissão</label>
                                     <div class="controls">
-                                            <select id="VEN_TIPO_COMISSAO" name="VEN_TIPO_COMISSAO">
+                                            <select id="ven_tipo_comissao" name="ven_tipo_comissao">
                                                 <option value="">Selecione</option>
-                                                <option value="Sobre Venda" <?php echo set_value('VEN_TIPO_COMISSAO')=='Sobre Venda'?'selected':''; ?>>Sobre Venda</option>
-                                                <option value="Sobre Lucro" <?php echo set_value('VEN_TIPO_COMISSAO')=='Sobre Lucro'?'selected':''; ?>>Sobre Lucro</option>
+                                                <option value="Sobre Venda" <?php echo set_value('ven_tipo_comissao')=='Sobre Venda'?'selected':''; ?>>Sobre Venda</option>
+                                                <option value="Sobre Lucro" <?php echo set_value('ven_tipo_comissao')=='Sobre Lucro'?'selected':''; ?>>Sobre Lucro</option>
                                             </select>
                                     </div>
                                 </div>
@@ -437,9 +437,9 @@
 
                                 <div class="span4">
                                 <div class="control-group">
-                                        <label for="VEN_META_MENSAL" class="control-label">Meta Mensal (R$)</label>
+                                        <label for="ven_meta_mensal" class="control-label">Meta Mensal (R$)</label>
                                     <div class="controls">
-                                            <input id="VEN_META_MENSAL" type="text" name="VEN_META_MENSAL" value="<?php echo set_value('VEN_META_MENSAL'); ?>" placeholder="0,00" />
+                                            <input id="ven_meta_mensal" type="text" name="ven_meta_mensal" value="<?php echo set_value('ven_meta_mensal'); ?>" placeholder="0,00" />
                                     </div>
                                 </div>
                                 </div>
@@ -477,7 +477,7 @@
                                 <div class="form-section-content" style="flex: 1;">
                                     <div class="control-group" style="margin: 0;">
                                     <div class="controls">
-                                            <textarea id="PES_OBSERVACAO" name="PES_OBSERVACAO" rows="4" style="width:100%; resize: vertical;"><?php echo set_value('PES_OBSERVACAO'); ?></textarea>
+                                            <textarea id="pes_observacao" name="pes_observacao" rows="4" style="width:100%; resize: vertical;"><?php echo set_value('pes_observacao'); ?></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -581,7 +581,7 @@
             } else {
                 // CPF: todos os tipos
                 select.append('<option value="">Tipo</option>');
-                select.append('<option value="RG">RG</option>');
+                select.append('<option value="rg">RG</option>');
                 select.append('<option value="Inscrição Estadual">Inscrição Estadual</option>');
                 select.append('<option value="Inscrição Municipal">Inscrição Municipal</option>');
                 select.append('<option value="CNH">CNH</option>');
@@ -607,11 +607,11 @@
             
             // Atualizar tipo e botão automaticamente
             if (cleanVal.length <= 11) {
-                $('#PES_FISICO_JURIDICO').val('F');
+                $('#pes_fisico_juridico').val('F');
                 $('#btnBuscarCNPJ').hide();
                 atualizarTiposDocumento('F');
             } else {
-                $('#PES_FISICO_JURIDICO').val('J');
+                $('#pes_fisico_juridico').val('J');
                 $('#btnBuscarCNPJ').show();
                 atualizarTiposDocumento('J');
                 
@@ -627,10 +627,10 @@
         }
     };
     
-    $('#PES_CPFCNPJ').mask(cpfCnpjMascara, cpfCnpjOptions);
+    $('#pes_cpfcnpj').mask(cpfCnpjMascara, cpfCnpjOptions);
     
     // Suporte para colar (paste)
-    $('#PES_CPFCNPJ').on('paste', function (e) {
+    $('#pes_cpfcnpj').on('paste', function (e) {
         e.preventDefault();
         var campo = $(this);
         var clipboardData = (e.originalEvent || e).clipboardData.getData('text/plain');
@@ -643,7 +643,7 @@
             // CNPJ
             campo.mask('00.000.000/0000-00');
             campo.val(val);
-            $('#PES_FISICO_JURIDICO').val('J');
+            $('#pes_fisico_juridico').val('J');
             $('#btnBuscarCNPJ').show();
             atualizarTiposDocumento('J');
             
@@ -656,7 +656,7 @@
             // CPF
             campo.mask('000.000.000-009');
             campo.val(val);
-            $('#PES_FISICO_JURIDICO').val('F');
+            $('#pes_fisico_juridico').val('F');
             $('#btnBuscarCNPJ').hide();
             atualizarTiposDocumento('F');
         }
@@ -670,11 +670,11 @@
     
     // Foco inicial no campo CPF/CNPJ após um pequeno delay
     setTimeout(function() {
-        $('#PES_CPFCNPJ').focus();
+        $('#pes_cpfcnpj').focus();
     }, 100);
 
     // Verificar se CPF/CNPJ já existe quando sair do campo
-    $('#PES_CPFCNPJ').on('blur', function() {
+    $('#pes_cpfcnpj').on('blur', function() {
         var cpfcnpj = $(this).val().replace(/\D/g, '');
         var cpfcnpjFormatado = $(this).val();
         
@@ -687,7 +687,7 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.exists) {
-                        var tipo = cpfcnpj.length === 11 ? 'CPF' : 'CNPJ';
+                        var tipo = cpfcnpj.length === 11 ? 'cpf' : 'cnpj';
                         
                         // Preencher dados no modal
                         $('#tipoCpfCnpj').text(tipo);
@@ -713,8 +713,8 @@
                         });
                         
                         // Limpar o campo CPF/CNPJ
-                        $('#PES_CPFCNPJ').val('');
-                        $('#PES_FISICO_JURIDICO').val('');
+                        $('#pes_cpfcnpj').val('');
+                        $('#pes_fisico_juridico').val('');
                         $('#btnBuscarCNPJ').hide();
                         
                         // Mostrar modal com backdrop
@@ -725,7 +725,7 @@
                         
                         // Quando fechar o modal, focar no campo CPF/CNPJ
                         $('#modalCpfCnpjDuplicado').on('hidden', function() {
-                            $('#PES_CPFCNPJ').focus();
+                            $('#pes_cpfcnpj').focus();
                         });
                     }
                 },
@@ -737,14 +737,14 @@
     });
 
     // Copiar nome para razão social se for Pessoa Física
-    $('#PES_NOME').on('blur', function() {
-        var tipo = $('#PES_FISICO_JURIDICO').val();
+    $('#pes_nome').on('blur', function() {
+        var tipo = $('#pes_fisico_juridico').val();
         var nome = $(this).val();
-        var razaoSocial = $('#PES_RAZAO_SOCIAL').val();
+        var razaoSocial = $('#pes_razao_social').val();
         
         // Se for pessoa física (F) e nome não estiver vazio e razão social estiver vazia
         if (tipo === 'F' && nome.trim() !== '' && razaoSocial.trim() === '') {
-            $('#PES_RAZAO_SOCIAL').val(nome);
+            $('#pes_razao_social').val(nome);
             }
         });
 
@@ -816,9 +816,9 @@
     }
 
     // Controle do tipo F/J (quando mudado manualmente)
-    $('#PES_FISICO_JURIDICO').on('change', function() {
+    $('#pes_fisico_juridico').on('change', function() {
         const tipo = $(this).val();
-        const cnpj = $('#PES_CPFCNPJ');
+        const cnpj = $('#pes_cpfcnpj');
         
         if (tipo === 'F') {
             $('#btnBuscarCNPJ').hide();
@@ -839,7 +839,7 @@
 
     // Busca CNPJ
     $('#btnBuscarCNPJ').on('click', function() {
-        const cnpj = $('#PES_CPFCNPJ').val().replace(/[^\d]/g, '');
+        const cnpj = $('#pes_cpfcnpj').val().replace(/[^\d]/g, '');
         const btn = $(this);
         
         if (cnpj.length !== 14) {
@@ -867,30 +867,30 @@
                     
                     // Preencher nome fantasia
                     if (estab.nome_fantasia) {
-                        $('#PES_NOME').val(estab.nome_fantasia);
+                        $('#pes_nome').val(estab.nome_fantasia);
                         } else {
-                        $('#PES_NOME').val(data.razao_social);
+                        $('#pes_nome').val(data.razao_social);
                     }
-                    $('#PES_RAZAO_SOCIAL').val(data.razao_social);
+                    $('#pes_razao_social').val(data.razao_social);
                     
                     // Preencher data de abertura
                     if (estab.data_inicio_atividade) {
-                        $('#PES_NASCIMENTO_ABERTURA').val(estab.data_inicio_atividade);
+                        $('#pes_nascimento_abertura').val(estab.data_inicio_atividade);
                     }
                     
                     // Adicionar telefone se disponível (ddd1 e telefone1)
                     if (estab.ddd1 && estab.telefone1) {
                         const telefoneRow = `
                             <div class="telefone-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">
-                                <select name="TEL_TIPO[]" class="form-control" style="width: 120px;">
+                                <select name="tel_tipo[]" class="form-control" style="width: 120px;">
                                     <option value="Comercial" selected>Comercial</option>
                                     <option value="Residencial">Residencial</option>
                                     <option value="Celular">Celular</option>
                                     <option value="WhatsApp">WhatsApp</option>
                                 </select>
-                                <input type="text" name="TEL_DDD[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" value="${estab.ddd1}" />
-                                <input type="text" name="TEL_NUMERO[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" value="${estab.telefone1}" />
-                                <input type="text" name="TEL_OBSERVACAO[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />
+                                <input type="text" name="tel_ddd[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" value="${estab.ddd1}" />
+                                <input type="text" name="tel_numero[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" value="${estab.telefone1}" />
+                                <input type="text" name="tel_observacao[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />
                                 <button type="button" class="btn btn-mini btn-danger remove-telefone" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -931,15 +931,15 @@
                                         <option value="Entrega">Entrega</option>
                                         <option value="Outros">Outros</option>
                                     </select>
-                                    <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 120px;" value="${estab.cep || ''}" />
-                                    <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 2;" value="${estab.logradouro || ''}" />
-                                    <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 100px;" value="${estab.numero || ''}" />
+                                    <input type="text" name="end_cep[]" placeholder="cep" class="form-control cep-mask" style="width: 120px;" value="${estab.cep || ''}" />
+                                    <input type="text" name="end_logradouro[]" placeholder="Logradouro" class="form-control" style="flex: 2;" value="${estab.logradouro || ''}" />
+                                    <input type="text" name="end_numero[]" placeholder="Número" class="form-control" style="width: 100px;" value="${estab.numero || ''}" />
                                 </div>
                                 <div style="display: flex; gap: 10px; align-items: center;">
-                                    <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 1;" value="${estab.complemento || ''}" />
+                                    <input type="text" name="end_complemento[]" placeholder="Complemento" class="form-control" style="flex: 1;" value="${estab.complemento || ''}" />
                                     <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="${estab.bairro || ''}" />
                                     <input type="text" name="END_CIDADE[]" placeholder="Cidade" class="form-control" style="flex: 1;" value="${estab.cidade ? estab.cidade.nome : ''}" />
-                                    <input type="text" name="END_UF[]" placeholder="UF" class="form-control" style="width: 60px;" maxlength="2" value="${estab.estado ? estab.estado.sigla : ''}" />
+                                    <input type="text" name="END_UF[]" placeholder="uf" class="form-control" style="width: 60px;" maxlength="2" value="${estab.estado ? estab.estado.sigla : ''}" />
                                     <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -1048,18 +1048,18 @@
                 $('#secao-financeiro').slideDown(300);
                 $('#CLN_ENABLE').val('1');
                 // Definir valores padrão
-                $('#CLN_LIMITE_CREDITO').val('0,00');
-                $('#CLN_DIAS_CARENCIA').val('0');
-                $('#CLN_BLOQUEIO_FINANCEIRO').prop('checked', true);
-                $('#CLN_EMITIR_NFE').prop('checked', true);
+                $('#cln_limite_credito').val('0,00');
+                $('#cln_dias_carencia').val('0');
+                $('#cln_bloqueio_financeiro').prop('checked', true);
+                $('#cln_emitir_nfe').prop('checked', true);
             } else {
                 $('#secao-financeiro').slideUp(300);
                 $('#CLN_ENABLE').val('0');
                 // Limpar campos de cliente quando desmarcar
-                $('#CLN_LIMITE_CREDITO').val('0,00');
-                $('#CLN_DIAS_CARENCIA').val('0');
-                $('#CLN_SITUACAO').val('1');
-                $('#CLN_COMPRAR_APRAZO, #CLN_BLOQUEIO_FINANCEIRO, #CLN_EMITIR_NFE').prop('checked', false);
+                $('#cln_limite_credito').val('0,00');
+                $('#cln_dias_carencia').val('0');
+                $('#cln_situacao').val('1');
+                $('#cln_comprar_aprazo, #cln_bloqueio_financeiro, #cln_emitir_nfe').prop('checked', false);
                 // Limpar vendedores permitidos
                 $('#vendedores-permitidos-container').empty();
             }
@@ -1074,9 +1074,9 @@
                 $('#secao-vendedor').slideUp(300);
                 $('#VEN_ENABLE').val('0');
                 // Limpar campos de vendedor quando desmarcar
-                $('#VEN_PERCENTUAL_COMISSAO').val('');
-                $('#VEN_TIPO_COMISSAO').val('');
-                $('#VEN_META_MENSAL').val('');
+                $('#ven_percentual_comissao').val('');
+                $('#ven_tipo_comissao').val('');
+                $('#ven_meta_mensal').val('');
             }
         }
     });
@@ -1097,7 +1097,7 @@
                 // Criar select com vendedores
                 var optionsHtml = '<option value="">Selecione um vendedor</option>';
                 vendedores.forEach(function(v) {
-                    optionsHtml += `<option value="${v.PES_ID}">${v.PES_NOME}</option>`;
+                    optionsHtml += `<option value="${v.pes_id}">${v.pes_nome}</option>`;
                 });
                 
                 // Verificar se é o primeiro vendedor
@@ -1111,7 +1111,7 @@
                                 ${optionsHtml}
                             </select>
                             <label class="checkbox" style="margin: 0; white-space: nowrap;">
-                                <input type="radio" name="CLV_PADRAO" value="" class="vendedor-padrao-radio" ${checkedAttr} style="margin-right: 3px;" /> 
+                                <input type="radio" name="clv_padrao" value="" class="vendedor-padrao-radio" ${checkedAttr} style="margin-right: 3px;" /> 
                                 <small>Padrão</small>
                             </label>
                             <button type="button" class="btn btn-mini btn-danger remove-vendedor-permitido" style="width: 25px; height: 25px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -1192,15 +1192,15 @@
     $('#btnAdicionarTelefone').on('click', function() {
         const telefoneRow = `
             <div class="telefone-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">
-                <select name="TEL_TIPO[]" class="form-control" style="width: 120px;">
+                <select name="tel_tipo[]" class="form-control" style="width: 120px;">
                     <option value="Comercial">Comercial</option>
                     <option value="Residencial">Residencial</option>
                     <option value="Celular">Celular</option>
                     <option value="WhatsApp">WhatsApp</option>
                 </select>
-                <input type="text" name="TEL_DDD[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" />
-                <input type="text" name="TEL_NUMERO[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" />
-                <input type="text" name="TEL_OBSERVACAO[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />
+                <input type="text" name="tel_ddd[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" />
+                <input type="text" name="tel_numero[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" />
+                <input type="text" name="tel_observacao[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />
                 <button type="button" class="btn btn-mini btn-danger remove-telefone" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     <i class="fas fa-trash"></i>
                 </button>
@@ -1257,7 +1257,7 @@
         const natureza = dados.natureza || '';
         
         const showEndereco = tipo === 'Inscrição Estadual' || tipo === 'Inscrição Municipal';
-        const tipoPessoa = $('#PES_FISICO_JURIDICO').val() || 'F';
+        const tipoPessoa = $('#pes_fisico_juridico').val() || 'F';
         
         let opcoesDocumento = '';
         if (tipoPessoa === 'J') {
@@ -1269,7 +1269,7 @@
         } else {
             opcoesDocumento = `
                 <option value="">Tipo</option>
-                <option value="RG" ${tipo === 'RG' ? 'selected' : ''}>RG</option>
+                <option value="rg" ${tipo === 'rg' ? 'selected' : ''}>RG</option>
                 <option value="Inscrição Estadual" ${tipo === 'Inscrição Estadual' ? 'selected' : ''}>Inscrição Estadual</option>
                 <option value="Inscrição Municipal" ${tipo === 'Inscrição Municipal' ? 'selected' : ''}>Inscrição Municipal</option>
                 <option value="CNH" ${tipo === 'CNH' ? 'selected' : ''}>CNH</option>
@@ -1281,12 +1281,12 @@
         const documentoRow = `
             <div class="documento-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
                 <div style="display: flex; gap: 10px; margin-bottom: ${showEndereco ? '10px' : '0'}; align-items: center;">
-                    <select name="DOC_TIPO_DOCUMENTO[]" class="form-control doc-tipo" style="width: 150px;">
+                    <select name="doc_tipo_documento[]" class="form-control doc-tipo" style="width: 150px;">
                         ${opcoesDocumento}
                     </select>
-                    <input type="text" name="DOC_NUMERO[]" value="${numero}" placeholder="Número" class="form-control" style="flex: 1;" />
-                    <input type="text" name="DOC_ORGAO_EXPEDIDOR[]" value="${orgao}" placeholder="Órgão Expedidor" class="form-control" style="flex: 1;" />
-                    <select name="DOC_NATUREZA_CONTRIBUINTE[]" class="form-control" style="width: 150px;">
+                    <input type="text" name="doc_numero[]" value="${numero}" placeholder="Número" class="form-control" style="flex: 1;" />
+                    <input type="text" name="doc_orgao_expedidor[]" value="${orgao}" placeholder="Órgão Expedidor" class="form-control" style="flex: 1;" />
+                    <select name="doc_natureza_contribuinte[]" class="form-control" style="width: 150px;">
                         <option value="">Natureza</option>
                         <option value="Contribuinte" ${natureza === 'Contribuinte' ? 'selected' : ''}>Contribuinte</option>
                         <option value="Não Contribuinte">Não Contribuinte</option>
@@ -1340,15 +1340,15 @@
                         <option value="Entrega">Entrega</option>
                         <option value="Outros">Outros</option>
                     </select>
-                    <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 120px;" />
-                    <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 2;" />
-                    <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 100px;" />
+                    <input type="text" name="end_cep[]" placeholder="cep" class="form-control cep-mask" style="width: 120px;" />
+                    <input type="text" name="end_logradouro[]" placeholder="Logradouro" class="form-control" style="flex: 2;" />
+                    <input type="text" name="end_numero[]" placeholder="Número" class="form-control" style="width: 100px;" />
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 1;" />
+                    <input type="text" name="end_complemento[]" placeholder="Complemento" class="form-control" style="flex: 1;" />
                     <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" />
                     <input type="text" name="END_CIDADE[]" placeholder="Cidade" class="form-control" style="flex: 1;" />
-                    <input type="text" name="END_UF[]" placeholder="UF" class="form-control" style="width: 60px;" maxlength="2" />
+                    <input type="text" name="END_UF[]" placeholder="uf" class="form-control" style="width: 60px;" maxlength="2" />
                     <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -1372,8 +1372,8 @@
             $('#enderecos-container .endereco-row').each(function(index) {
                 const row = $(this);
                 const tipo = row.find('select[name="END_TIPO[]"]').val();
-                const logradouro = row.find('input[name="END_LOGRADOURO[]"]').val();
-                const numero = row.find('input[name="END_NUMERO[]"]').val();
+                const logradouro = row.find('input[name="end_logradouro[]"]').val();
+                const numero = row.find('input[name="end_numero[]"]').val();
                 
                 select.append(`<option value="${index}">${tipo} - ${logradouro}, ${numero}</option>`);
             });
@@ -1391,16 +1391,16 @@
     });
 
     // Auto-focus no logradouro quando CEP completo
-    $(document).on('input', 'input[name="END_CEP[]"]', function() {
+    $(document).on('input', 'input[name="end_cep[]"]', function() {
         var cep = $(this).val().replace(/\D/g, '');
         if (cep.length === 8) {
             var enderecoRow = $(this).closest('.endereco-row');
-            enderecoRow.find('input[name="END_LOGRADOURO[]"]').focus();
+            enderecoRow.find('input[name="end_logradouro[]"]').focus();
         }
     });
 
     // Buscar endereço pelo CEP quando sair do campo
-    $(document).on('blur', 'input[name="END_CEP[]"]', function() {
+    $(document).on('blur', 'input[name="end_cep[]"]', function() {
         var cepField = $(this);
         var cep = cepField.val().replace(/\D/g, '');
         
@@ -1419,14 +1419,14 @@
                 success: function(data) {
                     if (!data.erro) {
                         // Preencher campos do endereço
-                        enderecoRow.find('input[name="END_LOGRADOURO[]"]').val(data.logradouro || '');
+                        enderecoRow.find('input[name="end_logradouro[]"]').val(data.logradouro || '');
                         enderecoRow.find('input[name="END_BAIRRO[]"]').val(data.bairro || '');
                         enderecoRow.find('input[name="END_CIDADE[]"]').val(data.localidade || '');
                         enderecoRow.find('input[name="END_UF[]"]').val(data.uf || '');
-                        enderecoRow.find('input[name="END_COMPLEMENTO[]"]').val(data.complemento || '');
+                        enderecoRow.find('input[name="end_complemento[]"]').val(data.complemento || '');
                         
                         // Focar no campo número
-                        enderecoRow.find('input[name="END_NUMERO[]"]').focus();
+                        enderecoRow.find('input[name="end_numero[]"]').focus();
                         
                         // Feedback visual de sucesso
                         cepField.css('background-color', '#d4edda');
@@ -1439,11 +1439,11 @@
                         cepField.attr('placeholder', 'CEP não encontrado');
                         setTimeout(function() {
                             cepField.css('background-color', '');
-                            cepField.attr('placeholder', 'CEP');
+                            cepField.attr('placeholder', 'cep');
                         }, 2000);
                         
                         // Focar no campo número para continuar manualmente
-                        enderecoRow.find('input[name="END_NUMERO[]"]').focus();
+                        enderecoRow.find('input[name="end_numero[]"]').focus();
                     }
                 },
                 error: function() {
@@ -1471,17 +1471,17 @@
             element.closest('.controls').append(error);
         },
         rules: {
-            PES_FISICO_JURIDICO: { required: true },
-            PES_NOME: { required: true },
-            PES_CPFCNPJ: { 
+            pes_fisico_juridico: { required: true },
+            pes_nome: { required: true },
+            pes_cpfcnpj: { 
                 required: true,
                 customCPFCNPJ: true
             }
         },
         messages: {
-            PES_FISICO_JURIDICO: 'Selecione o tipo de cliente',
-            PES_NOME: 'Nome é obrigatório',
-            PES_CPFCNPJ: 'CPF/CNPJ é obrigatório e deve ser válido'
+            pes_fisico_juridico: 'Selecione o tipo de cliente',
+            pes_nome: 'Nome é obrigatório',
+            pes_cpfcnpj: 'CPF/CNPJ é obrigatório e deve ser válido'
         },
         invalidHandler: function(event, validator) {
             $('.alert-error').show();

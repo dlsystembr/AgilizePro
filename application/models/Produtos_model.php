@@ -12,11 +12,11 @@ class Produtos_model extends CI_Model
         $this->db->select($fields);
         $this->db->from($table);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
-        $this->db->order_by('PRO_ID', 'desc');
+        $this->db->order_by('pro_id', 'desc');
         $this->db->limit($perpage, $start);
         if ($where) {
-            $this->db->like('PRO_COD_BARRA', $where);
-            $this->db->or_like('PRO_DESCRICAO', $where);
+            $this->db->like('pro_cod_barra', $where);
+            $this->db->or_like('pro_descricao', $where);
         }
 
         $query = $this->db->get();
@@ -48,17 +48,17 @@ class Produtos_model extends CI_Model
         // Buscar movimentações do produto através de itens_faturados
         // Soma ENTRADAs e subtrai SAIDAs
         // Apenas de documentos com status FATURADO
-        $this->db->select('SUM(CASE WHEN PDM_TIPO = "ENTRADA" THEN PDM_QTDE ELSE -PDM_QTDE END) as estoque_calculado');
+        $this->db->select('SUM(CASE WHEN pdm_tipo = "ENTRADA" THEN pdm_qtde ELSE -pdm_qtde END) as estoque_calculado');
         $this->db->from('produtos_movimentados');
-        $this->db->join('itens_faturados', 'itens_faturados.ITF_ID = produtos_movimentados.ITF_ID');
-        $this->db->join('documentos_faturados', 'documentos_faturados.DCF_ID = itens_faturados.DCF_ID');
-        $this->db->where('itens_faturados.PRO_ID', $produto->PRO_ID);
-        $this->db->where('documentos_faturados.DCF_STATUS', 'FATURADO');
+        $this->db->join('itens_faturados', 'itens_faturados.itf_id = produtos_movimentados.itf_id');
+        $this->db->join('documentos_faturados', 'documentos_faturados.dcf_id = itens_faturados.dcf_id');
+        $this->db->where('itens_faturados.pro_id', $produto->pro_id);
+        $this->db->where('documentos_faturados.dcf_status', 'faturado');
         $query = $this->db->get();
         $estoque_result = $query->row();
         
         // Atualizar o estoque no objeto
-        $produto->PRO_ESTOQUE = ($estoque_result && $estoque_result->estoque_calculado !== null) 
+        $produto->pro_estoque = ($estoque_result && $estoque_result->estoque_calculado !== null) 
             ? floatval($estoque_result->estoque_calculado) 
             : 0.00;
         
@@ -67,7 +67,7 @@ class Produtos_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->where('PRO_ID', $id);
+        $this->db->where('pro_id', $id);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
 
@@ -118,7 +118,7 @@ class Produtos_model extends CI_Model
 
     public function updateEstoque($produto, $quantidade, $operacao = '-')
     {
-        $sql = "UPDATE produtos set PRO_ESTOQUE = PRO_ESTOQUE $operacao ? WHERE PRO_ID = ? AND ten_id = ?";
+        $sql = "UPDATE produtos set pro_estoque = pro_estoque $operacao ? WHERE pro_id = ? AND ten_id = ?";
 
         return $this->db->query($sql, [$quantidade, $produto, $this->session->userdata('ten_id')]);
     }
@@ -137,10 +137,10 @@ class Produtos_model extends CI_Model
         }
         
         $data = [
-            'PDM_QTDE' => $quantidade,
-            'PDM_TIPO' => $tipo,
-            'ITF_ID' => $itf_id,
-            'PDM_DATA' => date('Y-m-d H:i:s')
+            'pdm_qtde' => $quantidade,
+            'pdm_tipo' => $tipo,
+            'itf_id' => $itf_id,
+            'pdm_data' => date('Y-m-d H:i:s')
         ];
         
         return $this->db->insert('produtos_movimentados', $data);

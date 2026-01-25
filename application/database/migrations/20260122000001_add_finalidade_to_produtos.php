@@ -7,11 +7,11 @@ class Migration_Add_finalidade_to_produtos extends CI_Migration
     public function up()
     {
         $fields = [
-            'PRO_FINALIDADE' => [
+            'pro_finalidade' => [
                 'type' => 'VARCHAR',
                 'constraint' => 30,
                 'null' => true,
-                'after' => 'PRO_TIPO',
+                'after' => 'pro_tipo',
                 'comment' => 'Finalidade do produto (ex: comercializacao, consumo)'
             ]
         ];
@@ -21,6 +21,6 @@ class Migration_Add_finalidade_to_produtos extends CI_Migration
 
     public function down()
     {
-        $this->dbforge->drop_column('produtos', 'PRO_FINALIDADE');
+        $this->dbforge->drop_column('produtos', 'pro_finalidade');
     }
 }

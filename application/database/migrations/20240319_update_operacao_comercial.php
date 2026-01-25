@@ -20,80 +20,80 @@ class Migration_Update_operacao_comercial extends CI_Migration
 
         // Adicionar novas colunas
         $fields = [
-            'OPC_SIGLA' => [
+            'opc_sigla' => [
                 'type' => 'VARCHAR',
                 'constraint' => 10,
                 'null' => false,
                 'after' => 'id'
             ],
-            'OPC_NOME' => [
+            'opc_nome' => [
                 'type' => 'VARCHAR',
                 'constraint' => 100,
                 'null' => false,
-                'after' => 'OPC_SIGLA'
+                'after' => 'opc_sigla'
             ],
-            'OPC_NATUREZA_OPERACAO' => [
+            'opc_natureza_operacao' => [
                 'type' => 'ENUM',
                 'constraint' => ['Compra', 'Venda', 'Transferencia', 'Outras'],
                 'null' => false,
-                'after' => 'OPC_NOME'
+                'after' => 'opc_nome'
             ],
-            'OPC_TIPO_MOVIMENTO' => [
+            'opc_tipo_movimento' => [
                 'type' => 'ENUM',
                 'constraint' => ['Entrada', 'Saida'],
                 'null' => false,
-                'after' => 'OPC_NATUREZA_OPERACAO'
+                'after' => 'opc_natureza_operacao'
             ],
-            'OPC_AFETA_CUSTO' => [
+            'opc_afeta_custo' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
                 'default' => 0,
                 'null' => false,
-                'after' => 'OPC_TIPO_MOVIMENTO'
+                'after' => 'opc_tipo_movimento'
             ],
-            'OPC_FATO_FISCAL' => [
+            'opc_fato_fiscal' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
                 'default' => 0,
                 'null' => false,
-                'after' => 'OPC_AFETA_CUSTO'
+                'after' => 'opc_afeta_custo'
             ],
-            'OPC_GERA_FINANCEIRO' => [
+            'opc_gera_financeiro' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
                 'default' => 0,
                 'null' => false,
-                'after' => 'OPC_FATO_FISCAL'
+                'after' => 'opc_fato_fiscal'
             ],
             'OPC_EMITE_CUPOM' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
                 'default' => 0,
                 'null' => false,
-                'after' => 'OPC_GERA_FINANCEIRO'
+                'after' => 'opc_gera_financeiro'
             ],
-            'OPC_SITUACAO' => [
+            'opc_situacao' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
                 'default' => 1,
                 'null' => false,
                 'after' => 'OPC_EMITE_CUPOM'
             ],
-            'OPC_FINALIDADE_NFE' => [
+            'opc_finalidade_nfe' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
                 'null' => false,
-                'after' => 'OPC_SITUACAO'
+                'after' => 'opc_situacao'
             ]
         ];
 
         $this->dbforge->add_column('operacao_comercial', $fields);
 
-        // Renomear a coluna id para OPC_ID
-        $this->db->query('ALTER TABLE operacao_comercial CHANGE id OPC_ID INT(11) NOT NULL AUTO_INCREMENT');
+        // Renomear a coluna id para opc_id
+        $this->db->query('ALTER TABLE operacao_comercial CHANGE id opc_id INT(11) NOT NULL AUTO_INCREMENT');
 
         // Inserir dados padrão
-        $this->db->query("INSERT INTO operacao_comercial (OPC_SIGLA, OPC_NOME, OPC_NATUREZA_OPERACAO, OPC_TIPO_MOVIMENTO, OPC_AFETA_CUSTO, OPC_FATO_FISCAL, OPC_GERA_FINANCEIRO, OPC_EMITE_CUPOM, OPC_SITUACAO, OPC_FINALIDADE_NFE) VALUES
+        $this->db->query("INSERT INTO operacao_comercial (opc_sigla, opc_nome, opc_natureza_operacao, opc_tipo_movimento, opc_afeta_custo, opc_fato_fiscal, opc_gera_financeiro, OPC_EMITE_CUPOM, opc_situacao, opc_finalidade_nfe) VALUES
             ('VENDA', 'Venda de Mercadorias', 'Venda', 'Saida', 1, 1, 1, 1, 1, 1),
             ('COMPRA', 'Compra de Mercadorias', 'Compra', 'Entrada', 1, 1, 1, 0, 1, 1),
             ('DEV', 'Devolução de Mercadorias', 'Venda', 'Entrada', 1, 1, 1, 0, 1, 4),

@@ -839,6 +839,16 @@ $ten_id = $this->session->userdata('ten_id');
                                             </td>
                                             <td>
                                                 <label>
+                                                    <input name="rContrato" class="marcar"
+                                                        type="checkbox" value="1" />
+                                                    <span class="lbl"> Relatório Contrato</span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                            <td>
+                                                <label>
                                                     <input name="rNfe" class="marcar" type="checkbox"
                                                         value="1" />
                                                     <span class="lbl"> Relatório de NF-e Emitidas</span>

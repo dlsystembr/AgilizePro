@@ -7,11 +7,11 @@ class Migration_Add_finalidade_to_classificacao_fiscal extends CI_Migration
     public function up()
     {
         $fields = [
-            'CLF_FINALIDADE' => [
+            'clf_finalidade' => [
                 'type' => 'VARCHAR',
                 'constraint' => 30,
                 'null' => true,
-                'after' => 'CLF_OBJETIVO_COMERCIAL',
+                'after' => 'clf_objetivo_comercial',
                 'comment' => 'Finalidade da classificação fiscal (ex: Comercialização, Consumo, Serviço)'
             ]
         ];
@@ -21,6 +21,6 @@ class Migration_Add_finalidade_to_classificacao_fiscal extends CI_Migration
 
     public function down()
     {
-        $this->dbforge->drop_column('classificacao_fiscal', 'CLF_FINALIDADE');
+        $this->dbforge->drop_column('classificacao_fiscal', 'clf_finalidade');
     }
 }

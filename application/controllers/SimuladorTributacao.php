@@ -79,20 +79,20 @@ class SimuladorTributacao extends MY_Controller
 
             // Buscar dados do cliente + pessoa + endereço (UF) e natureza do documento
             $this->db->select("
-                c.CLN_ID,
-                c.CLN_OBJETIVO_COMERCIAL,
-                p.PES_NOME,
-                p.PES_CPFCNPJ,
-                COALESCE(est.EST_UF, '') as uf_cliente,
-                COALESCE(doc.DOC_NATUREZA_CONTRIBUINTE, 'Contribuinte ICMS') as natureza_contribuinte
+                c.cln_id,
+                c.cln_objetivo_comercial,
+                p.pes_nome,
+                p.pes_cpfcnpj,
+                COALESCE(est.est_uf, '') as uf_cliente,
+                COALESCE(doc.doc_natureza_contribuinte, 'Contribuinte ICMS') as natureza_contribuinte
             ");
             $this->db->from('clientes c');
-            $this->db->join('pessoas p', 'c.PES_ID = p.PES_ID');
-            $this->db->join('enderecos end', 'p.PES_ID = end.PES_ID AND end.END_PADRAO = 1', 'left');
-            $this->db->join('municipios mun', 'end.MUN_ID = mun.MUN_ID', 'left');
-            $this->db->join('estados est', 'mun.EST_ID = est.EST_ID', 'left');
-            $this->db->join('documentos doc', 'end.END_ID = doc.END_ID AND doc.PES_ID = p.PES_ID', 'left');
-            $this->db->where('c.CLN_ID', $cliente_id);
+            $this->db->join('pessoas p', 'c.pes_id = p.pes_id');
+            $this->db->join('enderecos end', 'p.pes_id = end.pes_id AND end.end_padrao = 1', 'left');
+            $this->db->join('municipios mun', 'end.mun_id = mun.mun_id', 'left');
+            $this->db->join('estados est', 'mun.est_id = est.est_id', 'left');
+            $this->db->join('documentos doc', 'end.end_id = doc.end_id AND doc.pes_id = p.pes_id', 'left');
+            $this->db->where('c.cln_id', $cliente_id);
             $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
             $query_cliente = $this->db->get();
             $this->ensureNoDbError('buscar cliente');
@@ -103,9 +103,9 @@ class SimuladorTributacao extends MY_Controller
             }
 
             // Buscar dados do produto
-            $this->db->select('PRO_ID, PRO_DESCRICAO, PRO_PRECO_VENDA, TBP_ID');
+            $this->db->select('pro_id, pro_descricao, pro_preco_venda, tbp_id');
             $this->db->from('produtos');
-            $this->db->where('PRO_ID', $produto_id);
+            $this->db->where('pro_id', $produto_id);
             $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $query_produto = $this->db->get();
             $this->ensureNoDbError('buscar produto');
@@ -123,7 +123,7 @@ class SimuladorTributacao extends MY_Controller
                 throw new Exception('Nenhuma empresa configurada. Cadastre em: Menu -> Configurações -> Empresas');
             }
             
-            $uf_emitente = $empresa->EMP_UF;
+            $uf_emitente = $empresa->emp_uf;
             $uf_cliente = $cliente->uf_cliente ?: $uf_emitente;
             
             // Determinar destinação (estadual ou interestadual)
@@ -134,7 +134,7 @@ class SimuladorTributacao extends MY_Controller
                 $operacao_id,
                 ($cliente->natureza_contribuinte ?: 'Contribuinte ICMS'),
                 $destinacao,
-                ($cliente->CLN_OBJETIVO_COMERCIAL ?: 'consumo')
+                ($cliente->cln_objetivo_comercial ?: 'consumo')
             );
             $this->ensureNoDbError('buscar classificação fiscal');
 
@@ -144,8 +144,8 @@ class SimuladorTributacao extends MY_Controller
 
             // Buscar configuração de tributação do produto (se existir)
             $tributacao_produto = null;
-            if (isset($produto->TBP_ID) && $produto->TBP_ID) {
-                $tributacao_produto = $this->TributacaoProduto_model->getById($produto->TBP_ID);
+            if (isset($produto->tbp_id) && $produto->tbp_id) {
+                $tributacao_produto = $this->TributacaoProduto_model->getById($produto->tbp_id);
             }
 
             // Calcular valores
@@ -178,20 +178,20 @@ class SimuladorTributacao extends MY_Controller
                 'sucesso' => true,
                 'dados' => [
                     // Dados da Classificação Fiscal
-                    'classificacao_fiscal_id' => isset($tributacao->id) ? $tributacao->id : (isset($tributacao->CLF_ID) ? $tributacao->CLF_ID : 'N/A'),
-                    'cst' => isset($tributacao->cst) ? $tributacao->cst : (isset($tributacao->CLF_CST) ? $tributacao->CLF_CST : 'N/A'),
-                    'csosn' => isset($tributacao->csosn) ? $tributacao->csosn : (isset($tributacao->CLF_CSOSN) ? $tributacao->CLF_CSOSN : 'N/A'),
-                    'cfop' => isset($tributacao->cfop) ? $tributacao->cfop : (isset($tributacao->CLF_CFOP) ? $tributacao->CLF_CFOP : 'N/A'),
-                    'tipo_icms' => isset($tributacao->tipo_icms) ? $tributacao->tipo_icms : (isset($tributacao->CLF_TIPO_TRIBUTACAO) ? $tributacao->CLF_TIPO_TRIBUTACAO : 'N/A'),
+                    'classificacao_fiscal_id' => isset($tributacao->id) ? $tributacao->id : (isset($tributacao->clf_id) ? $tributacao->clf_id : 'N/A'),
+                    'cst' => isset($tributacao->cst) ? $tributacao->cst : (isset($tributacao->clf_cst) ? $tributacao->clf_cst : 'N/A'),
+                    'csosn' => isset($tributacao->csosn) ? $tributacao->csosn : (isset($tributacao->clf_csosn) ? $tributacao->clf_csosn : 'N/A'),
+                    'cfop' => isset($tributacao->cfop) ? $tributacao->cfop : (isset($tributacao->clf_cfop) ? $tributacao->clf_cfop : 'N/A'),
+                    'tipo_icms' => isset($tributacao->tipo_icms) ? $tributacao->tipo_icms : (isset($tributacao->clf_tipo_tributacao) ? $tributacao->clf_tipo_tributacao : 'N/A'),
 
                     // Dados do Cliente
-                    'cliente_nome' => $cliente->PES_NOME,
+                    'cliente_nome' => $cliente->pes_nome,
                     'cliente_uf' => $uf_cliente,
                     'cliente_natureza' => ($cliente->natureza_contribuinte ?: 'Contribuinte ICMS'),
-                    'cliente_objetivo' => ($cliente->CLN_OBJETIVO_COMERCIAL ?: 'consumo'),
+                    'cliente_objetivo' => ($cliente->cln_objetivo_comercial ?: 'consumo'),
 
                     // Dados do Produto
-                    'produto_descricao' => $produto->PRO_DESCRICAO,
+                    'produto_descricao' => $produto->pro_descricao,
 
                     // Destinação
                     'destinacao' => $destinacao,
@@ -251,13 +251,13 @@ class SimuladorTributacao extends MY_Controller
             
             $ten_id = $this->session->userdata('ten_id');
             
-            $this->db->select('c.CLN_ID as id, p.PES_NOME as label, p.PES_NOME as value');
+            $this->db->select('c.cln_id as id, p.pes_nome as label, p.pes_nome as value');
             $this->db->from('clientes c');
-            $this->db->join('pessoas p', 'c.PES_ID = p.PES_ID');
+            $this->db->join('pessoas p', 'c.pes_id = p.pes_id');
             $this->db->where('c.ten_id', $ten_id);
             $this->db->group_start();
-            $this->db->like('p.PES_NOME', $termo);
-            $this->db->or_like('p.PES_CPFCNPJ', $termo);
+            $this->db->like('p.pes_nome', $termo);
+            $this->db->or_like('p.pes_cpfcnpj', $termo);
             $this->db->group_end();
             $this->db->limit(10);
             
@@ -284,12 +284,12 @@ class SimuladorTributacao extends MY_Controller
             
             $ten_id = $this->session->userdata('ten_id');
             
-            $this->db->select('PRO_ID as id, PRO_DESCRICAO as label, PRO_DESCRICAO as value, PRO_PRECO_VENDA as precoVenda');
+            $this->db->select('pro_id as id, pro_descricao as label, pro_descricao as value, pro_preco_venda as precoVenda');
             $this->db->from('produtos');
             $this->db->where('ten_id', $ten_id);
             $this->db->group_start();
-            $this->db->like('PRO_DESCRICAO', $termo);
-            $this->db->or_like('PRO_COD_BARRA', $termo);
+            $this->db->like('pro_descricao', $termo);
+            $this->db->or_like('pro_cod_barra', $termo);
             $this->db->group_end();
             $this->db->limit(10);
             
@@ -313,19 +313,19 @@ class SimuladorTributacao extends MY_Controller
             
             $ten_id = $this->session->userdata('ten_id');
             
-            $this->db->select('c.CLN_ID as id, p.PES_NOME as nome, p.PES_CPFCNPJ as documento, p.PES_UF as uf');
+            $this->db->select('c.cln_id as id, p.pes_nome as nome, p.pes_cpfcnpj as documento, p.PES_UF as uf');
             $this->db->from('clientes c');
-            $this->db->join('pessoas p', 'c.PES_ID = p.PES_ID');
+            $this->db->join('pessoas p', 'c.pes_id = p.pes_id');
             $this->db->where('c.ten_id', $ten_id);
             
             if (!empty($nome)) {
-                $this->db->like('p.PES_NOME', $nome);
+                $this->db->like('p.pes_nome', $nome);
             }
             if (!empty($documento)) {
-                $this->db->like('p.PES_CPFCNPJ', $documento);
+                $this->db->like('p.pes_cpfcnpj', $documento);
             }
             
-            $this->db->order_by('p.PES_NOME', 'ASC');
+            $this->db->order_by('p.pes_nome', 'ASC');
             $this->db->limit($limite);
             
             $query = $this->db->get();
@@ -349,21 +349,21 @@ class SimuladorTributacao extends MY_Controller
             
             $ten_id = $this->session->userdata('ten_id');
             
-            $this->db->select('PRO_ID as id, PRO_DESCRICAO as descricao, PRO_COD_BARRA as codDeBarra, PRO_PRECO_VENDA as precoVenda');
+            $this->db->select('pro_id as id, pro_descricao as descricao, pro_cod_barra as codDeBarra, pro_preco_venda as precoVenda');
             $this->db->from('produtos');
             $this->db->where('ten_id', $ten_id);
             
             if (!empty($nome)) {
-                $this->db->like('PRO_DESCRICAO', $nome);
+                $this->db->like('pro_descricao', $nome);
             }
             if (!empty($codigo)) {
-                $this->db->like('PRO_ID', $codigo);
+                $this->db->like('pro_id', $codigo);
             }
             if (!empty($barras)) {
-                $this->db->like('PRO_COD_BARRA', $barras);
+                $this->db->like('pro_cod_barra', $barras);
             }
             
-            $this->db->order_by('PRO_DESCRICAO', 'ASC');
+            $this->db->order_by('pro_descricao', 'ASC');
             $this->db->limit($limite);
             
             $query = $this->db->get();

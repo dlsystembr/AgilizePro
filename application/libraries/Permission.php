@@ -55,31 +55,31 @@ class Permission
             // Primeiro verificar se a permissão está habilitada para o tenant
             // Limpar query builder para evitar problemas de cache
             $CI->db->reset_query();
-            $CI->db->select('TPM_ATIVO, TPM_PERMISSAO');
+            $CI->db->select('tpm_ativo, tpm_permissao');
             $CI->db->from('tenant_permissoes_menu');
-            $CI->db->where('TPM_TEN_ID', $ten_id);
-            $CI->db->where('TPM_PERMISSAO', $atividade);
-            $CI->db->where('TPM_ATIVO', 1);
+            $CI->db->where('tpm_ten_id', $ten_id);
+            $CI->db->where('tpm_permissao', $atividade);
+            $CI->db->where('tpm_ativo', 1);
             $query = $CI->db->get();
             $result = $query->row();
 
             // Debug: log da verificação
             log_message('debug', "Permission::checkPermission - ten_id: {$ten_id}, atividade: {$atividade}, encontrado: " . ($result ? 'SIM' : 'NÃO'));
             if ($result) {
-                log_message('debug', "Permission::checkPermission - TPM_ATIVO: {$result->TPM_ATIVO}, TPM_PERMISSAO: {$result->TPM_PERMISSAO}");
+                log_message('debug', "Permission::checkPermission - tpm_ativo: {$result->tpm_ativo}, tpm_permissao: {$result->tpm_permissao}");
             } else {
                 // Verificar se há alguma permissão para este tenant (para debug)
                 $CI->db->reset_query();
                 $CI->db->select('COUNT(*) as total');
                 $CI->db->from('tenant_permissoes_menu');
-                $CI->db->where('TPM_TEN_ID', $ten_id);
-                $CI->db->where('TPM_ATIVO', 1);
+                $CI->db->where('tpm_ten_id', $ten_id);
+                $CI->db->where('tpm_ativo', 1);
                 $count_query = $CI->db->get();
                 $count_result = $count_query->row();
                 log_message('debug', "Permission::checkPermission - Total de permissões ativas para tenant {$ten_id}: " . ($count_result ? $count_result->total : 0));
             }
 
-            if ($result && $result->TPM_ATIVO == 1) {
+            if ($result && $result->tpm_ativo == 1) {
                 // Permissão habilitada para o tenant - retorna true imediatamente
                 // Isso permite que o menu apareça mesmo se não estiver no perfil do usuário
                 // As ações específicas ainda podem verificar o perfil do usuário se necessário

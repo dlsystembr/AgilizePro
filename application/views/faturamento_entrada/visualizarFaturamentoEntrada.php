@@ -24,11 +24,11 @@
                                 // Verificar se já existe documento_faturado com status ABERTO
                                 $pes_id = null;
                                 
-                                // Tentar buscar PES_ID através da tabela clientes (nova estrutura)
+                                // Tentar buscar pes_id através da tabela clientes (nova estrutura)
                                 if ($this->db->table_exists('clientes')) {
-                                    $cliente_novo = $this->db->where('CLN_ID', $faturamento->fornecedor_id)->get('clientes')->row();
+                                    $cliente_novo = $this->db->where('cln_id', $faturamento->fornecedor_id)->get('clientes')->row();
                                     if ($cliente_novo) {
-                                        $pes_id = $cliente_novo->PES_ID;
+                                        $pes_id = $cliente_novo->pes_id;
                                     }
                                 }
                                 
@@ -37,9 +37,9 @@
                                     $fornecedor = $this->db->where('idClientes', $faturamento->fornecedor_id)->get('clientes_')->row();
                                     if ($fornecedor) {
                                         $documento_limpo = preg_replace('/\D/', '', $fornecedor->documento);
-                                        $pessoa = $this->db->where('PES_CPFCNPJ', $documento_limpo)->get('pessoas')->row();
+                                        $pessoa = $this->db->where('pes_cpfcnpj', $documento_limpo)->get('pessoas')->row();
                                         if ($pessoa) {
-                                            $pes_id = $pessoa->PES_ID;
+                                            $pes_id = $pessoa->pes_id;
                                         }
                                     }
                                 }
@@ -47,19 +47,19 @@
                                 $dcf_aberto = null;
                                 if ($pes_id) {
                                     // Buscar pela data de entrada primeiro
-                                    $dcf_aberto = $this->db->where('PES_ID', $pes_id)
-                                                          ->where('DCF_TIPO', 'E')
-                                                          ->where('DCF_STATUS', 'ABERTO')
-                                                          ->where('DCF_DATA_SAIDA', $faturamento->data_entrada)
+                                    $dcf_aberto = $this->db->where('pes_id', $pes_id)
+                                                          ->where('dcf_tipo', 'E')
+                                                          ->where('dcf_status', 'ABERTO')
+                                                          ->where('dcf_data_saida', $faturamento->data_entrada)
                                                           ->get('documentos_faturados')
                                                           ->row();
                                     
                                     // Se não encontrar, tentar pelo número da nota
                                     if (!$dcf_aberto && $faturamento->numero_nota) {
-                                        $dcf_aberto = $this->db->where('PES_ID', $pes_id)
-                                                              ->where('DCF_TIPO', 'E')
-                                                              ->where('DCF_NUMERO', $faturamento->numero_nota)
-                                                              ->where('DCF_STATUS', 'ABERTO')
+                                        $dcf_aberto = $this->db->where('pes_id', $pes_id)
+                                                              ->where('dcf_tipo', 'E')
+                                                              ->where('dcf_numero', $faturamento->numero_nota)
+                                                              ->where('dcf_status', 'ABERTO')
                                                               ->get('documentos_faturados')
                                                               ->row();
                                     }

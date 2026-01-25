@@ -118,7 +118,7 @@ class Nfe extends MY_Controller
                 "schemes" => "PL_009_V4",
                 "versao" => $configNFe->versao_nfe,
                 "tokenIBPT" => "",
-                "CSC" => "",
+                "csc" => "",
                 "CSCid" => "",
                 "aProxyConf" => [
                     "proxyIp" => "",
@@ -143,11 +143,11 @@ class Nfe extends MY_Controller
                 case 'RR':
                 case 'SC':
                 case 'SE':
-                case 'TO':
+                case 'to':
                     // SVRS - Estados que usam o webservice do RS
                     $config["autorizadores"] = [
                         "SVRS" => [
-                            "uf" => ["AC", "AL", "AP", "DF", "ES", "PB", "PI", "RJ", "RN", "RO", "RR", "SC", "SE", "TO"],
+                            "uf" => ["AC", "AL", "AP", "DF", "ES", "PB", "PI", "RJ", "RN", "RO", "RR", "SC", "SE", "to"],
                             "homologacao" => [
                                 "url" => "https://homologacao.nfe.sefazvirtual.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
                                 "wsdl" => "https://homologacao.nfe.sefazvirtual.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx?wsdl"
@@ -244,7 +244,7 @@ class Nfe extends MY_Controller
             "schemes" => "PL_008i2",
             "versao" => "4.00",
             "tokenIBPT" => "",
-            "CSC" => "",
+            "csc" => "",
             "CSCid" => "",
             "aProxyConf" => [
                 "proxyIp" => "",
@@ -265,7 +265,7 @@ class Nfe extends MY_Controller
             'MT' => '51', 'MS' => '50', 'MG' => '31', 'PA' => '15', 'PB' => '25',
             'PR' => '41', 'PE' => '26', 'PI' => '22', 'RJ' => '33', 'RN' => '24',
             'RS' => '43', 'RO' => '11', 'RR' => '14', 'SC' => '42', 'SP' => '35',
-            'SE' => '28', 'TO' => '17'
+            'SE' => '28', 'to' => '17'
         ];
         return $ufs[$uf] ?? '43';
     }
@@ -680,7 +680,7 @@ class Nfe extends MY_Controller
         $this->form_validation->set_rules('orientacao_danfe', 'Orientação DANFE', 'required|trim');
         $this->form_validation->set_rules('sequencia_nota', 'Sequência de Número de Nota', 'required|trim|numeric|greater_than[0]');
         $this->form_validation->set_rules('sequencia_nfce', 'Sequência de Número de Nota NFC-e', 'required|trim|numeric|greater_than[0]');
-        $this->form_validation->set_rules('csc', 'CSC', 'trim');
+        $this->form_validation->set_rules('csc', 'csc', 'trim');
         $this->form_validation->set_rules('csc_id', 'CSC ID', 'trim');
 
         if ($this->form_validation->run() == false) {
@@ -864,9 +864,9 @@ class Nfe extends MY_Controller
             $std = new \stdClass();
             $std->xNome = $emitente->nome;
             $std->xFant = $emitente->nome;
-            $std->IE = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
+            $std->ie = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
             $std->CRT = $this->crt;
-            $std->CNPJ = preg_replace('/[^0-9]/', '', $emitente->cnpj);
+            $std->cnpj = preg_replace('/[^0-9]/', '', $emitente->cnpj);
             $nfe->tagemit($std);
 
             // [enderEmit]
@@ -879,8 +879,8 @@ class Nfe extends MY_Controller
             $std->xBairro = $emitente->bairro;
             $std->cMun = $emitente->ibge;
             $std->xMun = $emitente->cidade;
-            $std->UF = $emitente->uf;
-            $std->CEP = preg_replace('/[^0-9]/', '', $emitente->cep);
+            $std->uf = $emitente->uf;
+            $std->cep = preg_replace('/[^0-9]/', '', $emitente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             $std->fone = preg_replace('/[^0-9]/', '', $emitente->telefone);
@@ -890,12 +890,12 @@ class Nfe extends MY_Controller
             $std = new \stdClass();
             $std->xNome = $cliente->nomeCliente;
             if (strlen(preg_replace('/[^0-9]/', '', $cliente->documento)) == 11) {
-                $std->CPF = preg_replace('/[^0-9]/', '', $cliente->documento);
+                $std->cpf = preg_replace('/[^0-9]/', '', $cliente->documento);
                 $std->indIEDest = 9; // Contribuinte Isento
             } else {
-                $std->CNPJ = preg_replace('/[^0-9]/', '', $cliente->documento);
+                $std->cnpj = preg_replace('/[^0-9]/', '', $cliente->documento);
                 if (!empty($cliente->inscricao_estadual)) {
-                    $std->IE = $cliente->inscricao_estadual;
+                    $std->ie = $cliente->inscricao_estadual;
                     $std->indIEDest = 1; // Contribuinte
                 } else {
                     $std->indIEDest = 9; // Contribuinte Isento
@@ -919,8 +919,8 @@ class Nfe extends MY_Controller
             
             $std->cMun = $cliente->ibge;
             $std->xMun = $cliente->cidade;
-            $std->UF = $cliente->estado;
-            $std->CEP = preg_replace('/[^0-9]/', '', $cliente->cep);
+            $std->uf = $cliente->estado;
+            $std->cep = preg_replace('/[^0-9]/', '', $cliente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             if (!empty($cliente->telefone)) {
@@ -1104,7 +1104,7 @@ class Nfe extends MY_Controller
                $std->cEANTrib = 'SEM GTIN'; // Adicionado o campo cEANTrib
                $std->xProd = $p->descricao;
                $std->NCM = $p->NCMs;
-               $std->CFOP = $tributacao->cfop;
+               $std->cfop = $tributacao->cfop;
                $std->uCom = 'UN';
                $std->qCom = $p->quantidade;
                $std->vUnCom = $p->preco;
@@ -1152,7 +1152,7 @@ class Nfe extends MY_Controller
                    if (!isset($p->cst)) {
                        throw new Exception('CST não configurado na classificação fiscal');
                    }
-                   $std->CST = isset($p->cst) ? $p->cst : '00';
+                   $std->cst = isset($p->cst) ? $p->cst : '00';
                    $std->modBC = 3;
                    $std->vBC = $p->preco * $p->quantidade;
                    $std->pICMS = $aliq;   
@@ -1164,7 +1164,7 @@ class Nfe extends MY_Controller
                // PIS
                $std = new \stdClass();
                $std->item = $i;
-               $std->CST = isset($p->cst_pis) ? $p->cst_pis : '01';
+               $std->cst = isset($p->cst_pis) ? $p->cst_pis : '01';
                $base_calculo = $p->preco * $p->quantidade;
                $std->vBC = number_format($base_calculo, 2, '.', '');
                $std->pPIS = isset($p->aliq_pis) ? $p->aliq_pis : 0;
@@ -1174,7 +1174,7 @@ class Nfe extends MY_Controller
                // COFINS
                $std = new \stdClass();
                $std->item = $i;
-               $std->CST = isset($p->cst_cofins) ? $p->cst_cofins : '01';
+               $std->cst = isset($p->cst_cofins) ? $p->cst_cofins : '01';
                $std->vBC = number_format($base_calculo, 2, '.', '');
                $std->pCOFINS = isset($p->aliq_cofins) ? $p->aliq_cofins : 0;
                $std->vCOFINS = number_format(($base_calculo * $std->pCOFINS) / 100, 2, '.', '');
@@ -1253,12 +1253,12 @@ class Nfe extends MY_Controller
             // Add transportadora information if available
             if (isset($transportadora) && !empty($transportadora)) {
                 $std->transporta = new \stdClass();
-                $std->transporta->CNPJ = preg_replace('/[^0-9]/', '', $transportadora->documento);
+                $std->transporta->cnpj = preg_replace('/[^0-9]/', '', $transportadora->documento);
                 $std->transporta->xNome = $transportadora->nomeCliente;
-                $std->transporta->IE = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
+                $std->transporta->ie = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
                 $std->transporta->xEnder = $transportadora->rua;
                 $std->transporta->xMun = $transportadora->cidade;
-                $std->transporta->UF = $transportadora->estado;
+                $std->transporta->uf = $transportadora->estado;
             }
             
             $nfe->tagtransp($std);
@@ -2114,9 +2114,9 @@ class Nfe extends MY_Controller
             $std = new \stdClass();
             $std->xNome = $emitente->nome;
             $std->xFant = $emitente->nome;
-            $std->IE = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
+            $std->ie = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
             $std->CRT = $this->crt;
-            $std->CNPJ = preg_replace('/[^0-9]/', '', $emitente->cnpj);
+            $std->cnpj = preg_replace('/[^0-9]/', '', $emitente->cnpj);
             $nfe->tagemit($std);
 
             // [enderEmit]
@@ -2129,8 +2129,8 @@ class Nfe extends MY_Controller
             $std->xBairro = $emitente->bairro;
             $std->cMun = $emitente->ibge;
             $std->xMun = $emitente->cidade;
-            $std->UF = $emitente->uf;
-            $std->CEP = preg_replace('/[^0-9]/', '', $emitente->cep);
+            $std->uf = $emitente->uf;
+            $std->cep = preg_replace('/[^0-9]/', '', $emitente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             $std->fone = preg_replace('/[^0-9]/', '', $emitente->telefone);
@@ -2140,12 +2140,12 @@ class Nfe extends MY_Controller
             $std = new \stdClass();
             $std->xNome = $cliente->nomeCliente;
             if (strlen(preg_replace('/[^0-9]/', '', $cliente->documento)) == 11) {
-                $std->CPF = preg_replace('/[^0-9]/', '', $cliente->documento);
+                $std->cpf = preg_replace('/[^0-9]/', '', $cliente->documento);
                 $std->indIEDest = 9; // Contribuinte Isento
             } else {
-                $std->CNPJ = preg_replace('/[^0-9]/', '', $cliente->documento);
+                $std->cnpj = preg_replace('/[^0-9]/', '', $cliente->documento);
                 if (!empty($cliente->inscricao_estadual)) {
-                    $std->IE = $cliente->inscricao_estadual;
+                    $std->ie = $cliente->inscricao_estadual;
                     $std->indIEDest = 1; // Contribuinte
                 } else {
                     $std->indIEDest = 9; // Contribuinte Isento
@@ -2169,8 +2169,8 @@ class Nfe extends MY_Controller
             
             $std->cMun = $cliente->ibge;
             $std->xMun = $cliente->cidade;
-            $std->UF = $cliente->estado;
-            $std->CEP = preg_replace('/[^0-9]/', '', $cliente->cep);
+            $std->uf = $cliente->estado;
+            $std->cep = preg_replace('/[^0-9]/', '', $cliente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             if (!empty($cliente->telefone)) {
@@ -2354,7 +2354,7 @@ class Nfe extends MY_Controller
                $std->cEANTrib = 'SEM GTIN'; // Adicionado o campo cEANTrib
                $std->xProd = $p->descricao;
                $std->NCM = $p->NCMs;
-               $std->CFOP = $tributacao->cfop;
+               $std->cfop = $tributacao->cfop;
                $std->uCom = 'UN';
                $std->qCom = $p->quantidade;
                $std->vUnCom = $p->preco;
@@ -2402,7 +2402,7 @@ class Nfe extends MY_Controller
                  if (!isset($p->cst)) {
                     throw new Exception('CST não configurado na classificação fiscal');
                  }
-                 $std->CST = isset($p->cst) ? $p->cst : '00';
+                 $std->cst = isset($p->cst) ? $p->cst : '00';
                  $std->modBC = 3;
                  $std->vBC = $p->preco * $p->quantidade;
                  $std->pICMS = $aliq;   
@@ -2414,7 +2414,7 @@ class Nfe extends MY_Controller
              // PIS
              $std = new \stdClass();
              $std->item = $i;
-             $std->CST = isset($p->cst_pis) ? $p->cst_pis : '01';
+             $std->cst = isset($p->cst_pis) ? $p->cst_pis : '01';
              $base_calculo = $p->preco * $p->quantidade;
              $std->vBC = number_format($base_calculo, 2, '.', '');
              $std->pPIS = isset($p->aliq_pis) ? $p->aliq_pis : 0;
@@ -2424,7 +2424,7 @@ class Nfe extends MY_Controller
              // COFINS
              $std = new \stdClass();
              $std->item = $i;
-             $std->CST = isset($p->cst_cofins) ? $p->cst_cofins : '01';
+             $std->cst = isset($p->cst_cofins) ? $p->cst_cofins : '01';
              $std->vBC = number_format($base_calculo, 2, '.', '');
              $std->pCOFINS = isset($p->aliq_cofins) ? $p->aliq_cofins : 0;
              $std->vCOFINS = number_format(($base_calculo * $std->pCOFINS) / 100, 2, '.', '');
@@ -2503,12 +2503,12 @@ class Nfe extends MY_Controller
             // Add transportadora information if available
             if (isset($transportadora) && !empty($transportadora)) {
                 $std->transporta = new \stdClass();
-                $std->transporta->CNPJ = preg_replace('/[^0-9]/', '', $transportadora->documento);
+                $std->transporta->cnpj = preg_replace('/[^0-9]/', '', $transportadora->documento);
                 $std->transporta->xNome = $transportadora->nomeCliente;
-                $std->transporta->IE = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
+                $std->transporta->ie = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
                 $std->transporta->xEnder = $transportadora->rua;
                 $std->transporta->xMun = $transportadora->cidade;
-                $std->transporta->UF = $transportadora->estado;
+                $std->transporta->uf = $transportadora->estado;
             }
             
             $nfe->tagtransp($std);
@@ -3314,7 +3314,7 @@ class Nfe extends MY_Controller
                 "schemes" => "PL_009_V4",
                 "versao" => "4.00",
                 "tokenIBPT" => "",
-                "CSC" => $config->csc ?? "",
+                "csc" => $config->csc ?? "",
                 "CSCid" => $config->csc_id ?? "",
                 "aProxyConf" => [
                     "proxyIp" => "",
@@ -3389,9 +3389,9 @@ class Nfe extends MY_Controller
             $std = new \stdClass();
             $std->xNome = $emitente->nome;
             $std->xFant = $emitente->nome;
-            $std->IE = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
+            $std->ie = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
             $std->CRT = $this->crt;
-            $std->CNPJ = preg_replace('/[^0-9]/', '', $emitente->cnpj);
+            $std->cnpj = preg_replace('/[^0-9]/', '', $emitente->cnpj);
             $nfe->tagemit($std);
 
             // [enderEmit]
@@ -3404,8 +3404,8 @@ class Nfe extends MY_Controller
             $std->xBairro = $emitente->bairro;
             $std->cMun = $emitente->ibge;
             $std->xMun = $emitente->cidade;
-            $std->UF = $emitente->uf;
-            $std->CEP = preg_replace('/[^0-9]/', '', $emitente->cep);
+            $std->uf = $emitente->uf;
+            $std->cep = preg_replace('/[^0-9]/', '', $emitente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             $std->fone = preg_replace('/[^0-9]/', '', $emitente->telefone);
@@ -3415,12 +3415,12 @@ class Nfe extends MY_Controller
             $std = new \stdClass();
             $std->xNome = $cliente->nomeCliente;
             if (strlen(preg_replace('/[^0-9]/', '', $cliente->documento)) == 11) {
-                $std->CPF = preg_replace('/[^0-9]/', '', $cliente->documento);
+                $std->cpf = preg_replace('/[^0-9]/', '', $cliente->documento);
                 $std->indIEDest = 9; // Contribuinte Isento
             } else {
-                    $std->CNPJ = preg_replace('/[^0-9]/', '', $cliente->documento);
+                    $std->cnpj = preg_replace('/[^0-9]/', '', $cliente->documento);
                 if (!empty($cliente->inscricao_estadual)) {
-                    $std->IE = $cliente->inscricao_estadual;
+                    $std->ie = $cliente->inscricao_estadual;
                     $std->indIEDest = 1; // Contribuinte
                 } else {
                     $std->indIEDest = 9; // Contribuinte Isento
@@ -3444,8 +3444,8 @@ class Nfe extends MY_Controller
             
             $std->cMun = $cliente->ibge;
             $std->xMun = $cliente->cidade;
-            $std->UF = $cliente->estado;
-            $std->CEP = preg_replace('/[^0-9]/', '', $cliente->cep);
+            $std->uf = $cliente->estado;
+            $std->cep = preg_replace('/[^0-9]/', '', $cliente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             if (!empty($cliente->telefone)) {
@@ -3498,7 +3498,7 @@ class Nfe extends MY_Controller
                 $std->cEANTrib = 'SEM GTIN'; // Adicionado o campo cEANTrib
                $std->xProd = $p->descricao;
                $std->NCM = $p->NCMs;
-               $std->CFOP = $tributacao->cfop;
+               $std->cfop = $tributacao->cfop;
                $std->uCom = $p->unidade;
                $std->qCom = $p->quantidade;
                $std->vUnCom = $p->preco;
@@ -3543,7 +3543,7 @@ class Nfe extends MY_Controller
                  if (!isset($tributacao->cst)) {
                      throw new Exception('CST não configurado na classificação fiscal');
                  }
-                 $std->CST = $tributacao->cst;
+                 $std->cst = $tributacao->cst;
                  $std->modBC = 3;
                  $std->vBC = $p->preco * $p->quantidade;
                  
@@ -3577,7 +3577,7 @@ class Nfe extends MY_Controller
             // PIS
                $std = new \stdClass();
                $std->item = $i;
-            $std->CST = isset($p->cst_pis) ? $p->cst_pis : '01';
+            $std->cst = isset($p->cst_pis) ? $p->cst_pis : '01';
             $base_calculo = $p->preco * $p->quantidade;
             $std->vBC = number_format($base_calculo, 2, '.', '');
             $std->pPIS = isset($p->aliq_pis) ? $p->aliq_pis : 0;
@@ -3587,7 +3587,7 @@ class Nfe extends MY_Controller
             // COFINS
             $std = new \stdClass();
             $std->item = $i;
-            $std->CST = isset($p->cst_cofins) ? $p->cst_cofins : '01';
+            $std->cst = isset($p->cst_cofins) ? $p->cst_cofins : '01';
             $std->vBC = number_format($base_calculo, 2, '.', '');
             $std->pCOFINS = isset($p->aliq_cofins) ? $p->aliq_cofins : 0;
             $std->vCOFINS = number_format(($base_calculo * $std->pCOFINS) / 100, 2, '.', '');
@@ -3661,12 +3661,12 @@ class Nfe extends MY_Controller
             // Add transportadora information if available
             if (isset($transportadora) && !empty($transportadora)) {
                 $std->transporta = new \stdClass();
-                $std->transporta->CNPJ = preg_replace('/[^0-9]/', '', $transportadora->documento);
+                $std->transporta->cnpj = preg_replace('/[^0-9]/', '', $transportadora->documento);
                 $std->transporta->xNome = $transportadora->nomeCliente;
-                $std->transporta->IE = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
+                $std->transporta->ie = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
                 $std->transporta->xEnder = $transportadora->rua;
                 $std->transporta->xMun = $transportadora->cidade;
-                $std->transporta->UF = $transportadora->estado;
+                $std->transporta->uf = $transportadora->estado;
             }
             
             $nfe->tagtransp($std);
@@ -4141,7 +4141,7 @@ class Nfe extends MY_Controller
                 'homologacao' => 'https://www.homologacao.nfce.fazenda.sp.gov.br/qrcode',
                 'producao' => 'https://www.nfce.fazenda.sp.gov.br/qrcode'
             ],
-            'TO' => [
+            'to' => [
                 'homologacao' => 'http://homologacao.sefaz.to.gov.br/nfce/qrcode',
                 'producao' => 'http://www.sefaz.to.gov.br/nfce/qrcode'
             ]
@@ -4320,7 +4320,7 @@ ntrada']);
                 "schemes" => "PL_009_V4",
                 "versao" => "4.00",
                 "tokenIBPT" => "",
-                "CSC" => $config->csc ?? "",
+                "csc" => $config->csc ?? "",
                 "CSCid" => $config->csc_id ?? "",
                 "aProxyConf" => [
                     "proxyIp" => "",
@@ -4399,9 +4399,9 @@ ntrada']);
             $std = new \stdClass();
             $std->xNome = $emitente->nome;
             $std->xFant = $emitente->nome;
-            $std->IE = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
+            $std->ie = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
             $std->CRT = $this->crt;
-            $std->CNPJ = preg_replace('/[^0-9]/', '', $emitente->cnpj);
+            $std->cnpj = preg_replace('/[^0-9]/', '', $emitente->cnpj);
             $nfe->tagemit($std);
 
             // [enderEmit]
@@ -4414,8 +4414,8 @@ ntrada']);
             $std->xBairro = $emitente->bairro;
             $std->cMun = $emitente->ibge;
             $std->xMun = $emitente->cidade;
-            $std->UF = $emitente->uf;
-            $std->CEP = preg_replace('/[^0-9]/', '', $emitente->cep);
+            $std->uf = $emitente->uf;
+            $std->cep = preg_replace('/[^0-9]/', '', $emitente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             $std->fone = preg_replace('/[^0-9]/', '', $emitente->telefone);
@@ -4425,12 +4425,12 @@ ntrada']);
             $std = new \stdClass();
             $std->xNome = $cliente->nomeCliente;
             if (strlen(preg_replace('/[^0-9]/', '', $cliente->documento)) == 11) {
-                $std->CPF = preg_replace('/[^0-9]/', '', $cliente->documento);
+                $std->cpf = preg_replace('/[^0-9]/', '', $cliente->documento);
                 $std->indIEDest = 9; // Contribuinte Isento
             } else {
-                    $std->CNPJ = preg_replace('/[^0-9]/', '', $cliente->documento);
+                    $std->cnpj = preg_replace('/[^0-9]/', '', $cliente->documento);
                 if (!empty($cliente->inscricao_estadual)) {
-                    $std->IE = $cliente->inscricao_estadual;
+                    $std->ie = $cliente->inscricao_estadual;
                     $std->indIEDest = 1; // Contribuinte
                 } else {
                     $std->indIEDest = 9; // Contribuinte Isento
@@ -4454,8 +4454,8 @@ ntrada']);
             
             $std->cMun = $cliente->ibge;
             $std->xMun = $cliente->cidade;
-            $std->UF = $cliente->estado;
-            $std->CEP = preg_replace('/[^0-9]/', '', $cliente->cep);
+            $std->uf = $cliente->estado;
+            $std->cep = preg_replace('/[^0-9]/', '', $cliente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             if (!empty($cliente->telefone)) {
@@ -4509,7 +4509,7 @@ ntrada']);
                 $std->cEANTrib = 'SEM GTIN'; // Adicionado o campo cEANTrib
                 $std->xProd = $p->descricao;
                 $std->NCM = $p->NCMs;
-                $std->CFOP = $tributacao->cfop;
+                $std->cfop = $tributacao->cfop;
                 $std->uCom = $p->unidade;
                 $std->qCom = $p->quantidade;
                 $std->vUnCom = $p->preco;
@@ -4554,7 +4554,7 @@ ntrada']);
                  if (!isset($tributacao->cst)) {
                        throw new Exception('CST não configurado na classificação fiscal');
                    }
-                 $std->CST = $tributacao->cst;
+                 $std->cst = $tributacao->cst;
                    $std->modBC = 3;
                    $std->vBC = $p->preco * $p->quantidade;
                  
@@ -4588,7 +4588,7 @@ ntrada']);
                // PIS
                $std = new \stdClass();
                $std->item = $i;
-               $std->CST = isset($p->cst_pis) ? $p->cst_pis : '01';
+               $std->cst = isset($p->cst_pis) ? $p->cst_pis : '01';
                $base_calculo = $p->preco * $p->quantidade;
                $std->vBC = number_format($base_calculo, 2, '.', '');
                $std->pPIS = isset($p->aliq_pis) ? $p->aliq_pis : 0;
@@ -4598,7 +4598,7 @@ ntrada']);
                // COFINS
                $std = new \stdClass();
                $std->item = $i;
-               $std->CST = isset($p->cst_cofins) ? $p->cst_cofins : '01';
+               $std->cst = isset($p->cst_cofins) ? $p->cst_cofins : '01';
                $std->vBC = number_format($base_calculo, 2, '.', '');
                $std->pCOFINS = isset($p->aliq_cofins) ? $p->aliq_cofins : 0;
                $std->vCOFINS = number_format(($base_calculo * $std->pCOFINS) / 100, 2, '.', '');
@@ -4672,12 +4672,12 @@ ntrada']);
             // Add transportadora information if available
             if (isset($transportadora) && !empty($transportadora)) {
                 $std->transporta = new \stdClass();
-                $std->transporta->CNPJ = preg_replace('/[^0-9]/', '', $transportadora->documento);
+                $std->transporta->cnpj = preg_replace('/[^0-9]/', '', $transportadora->documento);
                 $std->transporta->xNome = $transportadora->nomeCliente;
-                $std->transporta->IE = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
+                $std->transporta->ie = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
                 $std->transporta->xEnder = $transportadora->rua;
                 $std->transporta->xMun = $transportadora->cidade;
-                $std->transporta->UF = $transportadora->estado;
+                $std->transporta->uf = $transportadora->estado;
             }
             
             $nfe->tagtransp($std);
@@ -5038,9 +5038,9 @@ ntrada']);
             $std = new \stdClass();
             $std->xNome = $emitente->nome;
             $std->xFant = $emitente->nome;
-            $std->IE = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
+            $std->ie = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
             $std->CRT = $this->crt;
-            $std->CNPJ = preg_replace('/[^0-9]/', '', $emitente->cnpj);
+            $std->cnpj = preg_replace('/[^0-9]/', '', $emitente->cnpj);
             $nfe->tagemit($std);
 
             // [enderEmit]
@@ -5053,8 +5053,8 @@ ntrada']);
             $std->xBairro = $emitente->bairro;
             $std->cMun = $emitente->ibge;
             $std->xMun = $emitente->cidade;
-            $std->UF = $emitente->uf;
-            $std->CEP = preg_replace('/[^0-9]/', '', $emitente->cep);
+            $std->uf = $emitente->uf;
+            $std->cep = preg_replace('/[^0-9]/', '', $emitente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             $std->fone = preg_replace('/[^0-9]/', '', $emitente->telefone);
@@ -5064,12 +5064,12 @@ ntrada']);
             $std = new \stdClass();
             $std->xNome = $cliente->nomeCliente;
             if (strlen(preg_replace('/[^0-9]/', '', $cliente->documento)) == 11) {
-                $std->CPF = preg_replace('/[^0-9]/', '', $cliente->documento);
+                $std->cpf = preg_replace('/[^0-9]/', '', $cliente->documento);
                 $std->indIEDest = 9; // Contribuinte Isento
             } else {
-                $std->CNPJ = preg_replace('/[^0-9]/', '', $cliente->documento);
+                $std->cnpj = preg_replace('/[^0-9]/', '', $cliente->documento);
                 if (!empty($cliente->inscricao_estadual)) {
-                    $std->IE = $cliente->inscricao_estadual;
+                    $std->ie = $cliente->inscricao_estadual;
                     $std->indIEDest = 1; // Contribuinte
                 } else {
                     $std->indIEDest = 9; // Contribuinte Isento
@@ -5093,8 +5093,8 @@ ntrada']);
             
             $std->cMun = $cliente->ibge;
             $std->xMun = $cliente->cidade;
-            $std->UF = $cliente->estado;
-            $std->CEP = preg_replace('/[^0-9]/', '', $cliente->cep);
+            $std->uf = $cliente->estado;
+            $std->cep = preg_replace('/[^0-9]/', '', $cliente->cep);
             $std->cPais = '1058';
             $std->xPais = 'BRASIL';
             if (!empty($cliente->telefone)) {
@@ -5292,7 +5292,7 @@ ntrada']);
                 $std->cEANTrib = 'SEM GTIN'; // Adicionado o campo cEANTrib
                 $std->xProd = $produto->descricao;
                 $std->NCM = $produto->NCMs;
-                $std->CFOP = ($cliente->estado == $emitente->uf) ? '1202' : '2202';
+                $std->cfop = ($cliente->estado == $emitente->uf) ? '1202' : '2202';
                 $std->uCom = 'UN';
                 $std->qCom = $quantidade;
                 $std->vUnCom = $produto->preco;
@@ -5340,7 +5340,7 @@ ntrada']);
                     if (!isset($produto->cst)) {
                        throw new Exception('CST não configurado na classificação fiscal');
                     }
-                    $std->CST = isset($produto->cst) ? $produto->cst : '00';
+                    $std->cst = isset($produto->cst) ? $produto->cst : '00';
                     $std->modBC = 3;
                     $std->vBC = $produto->preco * $quantidade;
                     $std->pICMS = $aliq;   
@@ -5352,7 +5352,7 @@ ntrada']);
                 // PIS
                 $std = new \stdClass();
                 $std->item = $i;
-                $std->CST = isset($produto->cst_pis) ? $produto->cst_pis : '01';
+                $std->cst = isset($produto->cst_pis) ? $produto->cst_pis : '01';
                 $base_calculo = $produto->preco * $quantidade;
                 $std->vBC = number_format($base_calculo, 2, '.', '');
                 $std->pPIS = isset($produto->aliq_pis) ? $produto->aliq_pis : 0;
@@ -5362,7 +5362,7 @@ ntrada']);
                 // COFINS
                 $std = new \stdClass();
                 $std->item = $i;
-                $std->CST = isset($produto->cst_cofins) ? $produto->cst_cofins : '01';
+                $std->cst = isset($produto->cst_cofins) ? $produto->cst_cofins : '01';
                 $std->vBC = number_format($base_calculo, 2, '.', '');
                 $std->pCOFINS = isset($produto->aliq_cofins) ? $produto->aliq_cofins : 0;
                 $std->vCOFINS = number_format(($base_calculo * $std->pCOFINS) / 100, 2, '.', '');
@@ -5441,12 +5441,12 @@ ntrada']);
             // Add transportadora information if available
             if (isset($transportadora) && !empty($transportadora)) {
                 $std->transporta = new \stdClass();
-                $std->transporta->CNPJ = preg_replace('/[^0-9]/', '', $transportadora->documento);
+                $std->transporta->cnpj = preg_replace('/[^0-9]/', '', $transportadora->documento);
                 $std->transporta->xNome = $transportadora->nomeCliente;
-                $std->transporta->IE = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
+                $std->transporta->ie = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
                 $std->transporta->xEnder = $transportadora->rua;
                 $std->transporta->xMun = $transportadora->cidade;
-                $std->transporta->UF = $transportadora->estado;
+                $std->transporta->uf = $transportadora->estado;
             }
             
             $nfe->tagtransp($std);
@@ -5952,9 +5952,9 @@ ntrada']);
                 $std = new \stdClass();
                 $std->xNome = $emitente->nome;
                 $std->xFant = $emitente->nome;
-                $std->IE = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
+                $std->ie = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
                 $std->CRT = $this->crt;
-                $std->CNPJ = preg_replace('/[^0-9]/', '', $emitente->cnpj);
+                $std->cnpj = preg_replace('/[^0-9]/', '', $emitente->cnpj);
                 $nfe->tagemit($std);
     
                 // [enderEmit]
@@ -5967,8 +5967,8 @@ ntrada']);
                 $std->xBairro = $emitente->bairro;
                 $std->cMun = $emitente->ibge;
                 $std->xMun = $emitente->cidade;
-                $std->UF = $emitente->uf;
-                $std->CEP = preg_replace('/[^0-9]/', '', $emitente->cep);
+                $std->uf = $emitente->uf;
+                $std->cep = preg_replace('/[^0-9]/', '', $emitente->cep);
                 $std->cPais = '1058';
                 $std->xPais = 'BRASIL';
                 $std->fone = preg_replace('/[^0-9]/', '', $emitente->telefone);
@@ -5978,12 +5978,12 @@ ntrada']);
                 $std = new \stdClass();
                 $std->xNome = $fornecedor->nome;
                 if (strlen(preg_replace('/[^0-9]/', '', $fornecedor->documento)) == 11) {
-                    $std->CPF = preg_replace('/[^0-9]/', '', $fornecedor->documento);
+                    $std->cpf = preg_replace('/[^0-9]/', '', $fornecedor->documento);
                     $std->indIEDest = 9; // Contribuinte Isento
                 } else {
-                    $std->CNPJ = preg_replace('/[^0-9]/', '', $fornecedor->documento);
+                    $std->cnpj = preg_replace('/[^0-9]/', '', $fornecedor->documento);
                     if (!empty($fornecedor->inscricao_estadual)) {
-                        $std->IE = $fornecedor->inscricao_estadual;
+                        $std->ie = $fornecedor->inscricao_estadual;
                         $std->indIEDest = 1; // Contribuinte
                     } else {
                         $std->indIEDest = 9; // Contribuinte Isento
@@ -6007,8 +6007,8 @@ ntrada']);
                 
                 $std->cMun = $fornecedor->ibge;
                 $std->xMun = $fornecedor->cidade;
-                $std->UF = $fornecedor->estado;
-                $std->CEP = preg_replace('/[^0-9]/', '', $fornecedor->cep);
+                $std->uf = $fornecedor->estado;
+                $std->cep = preg_replace('/[^0-9]/', '', $fornecedor->cep);
                 $std->cPais = '1058';
                 $std->xPais = 'BRASIL';
                 if (!empty($fornecedor->telefone)) {
@@ -6206,7 +6206,7 @@ ntrada']);
                     $std->cEANTrib = 'SEM GTIN';
                     $std->xProd = $produto->descricao;
                     $std->NCM = $produto->NCMs;
-                    $std->CFOP = ($fornecedor->estado == $emitente->uf) ? '5202' : '6202';
+                    $std->cfop = ($fornecedor->estado == $emitente->uf) ? '5202' : '6202';
                     $std->uCom = 'UN';
                     $std->qCom = $quantidade;
                     $std->vUnCom = $produto->preco;
@@ -6253,7 +6253,7 @@ ntrada']);
                         if (!isset($produto->cst)) {
                            throw new Exception('CST não configurado na classificação fiscal');
                         }
-                        $std->CST = isset($produto->cst) ? $produto->cst : '00';
+                        $std->cst = isset($produto->cst) ? $produto->cst : '00';
                         $std->modBC = 3;
                         $std->vBC = $produto->base_icms;
                         $std->pICMS = $produto->aliquota_icms;
@@ -6265,7 +6265,7 @@ ntrada']);
                     // PIS
                 $std = new \stdClass();
                 $std->item = $i;
-                    $std->CST = isset($produto->cst_pis) ? $produto->cst_pis : '01';
+                    $std->cst = isset($produto->cst_pis) ? $produto->cst_pis : '01';
                     $base_calculo = $produto->preco * $quantidade;
                     $std->vBC = number_format($base_calculo, 2, '.', '');
                     $std->pPIS = isset($produto->aliq_pis) ? $produto->aliq_pis : 0;
@@ -6275,7 +6275,7 @@ ntrada']);
                     // COFINS
                 $std = new \stdClass();
                 $std->item = $i;
-                    $std->CST = isset($produto->cst_cofins) ? $produto->cst_cofins : '01';
+                    $std->cst = isset($produto->cst_cofins) ? $produto->cst_cofins : '01';
                     $std->vBC = number_format($base_calculo, 2, '.', '');
                     $std->pCOFINS = isset($produto->aliq_cofins) ? $produto->aliq_cofins : 0;
                     $std->vCOFINS = number_format(($base_calculo * $std->pCOFINS) / 100, 2, '.', '');
@@ -6354,12 +6354,12 @@ ntrada']);
             // Add transportadora information if available
             if (isset($transportadora) && !empty($transportadora)) {
                 $std->transporta = new \stdClass();
-                $std->transporta->CNPJ = preg_replace('/[^0-9]/', '', $transportadora->documento);
+                $std->transporta->cnpj = preg_replace('/[^0-9]/', '', $transportadora->documento);
                 $std->transporta->xNome = $transportadora->nomeCliente;
-                $std->transporta->IE = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
+                $std->transporta->ie = !empty($transportadora->ie) ? $transportadora->ie : 'ISENTO';
                 $std->transporta->xEnder = $transportadora->rua;
                 $std->transporta->xMun = $transportadora->cidade;
-                $std->transporta->UF = $transportadora->estado;
+                $std->transporta->uf = $transportadora->estado;
             }
             
             $nfe->tagtransp($std);

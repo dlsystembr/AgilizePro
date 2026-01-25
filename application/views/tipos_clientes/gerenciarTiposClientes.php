@@ -36,15 +36,15 @@
                     }
                     foreach ($results as $r) {
                         echo '<tr>';
-                        echo '<td>' . $r->TPC_ID . '</td>';
-                        echo '<td>' . $r->TPC_NOME . '</td>';
-                        echo '<td>' . $r->TPC_CODIGO_CLIENTE . '</td>';
+                        echo '<td>' . $r->tpc_id . '</td>';
+                        echo '<td>' . $r->tpc_nome . '</td>';
+                        echo '<td>' . $r->tpc_codigo_cliente . '</td>';
                         echo '<td>';
                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eTipoCliente')) {
-                            echo '<a href="' . base_url() . 'index.php/tipos_clientes/editar/' . $r->TPC_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Editar Tipo de Cliente"><i class="bx bx-edit bx-xs"></i></a>';
+                            echo '<a href="' . base_url() . 'index.php/tipos_clientes/editar/' . $r->tpc_id . '" style="margin-right: 1%" class="btn-nwe3" title="Editar Tipo de Cliente"><i class="bx bx-edit bx-xs"></i></a>';
                         }
                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'dTipoCliente')) {
-                            echo '<a href="#modal-excluir" role="button" data-toggle="modal" tipoCliente="' . $r->TPC_ID . '" class="btn-nwe4" title="Excluir Tipo de Cliente"><i class="bx bx-trash-alt bx-xs"></i></a>';
+                            echo '<a href="#modal-excluir" role="button" data-toggle="modal" tipoCliente="' . $r->tpc_id . '" class="btn-nwe4" title="Excluir Tipo de Cliente"><i class="bx bx-trash-alt bx-xs"></i></a>';
                         }
                         echo '</td>';
                         echo '</tr>';

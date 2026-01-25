@@ -62,7 +62,7 @@ class ClassificacaoFiscal extends MY_Controller
         $this->form_validation->set_rules('operacao_comercial_id', 'Operação Comercial', 'required|trim');
         $this->form_validation->set_rules('tipo_cliente_id', 'Tipo de Cliente', 'trim');
         $this->form_validation->set_rules('natureza_contribuinte', 'Natureza do Contribuinte', 'required|trim');
-        $this->form_validation->set_rules('cfop', 'CFOP', 'required|trim');
+        $this->form_validation->set_rules('cfop', 'cfop', 'required|trim');
         $this->form_validation->set_rules('destinacao', 'Destinação', 'required|trim');
         $this->form_validation->set_rules('objetivo_comercial', 'Objetivo Comercial', 'required|trim');
         $this->form_validation->set_rules('tipo_icms', 'Tipo ICMS', 'required|in_list[normal,st,servico,ICMS Normal,Substituição Tributaria,Substituição Tributária,Serviço]');
@@ -147,7 +147,7 @@ class ClassificacaoFiscal extends MY_Controller
                 'natureza_contribuinte' => $natureza_contribuinte,
                 'cfop' => $this->input->post('cfop'),
                 'destinacao' => $destinacao,
-                'CLF_DESTINACAO' => $destinacao, // Campo adicional para garantir gravação
+                'clf_destinacao' => $destinacao, // Campo adicional para garantir gravação
                 'objetivo_comercial' => $objetivo_comercial,
                 'finalidade' => $finalidade,
                 'tipo_icms' => $tipo_icms,
@@ -163,7 +163,7 @@ class ClassificacaoFiscal extends MY_Controller
                 $data['csosn'] = $this->input->post('csosn');
                 $data['cst'] = null;
             } else {
-                $this->form_validation->set_rules('cst', 'CST', 'required|trim');
+                $this->form_validation->set_rules('cst', 'cst', 'required|trim');
                 $data['cst'] = $this->input->post('cst');
                 $data['csosn'] = null;
             }
@@ -195,7 +195,7 @@ class ClassificacaoFiscal extends MY_Controller
         $this->form_validation->set_rules('operacao_comercial_id', 'Operação Comercial', 'required|trim');
         $this->form_validation->set_rules('tipo_cliente_id', 'Tipo de Cliente', 'trim');
         $this->form_validation->set_rules('natureza_contribuinte', 'Natureza do Contribuinte', 'required|trim');
-        $this->form_validation->set_rules('cfop', 'CFOP', 'required|trim');
+        $this->form_validation->set_rules('cfop', 'cfop', 'required|trim');
         $this->form_validation->set_rules('destinacao', 'Destinação', 'required|trim');
         $this->form_validation->set_rules('objetivo_comercial', 'Objetivo Comercial', 'required|trim');
         $this->form_validation->set_rules('tipo_icms', 'Tipo ICMS', 'required|in_list[normal,st,servico,ICMS Normal,Substituição Tributaria,Substituição Tributária,Serviço]');
@@ -280,7 +280,7 @@ class ClassificacaoFiscal extends MY_Controller
                 'natureza_contribuinte' => $natureza_contribuinte,
                 'cfop' => $this->input->post('cfop'),
                 'destinacao' => $destinacao,
-                'CLF_DESTINACAO' => $destinacao, // Campo adicional para garantir gravação
+                'clf_destinacao' => $destinacao, // Campo adicional para garantir gravação
                 'objetivo_comercial' => $objetivo_comercial,
                 'finalidade' => $finalidade,
                 'tipo_icms' => $tipo_icms,
@@ -295,7 +295,7 @@ class ClassificacaoFiscal extends MY_Controller
                 $data['csosn'] = $this->input->post('csosn');
                 $data['cst'] = null;
             } else {
-                $this->form_validation->set_rules('cst', 'CST', 'required|trim');
+                $this->form_validation->set_rules('cst', 'cst', 'required|trim');
                 $data['cst'] = $this->input->post('cst');
                 $data['csosn'] = null;
             }

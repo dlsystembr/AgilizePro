@@ -40,9 +40,9 @@
                                 <select name="operacao_comercial_id" id="operacao_comercial_id" class="span12" required>
                                     <option value="">Selecione uma operação</option>
                                     <?php foreach ($operacoes as $op): ?>
-                                        <option value="<?= $op->OPC_ID ?>">
-                                            <?= $op->OPC_SIGLA ?> -
-                                            <?= $op->OPC_NOME ?>
+                                        <option value="<?= $op->opc_id ?>">
+                                            <?= $op->opc_sigla ?> -
+                                            <?= $op->opc_nome ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

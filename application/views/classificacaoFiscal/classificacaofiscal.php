@@ -43,7 +43,7 @@
                     <tr>
                         <th>Operação Comercial</th>
                         <th>Tipo de Cliente</th>
-                        <th><?= $regime_tributario === 'Simples Nacional' ? 'CSOSN' : 'CST' ?></th>
+                        <th><?= $regime_tributario === 'Simples Nacional' ? 'CSOSN' : 'cst' ?></th>
                         <th>Natureza do Contribuinte</th>
                         <th>Tipo ICMS</th>
                         <th>CFOP</th>

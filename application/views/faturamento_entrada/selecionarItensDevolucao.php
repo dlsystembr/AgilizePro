@@ -162,7 +162,7 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label for="especie">Espécie</label>
-                                                        <input type="text" class="form-control" id="especie" name="especie" value="VOLUME">
+                                                        <input type="text" class="form-control" id="especie" name="especie" value="volume">
                                                     </div>
                                                 </div>
                                             </div>

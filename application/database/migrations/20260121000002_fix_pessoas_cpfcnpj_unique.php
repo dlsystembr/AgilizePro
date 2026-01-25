@@ -20,7 +20,7 @@ class Migration_Fix_pessoas_cpfcnpj_unique extends CI_Migration {
         }
 
         // Também tentar remover por nome conhecido
-        $knownNames = ['uk_pessoas_cpfcnpj', 'PES_CPFCNPJ', 'idx_pessoas_cpfcnpj'];
+        $knownNames = ['uk_pessoas_cpfcnpj', 'pes_cpfcnpj', 'idx_pessoas_cpfcnpj'];
         foreach ($knownNames as $name) {
             try {
                 $this->db->query("ALTER TABLE `pessoas` DROP INDEX `{$name}`");
@@ -33,7 +33,7 @@ class Migration_Fix_pessoas_cpfcnpj_unique extends CI_Migration {
         // Isso permite o mesmo CPF/CNPJ em tenants diferentes, mas não duplica no mesmo tenant
         $this->db->query("
             ALTER TABLE `pessoas` 
-            ADD UNIQUE INDEX `uk_pessoas_cpfcnpj_tenant` (`ten_id`, `PES_CPFCNPJ`)
+            ADD UNIQUE INDEX `uk_pessoas_cpfcnpj_tenant` (`ten_id`, `pes_cpfcnpj`)
         ");
     }
 
@@ -46,11 +46,11 @@ class Migration_Fix_pessoas_cpfcnpj_unique extends CI_Migration {
             // Ignorar se não existir
         }
 
-        // Recriar constraint única apenas em PES_CPFCNPJ (sem ten_id)
+        // Recriar constraint única apenas em pes_cpfcnpj (sem ten_id)
         try {
             $this->db->query("
                 ALTER TABLE `pessoas` 
-                ADD UNIQUE INDEX `uk_pessoas_cpfcnpj` (`PES_CPFCNPJ`)
+                ADD UNIQUE INDEX `uk_pessoas_cpfcnpj` (`pes_cpfcnpj`)
             ");
         } catch (Exception $e) {
             // Ignorar se já existir

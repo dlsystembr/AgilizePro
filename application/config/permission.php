@@ -114,6 +114,7 @@ $config['permission'] = [
     'rOs' => 'Relatório OS',
     'rVenda' => 'Relatório Venda',
     'rFinanceiro' => 'Relatório Financeiro',
+    'rContrato' => 'Relatório Contrato',
     'rNfe' => 'Relatório de NF-e Emitidas',
     'cUsuario' => 'Configurar Usuário',
     'cEmitente' => 'Configurar Emitente',

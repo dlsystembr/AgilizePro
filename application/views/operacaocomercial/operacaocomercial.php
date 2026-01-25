@@ -69,38 +69,38 @@
                     <?php } else { ?>
                         <?php foreach ($results as $r) { ?>
                             <tr>
-                                <td><?= $r->OPC_SIGLA ?></td>
-                                <td><?= $r->OPC_NOME ?></td>
-                                <td><?php echo $r->OPC_NATUREZA_OPERACAO; ?></td>
-                                <td><?php echo $r->OPC_TIPO_MOVIMENTO; ?></td>
+                                <td><?= $r->opc_sigla ?></td>
+                                <td><?= $r->opc_nome ?></td>
+                                <td><?php echo $r->opc_natureza_operacao; ?></td>
+                                <td><?php echo $r->opc_tipo_movimento; ?></td>
                                 <td>
-                                    <span class="badge <?php echo $r->OPC_AFETA_CUSTO ? 'badge-success' : 'badge-important'; ?>">
-                                        <?php echo $r->OPC_AFETA_CUSTO ? 'Sim' : 'Não'; ?>
+                                    <span class="badge <?php echo $r->opc_afeta_custo ? 'badge-success' : 'badge-important'; ?>">
+                                        <?php echo $r->opc_afeta_custo ? 'Sim' : 'Não'; ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge <?php echo $r->OPC_FATO_FISCAL ? 'badge-success' : 'badge-important'; ?>">
-                                        <?php echo $r->OPC_FATO_FISCAL ? 'Sim' : 'Não'; ?>
+                                    <span class="badge <?php echo $r->opc_fato_fiscal ? 'badge-success' : 'badge-important'; ?>">
+                                        <?php echo $r->opc_fato_fiscal ? 'Sim' : 'Não'; ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge <?php echo $r->OPC_GERA_FINANCEIRO ? 'badge-success' : 'badge-important'; ?>">
-                                        <?php echo $r->OPC_GERA_FINANCEIRO ? 'Sim' : 'Não'; ?>
+                                    <span class="badge <?php echo $r->opc_gera_financeiro ? 'badge-success' : 'badge-important'; ?>">
+                                        <?php echo $r->opc_gera_financeiro ? 'Sim' : 'Não'; ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge <?php echo $r->OPC_MOVIMENTA_ESTOQUE ? 'badge-success' : 'badge-important'; ?>">
-                                        <?php echo $r->OPC_MOVIMENTA_ESTOQUE ? 'Sim' : 'Não'; ?>
+                                    <span class="badge <?php echo $r->opc_movimenta_estoque ? 'badge-success' : 'badge-important'; ?>">
+                                        <?php echo $r->opc_movimenta_estoque ? 'Sim' : 'Não'; ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge <?php echo $r->OPC_SITUACAO ? 'badge-success' : 'badge-important'; ?>">
-                                        <?php echo $r->OPC_SITUACAO ? 'Ativo' : 'Inativo'; ?>
+                                    <span class="badge <?php echo $r->opc_situacao ? 'badge-success' : 'badge-important'; ?>">
+                                        <?php echo $r->opc_situacao ? 'Ativo' : 'Inativo'; ?>
                                     </span>
                                 </td>
                                 <td>
                                     <?php
-                                    switch($r->OPC_FINALIDADE_NFE) {
+                                    switch($r->opc_finalidade_nfe) {
                                         case 1: echo '<span class="badge badge-info">NF-e normal</span>'; break;
                                         case 2: echo '<span class="badge badge-info">NF-e complementar</span>'; break;
                                         case 3: echo '<span class="badge badge-info">NF-e de ajuste</span>'; break;
@@ -111,17 +111,17 @@
                                 </td>
                                 <td style="text-align:center">
                                     <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'vOperacaoComercial')){ ?>
-                                        <a href="<?php echo base_url() ?>index.php/operacaocomercial/visualizaroperacao/<?php echo $r->OPC_ID; ?>" class="btn-nwe" title="Visualizar Operação">
+                                        <a href="<?php echo base_url() ?>index.php/operacaocomercial/visualizaroperacao/<?php echo $r->opc_id; ?>" class="btn-nwe" title="Visualizar Operação">
                                             <i class="bx bx-show bx-xs"></i>
                                         </a>
                                     <?php } ?>
                                     <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'eOperacaoComercial')){ ?>
-                                        <a href="<?php echo base_url() ?>index.php/operacaocomercial/editar/<?php echo $r->OPC_ID; ?>" class="btn-nwe3" title="Editar Operação">
+                                        <a href="<?php echo base_url() ?>index.php/operacaocomercial/editar/<?php echo $r->opc_id; ?>" class="btn-nwe3" title="Editar Operação">
                                             <i class="bx bx-edit-alt bx-xs"></i>
                                         </a>
                                     <?php } ?>
                                     <?php if($this->permission->checkPermission($this->session->userdata('permissao'),'dOperacaoComercial')){ ?>
-                                        <a href="#modal-excluir" role="button" data-toggle="modal" operacao="<?php echo $r->OPC_ID; ?>" class="btn-nwe4" title="Excluir Operação">
+                                        <a href="#modal-excluir" role="button" data-toggle="modal" operacao="<?php echo $r->opc_id; ?>" class="btn-nwe4" title="Excluir Operação">
                                             <i class="bx bx-trash-alt bx-xs"></i>
                                         </a>
                                     <?php } ?>

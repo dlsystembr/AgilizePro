@@ -67,77 +67,77 @@
                     <div class="info-box-content">
                         <div class="info-row">
                             <div class="info-label">Número do Contrato:</div>
-                            <div class="info-value"><strong><?= $result->CTR_NUMERO ?></strong></div>
+                            <div class="info-value"><strong><?= $result->ctr_numero ?></strong></div>
                         </div>
 
                         <div class="info-row">
                             <div class="info-label">Cliente:</div>
                             <div class="info-value">
-                                <?= $result->PES_NOME ?>
-                                <?php if ($result->PES_RAZAO_SOCIAL): ?>
-                                    <br><small>(<?= $result->PES_RAZAO_SOCIAL ?>)</small>
+                                <?= $result->pes_nome ?>
+                                <?php if ($result->pes_razao_social): ?>
+                                    <br><small>(<?= $result->pes_razao_social ?>)</small>
                                 <?php endif; ?>
                             </div>
                         </div>
 
                         <div class="info-row">
                             <div class="info-label">CPF/CNPJ:</div>
-                            <div class="info-value"><?= $result->PES_CPFCNPJ ?></div>
+                            <div class="info-value"><?= $result->pes_cpfcnpj ?></div>
                         </div>
 
                         <div class="info-row">
                             <div class="info-label">Data de Início:</div>
-                            <div class="info-value"><?= date('d/m/Y', strtotime($result->CTR_DATA_INICIO)) ?></div>
+                            <div class="info-value"><?= date('d/m/Y', strtotime($result->ctr_data_inicio)) ?></div>
                         </div>
 
                         <div class="info-row">
                             <div class="info-label">Data de Fim:</div>
                             <div class="info-value">
-                                <?= $result->CTR_DATA_FIM ? date('d/m/Y', strtotime($result->CTR_DATA_FIM)) : '<em>Não definida</em>' ?>
+                                <?= $result->ctr_data_fim ? date('d/m/Y', strtotime($result->ctr_data_fim)) : '<em>Não definida</em>' ?>
                             </div>
                         </div>
 
                         <div class="info-row">
                             <div class="info-label">Tipo de Assinante:</div>
                             <div class="info-value">
-                                <span class="label label-info"><?= $tiposAssinante[$result->CTR_TIPO_ASSINANTE] ?? 'N/A' ?></span>
+                                <span class="label label-info"><?= $tiposAssinante[$result->ctr_tipo_assinante] ?? 'N/A' ?></span>
                             </div>
                         </div>
 
                         <div class="info-row">
                             <div class="info-label">Situação:</div>
                             <div class="info-value">
-                                <?= (int)$result->CTR_SITUACAO === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>' ?>
+                                <?= (int)$result->ctr_situacao === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>' ?>
                             </div>
                         </div>
 
-                        <?php if ($result->CTR_ANEXO): ?>
+                        <?php if ($result->ctr_anexo): ?>
                         <div class="info-row">
                             <div class="info-label">Anexo:</div>
                             <div class="info-value">
-                                <a href="<?= base_url() ?>index.php/contratos/download_anexo/<?= $result->CTR_ID ?>" class="btn btn-mini btn-info" target="_blank">
+                                <a href="<?= base_url() ?>index.php/contratos/download_anexo/<?= $result->ctr_id ?>" class="btn btn-mini btn-info" target="_blank">
                                     <i class="fas fa-download"></i> Download do Anexo
                                 </a>
                             </div>
                         </div>
                         <?php endif; ?>
 
-                        <?php if ($result->CTR_OBSERVACAO): ?>
+                        <?php if ($result->ctr_observacao): ?>
                         <div class="info-row">
                             <div class="info-label">Observação:</div>
-                            <div class="info-value"><?= nl2br(htmlspecialchars($result->CTR_OBSERVACAO)) ?></div>
+                            <div class="info-value"><?= nl2br(htmlspecialchars($result->ctr_observacao)) ?></div>
                         </div>
                         <?php endif; ?>
 
                         <div class="info-row">
                             <div class="info-label">Data de Cadastro:</div>
-                            <div class="info-value"><?= date('d/m/Y H:i:s', strtotime($result->CTR_DATA_CADASTRO)) ?></div>
+                            <div class="info-value"><?= date('d/m/Y H:i:s', strtotime($result->ctr_data_cadastro)) ?></div>
                         </div>
 
-                        <?php if ($result->CTR_DATA_ALTERACAO): ?>
+                        <?php if ($result->ctr_data_alteracao): ?>
                         <div class="info-row">
                             <div class="info-label">Última Alteração:</div>
-                            <div class="info-value"><?= date('d/m/Y H:i:s', strtotime($result->CTR_DATA_ALTERACAO)) ?></div>
+                            <div class="info-value"><?= date('d/m/Y H:i:s', strtotime($result->ctr_data_alteracao)) ?></div>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -166,17 +166,17 @@
                                 <?php 
                                 $totalGeral = 0;
                                 foreach ($itens as $item): 
-                                    $subtotal = floatval($item->CTI_PRECO) * floatval($item->CTI_QUANTIDADE);
+                                    $subtotal = floatval($item->cti_preco) * floatval($item->cti_quantidade);
                                     $totalGeral += $subtotal;
                                 ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($item->PRO_DESCRICAO) ?></td>
-                                    <td style="text-align: right;">R$ <?= number_format($item->CTI_PRECO, 2, ',', '.') ?></td>
-                                    <td style="text-align: right;"><?= number_format($item->CTI_QUANTIDADE, 4, ',', '.') ?> <?= htmlspecialchars($item->PRO_UNID_MEDIDA) ?></td>
+                                    <td><?= htmlspecialchars($item->pro_descricao) ?></td>
+                                    <td style="text-align: right;">R$ <?= number_format($item->cti_preco, 2, ',', '.') ?></td>
+                                    <td style="text-align: right;"><?= number_format($item->cti_quantidade, 4, ',', '.') ?> <?= htmlspecialchars($item->pro_unid_medida) ?></td>
                                     <td style="text-align: right;"><strong>R$ <?= number_format($subtotal, 2, ',', '.') ?></strong></td>
-                                    <td><?= $item->CTI_OBSERVACAO ? htmlspecialchars($item->CTI_OBSERVACAO) : '<em>Sem observação</em>' ?></td>
+                                    <td><?= $item->cti_observacao ? htmlspecialchars($item->cti_observacao) : '<em>Sem observação</em>' ?></td>
                                     <td style="text-align: center;">
-                                        <?= (int)$item->CTI_ATIVO === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>' ?>
+                                        <?= (int)$item->cti_ativo === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>' ?>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -198,7 +198,7 @@
                     <div class="span12">
                         <div class="span6 offset3" style="display: flex;justify-content: center; gap: 10px;">
                             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eContrato')): ?>
-                            <a href="<?= base_url() ?>index.php/contratos/editar/<?= $result->CTR_ID ?>" class="button btn btn-mini btn-info">
+                            <a href="<?= base_url() ?>index.php/contratos/editar/<?= $result->ctr_id ?>" class="button btn btn-mini btn-info">
                                 <span class="button__icon"><i class='bx bx-edit'></i></span>
                                 <span class="button__text2">Editar</span>
                             </a>
@@ -225,14 +225,14 @@
 
 <!-- Modal Excluir -->
 <div id="modal-excluir" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <form action="<?= base_url() ?>index.php/contratos/excluir/<?= $result->CTR_ID ?>" method="post">
+    <form action="<?= base_url() ?>index.php/contratos/excluir/<?= $result->ctr_id ?>" method="post">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             <h5 id="myModalLabel">Excluir Contrato</h5>
         </div>
         <div class="modal-body">
             <h5 style="text-align: center">Deseja realmente excluir este contrato?</h5>
-            <p style="text-align: center"><strong>Número: <?= $result->CTR_NUMERO ?></strong></p>
+            <p style="text-align: center"><strong>Número: <?= $result->ctr_numero ?></strong></p>
         </div>
         <div class="modal-footer" style="display:flex;justify-content: center">
             <button class="button btn btn-warning" data-dismiss="modal" aria-hidden="true">

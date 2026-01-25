@@ -131,10 +131,10 @@
                             <div class="row-fluid" style="margin-bottom: 15px;">
                                 <div class="span12">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_CNPJ" class="control-label">CNPJ<span class="required">*</span></label>
+                                        <label for="emp_cnpj" class="control-label">CNPJ<span class="required">*</span></label>
                                         <div class="controls">
-                                            <input id="EMP_CNPJ" type="text" name="EMP_CNPJ"
-                                                value="<?php echo set_value('EMP_CNPJ'); ?>"
+                                            <input id="emp_cnpj" type="text" name="emp_cnpj"
+                                                value="<?php echo set_value('emp_cnpj'); ?>"
                                                 inputmode="numeric" autocomplete="off" />
                                         </div>
                                     </div>
@@ -145,10 +145,10 @@
                             <div class="row-fluid" style="margin-bottom: 15px;">
                                 <div class="span12">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_RAZAO_SOCIAL" class="control-label">Razão Social<span class="required">*</span></label>
+                                        <label for="emp_razao_social" class="control-label">Razão Social<span class="required">*</span></label>
                                         <div class="controls">
-                                            <input id="EMP_RAZAO_SOCIAL" type="text" name="EMP_RAZAO_SOCIAL"
-                                                value="<?php echo set_value('EMP_RAZAO_SOCIAL'); ?>" />
+                                            <input id="emp_razao_social" type="text" name="emp_razao_social"
+                                                value="<?php echo set_value('emp_razao_social'); ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -158,10 +158,10 @@
                             <div class="row-fluid">
                                 <div class="span12">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_NOME_FANTASIA" class="control-label">Nome Fantasia</label>
+                                        <label for="emp_nome_fantasia" class="control-label">Nome Fantasia</label>
                                         <div class="controls">
-                                            <input id="EMP_NOME_FANTASIA" type="text" name="EMP_NOME_FANTASIA"
-                                                value="<?php echo set_value('EMP_NOME_FANTASIA'); ?>" />
+                                            <input id="emp_nome_fantasia" type="text" name="emp_nome_fantasia"
+                                                value="<?php echo set_value('emp_nome_fantasia'); ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -180,10 +180,10 @@
                             <div class="row-fluid" style="margin-bottom: 15px;">
                                 <div class="span6">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_CEP" class="control-label">CEP</label>
+                                        <label for="emp_cep" class="control-label">CEP</label>
                                         <div class="controls">
-                                            <input id="EMP_CEP" type="text" name="EMP_CEP"
-                                                value="<?php echo set_value('EMP_CEP'); ?>" />
+                                            <input id="emp_cep" type="text" name="emp_cep"
+                                                value="<?php echo set_value('emp_cep'); ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -193,19 +193,19 @@
                             <div class="row-fluid" style="margin-bottom: 15px;">
                                 <div class="span8">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_LOGRADOURO" class="control-label">Logradouro</label>
+                                        <label for="emp_logradouro" class="control-label">Logradouro</label>
                                         <div class="controls">
-                                            <input id="EMP_LOGRADOURO" type="text" name="EMP_LOGRADOURO"
-                                                value="<?php echo set_value('EMP_LOGRADOURO'); ?>" />
+                                            <input id="emp_logradouro" type="text" name="emp_logradouro"
+                                                value="<?php echo set_value('emp_logradouro'); ?>" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="span4">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_NUMERO" class="control-label">Número</label>
+                                        <label for="emp_numero" class="control-label">Número</label>
                                         <div class="controls">
-                                            <input id="EMP_NUMERO" type="text" name="EMP_NUMERO"
-                                                value="<?php echo set_value('EMP_NUMERO'); ?>" />
+                                            <input id="emp_numero" type="text" name="emp_numero"
+                                                value="<?php echo set_value('emp_numero'); ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -215,10 +215,10 @@
                             <div class="row-fluid" style="margin-bottom: 15px;">
                                 <div class="span12">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_COMPLEMENTO" class="control-label">Complemento</label>
+                                        <label for="emp_complemento" class="control-label">Complemento</label>
                                         <div class="controls">
-                                            <input id="EMP_COMPLEMENTO" type="text" name="EMP_COMPLEMENTO"
-                                                value="<?php echo set_value('EMP_COMPLEMENTO'); ?>" />
+                                            <input id="emp_complemento" type="text" name="emp_complemento"
+                                                value="<?php echo set_value('emp_complemento'); ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -228,10 +228,10 @@
                             <div class="row-fluid" style="margin-bottom: 15px;">
                                 <div class="span12">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_BAIRRO" class="control-label">Bairro</label>
+                                        <label for="emp_bairro" class="control-label">Bairro</label>
                                         <div class="controls">
-                                            <input id="EMP_BAIRRO" type="text" name="EMP_BAIRRO"
-                                                value="<?php echo set_value('EMP_BAIRRO'); ?>" />
+                                            <input id="emp_bairro" type="text" name="emp_bairro"
+                                                value="<?php echo set_value('emp_bairro'); ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -241,23 +241,23 @@
                             <div class="row-fluid">
                                 <div class="span8">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_CIDADE" class="control-label">Cidade</label>
+                                        <label for="emp_cidade" class="control-label">Cidade</label>
                                         <div class="controls">
-                                            <input id="EMP_CIDADE" type="text" name="EMP_CIDADE"
-                                                value="<?php echo set_value('EMP_CIDADE'); ?>" />
+                                            <input id="emp_cidade" type="text" name="emp_cidade"
+                                                value="<?php echo set_value('emp_cidade'); ?>" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="span4">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_UF" class="control-label">UF</label>
+                                        <label for="emp_uf" class="control-label">UF</label>
                                         <div class="controls">
-                                            <select id="EMP_UF" name="EMP_UF">
+                                            <select id="emp_uf" name="emp_uf">
                                                 <option value="">Selecione</option>
                                                 <?php foreach ($estados as $estado): ?>
-                                                    <option value="<?php echo $estado->EST_UF; ?>" 
-                                                        <?php echo set_value('EMP_UF') == $estado->EST_UF ? 'selected' : ''; ?>>
-                                                        <?php echo $estado->EST_UF; ?>
+                                                    <option value="<?php echo $estado->est_uf; ?>" 
+                                                        <?php echo set_value('emp_uf') == $estado->est_uf ? 'selected' : ''; ?>>
+                                                        <?php echo $estado->est_uf; ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
@@ -279,19 +279,19 @@
                             <div class="row-fluid" style="margin-bottom: 15px;">
                                 <div class="span6">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_TELEFONE" class="control-label">Telefone</label>
+                                        <label for="emp_telefone" class="control-label">Telefone</label>
                                         <div class="controls">
-                                            <input id="EMP_TELEFONE" type="text" name="EMP_TELEFONE"
-                                                value="<?php echo set_value('EMP_TELEFONE'); ?>" />
+                                            <input id="emp_telefone" type="text" name="emp_telefone"
+                                                value="<?php echo set_value('emp_telefone'); ?>" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="span6">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_EMAIL" class="control-label">Email</label>
+                                        <label for="emp_email" class="control-label">Email</label>
                                         <div class="controls">
-                                            <input id="EMP_EMAIL" type="email" name="EMP_EMAIL"
-                                                value="<?php echo set_value('EMP_EMAIL'); ?>" />
+                                            <input id="emp_email" type="email" name="emp_email"
+                                                value="<?php echo set_value('emp_email'); ?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -301,22 +301,22 @@
                             <div class="row-fluid" style="margin-bottom: 15px;">
                                 <div class="span6">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_IE" class="control-label">Inscrição Estadual</label>
+                                        <label for="emp_ie" class="control-label">Inscrição Estadual</label>
                                         <div class="controls">
-                                            <input id="EMP_IE" type="text" name="EMP_IE"
-                                                value="<?php echo set_value('EMP_IE'); ?>" />
+                                            <input id="emp_ie" type="text" name="emp_ie"
+                                                value="<?php echo set_value('emp_ie'); ?>" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="span6">
                                     <div class="control-group" style="margin-bottom: 0;">
-                                        <label for="EMP_REGIME_TRIBUTARIO" class="control-label">Regime Tributário</label>
+                                        <label for="emp_regime_tributario" class="control-label">Regime Tributário</label>
                                         <div class="controls">
-                                            <select id="EMP_REGIME_TRIBUTARIO" name="EMP_REGIME_TRIBUTARIO">
+                                            <select id="emp_regime_tributario" name="emp_regime_tributario">
                                                 <option value="">Selecione</option>
-                                                <option value="Simples Nacional" <?php echo set_value('EMP_REGIME_TRIBUTARIO') == 'Simples Nacional' ? 'selected' : ''; ?>>Simples Nacional</option>
-                                                <option value="Lucro Presumido" <?php echo set_value('EMP_REGIME_TRIBUTARIO') == 'Lucro Presumido' ? 'selected' : ''; ?>>Lucro Presumido</option>
-                                                <option value="Lucro Real" <?php echo set_value('EMP_REGIME_TRIBUTARIO') == 'Lucro Real' ? 'selected' : ''; ?>>Lucro Real</option>
+                                                <option value="Simples Nacional" <?php echo set_value('emp_regime_tributario') == 'Simples Nacional' ? 'selected' : ''; ?>>Simples Nacional</option>
+                                                <option value="Lucro Presumido" <?php echo set_value('emp_regime_tributario') == 'Lucro Presumido' ? 'selected' : ''; ?>>Lucro Presumido</option>
+                                                <option value="Lucro Real" <?php echo set_value('emp_regime_tributario') == 'Lucro Real' ? 'selected' : ''; ?>>Lucro Real</option>
                                             </select>
                                         </div>
                                     </div>
@@ -365,12 +365,12 @@
 <script type="text/javascript">
     $(document).ready(function () {
         // Máscara para CNPJ
-        $('#EMP_CNPJ').mask('00.000.000/0000-00');
+        $('#emp_cnpj').mask('00.000.000/0000-00');
         
         // Máscara para CEP
-        $('#EMP_CEP').mask('00000-000');
+        $('#emp_cep').mask('00000-000');
         
         // Máscara para Telefone
-        $('#EMP_TELEFONE').mask('(00) 00000-0000');
+        $('#emp_telefone').mask('(00) 00000-0000');
     });
 </script>

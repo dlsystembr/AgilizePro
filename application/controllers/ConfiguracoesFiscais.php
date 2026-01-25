@@ -31,7 +31,7 @@ class ConfiguracoesFiscais extends MY_Controller
         }
 
         $this->data['empresa'] = $empresa;
-        $this->data['configuracoes'] = $this->ConfiguracoesFiscais_model->get($empresa->EMP_ID);
+        $this->data['configuracoes'] = $this->ConfiguracoesFiscais_model->get($empresa->emp_id);
         $this->data['tiposDocumento'] = $this->ConfiguracoesFiscais_model->getTiposDocumento();
 
         $this->data['view'] = 'configuracoes_fiscais/index';
@@ -70,37 +70,37 @@ class ConfiguracoesFiscais extends MY_Controller
         $this->data['custom_error'] = '';
 
         // Busca configuração existente
-        $config = $this->ConfiguracoesFiscais_model->getByTipo($empresa->EMP_ID, $tipoDocumento);
+        $config = $this->ConfiguracoesFiscais_model->getByTipo($empresa->emp_id, $tipoDocumento);
 
         if ($this->input->method() === 'post') {
-            $this->form_validation->set_rules('CFG_AMBIENTE', 'Ambiente', 'required');
-            $this->form_validation->set_rules('CFG_SERIE', 'Série', 'required|trim');
-            $this->form_validation->set_rules('CFG_NUMERO_ATUAL', 'Número Atual', 'required|numeric');
+            $this->form_validation->set_rules('cfg_ambiente', 'Ambiente', 'required');
+            $this->form_validation->set_rules('cfg_serie', 'Série', 'required|trim');
+            $this->form_validation->set_rules('cfg_numero_atual', 'Número Atual', 'required|numeric');
 
             if ($this->form_validation->run() == false) {
                 $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
             } else {
                 $data = [
-                    'CER_ID' => $this->input->post('CER_ID') ?: null,
-                    'CFG_AMBIENTE' => $this->input->post('CFG_AMBIENTE'),
-                    'CFG_SERIE' => $this->input->post('CFG_SERIE'),
-                    'CFG_NUMERO_ATUAL' => $this->input->post('CFG_NUMERO_ATUAL'),
-                    'CFG_FORMATO_IMPRESSAO' => $this->input->post('CFG_FORMATO_IMPRESSAO') ?: 'A4',
-                    'CFG_ATIVO' => $this->input->post('CFG_ATIVO') !== null ? (int) $this->input->post('CFG_ATIVO') : 1,
+                    'cer_id' => $this->input->post('cer_id') ?: null,
+                    'cfg_ambiente' => $this->input->post('cfg_ambiente'),
+                    'cfg_serie' => $this->input->post('cfg_serie'),
+                    'cfg_numero_atual' => $this->input->post('cfg_numero_atual'),
+                    'cfg_formato_impressao' => $this->input->post('cfg_formato_impressao') ?: 'A4',
+                    'cfg_ativo' => $this->input->post('cfg_ativo') !== null ? (int) $this->input->post('cfg_ativo') : 1,
                 ];
 
                 // Campos específicos por tipo
                 if ($tipoDocumento === 'NFCE' || $tipoDocumento === 'NFCOM') {
-                    $data['CFG_CSC_ID'] = $this->input->post('CFG_CSC_ID');
-                    $data['CFG_CSC_TOKEN'] = $this->input->post('CFG_CSC_TOKEN');
+                    $data['cfg_csc_id'] = $this->input->post('cfg_csc_id');
+                    $data['cfg_csc_token'] = $this->input->post('cfg_csc_token');
                 }
 
                 if ($tipoDocumento === 'NFSE') {
-                    $data['CFG_ALIQUOTA_ISS'] = $this->input->post('CFG_ALIQUOTA_ISS');
-                    $data['CFG_REGIME_ESPECIAL'] = $this->input->post('CFG_REGIME_ESPECIAL');
+                    $data['cfg_aliquota_iss'] = $this->input->post('cfg_aliquota_iss');
+                    $data['cfg_regime_especial'] = $this->input->post('cfg_regime_especial');
                 }
 
-                if ($this->ConfiguracoesFiscais_model->salvar($empresa->EMP_ID, $tipoDocumento, $data)) {
+                if ($this->ConfiguracoesFiscais_model->salvar($empresa->emp_id, $tipoDocumento, $data)) {
                     $this->session->set_flashdata('success', 'Configuração salva com sucesso!');
                     log_info('Configurou ' . $tipoDocumento);
                     redirect(site_url('configuracoesfiscais'));
@@ -114,7 +114,7 @@ class ConfiguracoesFiscais extends MY_Controller
         $this->data['config'] = $config;
         $this->data['tipoDocumento'] = $tipoDocumento;
         $this->data['tipoNome'] = $this->ConfiguracoesFiscais_model->getTiposDocumento()[$tipoDocumento];
-        $this->data['certificados'] = $this->Certificados_model->getCertificadosValidos($empresa->EMP_ID);
+        $this->data['certificados'] = $this->Certificados_model->getCertificadosValidos($empresa->emp_id);
 
         $this->data['view'] = 'configuracoes_fiscais/configurar';
         return $this->layout();

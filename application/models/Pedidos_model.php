@@ -30,13 +30,13 @@ class Pedidos_model extends CI_Model
         if ($pedidoId && !empty($itensPedido)) {
             // Inserir itens do pedido
             foreach ($itensPedido as $item) {
-                $item['PDS_ID'] = $pedidoId;
+                $item['pds_id'] = $pedidoId;
                 $this->db->insert('ITENS_PEDIDOS', $item);
                 
                 // Atualizar estoque se controle estiver ativo
                 if ($this->config->item('control_estoque')) {
                     $this->load->model('produtos_model');
-                    $this->produtos_model->updateEstoque($item['PRO_ID'], $item['ITP_QUANTIDADE'], '-');
+                    $this->produtos_model->updateEstoque($item['pro_id'], $item['itp_quantidade'], '-');
                 }
             }
         }
@@ -58,14 +58,14 @@ class Pedidos_model extends CI_Model
         $this->db->select('PEDIDOS.*, pessoas.*, pessoas.pes_contato as contato_cliente, pessoas.pes_email as emailCliente, 
                           pessoas.pes_nome as nomeCliente, lancamentos.data_vencimento, usuarios.telefone as telefone_usuario, 
                           usuarios.email as email_usuario, usuarios.nome as nome, usuarios.idUsuarios as usuarios_id,
-                          operacao_comercial.OPC_NOME as operacao_comercial, operacao_comercial.OPC_ID as operacao_comercial_id,
-                          PEDIDOS.PES_ID as clientes_id');
+                          operacao_comercial.opc_nome as operacao_comercial, operacao_comercial.opc_id as operacao_comercial_id,
+                          PEDIDOS.pes_id as clientes_id');
         $this->db->from('PEDIDOS');
-        $this->db->join('pessoas', 'pessoas.PES_ID = PEDIDOS.PES_ID');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = PEDIDOS.USU_ID');
-        $this->db->join('lancamentos', 'PEDIDOS.PDS_ID = lancamentos.vendas_id', 'LEFT');
-        $this->db->join('operacao_comercial', 'operacao_comercial.OPC_ID = PEDIDOS.PDS_OPERACAO_COMERCIAL', 'left');
-        $this->db->where('PEDIDOS.PDS_ID', $id);
+        $this->db->join('pessoas', 'pessoas.pes_id = PEDIDOS.pes_id');
+        $this->db->join('usuarios', 'usuarios.idUsuarios = PEDIDOS.usu_id');
+        $this->db->join('lancamentos', 'PEDIDOS.pds_id = lancamentos.vendas_id', 'LEFT');
+        $this->db->join('operacao_comercial', 'operacao_comercial.opc_id = PEDIDOS.pds_operacao_comercial', 'left');
+        $this->db->where('PEDIDOS.pds_id', $id);
         $this->db->limit(1);
 
         $query = $this->db->get();
@@ -77,17 +77,17 @@ class Pedidos_model extends CI_Model
         $result = $query->row();
         
         // Mapear campos novos para nomes antigos (compatibilidade com views)
-        $result->idVendas = $result->PDS_ID;
-        $result->dataVenda = $result->PDS_DATA;
-        $result->valorTotal = $result->PDS_VALOR_TOTAL;
-        $result->desconto = $result->PDS_DESCONTO;
-        $result->valor_desconto = $result->PDS_VALOR_DESCONTO;
-        $result->tipo_desconto = $result->PDS_TIPO_DESCONTO;
-        $result->faturado = $result->PDS_FATURADO;
-        $result->observacoes = $result->PDS_OBSERVACOES ?? '';
-        $result->observacoes_cliente = $result->PDS_OBSERVACOES_CLIENTE ?? '';
-        $result->status = $result->PDS_STATUS ?? '';
-        $result->garantia = $result->PDS_GARANTIA;
+        $result->idVendas = $result->pds_id;
+        $result->dataVenda = $result->pds_data;
+        $result->valorTotal = $result->pds_valor_total;
+        $result->desconto = $result->pds_desconto;
+        $result->valor_desconto = $result->pds_valor_desconto;
+        $result->tipo_desconto = $result->pds_tipo_desconto;
+        $result->faturado = $result->pds_faturado;
+        $result->observacoes = $result->pds_observacoes ?? '';
+        $result->observacoes_cliente = $result->pds_observacoes_cliente ?? '';
+        $result->status = $result->pds_status ?? '';
+        $result->garantia = $result->pds_garantia;
         
         return $result;
     }
@@ -98,17 +98,17 @@ class Pedidos_model extends CI_Model
     public function getProdutos($id = null)
     {
         $this->db->select('ITENS_PEDIDOS.*, produtos.*, tributacao_produto.*,
-                          ITENS_PEDIDOS.ITP_ID as idItens,
-                          ITENS_PEDIDOS.ITP_QUANTIDADE as quantidade,
-                          ITENS_PEDIDOS.ITP_PRECO as preco,
-                          ITENS_PEDIDOS.ITP_SUBTOTAL as subTotal,
-                          produtos.PRO_ID as idProdutos,
-                          produtos.PRO_DESCRICAO as descricao,
-                          produtos.PRO_PRECO_VENDA as precoVenda');
+                          ITENS_PEDIDOS.itp_id as idItens,
+                          ITENS_PEDIDOS.itp_quantidade as quantidade,
+                          ITENS_PEDIDOS.itp_preco as preco,
+                          ITENS_PEDIDOS.itp_subtotal as subTotal,
+                          produtos.pro_id as idProdutos,
+                          produtos.pro_descricao as descricao,
+                          produtos.pro_preco_venda as precoVenda');
         $this->db->from('ITENS_PEDIDOS');
-        $this->db->join('produtos', 'produtos.PRO_ID = ITENS_PEDIDOS.PRO_ID');
+        $this->db->join('produtos', 'produtos.pro_id = ITENS_PEDIDOS.pro_id');
         $this->db->join('tributacao_produto', 'tributacao_produto.id = produtos.tributacao_produto_id', 'left');
-        $this->db->where('PDS_ID', $id);
+        $this->db->where('pds_id', $id);
 
         return $this->db->get()->result();
     }
@@ -132,7 +132,7 @@ class Pedidos_model extends CI_Model
      */
     public function deleteItem($itemId)
     {
-        $this->db->where('ITP_ID', $itemId);
+        $this->db->where('itp_id', $itemId);
         $this->db->delete('ITENS_PEDIDOS');
         
         if ($this->db->affected_rows() == '1') {
@@ -147,7 +147,7 @@ class Pedidos_model extends CI_Model
      */
     public function edit($data, $id)
     {
-        $this->db->where('PDS_ID', $id);
+        $this->db->where('pds_id', $id);
         $this->db->update('PEDIDOS', $data);
 
         if ($this->db->affected_rows() >= 0) {
@@ -162,7 +162,7 @@ class Pedidos_model extends CI_Model
      */
     public function delete($id)
     {
-        $this->db->where('PDS_ID', $id);
+        $this->db->where('pds_id', $id);
         $this->db->delete('PEDIDOS');
         
         if ($this->db->affected_rows() == '1') {
@@ -178,7 +178,7 @@ class Pedidos_model extends CI_Model
     public function isEditable($id = null)
     {
         if ($pedido = $this->getById($id)) {
-            if ($pedido->PDS_FATURADO) {
+            if ($pedido->pds_faturado) {
                 return false; // Pedidos faturados não podem ser editados
             }
         }
@@ -209,46 +209,46 @@ class Pedidos_model extends CI_Model
         $lista_pessoas = [];
         if ($where) {
             if (array_key_exists('pesquisa', $where)) {
-                $this->db->select('PES_ID');
+                $this->db->select('pes_id');
                 $this->db->from('pessoas');
                 $this->db->like('pes_nome', $where['pesquisa']);
                 $this->db->limit(25);
                 $pessoas = $this->db->get()->result();
 
                 foreach ($pessoas as $p) {
-                    array_push($lista_pessoas, $p->PES_ID);
+                    array_push($lista_pessoas, $p->pes_id);
                 }
             }
         }
 
-        $this->db->select('PEDIDOS.*, pessoas.pes_nome as nomeCliente, pessoas.PES_ID as idClientes, 
-                          usuarios.nome, operacao_comercial.OPC_NOME as operacao_comercial,
-                          PEDIDOS.PDS_ID as idVendas');
+        $this->db->select('PEDIDOS.*, pessoas.pes_nome as nomeCliente, pessoas.pes_id as idClientes, 
+                          usuarios.nome, operacao_comercial.opc_nome as operacao_comercial,
+                          PEDIDOS.pds_id as idVendas');
         $this->db->from('PEDIDOS');
         $this->db->limit($perpage, $start);
-        $this->db->join('pessoas', 'pessoas.PES_ID = PEDIDOS.PES_ID');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = PEDIDOS.USU_ID');
-        $this->db->join('operacao_comercial', 'operacao_comercial.OPC_ID = PEDIDOS.PDS_OPERACAO_COMERCIAL', 'left');
-        $this->db->order_by('PDS_ID', 'desc');
+        $this->db->join('pessoas', 'pessoas.pes_id = PEDIDOS.pes_id');
+        $this->db->join('usuarios', 'usuarios.idUsuarios = PEDIDOS.usu_id');
+        $this->db->join('operacao_comercial', 'operacao_comercial.opc_id = PEDIDOS.pds_operacao_comercial', 'left');
+        $this->db->order_by('pds_id', 'desc');
         
         // Condicionais da pesquisa
         if ($where) {
             if (array_key_exists('status', $where)) {
-                $this->db->where_in('PEDIDOS.PDS_STATUS', $where['status']);
+                $this->db->where_in('PEDIDOS.pds_status', $where['status']);
             }
 
             if (array_key_exists('pesquisa', $where)) {
                 if ($lista_pessoas != null) {
-                    $this->db->where_in('PEDIDOS.PES_ID', $lista_pessoas);
+                    $this->db->where_in('PEDIDOS.pes_id', $lista_pessoas);
                 }
             }
 
             if (array_key_exists('de', $where)) {
-                $this->db->where('PEDIDOS.PDS_DATA >=', $where['de']);
+                $this->db->where('PEDIDOS.pds_data >=', $where['de']);
             }
             
             if (array_key_exists('ate', $where)) {
-                $this->db->where('PEDIDOS.PDS_DATA <=', $where['ate']);
+                $this->db->where('PEDIDOS.pds_data <=', $where['ate']);
             }
         }
         

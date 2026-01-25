@@ -84,8 +84,8 @@ class NFComMake
     private function addEmit($emit)
     {
         $node = $this->dom->createElement('emit');
-        $this->append($node, 'CNPJ', preg_replace('/\D/', '', $emit['cnpj']));
-        $this->append($node, 'IE', preg_replace('/\D/', '', $emit['ie']));
+        $this->append($node, 'cnpj', preg_replace('/\D/', '', $emit['cnpj']));
+        $this->append($node, 'ie', preg_replace('/\D/', '', $emit['ie']));
         $this->append($node, 'CRT', $emit['crt'] ?? '3');
         $this->append($node, 'xNome', $this->clean($emit['razao_social']));
 
@@ -102,8 +102,8 @@ class NFComMake
         $this->append($ender, 'xBairro', $this->clean($emit['endereco']['bairro']));
         $this->append($ender, 'cMun', $emit['endereco']['codigo_municipio']);
         $this->append($ender, 'xMun', $this->clean($emit['endereco']['municipio']));
-        $this->append($ender, 'CEP', preg_replace('/\D/', '', $emit['endereco']['cep']));
-        $this->append($ender, 'UF', $emit['endereco']['uf']);
+        $this->append($ender, 'cep', preg_replace('/\D/', '', $emit['endereco']['cep']));
+        $this->append($ender, 'uf', $emit['endereco']['uf']);
         if (!empty($emit['telefone'])) {
             $this->append($ender, 'fone', preg_replace('/\D/', '', $emit['telefone']));
         }
@@ -117,9 +117,9 @@ class NFComMake
         $this->append($node, 'xNome', $this->clean($dest['nome']));
 
         if (!empty($dest['cnpj'])) {
-            $this->append($node, 'CNPJ', preg_replace('/\D/', '', $dest['cnpj']));
+            $this->append($node, 'cnpj', preg_replace('/\D/', '', $dest['cnpj']));
         } elseif (!empty($dest['cpf'])) {
-            $this->append($node, 'CPF', preg_replace('/\D/', '', $dest['cpf']));
+            $this->append($node, 'cpf', preg_replace('/\D/', '', $dest['cpf']));
         }
 
         if (!empty($dest['id_estrangeiro'])) {
@@ -128,7 +128,7 @@ class NFComMake
 
         $this->append($node, 'indIEDest', $dest['indicador_ie'] ?? '9');
         if (!empty($dest['ie'])) {
-            $this->append($node, 'IE', preg_replace('/\D/', '', $dest['ie']));
+            $this->append($node, 'ie', preg_replace('/\D/', '', $dest['ie']));
         }
 
         if (!empty($dest['endereco'])) {
@@ -141,8 +141,8 @@ class NFComMake
             $this->append($ender, 'xBairro', $this->clean($dest['endereco']['bairro']));
             $this->append($ender, 'cMun', $dest['endereco']['codigo_municipio']);
             $this->append($ender, 'xMun', $this->clean($dest['endereco']['municipio']));
-            $this->append($ender, 'CEP', preg_replace('/\D/', '', $dest['endereco']['cep']));
-            $this->append($ender, 'UF', $dest['endereco']['uf']);
+            $this->append($ender, 'cep', preg_replace('/\D/', '', $dest['endereco']['cep']));
+            $this->append($ender, 'uf', $dest['endereco']['uf']);
             if (!empty($dest['endereco']['fone'])) {
                 $this->append($ender, 'fone', preg_replace('/\D/', '', $dest['endereco']['fone']));
             }
@@ -188,7 +188,7 @@ class NFComMake
         if (!empty($item['cod_servico'])) {
             $this->append($prod, 'cServ', $item['cod_servico']);
         }
-        $this->append($prod, 'CFOP', $item['cfop']);
+        $this->append($prod, 'cfop', $item['cfop']);
         $this->append($prod, 'uMed', $item['unidade']);
         $this->append($prod, 'qFaturada', number_format($item['quantidade'], 4, '.', ''));
         $this->append($prod, 'vItem', number_format($item['valor_unitario'], 2, '.', ''));
@@ -206,7 +206,7 @@ class NFComMake
             // Mapeamento de CSTs para NFCom - sempre usar ICMS40 para isenção
             // Mesmo que o CST seja 41, gerar ICMS40 conforme exemplo funcional
             $icmsNode = $this->dom->createElement('ICMS40');
-            $this->append($icmsNode, 'CST', $cst);
+            $this->append($icmsNode, 'cst', $cst);
             if (isset($icms['vBC']))
                 $this->append($icmsNode, 'vBC', number_format($icms['vBC'], 2, '.', ''));
             if (isset($icms['pICMS']))
@@ -220,7 +220,7 @@ class NFComMake
         if (!empty($item['imposto']['pis'])) {
             $pis = $item['imposto']['pis'];
             $pisNode = $this->dom->createElement('PIS');
-            $this->append($pisNode, 'CST', $pis['cst']);
+            $this->append($pisNode, 'cst', $pis['cst']);
             if (isset($pis['vBC']))
                 $this->append($pisNode, 'vBC', number_format($pis['vBC'], 2, '.', ''));
             if (isset($pis['pPIS']))
@@ -234,7 +234,7 @@ class NFComMake
         if (!empty($item['imposto']['cofins'])) {
             $cofins = $item['imposto']['cofins'];
             $cofNode = $this->dom->createElement('COFINS');
-            $this->append($cofNode, 'CST', $cofins['cst']);
+            $this->append($cofNode, 'cst', $cofins['cst']);
             if (isset($cofins['vBC']))
                 $this->append($cofNode, 'vBC', number_format($cofins['vBC'], 2, '.', ''));
             if (isset($cofins['pCOFINS']))

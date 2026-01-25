@@ -21,9 +21,9 @@ class TestNfcomAuth extends CI_Controller
         try {
             // 1. Carregar Configurações Fiscais (Certificado)
             $empresa = $this->db->limit(1)->get('empresas')->row();
-            $configFiscal = $this->ConfiguracoesFiscais_model->getByTipo($empresa->EMP_ID, 'NFCOM');
+            $configFiscal = $this->ConfiguracoesFiscais_model->getByTipo($empresa->emp_id, 'NFCOM');
 
-            if (!$configFiscal || empty($configFiscal->CER_ARQUIVO)) {
+            if (!$configFiscal || empty($configFiscal->cer_arquivo)) {
                 die("ERRO: Certificado não configurado no sistema.");
             }
 
@@ -48,8 +48,8 @@ class TestNfcomAuth extends CI_Controller
                     'tpFat' => 0
                 ],
                 'emitente' => [
-                    'cnpj' => $emitenteDb['CNPJ'],
-                    'ie' => $emitenteDb['IE'],
+                    'cnpj' => $emitenteDb['cnpj'],
+                    'ie' => $emitenteDb['ie'],
                     'crt' => $emitenteDb['CRT'],
                     'razao_social' => $emitenteDb['xNome'],
                     'nome_fantasia' => $emitenteDb['xFant'] ?? $emitenteDb['xNome'],
@@ -60,8 +60,8 @@ class TestNfcomAuth extends CI_Controller
                         'bairro' => $emitenteDb['enderEmit']['xBairro'],
                         'codigo_municipio' => $emitenteDb['enderEmit']['cMun'],
                         'municipio' => $emitenteDb['enderEmit']['xMun'],
-                        'cep' => $emitenteDb['enderEmit']['CEP'],
-                        'uf' => $emitenteDb['enderEmit']['UF']
+                        'cep' => $emitenteDb['enderEmit']['cep'],
+                        'uf' => $emitenteDb['enderEmit']['uf']
                     ],
                     'telefone' => $emitenteDb['enderEmit']['fone'] ?? ''
                 ],
@@ -159,7 +159,7 @@ class TestNfcomAuth extends CI_Controller
                 'disable_cert_validation' => true,
                 'debug' => true
             ]);
-            $nfcomService->setCertificate($configFiscal->CER_ARQUIVO, $configFiscal->CER_SENHA);
+            $nfcomService->setCertificate($configFiscal->cer_arquivo, $configFiscal->cer_senha);
 
             echo "Assinando XML...\n";
             $xmlSigned = $nfcomService->sign($xml);

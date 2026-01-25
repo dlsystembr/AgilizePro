@@ -8,7 +8,7 @@
     <div class="span12">
         <div class="widget-box">
             <div class="widget-title" style="margin: -20px 0 0 0;padding: 10px;">
-                <h5>NCM: <?php echo isset($ncm->NCM_CODIGO) ? $ncm->NCM_CODIGO : 'N/A'; ?> - <?php echo isset($ncm->NCM_DESCRICAO) ? $ncm->NCM_DESCRICAO : 'N/A'; ?></h5>
+                <h5>NCM: <?php echo isset($ncm->ncm_codigo) ? $ncm->ncm_codigo : 'N/A'; ?> - <?php echo isset($ncm->ncm_descricao) ? $ncm->ncm_descricao : 'N/A'; ?></h5>
             </div>
             <div class="widget-content">
                 <div class="span12" style="margin-left: 0">
@@ -22,7 +22,7 @@
                         <div class="widget-content nopadding">
                             <?php echo $custom_error; ?>
                             <form action="<?php echo base_url() ?>index.php/ncms/salvarTributacao" id="formTributacao" method="post" class="form-horizontal">
-                                <input type="hidden" id="ncm_id" name="ncm_id" value="<?php echo $ncm->NCM_ID; ?>" />
+                                <input type="hidden" id="ncm_id" name="ncm_id" value="<?php echo $ncm->ncm_id; ?>" />
                                 
                                 <div class="widget-content" style="padding: 15px;">
                                     <!-- Tributação Federal -->

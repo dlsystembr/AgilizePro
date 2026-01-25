@@ -50,9 +50,9 @@ class Tipos_clientes extends MY_Controller
             $this->data['custom_error'] = (validation_errors() ? '<div class="form_error">' . validation_errors() . '</div>' : false);
         } else {
             $data = [
-                'TPC_NOME' => $this->input->post('nome'),
-                'TPC_CODIGO_CLIENTE' => $this->input->post('codigoCliente') ?: null,
-                'TPC_DATA_CADASTRO' => date('Y-m-d H:i:s'),
+                'tpc_nome' => $this->input->post('nome'),
+                'tpc_codigo_cliente' => $this->input->post('codigoCliente') ?: null,
+                'tpc_data_cadastro' => date('Y-m-d H:i:s'),
             ];
 
             if ($this->Tipos_clientes_model->add('TIPOS_CLIENTES', $data) == true) {
@@ -82,11 +82,11 @@ class Tipos_clientes extends MY_Controller
             $this->data['custom_error'] = (validation_errors() ? '<div class="form_error">' . validation_errors() . '</div>' : false);
         } else {
             $data = [
-                'TPC_NOME' => $this->input->post('nome'),
-                'TPC_CODIGO_CLIENTE' => $this->input->post('codigoCliente') ?: null,
+                'tpc_nome' => $this->input->post('nome'),
+                'tpc_codigo_cliente' => $this->input->post('codigoCliente') ?: null,
             ];
 
-            if ($this->Tipos_clientes_model->edit('TIPOS_CLIENTES', $data, 'TPC_ID', $this->input->post('id')) == true) {
+            if ($this->Tipos_clientes_model->edit('TIPOS_CLIENTES', $data, 'tpc_id', $this->input->post('id')) == true) {
                 $this->session->set_flashdata('success', 'Tipo de Cliente editado com sucesso!');
                 log_info('Editou um tipo de cliente. ID: ' . $this->input->post('id'));
                 redirect(base_url() . 'index.php/tipos_clientes/gerenciar');
@@ -113,7 +113,7 @@ class Tipos_clientes extends MY_Controller
             redirect(base_url() . 'index.php/tipos_clientes/gerenciar');
         }
 
-        $this->Tipos_clientes_model->delete('TIPOS_CLIENTES', 'TPC_ID', $id);
+        $this->Tipos_clientes_model->delete('TIPOS_CLIENTES', 'tpc_id', $id);
 
         $this->session->set_flashdata('success', 'Tipo de Cliente excluído com sucesso!');
         log_info('Excluiu um tipo de cliente. ID: ' . $id);

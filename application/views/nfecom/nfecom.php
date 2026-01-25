@@ -377,10 +377,10 @@
                                 </tr>';
                         }
                         foreach ($results as $r) {
-                            $dataEmissao = date('d/m/Y', strtotime($r->NFC_DHEMI));
-                            $valorTotal = number_format($r->NFC_V_NF, 2, ',', '.');
+                            $dataEmissao = date('d/m/Y', strtotime($r->nfc_dhemi));
+                            $valorTotal = number_format($r->nfc_v_nf, 2, ',', '.');
 
-                            $statusNum = (int)$r->NFC_STATUS;
+                            $statusNum = (int)$r->nfc_status;
                             if ($statusNum === 0) $statusDesc = 'Rascunho';
                             elseif ($statusNum === 1) $statusDesc = 'Pendente';
                             elseif ($statusNum === 2) $statusDesc = 'Enviado';
@@ -388,7 +388,7 @@
                             elseif ($statusNum === 4) $statusDesc = 'Rejeitada';
                             elseif ($statusNum === 5) $statusDesc = 'Autorizada';
                             elseif ($statusNum === 7) $statusDesc = 'Cancelada';
-                            else $statusDesc = 'Desconhecido (Status: ' . $r->NFC_STATUS . ' | Tipo: ' . gettype($r->NFC_STATUS) . ')';
+                            else $statusDesc = 'Desconhecido (Status: ' . $r->nfc_status . ' | Tipo: ' . gettype($r->nfc_status) . ')';
 
                             $corStatus = match($statusNum) {
                                 0 => '#CDB380', // Rascunho - bege
@@ -402,45 +402,45 @@
                             };
 
                             echo '<tr>';
-                            echo '<td data-label="Nº NF">' . $r->NFC_NNF . '</td>';
-                            echo '<td data-label="Cliente">' . $r->NFC_X_NOME_DEST . '</td>';
-                            echo '<td data-label="Estado" class="col-estado">' . $r->NFC_UF_DEST . '</td>';
-                            echo '<td data-label="Município" class="col-municipio">' . $r->NFC_X_MUN_DEST . '</td>';
+                            echo '<td data-label="Nº NF">' . $r->nfc_nnf . '</td>';
+                            echo '<td data-label="Cliente">' . $r->nfc_x_nome_dest . '</td>';
+                            echo '<td data-label="Estado" class="col-estado">' . $r->nfc_uf_dest . '</td>';
+                            echo '<td data-label="Município" class="col-municipio">' . $r->nfc_x_mun_dest . '</td>';
                             echo '<td data-label="Data Emissão" class="col-data-emissao">' . $dataEmissao . '</td>';
                             echo '<td data-label="Valor">R$ ' . $valorTotal . '</td>';
-                            $motivo = !empty($r->NFC_X_MOTIVO) ? htmlspecialchars($r->NFC_X_MOTIVO) : 'Sem retorno da SEFAZ';
+                            $motivo = !empty($r->nfc_x_motivo) ? htmlspecialchars($r->nfc_x_motivo) : 'Sem retorno da SEFAZ';
                             echo '<td data-label="Status"><span class="badge" style="background-color: ' . $corStatus . '; border-color: ' . $corStatus . '; cursor: help;" data-toggle="tooltip" title="' . $motivo . '">' . $statusDesc . '</span></td>';
                             echo '<td data-label="Ações" style="text-align:center; white-space: nowrap;">';
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->NFC_ID . '" class="btn-nwe" title="Ver dados da nota" style="margin-right: 1%"><i class="bx bx-show"></i></a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/visualizar/' . $r->nfc_id . '" class="btn-nwe" title="Ver dados da nota" style="margin-right: 1%"><i class="bx bx-show"></i></a>';
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
-                                if ($r->NFC_STATUS < 2) {
+                                if ($r->nfc_status < 2) {
                                     // NFCom nova ou salva - permite gerar
-                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn-nwe3" title="Gerar NFCom" style="margin-right: 1%"><i class="bx bx-paper-plane"></i></a>';
-                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn-nwe" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 1%"><i class="bx bx-code-alt"></i></a>';
-                                } elseif ($r->NFC_STATUS == 4) {
+                                    echo '<a href="#" onclick="gerarNFCom(' . $r->nfc_id . ')" class="btn-nwe3" title="Gerar NFCom" style="margin-right: 1%"><i class="bx bx-paper-plane"></i></a>';
+                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->nfc_id . '" class="btn-nwe" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 1%"><i class="bx bx-code-alt"></i></a>';
+                                } elseif ($r->nfc_status == 4) {
                                     // NFCom rejeitada - permite reemitir
-                                    echo '<a href="#" onclick="gerarNFCom(' . $r->NFC_ID . ')" class="btn-nwe3" title="Reemitir Nota" style="margin-right: 1%"><i class="bx bx-revision"></i></a>';
-                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->NFC_ID . '" class="btn-nwe" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 1%"><i class="bx bx-code-alt"></i></a>';
+                                    echo '<a href="#" onclick="gerarNFCom(' . $r->nfc_id . ')" class="btn-nwe3" title="Reemitir Nota" style="margin-right: 1%"><i class="bx bx-revision"></i></a>';
+                                    echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $r->nfc_id . '" class="btn-nwe" target="_blank" title="Gerar XML (Pré-Emissão)" style="margin-right: 1%"><i class="bx bx-code-alt"></i></a>';
                                 }
                                 // NFCom autorizada (status 3 ou 5) não mostra botão
                                 // NFCom cancelada (status 7) não mostra botão
                             }
                             if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->NFC_ID . '" class="btn-nwe" target="_blank" title="Imprimir NFCom" style="margin-right: 1%"><i class="bx bx-printer"></i></a>';
+                                echo '<a href="' . base_url() . 'index.php/nfecom/danfe/' . $r->nfc_id . '" class="btn-nwe" target="_blank" title="Imprimir NFCom" style="margin-right: 1%"><i class="bx bx-printer"></i></a>';
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($r->NFC_STATUS == 3 || $r->NFC_STATUS == 5)) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->NFC_ID . '" class="btn-nwe" title="Baixar XML Autorizado" style="margin-right: 1%"><i class="bx bx-download"></i></a>';
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($r->nfc_status == 3 || $r->nfc_status == 5)) {
+                                echo '<a href="' . base_url() . 'index.php/nfecom/gerarXml/' . $r->nfc_id . '" class="btn-nwe" title="Baixar XML Autorizado" style="margin-right: 1%"><i class="bx bx-download"></i></a>';
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($r->NFC_STATUS == 3 || $r->NFC_STATUS == 5)) {
-                                echo '<a href="#" onclick="abrirModalCancelamento(' . $r->NFC_ID . ')" class="btn-nwe4" title="Cancelar NFCom" style="margin-right: 1%"><i class="bx bx-x-circle"></i></a>';
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($r->nfc_status == 3 || $r->nfc_status == 5)) {
+                                echo '<a href="#" onclick="abrirModalCancelamento(' . $r->nfc_id . ')" class="btn-nwe4" title="Cancelar NFCom" style="margin-right: 1%"><i class="bx bx-x-circle"></i></a>';
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS >= 2) {
-                                echo '<a href="#" onclick="consultarNFCom(' . $r->NFC_ID . ')" class="btn-nwe2" title="Consultar Status na SEFAZ" style="margin-right: 1%"><i class="bx bx-search"></i></a>';
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->nfc_status >= 2) {
+                                echo '<a href="#" onclick="consultarNFCom(' . $r->nfc_id . ')" class="btn-nwe2" title="Consultar Status na SEFAZ" style="margin-right: 1%"><i class="bx bx-search"></i></a>';
                             }
-                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->NFC_STATUS != 3 && $r->NFC_STATUS != 7) {
-                                echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->NFC_ID . '" class="btn-nwe4" title="Excluir NFCom" style="margin-right: 1%" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')"><i class="bx bx-trash-alt"></i></a>';
+                            if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $r->nfc_status != 3 && $r->nfc_status != 7) {
+                                echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $r->nfc_id . '" class="btn-nwe4" title="Excluir NFCom" style="margin-right: 1%" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')"><i class="bx bx-trash-alt"></i></a>';
                             }
                             echo '</td>';
                             echo '</tr>';

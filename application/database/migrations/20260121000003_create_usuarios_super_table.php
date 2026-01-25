@@ -7,73 +7,73 @@ class Migration_Create_usuarios_super_table extends CI_Migration {
     {
         // Criar tabela usuarios_super
         $this->dbforge->add_field(array(
-            'USS_ID' => array(
+            'uss_id' => array(
                 'type' => 'INT',
                 'constraint' => 11,
                 'unsigned' => TRUE,
                 'auto_increment' => TRUE
             ),
-            'USS_NOME' => array(
+            'uss_nome' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '80',
                 'null' => FALSE,
             ),
-            'USS_RG' => array(
+            'uss_rg' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '20',
                 'null' => TRUE,
             ),
-            'USS_CPF' => array(
+            'uss_cpf' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '20',
                 'null' => FALSE,
             ),
-            'USS_EMAIL' => array(
+            'uss_email' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '80',
                 'null' => FALSE,
             ),
-            'USS_SENHA' => array(
+            'uss_senha' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '200',
                 'null' => FALSE,
             ),
-            'USS_TELEFONE' => array(
+            'uss_telefone' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '20',
                 'null' => FALSE,
             ),
-            'USS_CELULAR' => array(
+            'uss_celular' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '20',
                 'null' => TRUE,
             ),
-            'USS_SITUACAO' => array(
+            'uss_situacao' => array(
                 'type' => 'TINYINT',
                 'constraint' => 1,
                 'null' => FALSE,
                 'default' => 1,
             ),
-            'USS_DATA_CADASTRO' => array(
-                'type' => 'DATE',
+            'uss_data_cadastro' => array(
+                'type' => 'date',
                 'null' => FALSE,
             ),
-            'USS_DATA_EXPIRACAO' => array(
-                'type' => 'DATE',
+            'uss_data_expiracao' => array(
+                'type' => 'date',
                 'null' => TRUE,
             ),
-            'USS_URL_IMAGE_USER' => array(
+            'uss_url_image_user' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '255',
                 'null' => TRUE,
             ),
         ));
         
-        $this->dbforge->add_key('USS_ID', TRUE);
+        $this->dbforge->add_key('uss_id', TRUE);
         $this->dbforge->create_table('usuarios_super', TRUE);
         
         // Criar índice único para email
-        $this->db->query('ALTER TABLE `usuarios_super` ADD UNIQUE INDEX `uk_usuarios_super_email` (`USS_EMAIL`)');
+        $this->db->query('ALTER TABLE `usuarios_super` ADD UNIQUE INDEX `uk_usuarios_super_email` (`uss_email`)');
         
         // Inserir usuário super padrão (senha: admin123)
         // Gerar hash da senha
@@ -87,13 +87,13 @@ class Migration_Create_usuarios_super_table extends CI_Migration {
         }
         
         $this->db->insert('usuarios_super', array(
-            'USS_NOME' => 'Administrador Super',
-            'USS_CPF' => '000.000.000-00',
-            'USS_EMAIL' => 'admin@super.com',
-            'USS_SENHA' => $senha_hash,
-            'USS_TELEFONE' => '(00) 0000-0000',
-            'USS_SITUACAO' => 1,
-            'USS_DATA_CADASTRO' => date('Y-m-d'),
+            'uss_nome' => 'Administrador Super',
+            'uss_cpf' => '000.000.000-00',
+            'uss_email' => 'admin@super.com',
+            'uss_senha' => $senha_hash,
+            'uss_telefone' => '(00) 0000-0000',
+            'uss_situacao' => 1,
+            'uss_data_cadastro' => date('Y-m-d'),
         ));
     }
 

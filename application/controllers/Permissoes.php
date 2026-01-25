@@ -52,15 +52,24 @@ class Permissoes extends MY_Controller
 
         // Buscar permissões do tenant
         if ($ten_id) {
-            $this->db->select('idPermissao,nome,data,situacao');
+            $this->db->select('*');
             $this->db->from('permissoes');
             $this->db->where('ten_id', $ten_id);
             $this->db->order_by('idPermissao', 'desc');
             $this->db->limit($this->data['configuration']['per_page'], $this->uri->segment(3));
-            $this->data['results'] = $this->db->get()->result();
+            $results = $this->db->get()->result();
         } else {
-            $this->data['results'] = $this->permissoes_model->get('permissoes', 'idPermissao,nome,data,situacao', $where, $this->data['configuration']['per_page'], $this->uri->segment(3));
+            $results = $this->permissoes_model->get('permissoes', '*', $where, $this->data['configuration']['per_page'], $this->uri->segment(3));
         }
+        
+        // Normalizar o nome da propriedade para garantir compatibilidade
+        foreach ($results as $result) {
+            if (isset($result->idpermissao) && !isset($result->idPermissao)) {
+                $result->idPermissao = $result->idpermissao;
+            }
+        }
+        
+        $this->data['results'] = $results;
 
         $this->data['view'] = 'permissoes/permissoes';
 
@@ -77,12 +86,12 @@ class Permissoes extends MY_Controller
         $permissoes_habilitadas = [];
         
         if ($ten_id) {
-            $this->db->where('TPM_TEN_ID', $ten_id);
-            $this->db->where('TPM_ATIVO', 1);
+            $this->db->where('tpm_ten_id', $ten_id);
+            $this->db->where('tpm_ativo', 1);
             $permissoes_tenant = $this->db->get('tenant_permissoes_menu')->result();
             
             foreach ($permissoes_tenant as $perm) {
-                $permissoes_habilitadas[] = $perm->TPM_PERMISSAO;
+                $permissoes_habilitadas[] = $perm->tpm_permissao;
             }
         }
         
@@ -179,6 +188,7 @@ class Permissoes extends MY_Controller
                 'rOs' => $this->input->post('rOs'),
                 'rVenda' => $this->input->post('rVenda'),
                 'rFinanceiro' => $this->input->post('rFinanceiro'),
+                'rContrato' => $this->input->post('rContrato'),
                 'rNfe' => $this->input->post('rNfe'),
 
                 'aCobranca' => $this->input->post('aCobranca'),
@@ -277,12 +287,12 @@ class Permissoes extends MY_Controller
         $permissoes_habilitadas = [];
         
         if ($ten_id) {
-            $this->db->where('TPM_TEN_ID', $ten_id);
-            $this->db->where('TPM_ATIVO', 1);
+            $this->db->where('tpm_ten_id', $ten_id);
+            $this->db->where('tpm_ativo', 1);
             $permissoes_tenant = $this->db->get('tenant_permissoes_menu')->result();
             
             foreach ($permissoes_tenant as $perm) {
-                $permissoes_habilitadas[] = $perm->TPM_PERMISSAO;
+                $permissoes_habilitadas[] = $perm->tpm_permissao;
             }
         }
         
@@ -377,6 +387,7 @@ class Permissoes extends MY_Controller
                 'rOs' => $this->input->post('rOs'),
                 'rVenda' => $this->input->post('rVenda'),
                 'rFinanceiro' => $this->input->post('rFinanceiro'),
+                'rContrato' => $this->input->post('rContrato'),
                 'rNfe' => $this->input->post('rNfe'),
 
                 'aCobranca' => $this->input->post('aCobranca'),
@@ -468,11 +479,35 @@ class Permissoes extends MY_Controller
         $ten_id = $this->session->userdata('ten_id');
         
         // Buscar permissão e verificar se pertence ao tenant
+        // Tenta primeiro com idPermissao, depois com idpermissao (caso a coluna tenha sido renomeada)
+        $this->db->select('*');
+        $this->db->from('permissoes');
         $this->db->where('idPermissao', $permissao_id);
         if ($ten_id) {
             $this->db->where('ten_id', $ten_id);
         }
-        $this->data['result'] = $this->db->get('permissoes')->row();
+        $result = $this->db->get()->row();
+        
+        // Se não encontrou, tenta com idpermissao (minúsculo)
+        if (!$result) {
+            $this->db->select('*');
+            $this->db->from('permissoes');
+            $this->db->where('idpermissao', $permissao_id);
+            if ($ten_id) {
+                $this->db->where('ten_id', $ten_id);
+            }
+            $result = $this->db->get()->row();
+        }
+        
+        // Normalizar o nome da propriedade para garantir compatibilidade
+        if ($result) {
+            // Se a coluna está em minúsculas, cria uma propriedade com maiúsculas para compatibilidade
+            if (isset($result->idpermissao) && !isset($result->idPermissao)) {
+                $result->idPermissao = $result->idpermissao;
+            }
+        }
+        
+        $this->data['result'] = $result;
         
         if (!$this->data['result']) {
             $this->session->set_flashdata('error', 'Permissão não encontrada ou você não tem acesso a ela.');

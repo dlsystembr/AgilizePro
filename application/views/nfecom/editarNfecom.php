@@ -337,7 +337,7 @@
                 echo '<div class="alert alert-danger">' . $custom_error . '</div>';
             } ?>
             <form action="<?php echo current_url(); ?>" id="formNfecom" method="post" class="form-horizontal">
-                <input type="hidden" name="idNfecom" value="<?php echo $result->NFC_ID; ?>">
+                <input type="hidden" name="idNfecom" value="<?php echo $result->nfc_id; ?>">
                 <div class="widget-content nopadding tab-content">
 
                     <!-- Seções lado a lado -->
@@ -360,8 +360,8 @@
                                                     <select name="opc_id" id="opc_id" required style="width: 100%;">
                                                         <option value="">Selecione uma operação...</option>
                                                         <?php foreach ($operacoes as $index => $op): ?>
-                                                            <option value="<?php echo $op->OPC_ID; ?>" <?php echo ((isset($result->OPC_ID) && $result->OPC_ID == $op->OPC_ID) || (!isset($result->OPC_ID) && !isset($_POST['opc_id']) && $index === 0)) ? 'selected' : ''; ?>>
-                                                                <?php echo $op->OPC_NOME; ?>
+                                                            <option value="<?php echo $op->opc_id; ?>" <?php echo ((isset($result->opc_id) && $result->opc_id == $op->opc_id) || (!isset($result->opc_id) && !isset($_POST['opc_id']) && $index === 0)) ? 'selected' : ''; ?>>
+                                                                <?php echo $op->opc_nome; ?>
                                                             </option>
                                                         <?php endforeach; ?>
                                                     </select>
@@ -381,8 +381,8 @@
                                                 <div class="controls">
                                                     <select name="clientes_id" id="cliente" required
                                                         style="width: 100%;">
-                                                        <option value="<?php echo $result->CLN_ID; ?>" selected>
-                                                            <?php echo $result->NFC_X_NOME_DEST; ?>
+                                                        <option value="<?php echo $result->cln_id; ?>" selected>
+                                                            <?php echo $result->nfc_x_nome_dest; ?>
                                                         </option>
                                                     </select>
                                                 </div>
@@ -402,7 +402,7 @@
                                                     <select name="enderecoClienteSelect" id="enderecoClienteSelect"
                                                         required>
                                                         <option value="1">
-                                                            <?php echo $result->NFC_X_LGR_DEST . ', ' . $result->NFC_NRO_DEST; ?>
+                                                            <?php echo $result->nfc_x_lgr_dest . ', ' . $result->nfc_nro_dest; ?>
                                                         </option>
                                                     </select>
                                                 </div>
@@ -432,7 +432,7 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="text" name="numeroContrato" id="numeroContrato"
-                                                        value="<?php echo set_value('numeroContrato', $result->NFC_N_CONTRATO); ?>"
+                                                        value="<?php echo set_value('numeroContrato', $result->nfc_n_contrato); ?>"
                                                         required>
                                                 </div>
                                             </div>
@@ -449,7 +449,7 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <textarea name="observacoes" id="observacoes" rows="5"
-                                                        required><?php echo set_value('observacoes', $result->NFC_INF_CPL); ?></textarea>
+                                                        required><?php echo set_value('observacoes', $result->nfc_inf_cpl); ?></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -474,7 +474,7 @@
                                                 <label for="iCodAssinante" class="control-label">Cód. Assinante</label>
                                                 <div class="controls">
                                                     <input type="text" name="iCodAssinante" id="iCodAssinante"
-                                                        value="<?php echo set_value('iCodAssinante', $result->NFC_I_COD_ASSINANTE); ?>"
+                                                        value="<?php echo set_value('iCodAssinante', $result->nfc_i_cod_assinante); ?>"
                                                         placeholder="Vazio = CPF/CNPJ">
                                                 </div>
                                             </div>
@@ -489,15 +489,15 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <select name="tpAssinante" id="tpAssinante" required class="span12">
-                                                        <option value="1" <?php echo ($result->NFC_TP_ASSINANTE == 1) ? 'selected' : ''; ?>>1 - Comercial</option>
-                                                        <option value="2" <?php echo ($result->NFC_TP_ASSINANTE == 2) ? 'selected' : ''; ?>>2 - Industrial</option>
-                                                        <option value="3" <?php echo ($result->NFC_TP_ASSINANTE == 3) ? 'selected' : ''; ?>>3 - Residencial/PF</option>
-                                                        <option value="4" <?php echo ($result->NFC_TP_ASSINANTE == 4) ? 'selected' : ''; ?>>4 - Produtor Rural</option>
-                                                        <option value="5" <?php echo ($result->NFC_TP_ASSINANTE == 5) ? 'selected' : ''; ?>>5 - Órgão Público Estadual</option>
-                                                        <option value="6" <?php echo ($result->NFC_TP_ASSINANTE == 6) ? 'selected' : ''; ?>>6 - Prestador de Telecom</option>
-                                                        <option value="7" <?php echo ($result->NFC_TP_ASSINANTE == 7) ? 'selected' : ''; ?>>7 - Missões Diplomáticas</option>
-                                                        <option value="8" <?php echo ($result->NFC_TP_ASSINANTE == 8) ? 'selected' : ''; ?>>8 - Igrejas e Templos</option>
-                                                        <option value="99" <?php echo ($result->NFC_TP_ASSINANTE == 99) ? 'selected' : ''; ?>>99 - Outros</option>
+                                                        <option value="1" <?php echo ($result->nfc_tp_assinante == 1) ? 'selected' : ''; ?>>1 - Comercial</option>
+                                                        <option value="2" <?php echo ($result->nfc_tp_assinante == 2) ? 'selected' : ''; ?>>2 - Industrial</option>
+                                                        <option value="3" <?php echo ($result->nfc_tp_assinante == 3) ? 'selected' : ''; ?>>3 - Residencial/PF</option>
+                                                        <option value="4" <?php echo ($result->nfc_tp_assinante == 4) ? 'selected' : ''; ?>>4 - Produtor Rural</option>
+                                                        <option value="5" <?php echo ($result->nfc_tp_assinante == 5) ? 'selected' : ''; ?>>5 - Órgão Público Estadual</option>
+                                                        <option value="6" <?php echo ($result->nfc_tp_assinante == 6) ? 'selected' : ''; ?>>6 - Prestador de Telecom</option>
+                                                        <option value="7" <?php echo ($result->nfc_tp_assinante == 7) ? 'selected' : ''; ?>>7 - Missões Diplomáticas</option>
+                                                        <option value="8" <?php echo ($result->nfc_tp_assinante == 8) ? 'selected' : ''; ?>>8 - Igrejas e Templos</option>
+                                                        <option value="99" <?php echo ($result->nfc_tp_assinante == 99) ? 'selected' : ''; ?>>99 - Outros</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -508,13 +508,13 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <select name="tpServUtil" id="tpServUtil" required class="span12">
-                                                        <option value="1" <?php echo ($result->NFC_TP_SERV_UTIL == 1) ? 'selected' : ''; ?>>1 - Telefonia</option>
-                                                        <option value="2" <?php echo ($result->NFC_TP_SERV_UTIL == 2) ? 'selected' : ''; ?>>2 - Com. de Dados</option>
-                                                        <option value="3" <?php echo ($result->NFC_TP_SERV_UTIL == 3) ? 'selected' : ''; ?>>3 - TV por Assinatura</option>
-                                                        <option value="4" <?php echo ($result->NFC_TP_SERV_UTIL == 4) ? 'selected' : ''; ?>>4 - Internet</option>
-                                                        <option value="5" <?php echo ($result->NFC_TP_SERV_UTIL == 5) ? 'selected' : ''; ?>>5 - Multimídia</option>
-                                                        <option value="6" <?php echo ($result->NFC_TP_SERV_UTIL == 6) ? 'selected' : ''; ?>>6 - Outros</option>
-                                                        <option value="7" <?php echo ($result->NFC_TP_SERV_UTIL == 7) ? 'selected' : ''; ?>>7 - Vários (Combo)</option>
+                                                        <option value="1" <?php echo ($result->nfc_tp_serv_util == 1) ? 'selected' : ''; ?>>1 - Telefonia</option>
+                                                        <option value="2" <?php echo ($result->nfc_tp_serv_util == 2) ? 'selected' : ''; ?>>2 - Com. de Dados</option>
+                                                        <option value="3" <?php echo ($result->nfc_tp_serv_util == 3) ? 'selected' : ''; ?>>3 - TV por Assinatura</option>
+                                                        <option value="4" <?php echo ($result->nfc_tp_serv_util == 4) ? 'selected' : ''; ?>>4 - Internet</option>
+                                                        <option value="5" <?php echo ($result->nfc_tp_serv_util == 5) ? 'selected' : ''; ?>>5 - Multimídia</option>
+                                                        <option value="6" <?php echo ($result->nfc_tp_serv_util == 6) ? 'selected' : ''; ?>>6 - Outros</option>
+                                                        <option value="7" <?php echo ($result->nfc_tp_serv_util == 7) ? 'selected' : ''; ?>>7 - Vários (Combo)</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -529,7 +529,7 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="date" name="dataContratoIni" id="dataContratoIni"
-                                                        value="<?php echo set_value('dataContratoIni', $result->NFC_D_CONTRATO_INI); ?>"
+                                                        value="<?php echo set_value('dataContratoIni', $result->nfc_d_contrato_ini); ?>"
                                                         required>
                                                 </div>
                                             </div>
@@ -539,7 +539,7 @@
                                                 <label for="dataContratoFim" class="control-label">Fim Contrato</label>
                                                 <div class="controls">
                                                     <input type="date" name="dataContratoFim" id="dataContratoFim"
-                                                        value="<?php echo set_value('dataContratoFim', $result->NFC_D_CONTRATO_FIM); ?>">
+                                                        value="<?php echo set_value('dataContratoFim', $result->nfc_d_contrato_fim); ?>">
                                                 </div>
                                             </div>
                                         </div>
@@ -554,7 +554,7 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="date" name="dataPeriodoIni" id="dataPeriodoIni"
-                                                        value="<?php echo set_value('dataPeriodoIni', $result->NFC_D_PER_USO_INI); ?>"
+                                                        value="<?php echo set_value('dataPeriodoIni', $result->nfc_d_per_uso_ini); ?>"
                                                         required>
                                                 </div>
                                             </div>
@@ -565,7 +565,7 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="date" name="dataPeriodoFim" id="dataPeriodoFim"
-                                                        value="<?php echo set_value('dataPeriodoFim', $result->NFC_D_PER_USO_FIM); ?>"
+                                                        value="<?php echo set_value('dataPeriodoFim', $result->nfc_d_per_uso_fim); ?>"
                                                         required>
                                                 </div>
                                             </div>
@@ -586,7 +586,7 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="date" name="dataVencimento" id="dataVencimento"
-                                                        value="<?php echo set_value('dataVencimento', $result->NFC_D_VENC_FAT); ?>"
+                                                        value="<?php echo set_value('dataVencimento', $result->nfc_d_venc_fat); ?>"
                                                         required class="span12">
                                                 </div>
                                             </div>
@@ -602,7 +602,7 @@
                                                 <div class="controls">
                                                     <input type="text" name="nfc_linha_digitavel"
                                                         id="nfc_linha_digitavel"
-                                                        value="<?php echo set_value('nfc_linha_digitavel', $result->NFC_LINHA_DIGITAVEL); ?>"
+                                                        value="<?php echo set_value('nfc_linha_digitavel', $result->nfc_linha_digitavel); ?>"
                                                         placeholder="Linha digitável para pagamento">
                                                 </div>
                                             </div>
@@ -616,7 +616,7 @@
                                                 <label for="nfc_chave_pix" class="control-label">Pix (Chave Pix)</label>
                                                 <div class="controls">
                                                     <input type="text" name="nfc_chave_pix" id="nfc_chave_pix"
-                                                        value="<?php echo set_value('nfc_chave_pix', $result->NFC_CHAVE_PIX); ?>"
+                                                        value="<?php echo set_value('nfc_chave_pix', $result->nfc_chave_pix); ?>"
                                                         placeholder="Chave Pix para o QR Code">
                                                 </div>
                                             </div>
@@ -683,17 +683,17 @@
                                             $servicoIndex = 0;
                                             if (!empty($itens)) {
                                                 foreach ($itens as $item) {
-                                                    $valorProduto = $item->NFI_V_PROD;
-                                                    $valorUnitario = $item->NFI_V_ITEM / $item->NFI_Q_FATURADA;
+                                                    $valorProduto = $item->nfi_v_prod;
+                                                    $valorUnitario = $item->nfi_v_item / $item->nfi_q_faturada;
                                                     ?>
                                                     <tr data-index="<?php echo $servicoIndex; ?>"
                                                         data-valor-produto="<?php echo $valorProduto; ?>">
                                                         <td>
-                                                            <?php echo $item->NFI_X_PROD; ?>
+                                                            <?php echo $item->nfi_x_prod; ?>
                                                         </td>
                                                         <td>
                                                             <div align="center">
-                                                                <?php echo $item->NFI_Q_FATURADA; ?>
+                                                                <?php echo $item->nfi_q_faturada; ?>
                                                             </div>
                                                         </td>
                                                         <td>
@@ -708,25 +708,25 @@
                                                             </div>
                                                             <input type="hidden"
                                                                 name="servicos[<?php echo $servicoIndex; ?>][id]"
-                                                                value="<?php echo $item->NFI_C_PROD; ?>">
+                                                                value="<?php echo $item->nfi_c_prod; ?>">
                                                             <input type="hidden"
                                                                 name="servicos[<?php echo $servicoIndex; ?>][quantidade]"
-                                                                value="<?php echo $item->NFI_Q_FATURADA; ?>">
+                                                                value="<?php echo $item->nfi_q_faturada; ?>">
                                                             <input type="hidden"
                                                                 name="servicos[<?php echo $servicoIndex; ?>][valorUnitario]"
                                                                 value="<?php echo $valorUnitario; ?>">
                                                             <input type="hidden"
                                                                 name="servicos[<?php echo $servicoIndex; ?>][valorDesconto]"
-                                                                value="<?php echo $item->NFI_V_DESC; ?>">
+                                                                value="<?php echo $item->nfi_v_desc; ?>">
                                                             <input type="hidden"
                                                                 name="servicos[<?php echo $servicoIndex; ?>][valorOutros]"
-                                                                value="<?php echo $item->NFI_V_OUTRO; ?>">
+                                                                value="<?php echo $item->nfi_v_outro; ?>">
                                                             <input type="hidden"
                                                                 name="servicos[<?php echo $servicoIndex; ?>][cfop]"
-                                                                value="<?php echo $item->NFI_CFOP; ?>">
+                                                                value="<?php echo $item->nfi_cfop; ?>">
                                                             <input type="hidden"
                                                                 name="servicos[<?php echo $servicoIndex; ?>][unidade]"
-                                                                value="<?php echo $item->NFI_U_MED; ?>">
+                                                                value="<?php echo $item->nfi_u_med; ?>">
                                                         </td>
                                                         <td>
                                                             <div align="center">R$:
@@ -786,19 +786,19 @@
                     <input type="hidden" name="enderecoClienteId" id="enderecoClienteId"
                         value="<?php echo set_value('enderecoClienteId'); ?>">
                     <input type="hidden" name="logradouroCliente" id="logradouroCliente"
-                        value="<?php echo set_value('logradouroCliente', $result->NFC_X_LGR_DEST); ?>">
+                        value="<?php echo set_value('logradouroCliente', $result->nfc_x_lgr_dest); ?>">
                     <input type="hidden" name="numeroCliente" id="numeroCliente"
-                        value="<?php echo set_value('numeroCliente', $result->NFC_NRO_DEST); ?>">
+                        value="<?php echo set_value('numeroCliente', $result->nfc_nro_dest); ?>">
                     <input type="hidden" name="bairroCliente" id="bairroCliente"
-                        value="<?php echo set_value('bairroCliente', $result->NFC_X_BAIRRO_DEST); ?>">
+                        value="<?php echo set_value('bairroCliente', $result->nfc_x_bairro_dest); ?>">
                     <input type="hidden" name="municipioCliente" id="municipioCliente"
-                        value="<?php echo set_value('municipioCliente', $result->NFC_X_MUN_DEST); ?>">
+                        value="<?php echo set_value('municipioCliente', $result->nfc_x_mun_dest); ?>">
                     <input type="hidden" name="codMunCliente" id="codMunCliente"
-                        value="<?php echo set_value('codMunCliente', $result->NFC_C_MUN_DEST); ?>">
+                        value="<?php echo set_value('codMunCliente', $result->nfc_c_mun_dest); ?>">
                     <input type="hidden" name="cepCliente" id="cepCliente"
-                        value="<?php echo set_value('cepCliente', $result->NFC_CEP_DEST); ?>">
+                        value="<?php echo set_value('cepCliente', $result->nfc_cep_dest); ?>">
                     <input type="hidden" name="ufCliente" id="ufCliente"
-                        value="<?php echo set_value('ufCliente', $result->NFC_UF_DEST); ?>">
+                        value="<?php echo set_value('ufCliente', $result->nfc_uf_dest); ?>">
 
                     <!-- Botões de ação -->
                     <div class="form-actions">

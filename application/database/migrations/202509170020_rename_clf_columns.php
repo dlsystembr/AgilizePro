@@ -23,17 +23,17 @@ class Migration_Rename_clf_columns extends CI_Migration
 
         // Renomear colunas conforme padrão CLF_
         $renameMap = [
-            'id' => 'CLF_ID INT(11) NOT NULL AUTO_INCREMENT',
+            'id' => 'clf_id INT(11) NOT NULL AUTO_INCREMENT',
             'operacao_comercial_id' => 'CLF_OPC_ID INT(11) NOT NULL',
-            'cst' => 'CLF_CST VARCHAR(2) NULL',
-            'csosn' => 'CLF_CSOSN VARCHAR(3) NULL',
+            'cst' => 'clf_cst VARCHAR(2) NULL',
+            'csosn' => 'clf_csosn VARCHAR(3) NULL',
             'natureza_contribuinte' => 'CLF_NATUREZA_CONTRIB ENUM("inscrito","nao_inscrito") NOT NULL DEFAULT "nao_inscrito"',
-            'cfop' => 'CLF_CFOP VARCHAR(4) NOT NULL',
-            'destinacao' => 'CLF_DESTINACAO VARCHAR(100) NOT NULL',
-            'objetivo_comercial' => 'CLF_OBJETIVO_COMERCIAL ENUM("consumo","revenda") NOT NULL DEFAULT "consumo"',
+            'cfop' => 'clf_cfop VARCHAR(4) NOT NULL',
+            'destinacao' => 'clf_destinacao VARCHAR(100) NOT NULL',
+            'objetivo_comercial' => 'clf_objetivo_comercial ENUM("consumo","revenda") NOT NULL DEFAULT "consumo"',
             'tipo_icms' => 'CLF_TIPO_ICMS ENUM("normal","st") NOT NULL DEFAULT "normal"',
-            'created_at' => 'CLF_DATA_INCLUSAO DATETIME NULL',
-            'updated_at' => 'CLF_DATA_ALTERACAO DATETIME NULL',
+            'created_at' => 'clf_data_inclusao DATETIME NULL',
+            'updated_at' => 'clf_data_alteracao DATETIME NULL',
         ];
 
         foreach ($renameMap as $old => $definition) {
@@ -43,12 +43,12 @@ class Migration_Rename_clf_columns extends CI_Migration
         }
 
         // Ajustar chave primária se necessário
-        // (Se a PK anterior era em `id`, permanece em `CLF_ID` após o CHANGE)
+        // (Se a PK anterior era em `id`, permanece em `clf_id` após o CHANGE)
 
-        // Recriar FK para Operação Comercial usando CLF_OPC_ID -> operacao_comercial.OPC_ID
+        // Recriar FK para Operação Comercial usando CLF_OPC_ID -> operacao_comercial.opc_id
         if ($this->db->field_exists('CLF_OPC_ID', 'classificacao_fiscal')) {
             $this->db->query('SET FOREIGN_KEY_CHECKS=0');
-            $this->db->query('ALTER TABLE `classificacao_fiscal` ADD CONSTRAINT `clf_opc_fk` FOREIGN KEY (`CLF_OPC_ID`) REFERENCES `operacao_comercial`(`OPC_ID`) ON DELETE CASCADE ON UPDATE CASCADE');
+            $this->db->query('ALTER TABLE `classificacao_fiscal` ADD CONSTRAINT `clf_opc_fk` FOREIGN KEY (`CLF_OPC_ID`) REFERENCES `operacao_comercial`(`opc_id`) ON DELETE CASCADE ON UPDATE CASCADE');
             $this->db->query('SET FOREIGN_KEY_CHECKS=1');
         }
     }
@@ -62,17 +62,17 @@ class Migration_Rename_clf_columns extends CI_Migration
 
         // Reverter nomes para o padrão antigo
         $renameBack = [
-            'CLF_ID' => 'id INT(11) NOT NULL AUTO_INCREMENT',
+            'clf_id' => 'id INT(11) NOT NULL AUTO_INCREMENT',
             'CLF_OPC_ID' => 'operacao_comercial_id INT(11) NOT NULL',
-            'CLF_CST' => 'cst VARCHAR(2) NULL',
-            'CLF_CSOSN' => 'csosn VARCHAR(3) NULL',
+            'clf_cst' => 'cst VARCHAR(2) NULL',
+            'clf_csosn' => 'csosn VARCHAR(3) NULL',
             'CLF_NATUREZA_CONTRIB' => 'natureza_contribuinte ENUM("inscrito","nao_inscrito") NOT NULL DEFAULT "nao_inscrito"',
-            'CLF_CFOP' => 'cfop VARCHAR(4) NOT NULL',
-            'CLF_DESTINACAO' => 'destinacao VARCHAR(100) NOT NULL',
-            'CLF_OBJETIVO_COMERCIAL' => 'objetivo_comercial ENUM("consumo","revenda") NOT NULL DEFAULT "consumo"',
+            'clf_cfop' => 'cfop VARCHAR(4) NOT NULL',
+            'clf_destinacao' => 'destinacao VARCHAR(100) NOT NULL',
+            'clf_objetivo_comercial' => 'objetivo_comercial ENUM("consumo","revenda") NOT NULL DEFAULT "consumo"',
             'CLF_TIPO_ICMS' => 'tipo_icms ENUM("normal","st") NOT NULL DEFAULT "normal"',
-            'CLF_DATA_INCLUSAO' => 'created_at DATETIME NULL',
-            'CLF_DATA_ALTERACAO' => 'updated_at DATETIME NULL',
+            'clf_data_inclusao' => 'created_at DATETIME NULL',
+            'clf_data_alteracao' => 'updated_at DATETIME NULL',
         ];
 
         foreach ($renameBack as $old => $definition) {
@@ -83,7 +83,7 @@ class Migration_Rename_clf_columns extends CI_Migration
 
         // FK antiga (padrão) de volta
         if ($this->db->field_exists('operacao_comercial_id', 'classificacao_fiscal')) {
-            $this->db->query('ALTER TABLE `classificacao_fiscal` ADD CONSTRAINT `classificacao_fiscal_operacao_comercial_fk` FOREIGN KEY (`operacao_comercial_id`) REFERENCES `operacao_comercial`(`OPC_ID`) ON DELETE CASCADE ON UPDATE CASCADE');
+            $this->db->query('ALTER TABLE `classificacao_fiscal` ADD CONSTRAINT `classificacao_fiscal_operacao_comercial_fk` FOREIGN KEY (`operacao_comercial_id`) REFERENCES `operacao_comercial`(`opc_id`) ON DELETE CASCADE ON UPDATE CASCADE');
         }
     }
 }

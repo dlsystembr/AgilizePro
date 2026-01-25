@@ -9,11 +9,11 @@ class Contratos_model extends CI_Model
 
     public function get($table, $fields = '*', $search = '', $perPage = 0, $start = 0, $one = false)
     {
-        $this->db->select('c.*, p.PES_NOME, p.PES_CPFCNPJ, p.PES_RAZAO_SOCIAL');
+        $this->db->select('c.*, p.pes_nome, p.pes_cpfcnpj, p.pes_razao_social');
         $this->db->from('contratos c');
-        $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
+        $this->db->join('pessoas p', 'p.pes_id = c.pes_id', 'left');
         $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
-        $this->db->order_by('c.CTR_ID', 'desc');
+        $this->db->order_by('c.ctr_id', 'desc');
         
         if ($perPage) {
             $this->db->limit($perPage, $start);
@@ -22,10 +22,10 @@ class Contratos_model extends CI_Model
         if ($search) {
             // Busca por número do contrato, nome do cliente ou CPF/CNPJ
             $this->db->group_start();
-            $this->db->like('c.CTR_NUMERO', $search);
-            $this->db->or_like('p.PES_NOME', $search);
-            $this->db->or_like('p.PES_RAZAO_SOCIAL', $search);
-            $this->db->or_like('p.PES_CPFCNPJ', $search);
+            $this->db->like('c.ctr_numero', $search);
+            $this->db->or_like('p.pes_nome', $search);
+            $this->db->or_like('p.pes_razao_social', $search);
+            $this->db->or_like('p.pes_cpfcnpj', $search);
             $this->db->group_end();
         }
 
@@ -35,10 +35,10 @@ class Contratos_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->select('c.*, p.PES_NOME, p.PES_CPFCNPJ, p.PES_RAZAO_SOCIAL, p.PES_FISICO_JURIDICO');
+        $this->db->select('c.*, p.pes_nome, p.pes_cpfcnpj, p.pes_razao_social, p.pes_fisico_juridico');
         $this->db->from('contratos c');
-        $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
-        $this->db->where('c.CTR_ID', $id);
+        $this->db->join('pessoas p', 'p.pes_id = c.pes_id', 'left');
+        $this->db->where('c.ctr_id', $id);
         $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
         return $this->db->get()->row();
@@ -75,15 +75,15 @@ class Contratos_model extends CI_Model
     public function count($table, $search = '')
     {
         $this->db->from('contratos c');
-        $this->db->join('pessoas p', 'p.PES_ID = c.PES_ID', 'left');
+        $this->db->join('pessoas p', 'p.pes_id = c.pes_id', 'left');
         $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
         
         if ($search) {
             $this->db->group_start();
-            $this->db->like('c.CTR_NUMERO', $search);
-            $this->db->or_like('p.PES_NOME', $search);
-            $this->db->or_like('p.PES_RAZAO_SOCIAL', $search);
-            $this->db->or_like('p.PES_CPFCNPJ', $search);
+            $this->db->like('c.ctr_numero', $search);
+            $this->db->or_like('p.pes_nome', $search);
+            $this->db->or_like('p.pes_razao_social', $search);
+            $this->db->or_like('p.pes_cpfcnpj', $search);
             $this->db->group_end();
         }
         
@@ -114,25 +114,25 @@ class Contratos_model extends CI_Model
     public function getItensByContratoId($contratoId)
     {
         $this->db->select('
-            ci.CTI_ID,
-            ci.CTR_ID,
-            ci.PRO_ID,
-            ci.CTI_PRECO,
-            ci.CTI_QUANTIDADE,
-            ci.CTI_ATIVO,
-            ci.CTI_OBSERVACAO,
-            ci.CTI_DATA_CADASTRO,
-            ci.CTI_DATA_ATUALIZACAO,
-            p.PRO_DESCRICAO,
-            p.PRO_UNID_MEDIDA,
-            p.PRO_TIPO,
-            p.PRO_PRECO_VENDA as PRO_PRECO_VENDA_ORIGINAL
+            ci.cti_id,
+            ci.ctr_id,
+            ci.pro_id,
+            ci.cti_preco,
+            ci.cti_quantidade,
+            ci.cti_ativo,
+            ci.cti_observacao,
+            ci.cti_data_cadastro,
+            ci.cti_data_atualizacao,
+            p.pro_descricao,
+            p.pro_unid_medida,
+            p.pro_tipo,
+            p.pro_preco_venda as PRO_PRECO_VENDA_ORIGINAL
         ');
         $this->db->from('contratos_itens ci');
-        $this->db->join('produtos p', 'p.PRO_ID = ci.PRO_ID', 'left');
-        $this->db->where('ci.CTR_ID', $contratoId);
+        $this->db->join('produtos p', 'p.pro_id = ci.pro_id', 'left');
+        $this->db->where('ci.ctr_id', $contratoId);
         $this->db->where('ci.ten_id', $this->session->userdata('ten_id'));
-        $this->db->order_by('ci.CTI_ID', 'ASC');
+        $this->db->order_by('ci.cti_id', 'ASC');
         
         $query = $this->db->get();
         return $query->result();
@@ -141,7 +141,7 @@ class Contratos_model extends CI_Model
     /**
      * Adiciona um item ao contrato
      * 
-     * @param array $data Dados do item (CTR_ID, PRO_ID, CTI_PRECO, CTI_QUANTIDADE, CTI_OBSERVACAO, CTI_ATIVO)
+     * @param array $data Dados do item (ctr_id, pro_id, cti_preco, cti_quantidade, cti_observacao, cti_ativo)
      * @return int|false ID do item inserido ou false em caso de erro
      */
     public function addItem($data)
@@ -150,9 +150,9 @@ class Contratos_model extends CI_Model
             $data['ten_id'] = $this->session->userdata('ten_id');
         }
         
-        // Garantir que CTI_ATIVO tenha valor padrão
-        if (!isset($data['CTI_ATIVO'])) {
-            $data['CTI_ATIVO'] = 1;
+        // Garantir que cti_ativo tenha valor padrão
+        if (!isset($data['cti_ativo'])) {
+            $data['cti_ativo'] = 1;
         }
         
         $this->db->insert('contratos_itens', $data);
@@ -171,7 +171,7 @@ class Contratos_model extends CI_Model
      */
     public function updateItem($itemId, $data)
     {
-        $this->db->where('CTI_ID', $itemId);
+        $this->db->where('cti_id', $itemId);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update('contratos_itens', $data);
         return $this->db->affected_rows() >= 0;
@@ -185,7 +185,7 @@ class Contratos_model extends CI_Model
      */
     public function deleteItem($itemId)
     {
-        $this->db->where('CTI_ID', $itemId);
+        $this->db->where('cti_id', $itemId);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete('contratos_itens');
         return $this->db->affected_rows() == 1;
@@ -199,7 +199,7 @@ class Contratos_model extends CI_Model
      */
     public function deleteItensByContratoId($contratoId)
     {
-        $this->db->where('CTR_ID', $contratoId);
+        $this->db->where('ctr_id', $contratoId);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete('contratos_itens');
         return $this->db->affected_rows() >= 0;

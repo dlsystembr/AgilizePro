@@ -141,23 +141,54 @@
                   class='bx bx-log-out-circle'></i> <span class="text">Sair do Sistema</span></a></li>
           </ul>
         </li>
+        <?php 
+        // Verificar se o usuário tem pelo menos uma permissão de relatório
+        $temPermissaoRelatorio = $this->permission->checkPermission($this->session->userdata('permissao'), 'rCliente') ||
+                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rProduto') ||
+                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rServico') ||
+                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rOs') ||
+                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda') ||
+                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato') ||
+                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro') ||
+                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rNfe');
+        if ($temPermissaoRelatorio) { ?>
         <li class="dropdown">
           <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Relatórios"><i
               class='bx bx-pie-chart-alt-2 iconN'></i><span class="text"></span></a>
           <ul class="dropdown-menu">
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rCliente')) { ?>
             <li><a href="<?= site_url('relatorios/clientes') ?>">Clientes</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rProduto')) { ?>
             <li><a href="<?= site_url('relatorios/produtos') ?>">Produtos</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rServico')) { ?>
             <li><a href="<?= site_url('relatorios/servicos') ?>">Serviços</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
             <li><a href="<?= site_url('relatorios/os') ?>">Ordens de Serviço</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda')) { ?>
             <li><a href="<?= site_url('relatorios/vendas') ?>">Vendas</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato')) { ?>
+            <li><a href="<?= site_url('relatorios/contratos') ?>">Contratos</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
             <li><a href="<?= site_url('relatorios/financeiro') ?>">Financeiro</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
             <li><a href="<?= site_url('relatorios/sku') ?>">SKU</a></li>
+            <?php } ?>
+            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
             <li><a href="<?= site_url('relatorios/receitasBrutasMei') ?>">Receitas Brutas - MEI</a></li>
+            <?php } ?>
             <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rNfe')) { ?>
               <li><a href="<?= site_url('relatorios/nfe_emitidas') ?>">Relatório NFe emitidas</a></li>
             <?php } ?>
           </ul>
         </li>
+        <?php } ?>
         <li class="dropdown">
           <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Tributação"><i
               class='bx bx-calculator iconN'></i><span class="text"></span></a>

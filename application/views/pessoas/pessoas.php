@@ -59,21 +59,21 @@
                     }
                     foreach ($results as $r) {
                         echo '<tr>';
-                        echo '<td>' . ($r->PES_CODIGO ?: '-') . '</td>';
-                        echo '<td>' . $r->PES_NOME . '</td>';
-                        echo '<td>' . $r->PES_CPFCNPJ . '</td>';
-                        echo '<td>' . ($r->PES_RAZAO_SOCIAL ?: '-') . '</td>';
-                        echo '<td>' . ($r->PES_FISICO_JURIDICO === 'F' ? 'Física' : 'Jurídica') . '</td>';
-                        echo '<td>' . ((int)$r->PES_SITUACAO === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>') . '</td>';
+                        echo '<td>' . ($r->pes_codigo ?: '-') . '</td>';
+                        echo '<td>' . $r->pes_nome . '</td>';
+                        echo '<td>' . $r->pes_cpfcnpj . '</td>';
+                        echo '<td>' . ($r->pes_razao_social ?: '-') . '</td>';
+                        echo '<td>' . ($r->pes_fisico_juridico === 'F' ? 'Física' : 'Jurídica') . '</td>';
+                        echo '<td>' . ((int)$r->pes_situacao === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>') . '</td>';
                         echo '<td>';
                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vPessoa')) {
-                            echo '<a href="' . base_url() . 'index.php/pessoas/visualizar/' . $r->PES_ID . '" style="margin-right: 1%" class="btn-nwe" title="Visualizar Pessoa"><i class="bx bx-show bx-xs"></i></a>';
+                            echo '<a href="' . base_url() . 'index.php/pessoas/visualizar/' . $r->pes_id . '" style="margin-right: 1%" class="btn-nwe" title="Visualizar Pessoa"><i class="bx bx-show bx-xs"></i></a>';
                         }
                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'ePessoa')) {
-                            echo '<a href="' . base_url() . 'index.php/pessoas/editar/' . $r->PES_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Editar Pessoa"><i class="bx bx-edit bx-xs"></i></a>';
+                            echo '<a href="' . base_url() . 'index.php/pessoas/editar/' . $r->pes_id . '" style="margin-right: 1%" class="btn-nwe3" title="Editar Pessoa"><i class="bx bx-edit bx-xs"></i></a>';
                         }
                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'dPessoa')) {
-                            echo '<a href="#modal-excluir" role="button" data-toggle="modal" pessoa="' . $r->PES_ID . '" style="margin-right: 1%" class="btn-nwe4" title="Excluir Pessoa"><i class="bx bx-trash-alt bx-xs"></i></a>';
+                            echo '<a href="#modal-excluir" role="button" data-toggle="modal" pessoa="' . $r->pes_id . '" style="margin-right: 1%" class="btn-nwe4" title="Excluir Pessoa"><i class="bx bx-trash-alt bx-xs"></i></a>';
                         }
                         echo '</td>';
                         echo '</tr>';

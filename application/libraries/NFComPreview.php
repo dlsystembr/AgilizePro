@@ -457,7 +457,7 @@ class NFComPreview
 
         $pdf->SetXY($xTrib, $totY + $hTitle);
         $pdf->Cell($tribW / 2, $hSub, $this->safeText('TRIBUTO'), 0, 0, 'C');
-        $pdf->Cell($tribW / 2, $hSub, $this->safeText('VALOR'), 0, 0, 'C');
+        $pdf->Cell($tribW / 2, $hSub, $this->safeText('valor'), 0, 0, 'C');
 
         $tribData = [
             ['PIS', $tot['valor_pis'] ?? 0.00],
@@ -1097,7 +1097,7 @@ class NFComPreview
             'SC' => 42,
             'SE' => 28,
             'SP' => 35,
-            'TO' => 17
+            'to' => 17
         ];
 
         return $ufs[$uf] ?? 0;

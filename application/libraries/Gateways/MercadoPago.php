@@ -233,7 +233,7 @@ class MercadoPago extends BasePaymentGateway
             'first_name' => $clientNameParts[0],
             'last_name' => $clientNameParts[count($clientNameParts) - 1],
             'identification' => [
-                'type' => strlen($documento) == 11 ? 'CPF' : 'CNPJ',
+                'type' => strlen($documento) == 11 ? 'cpf' : 'cnpj',
                 'number' => $documento,
             ],
             'address' => [

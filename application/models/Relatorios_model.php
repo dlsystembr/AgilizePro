@@ -525,4 +525,94 @@ class Relatorios_model extends CI_Model
             'localEdata' => sprintf('%s, %s', $emitente['cidade'], (new DateTime())->format('d/m/Y')),
         ];
     }
+
+    /**
+     * Busca todos os contratos para relatório rápido
+     * 
+     * @param bool $array Se true, retorna array, senão retorna objetos
+     * @return array|object
+     */
+    public function contratosRapid($array = false)
+    {
+        $this->db->select('c.*, p.pes_nome, p.pes_razao_social, p.pes_cpfcnpj, p.pes_fisico_juridico');
+        $this->db->from('contratos c');
+        $this->db->join('pessoas p', 'p.pes_id = c.pes_id', 'left');
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
+        $this->db->order_by('c.ctr_data_inicio', 'desc');
+        
+        $result = $this->db->get();
+        
+        if ($array) {
+            return $result->result_array();
+        }
+        
+        return $result->result();
+    }
+
+    /**
+     * Busca contratos com filtros customizados
+     * 
+     * @param string|null $dataInicial Data inicial (formato Y-m-d)
+     * @param string|null $dataFinal Data final (formato Y-m-d)
+     * @param int|null $cliente ID do cliente
+     * @param string|null $tipoAssinante Tipo de assinante
+     * @param int|null $situacao Situação (1-Ativo, 0-Inativo)
+     * @param bool $array Se true, retorna array, senão retorna objetos
+     * @return array|object
+     */
+    public function contratosCustom($dataInicial = null, $dataFinal = null, $cliente = null, $tipoAssinante = null, $situacao = null, $array = false)
+    {
+        $this->db->select('c.*, p.pes_nome, p.pes_razao_social, p.pes_cpfcnpj, p.pes_fisico_juridico');
+        $this->db->from('contratos c');
+        $this->db->join('pessoas p', 'p.pes_id = c.pes_id', 'left');
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
+        
+        if ($dataInicial) {
+            $this->db->where('c.ctr_data_inicio >=', $dataInicial);
+        }
+        
+        if ($dataFinal) {
+            $this->db->where('c.ctr_data_inicio <=', $dataFinal);
+        }
+        
+        if ($cliente) {
+            $this->db->where('c.pes_id', $cliente);
+        }
+        
+        if ($tipoAssinante !== null && $tipoAssinante !== '') {
+            $this->db->where('c.ctr_tipo_assinante', $tipoAssinante);
+        }
+        
+        if ($situacao !== null && $situacao !== '') {
+            $this->db->where('c.ctr_situacao', $situacao);
+        }
+        
+        $this->db->order_by('c.ctr_data_inicio', 'desc');
+        
+        $result = $this->db->get();
+        
+        if ($array) {
+            return $result->result_array();
+        }
+        
+        return $result->result();
+    }
+
+    /**
+     * Busca os itens de um contrato específico
+     * 
+     * @param int $contratoId ID do contrato
+     * @return array|object
+     */
+    public function getItensContrato($contratoId)
+    {
+        $this->db->select('ci.*, p.pro_descricao, p.pro_unid_medida');
+        $this->db->from('contratos_itens ci');
+        $this->db->join('produtos p', 'p.pro_id = ci.pro_id', 'left');
+        $this->db->where('ci.ctr_id', $contratoId);
+        $this->db->where('ci.ten_id', $this->session->userdata('ten_id'));
+        $this->db->order_by('ci.cti_id', 'ASC');
+        
+        return $this->db->get()->result();
+    }
 }

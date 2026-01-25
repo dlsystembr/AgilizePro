@@ -16,7 +16,7 @@ class Usuarios_super_model extends CI_Model
         $this->db->from('usuarios_super');
         $this->db->select('usuarios_super.*');
         $this->db->limit($perpage, $start);
-        $this->db->order_by('USS_NOME', 'ASC');
+        $this->db->order_by('uss_nome', 'ASC');
 
         $query = $this->db->get();
 
@@ -27,7 +27,7 @@ class Usuarios_super_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->where('USS_ID', $id);
+        $this->db->where('uss_id', $id);
         $this->db->limit(1);
 
         return $this->db->get('usuarios_super')->row();
@@ -35,8 +35,8 @@ class Usuarios_super_model extends CI_Model
 
     public function getByEmail($email)
     {
-        $this->db->where('USS_EMAIL', $email);
-        $this->db->where('USS_SITUACAO', 1);
+        $this->db->where('uss_email', $email);
+        $this->db->where('uss_situacao', 1);
         $this->db->limit(1);
 
         return $this->db->get('usuarios_super')->row();
@@ -44,7 +44,7 @@ class Usuarios_super_model extends CI_Model
 
     public function getAll()
     {
-        $this->db->order_by('USS_NOME', 'ASC');
+        $this->db->order_by('uss_nome', 'ASC');
         return $this->db->get('usuarios_super')->result();
     }
 
@@ -60,7 +60,7 @@ class Usuarios_super_model extends CI_Model
 
     public function edit($data, $id)
     {
-        $this->db->where('USS_ID', $id);
+        $this->db->where('uss_id', $id);
         $this->db->update('usuarios_super', $data);
 
         if ($this->db->affected_rows() >= 0) {
@@ -72,7 +72,7 @@ class Usuarios_super_model extends CI_Model
 
     public function delete($id)
     {
-        $this->db->where('USS_ID', $id);
+        $this->db->where('uss_id', $id);
         $this->db->delete('usuarios_super');
 
         if ($this->db->affected_rows() >= 0) {

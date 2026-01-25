@@ -75,20 +75,20 @@
                         <div class="span6">
                             <!-- Coluna 1: Informações Básicas -->
                             <div class="control-group">
-                                <?php echo form_hidden('PRO_ID', $result->PRO_ID) ?>
+                                <?php echo form_hidden('pro_id', $result->pro_id) ?>
                                 <label for="codigo" class="control-label">Código do Produto</label>
                                 <div class="controls">
-                                    <input id="codigo" type="text" name="codigo" value="<?php echo $result->PRO_ID; ?>" readonly />
+                                    <input id="codigo" type="text" name="codigo" value="<?php echo $result->pro_id; ?>" readonly />
                                 </div>
                             </div>
                             <div class="control-group field-produto">
                                 <label for="codDeBarra" class="control-label">Código de Barra</label>
                                 <div class="controls">
                                     <div style="display: flex; gap: 10px; align-items: center;">
-                                        <input id="codDeBarra" type="text" name="codDeBarra" value="<?php echo $result->PRO_COD_BARRA; ?>" readonly style="width: 200px;" />
+                                        <input id="codDeBarra" type="text" name="codDeBarra" value="<?php echo $result->pro_cod_barra; ?>" readonly style="width: 200px;" />
                                         <?php if (!empty($result->codDeBarra)): ?>
                                             <span class="badge badge-info" style="padding: 5px 10px; font-size: 12px; background-color: #17a2b8; color: white; border-radius: 4px;">
-                                                GTIN-<?php echo strlen(preg_replace('/[^0-9]/', '', $result->PRO_COD_BARRA)); ?>
+                                                GTIN-<?php echo strlen(preg_replace('/[^0-9]/', '', $result->pro_cod_barra)); ?>
                                             </span>
                                         <?php endif; ?>
                                     </div>
@@ -97,21 +97,21 @@
                             <div class="control-group">
                                 <label for="descricao" class="control-label">Descrição<span class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="descricao" type="text" name="descricao" value="<?php echo $result->PRO_DESCRICAO; ?>" readonly />
+                                    <input id="descricao" type="text" name="descricao" value="<?php echo $result->pro_descricao; ?>" readonly />
                                 </div>
                             </div>
                             <div class="control-group">
                                 <label for="NCMs" class="control-label">NCM<span class="required">*</span></label>
                                 <div class="controls">
                                     <div class="input-group" style="display: flex; gap: 5px;">
-                                        <input id="NCMs" class="form-control" type="text" name="NCMs" value="<?php echo $result->PRO_NCM; ?>" readonly />
+                                        <input id="NCMs" class="form-control" type="text" name="NCMs" value="<?php echo $result->pro_ncm; ?>" readonly />
                                         <button type="button" class="btn btn-warning" id="btnDescricaoNcm" style="border-radius: 4px;" title="Nomenclatura Comum do Mercosul - Código de 8 dígitos que classifica produtos para fins fiscais e aduaneiros"><i class="fas fa-info-circle"></i></button>
                                     </div>
-                                    <input id="ncm_id" class="form-control" type="hidden" name="ncm_id" value="<?php echo $result->NCM_ID; ?>" />
+                                    <input id="ncm_id" class="form-control" type="hidden" name="ncm_id" value="<?php echo $result->ncm_id; ?>" />
                                 </div>
                             </div>
                             <?php
-                                $finalidadeSelecionada = $result->PRO_FINALIDADE ?? 'Comercialização';
+                                $finalidadeSelecionada = $result->pro_finalidade ?? 'Comercialização';
                                 if ($finalidadeSelecionada === 'COMERCIALIZACAO') {
                                     $finalidadeSelecionada = 'Comercialização';
                                 }
@@ -131,7 +131,7 @@
                             <div class="control-group field-servico">
                                 <label for="cclass_serv" class="control-label">cClass (Serviço)</label>
                                 <div class="controls">
-                                    <input id="cclass_serv" type="text" name="cclass_serv" value="<?php echo $result->PRO_CCLASS_SERV; ?>" readonly />
+                                    <input id="cclass_serv" type="text" name="cclass_serv" value="<?php echo $result->pro_cclass_serv; ?>" readonly />
                                 </div>
                             </div>
                             <div class="control-group">
@@ -143,7 +143,7 @@
                             <div class="control-group field-servico">
                                 <label for="precoVenda_servico" class="control-label">Preço Serviço<span class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="precoVenda_servico" type="text" name="precoVenda_servico" value="<?php echo number_format($result->PRO_PRECO_VENDA, 2, ',', '.'); ?>" readonly />
+                                    <input id="precoVenda_servico" type="text" name="precoVenda_servico" value="<?php echo number_format($result->pro_preco_venda, 2, ',', '.'); ?>" readonly />
                                 </div>
                             </div>
                         </div>
@@ -153,40 +153,40 @@
                             <div class="control-group field-produto">
                                 <label for="precoCompra" class="control-label">Preço de Compra<span class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="precoCompra" type="text" name="precoCompra" value="<?php echo number_format($result->PRO_PRECO_COMPRA, 2, ',', '.'); ?>" readonly />
+                                    <input id="precoCompra" type="text" name="precoCompra" value="<?php echo number_format($result->pro_preco_compra, 2, ',', '.'); ?>" readonly />
                                 </div>
                             </div>
                             <div class="control-group field-produto">
                                 <label for="precoVenda" class="control-label">Preço de Venda<span class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="precoVenda" type="text" name="precoVenda" value="<?php echo number_format($result->PRO_PRECO_VENDA, 2, ',', '.'); ?>" readonly />
+                                    <input id="precoVenda" type="text" name="precoVenda" value="<?php echo number_format($result->pro_preco_venda, 2, ',', '.'); ?>" readonly />
                                 </div>
                             </div>
                             <div class="control-group field-produto">
                                 <label for="estoque" class="control-label">Estoque<span class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="estoque" type="number" name="estoque" value="<?php echo $result->PRO_ESTOQUE; ?>" readonly />
+                                    <input id="estoque" type="number" name="estoque" value="<?php echo $result->pro_estoque; ?>" readonly />
                                 </div>
                             </div>
                             <div class="control-group field-produto">
                                 <label for="estoqueMinimo" class="control-label">Estoque Mínimo</label>
                                 <div class="controls">
-                                    <input id="estoqueMinimo" type="number" name="estoqueMinimo" value="<?php echo $result->PRO_ESTOQUE_MINIMO; ?>" readonly />
+                                    <input id="estoqueMinimo" type="number" name="estoqueMinimo" value="<?php echo $result->pro_estoque_minimo; ?>" readonly />
                                 </div>
                             </div>
                             <div class="control-group field-produto">
                                 <label for="origem" class="control-label">Origem do Produto<span class="required">*</span></label>
                                 <div class="controls">
                                     <select id="origem" name="origem" disabled>
-                                        <option value="0" <?php if (!isset($result->PRO_ORIGEM) || $result->PRO_ORIGEM == 0) echo 'selected'; ?>>0 - Nacional (exceto as indicadas nos códigos 3, 4, 5 e 8)</option>
-                                        <option value="1" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 1) echo 'selected'; ?>>1 - Estrangeira – Importação direta</option>
-                                        <option value="2" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 2) echo 'selected'; ?>>2 - Estrangeira – Adquirida no mercado interno</option>
-                                        <option value="3" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 3) echo 'selected'; ?>>3 - Nacional – Conteúdo de importação superior a 40% e inferior ou igual a 70%</option>
-                                        <option value="4" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 4) echo 'selected'; ?>>4 - Nacional – Produzido conforme os processos produtivos básicos (PPB)</option>
-                                        <option value="5" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 5) echo 'selected'; ?>>5 - Nacional – Conteúdo de importação inferior ou igual a 40%</option>
-                                        <option value="6" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 6) echo 'selected'; ?>>6 - Estrangeira – Importação direta sem similar nacional, constante da CAMEX</option>
-                                        <option value="7" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 7) echo 'selected'; ?>>7 - Estrangeira – Adquirida no mercado interno, sem similar nacional</option>
-                                        <option value="8" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 8) echo 'selected'; ?>>8 - Nacional – Conteúdo de importação superior a 70%</option>
+                                        <option value="0" <?php if (!isset($result->pro_origem) || $result->pro_origem == 0) echo 'selected'; ?>>0 - Nacional (exceto as indicadas nos códigos 3, 4, 5 e 8)</option>
+                                        <option value="1" <?php if (isset($result->pro_origem) && $result->pro_origem == 1) echo 'selected'; ?>>1 - Estrangeira – Importação direta</option>
+                                        <option value="2" <?php if (isset($result->pro_origem) && $result->pro_origem == 2) echo 'selected'; ?>>2 - Estrangeira – Adquirida no mercado interno</option>
+                                        <option value="3" <?php if (isset($result->pro_origem) && $result->pro_origem == 3) echo 'selected'; ?>>3 - Nacional – Conteúdo de importação superior a 40% e inferior ou igual a 70%</option>
+                                        <option value="4" <?php if (isset($result->pro_origem) && $result->pro_origem == 4) echo 'selected'; ?>>4 - Nacional – Produzido conforme os processos produtivos básicos (PPB)</option>
+                                        <option value="5" <?php if (isset($result->pro_origem) && $result->pro_origem == 5) echo 'selected'; ?>>5 - Nacional – Conteúdo de importação inferior ou igual a 40%</option>
+                                        <option value="6" <?php if (isset($result->pro_origem) && $result->pro_origem == 6) echo 'selected'; ?>>6 - Estrangeira – Importação direta sem similar nacional, constante da CAMEX</option>
+                                        <option value="7" <?php if (isset($result->pro_origem) && $result->pro_origem == 7) echo 'selected'; ?>>7 - Estrangeira – Adquirida no mercado interno, sem similar nacional</option>
+                                        <option value="8" <?php if (isset($result->pro_origem) && $result->pro_origem == 8) echo 'selected'; ?>>8 - Nacional – Conteúdo de importação superior a 70%</option>
                                     </select>
                                 </div>
                             </div>
@@ -204,7 +204,7 @@
                             <div class="control-group">
                                 <label for="peso_bruto" class="control-label">Peso Bruto (kg)</label>
                                 <div class="controls">
-                                        <input id="peso_bruto" type="text" name="peso_bruto" value="<?php echo number_format($result->PRO_PESO_BRUTO, 3, ',', '.'); ?>" readonly style="width: 100px;" />
+                                        <input id="peso_bruto" type="text" name="peso_bruto" value="<?php echo number_format($result->pro_peso_bruto, 3, ',', '.'); ?>" readonly style="width: 100px;" />
                                 </div>
                             </div>
                         </div>
@@ -212,7 +212,7 @@
                             <div class="control-group">
                                 <label for="peso_liquido" class="control-label">Peso Líquido (kg)</label>
                                 <div class="controls">
-                                        <input id="peso_liquido" type="text" name="peso_liquido" value="<?php echo number_format($result->PRO_PESO_LIQUIDO, 3, ',', '.'); ?>" readonly style="width: 100px;" />
+                                        <input id="peso_liquido" type="text" name="peso_liquido" value="<?php echo number_format($result->pro_peso_liquido, 3, ',', '.'); ?>" readonly style="width: 100px;" />
                                 </div>
                             </div>
                         </div>
@@ -220,7 +220,7 @@
                             <div class="control-group">
                                 <label for="largura" class="control-label">Largura (cm)</label>
                                 <div class="controls">
-                                        <input id="largura" type="text" name="largura" value="<?php echo number_format($result->PRO_LARGURA, 3, ',', '.'); ?>" readonly style="width: 100px;" />
+                                        <input id="largura" type="text" name="largura" value="<?php echo number_format($result->pro_largura, 3, ',', '.'); ?>" readonly style="width: 100px;" />
                                 </div>
                             </div>
                         </div>
@@ -228,7 +228,7 @@
                             <div class="control-group">
                                 <label for="altura" class="control-label">Altura (cm)</label>
                                 <div class="controls">
-                                        <input id="altura" type="text" name="altura" value="<?php echo number_format($result->PRO_ALTURA, 3, ',', '.'); ?>" readonly style="width: 100px;" />
+                                        <input id="altura" type="text" name="altura" value="<?php echo number_format($result->pro_altura, 3, ',', '.'); ?>" readonly style="width: 100px;" />
                                 </div>
                             </div>
                         </div>
@@ -236,7 +236,7 @@
                             <div class="control-group">
                                 <label for="comprimento" class="control-label">Comprimento (cm)</label>
                                 <div class="controls">
-                                        <input id="comprimento" type="text" name="comprimento" value="<?php echo number_format($result->PRO_COMPRIMENTO, 3, ',', '.'); ?>" readonly style="width: 100px;" />
+                                        <input id="comprimento" type="text" name="comprimento" value="<?php echo number_format($result->pro_comprimento, 3, ',', '.'); ?>" readonly style="width: 100px;" />
                                 </div>
                             </div>
                         </div>
@@ -249,7 +249,7 @@
                                     <span class="button__icon"><i class="fas fa-plus"></i></span>
                                     <span class="button__text2">Novo</span>
                                 </a>
-                                <a href="<?php echo base_url() ?>index.php/produtos/editar/<?php echo $result->PRO_ID; ?>" class="button btn btn-primary" style="max-width: 160px">
+                                <a href="<?php echo base_url() ?>index.php/produtos/editar/<?php echo $result->pro_id; ?>" class="button btn btn-primary" style="max-width: 160px">
                                     <span class="button__icon"><i class="fas fa-edit"></i></span>
                                     <span class="button__text2">Editar</span>
                                 </a>
@@ -270,7 +270,7 @@
 <script type="text/javascript">
     // Função para mostrar/ocultar campos baseado no tipo do produto
     function toggleFieldsVisualizar() {
-        var isService = '<?php echo $result->PRO_TIPO; ?>' == '2';
+        var isService = '<?php echo $result->pro_tipo; ?>' == '2';
 
         if (isService) {
             // É serviço - mostrar apenas campos de serviço
@@ -294,7 +294,7 @@
         toggleFieldsVisualizar();
 
         // Carregar unidades baseado no tipo
-        var isService = '<?php echo $result->PRO_TIPO; ?>' == '2';
+        var isService = '<?php echo $result->pro_tipo; ?>' == '2';
 
         if (isService) {
             // Carregar unidades de serviço
@@ -307,8 +307,8 @@
                     select.append($('<option></option>').val(unidade.valor).text(texto));
                 });
                 // Selecionar a unidade atual
-                if ('<?php echo $result->PRO_UNID_MEDIDA; ?>') {
-                    select.val('<?php echo $result->PRO_UNID_MEDIDA; ?>');
+                if ('<?php echo $result->pro_unid_medida; ?>') {
+                    select.val('<?php echo $result->pro_unid_medida; ?>');
                 }
             });
         } else {
@@ -321,8 +321,8 @@
                     select.append($('<option></option>').val(medida.sigla).text(medida.descricao));
                 });
                 // Selecionar a unidade atual
-                if ('<?php echo $result->PRO_UNID_MEDIDA; ?>') {
-                    select.val('<?php echo $result->PRO_UNID_MEDIDA; ?>');
+                if ('<?php echo $result->pro_unid_medida; ?>') {
+                    select.val('<?php echo $result->pro_unid_medida; ?>');
                 }
             });
         }

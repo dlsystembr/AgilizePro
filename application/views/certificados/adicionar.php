@@ -37,20 +37,20 @@
                         <h4 class="section-title"><i class="fas fa-file-upload"></i> Arquivo do Certificado</h4>
 
                         <div class="control-group">
-                            <label for="CER_ARQUIVO" class="control-label">Arquivo (.pfx)<span
+                            <label for="cer_arquivo" class="control-label">Arquivo (.pfx)<span
                                     class="required">*</span></label>
                             <div class="controls">
-                                <input id="CER_ARQUIVO" type="file" name="CER_ARQUIVO" accept=".pfx" required />
+                                <input id="cer_arquivo" type="file" name="cer_arquivo" accept=".pfx" required />
                                 <span class="help-block">Selecione o arquivo do certificado digital (formato
                                     PFX/P12).</span>
                             </div>
                         </div>
 
                         <div class="control-group">
-                            <label for="CER_SENHA" class="control-label">Senha<span class="required">*</span></label>
+                            <label for="cer_senha" class="control-label">Senha<span class="required">*</span></label>
                             <div class="controls">
                                 <div class="input-append">
-                                    <input id="CER_SENHA" type="password" name="CER_SENHA" required />
+                                    <input id="cer_senha" type="password" name="cer_senha" required />
                                     <span class="add-on" style="cursor: pointer;" onclick="togglePassword()"><i
                                             id="eyeIcon" class="fas fa-eye"></i></span>
                                 </div>
@@ -60,10 +60,10 @@
                         </div>
 
                         <div class="control-group">
-                            <label for="CER_TIPO" class="control-label">Tipo de Certificado<span
+                            <label for="cer_tipo" class="control-label">Tipo de Certificado<span
                                     class="required">*</span></label>
                             <div class="controls">
-                                <select name="CER_TIPO" id="CER_TIPO">
+                                <select name="cer_tipo" id="cer_tipo">
                                     <option value="A1">Certificado A1 (Arquivo)</option>
                                     <option value="A3">Certificado A3 (Cartão/Token)</option>
                                 </select>
@@ -91,7 +91,7 @@
 
 <script type="text/javascript">
     function togglePassword() {
-        var x = document.getElementById("CER_SENHA");
+        var x = document.getElementById("cer_senha");
         var icon = document.getElementById("eyeIcon");
         if (x.type === "password") {
             x.type = "text";
@@ -109,12 +109,12 @@
 
         $('#formCertificado').validate({
             rules: {
-                CER_SENHA: { required: true },
-                CER_ARQUIVO: { required: true }
+                cer_senha: { required: true },
+                cer_arquivo: { required: true }
             },
             messages: {
-                CER_SENHA: { required: 'Campo Requerido.' },
-                CER_ARQUIVO: { required: 'Selecione o arquivo do certificado.' }
+                cer_senha: { required: 'Campo Requerido.' },
+                cer_arquivo: { required: 'Selecione o arquivo do certificado.' }
             },
             errorClass: "help-inline",
             errorElement: "span",

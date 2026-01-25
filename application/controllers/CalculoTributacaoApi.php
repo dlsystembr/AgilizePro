@@ -86,7 +86,7 @@ class CalculoTributacaoApi extends CI_Controller
             // Buscar diretamente do banco, pois getById depende de sessão
             $this->db->select('*');
             $this->db->from('produtos');
-            $this->db->where('PRO_ID', $produtoId);
+            $this->db->where('pro_id', $produtoId);
             $this->db->where('ten_id', $tenId);
             $this->db->limit(1);
             $produto = $this->db->get()->row();
@@ -99,7 +99,7 @@ class CalculoTributacaoApi extends CI_Controller
                 return;
             }
 
-            $ncmId = isset($produto->NCM_ID) ? $produto->NCM_ID : null;
+            $ncmId = isset($produto->ncm_id) ? $produto->ncm_id : null;
             if (!$ncmId) {
                 log_message('error', 'CalculoTributacaoApi - Produto sem NCM: ' . $produtoId);
                 echo json_encode([
@@ -112,32 +112,32 @@ class CalculoTributacaoApi extends CI_Controller
             log_message('debug', 'CalculoTributacaoApi - Produto encontrado - NCM ID: ' . $ncmId);
 
             // Origem do produto (0=Nacional, 1=Estrangeira, 2=Estrangeira com adquirente, etc.)
-            $origemProduto = isset($produto->PRO_ORIGEM) ? (int)$produto->PRO_ORIGEM : (isset($produto->origem) ? (int)$produto->origem : 0);
+            $origemProduto = isset($produto->pro_origem) ? (int)$produto->pro_origem : (isset($produto->origem) ? (int)$produto->origem : 0);
 
             // 2. Buscar dados do cliente (para pegar UF e natureza)
             // Se endereco_id for fornecido, usar esse endereço específico
             // Caso contrário, usar o endereço padrão
-            $this->db->select('c.CLN_ID, p.PES_NOME, p.PES_CPFCNPJ, 
-                              est.EST_UF as uf_cliente,
-                              doc.DOC_NATUREZA_CONTRIBUINTE as natureza_contribuinte,
-                              c.CLN_OBJETIVO_COMERCIAL as objetivo_comercial');
+            $this->db->select('c.cln_id, p.pes_nome, p.pes_cpfcnpj, 
+                              est.est_uf as uf_cliente,
+                              doc.doc_natureza_contribuinte as natureza_contribuinte,
+                              c.cln_objetivo_comercial as objetivo_comercial');
             $this->db->from('clientes c');
-            $this->db->join('pessoas p', 'c.PES_ID = p.PES_ID', 'left');
-            $this->db->join('enderecos end', 'p.PES_ID = end.PES_ID', 'left');
-            $this->db->join('municipios mun', 'end.MUN_ID = mun.MUN_ID', 'left');
-            $this->db->join('estados est', 'mun.EST_ID = est.EST_ID', 'left');
-            $this->db->join('documentos doc', 'p.PES_ID = doc.PES_ID', 'left');
-            $this->db->where('c.CLN_ID', $clienteId);
+            $this->db->join('pessoas p', 'c.pes_id = p.pes_id', 'left');
+            $this->db->join('enderecos end', 'p.pes_id = end.pes_id', 'left');
+            $this->db->join('municipios mun', 'end.mun_id = mun.mun_id', 'left');
+            $this->db->join('estados est', 'mun.est_id = est.est_id', 'left');
+            $this->db->join('documentos doc', 'p.pes_id = doc.pes_id', 'left');
+            $this->db->where('c.cln_id', $clienteId);
             
             // Filtrar por endereço selecionado ou usar padrão
             if (!empty($enderecoId)) {
-                $this->db->where('end.END_ID', (int)$enderecoId);
+                $this->db->where('end.end_id', (int)$enderecoId);
             } else {
                 // Se não houver endereço selecionado, usar o padrão
                 // Se não houver padrão, pegar o primeiro endereço disponível
-                $this->db->where('(end.END_PADRAO = 1 OR end.END_ID IS NOT NULL)', null, false);
-                $this->db->order_by('end.END_PADRAO', 'DESC'); // Priorizar endereço padrão
-                $this->db->order_by('end.END_ID', 'ASC'); // Se não houver padrão, pegar o primeiro
+                $this->db->where('(end.end_padrao = 1 OR end.end_id IS NOT NULL)', null, false);
+                $this->db->order_by('end.end_padrao', 'DESC'); // Priorizar endereço padrão
+                $this->db->order_by('end.end_id', 'ASC'); // Se não houver padrão, pegar o primeiro
             }
             
             $cliente = $this->db->get()->row();
@@ -156,24 +156,24 @@ class CalculoTributacaoApi extends CI_Controller
 
             // 3. Determinar destinação (estadual ou interestadual)
             // Buscar UF da empresa (tabela empresas normalmente não possui ten_id)
-            $this->db->select('EMP_UF');
+            $this->db->select('emp_uf');
             $this->db->from('empresas');
             $this->db->limit(1);
             $empresa = $this->db->get()->row();
-            $ufEmpresa = $empresa ? $empresa->EMP_UF : null;
+            $ufEmpresa = $empresa ? $empresa->emp_uf : null;
 
             $destinacao = ($ufCliente && $ufEmpresa && $ufCliente === $ufEmpresa) ? 'estadual' : 'interestadual';
 
             // 4. Buscar classificação fiscal (usar query direta pois getTributacao depende de sessão)
-            $this->db->select('CLF_ID as id, CLF_CST as cst, CLF_CSOSN as csosn, CLF_CFOP as cfop, 
-                              CLF_TIPO_TRIBUTACAO as tipo_tributacao, CLF_NATUREZA_CONTRIBUINTE as natureza_contribuinte');
+            $this->db->select('clf_id as id, clf_cst as cst, clf_csosn as csosn, clf_cfop as cfop, 
+                              clf_tipo_tributacao as tipo_tributacao, clf_natureza_contribuinte as natureza_contribuinte');
             $this->db->from('classificacao_fiscal');
-            $this->db->where('OPC_ID', $operacaoId);
-            $this->db->where('CLF_NATUREZA_CONTRIBUINTE', $natureza);
-            $this->db->where('CLF_DESTINACAO', $destinacao);
-            $this->db->where('CLF_OBJETIVO_COMERCIAL', $objetivo);
+            $this->db->where('opc_id', $operacaoId);
+            $this->db->where('clf_natureza_contribuinte', $natureza);
+            $this->db->where('clf_destinacao', $destinacao);
+            $this->db->where('clf_objetivo_comercial', $objetivo);
             $this->db->where('ten_id', $tenId);
-            $this->db->where('CLF_SITUACAO', 'ativa');
+            $this->db->where('clf_situacao', 'ativa');
             $this->db->limit(1);
             $classificacaoFiscal = $this->db->get()->row();
             

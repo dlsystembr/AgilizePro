@@ -23,7 +23,7 @@ class Migration_Create_nfe_certificates_table extends CI_Migration
                 'null' => false
             ],
             'data_validade' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => false
             ],
             'nome_certificado' => [
@@ -32,11 +32,11 @@ class Migration_Create_nfe_certificates_table extends CI_Migration
                 'null' => false
             ],
             'created_at' => [
-                'type' => 'TIMESTAMP',
+                'type' => 'timestamp',
                 'default' => 'CURRENT_TIMESTAMP'
             ],
             'updated_at' => [
-                'type' => 'TIMESTAMP',
+                'type' => 'timestamp',
                 'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
             ]
         ]);

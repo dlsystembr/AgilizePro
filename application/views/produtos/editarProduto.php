@@ -308,18 +308,18 @@ L<style>
                     <div class="row-fluid">
                         <div class="span12">
                             <div class="control-group">
-                                <label for="PRO_TIPO" class="control-label">Tipo de Item<span
+                                <label for="pro_tipo" class="control-label">Tipo de Item<span
                                         class="required">*</span></label>
                                 <div class="controls">
                                     <div class="switch-container">
                                         <label class="toggle-switch">
-                                            <input type="checkbox" id="PRO_TIPO_TOGGLE" <?= $result->PRO_TIPO == '2' ? 'checked' : '' ?>>
+                                            <input type="checkbox" id="PRO_TIPO_TOGGLE" <?= $result->pro_tipo == '2' ? 'checked' : '' ?>>
                                             <span class="toggle-slider"></span>
                                         </label>
-                                        <input type="hidden" name="PRO_TIPO" id="PRO_TIPO"
-                                            value="<?= $result->PRO_TIPO ?: '1' ?>">
+                                        <input type="hidden" name="pro_tipo" id="pro_tipo"
+                                            value="<?= $result->pro_tipo ?: '1' ?>">
                                         <span id="tipo_label"
-                                            class="switch-label"><?= $result->PRO_TIPO == '2' ? 'Serviço' : 'Produto' ?></span>
+                                            class="switch-label"><?= $result->pro_tipo == '2' ? 'Serviço' : 'Produto' ?></span>
                                     </div>
                                 </div>
                             </div>
@@ -329,17 +329,17 @@ L<style>
                         <div class="span6">
                             <!-- Coluna 1: Informações Básicas -->
                     <div class="control-group">
-                        <?php echo form_hidden('PRO_ID', $result->PRO_ID) ?>
+                        <?php echo form_hidden('pro_id', $result->pro_id) ?>
                         <label for="codigo" class="control-label" id="codigo-label">Código do Produto</label>
                         <div class="controls">
-                            <input id="codigo" type="text" name="codigo" value="<?php echo $result->PRO_ID; ?>" readonly />
+                            <input id="codigo" type="text" name="codigo" value="<?php echo $result->pro_id; ?>" readonly />
                         </div>
                     </div>
                     <div class="control-group field-produto">
                         <label for="codDeBarra" class="control-label">Código de Barra</label>
                         <div class="controls">
                             <div class="input-group" style="display: flex; gap: 5px;">
-                            <input id="codDeBarra" type="text" name="codDeBarra" value="<?php echo $result->PRO_COD_BARRA; ?>" />
+                            <input id="codDeBarra" type="text" name="codDeBarra" value="<?php echo $result->pro_cod_barra; ?>" />
                                 <button type="button" class="btn btn-info" id="btnGerarCodigo" style="border-radius: 4px;">
                                     <i class="fas fa-barcode"></i> Gerar
                                 </button>
@@ -350,34 +350,34 @@ L<style>
                     <div class="control-group">
                         <label for="descricao" class="control-label">Descrição<span class="required">*</span></label>
                         <div class="controls">
-                            <input id="descricao" type="text" name="descricao" value="<?php echo $result->PRO_DESCRICAO; ?>" />
+                            <input id="descricao" type="text" name="descricao" value="<?php echo $result->pro_descricao; ?>" />
                         </div>
                     </div>
                     <div class="control-group field-produto">
-                        <label for="PRO_NCM" class="control-label">NCM<span class="required">*</span></label>
+                        <label for="pro_ncm" class="control-label">NCM<span class="required">*</span></label>
                         <div class="controls">
                             <div class="input-group" style="display: flex; gap: 5px;">
-                                <input id="PRO_NCM" class="form-control" type="text" name="PRO_NCM" 
-                                    value="<?php echo (isset($result->PRO_NCM) && $result->PRO_NCM !== null && $result->PRO_NCM !== '') ? htmlspecialchars($result->PRO_NCM) : ''; ?>" 
+                                <input id="pro_ncm" class="form-control" type="text" name="pro_ncm" 
+                                    value="<?php echo (isset($result->pro_ncm) && $result->pro_ncm !== null && $result->pro_ncm !== '') ? htmlspecialchars($result->pro_ncm) : ''; ?>" 
                                     readonly />
                                 <button type="button" class="btn btn-success" id="btnBuscarNcm" style="border-radius: 4px;" data-toggle="modal" data-target="#modalNcm"><i class="fas fa-search"></i></button>
                                 <button type="button" class="btn btn-warning" id="btnDescricaoNcm" style="border-radius: 4px;" title="Nomenclatura Comum do Mercosul - Código de 8 dígitos que classifica produtos para fins fiscais e aduaneiros"><i class="fas fa-info-circle"></i></button>
                             </div>
-                            <input id="NCM_ID" class="form-control" type="hidden" name="NCM_ID" 
-                                value="<?php echo (isset($result->NCM_ID) && $result->NCM_ID !== null && $result->NCM_ID !== '') ? htmlspecialchars($result->NCM_ID) : ''; ?>" />
+                            <input id="ncm_id" class="form-control" type="hidden" name="ncm_id" 
+                                value="<?php echo (isset($result->ncm_id) && $result->ncm_id !== null && $result->ncm_id !== '') ? htmlspecialchars($result->ncm_id) : ''; ?>" />
                         </div>
                     </div>
                     <?php
-                        $finalidadeSelecionada = $result->PRO_FINALIDADE ?? 'Comercialização';
+                        $finalidadeSelecionada = $result->pro_finalidade ?? 'Comercialização';
                         // Normalizar valores antigos
                         if ($finalidadeSelecionada === 'COMERCIALIZACAO') {
                             $finalidadeSelecionada = 'Comercialização';
                         }
                     ?>
                     <div class="control-group field-produto">
-                        <label for="PRO_FINALIDADE" class="control-label">Finalidade<span class="required">*</span></label>
+                        <label for="pro_finalidade" class="control-label">Finalidade<span class="required">*</span></label>
                         <div class="controls">
-                            <select id="PRO_FINALIDADE" name="PRO_FINALIDADE">
+                            <select id="pro_finalidade" name="pro_finalidade">
                                 <?php foreach ($finalidadesProduto as $valor => $rotulo) : ?>
                                     <option value="<?php echo $valor; ?>" <?php echo $finalidadeSelecionada === $valor ? 'selected' : ''; ?>>
                                         <?php echo $rotulo; ?>
@@ -388,17 +388,17 @@ L<style>
                         </div>
                     </div>
                     <div class="control-group field-servico" style="display: none;">
-                        <label for="PRO_UNID_MEDIDA" class="control-label">Unidade<span class="required">*</span></label>
+                        <label for="pro_unid_medida" class="control-label">Unidade<span class="required">*</span></label>
                         <div class="controls">
-                            <select id="PRO_UNID_MEDIDA" name="PRO_UNID_MEDIDA"></select>
+                            <select id="pro_unid_medida" name="pro_unid_medida"></select>
                         </div>
                     </div>
                     <div class="control-group field-servico" style="display: none;">
-                        <label for="PRO_CCLASS_SERV" class="control-label">cClass (Serviço)</label>
+                        <label for="pro_cclass_serv" class="control-label">cClass (Serviço)</label>
                         <div class="controls">
                             <div class="input-group" style="display: flex; gap: 5px;">
-                                <input id="PRO_CCLASS_SERV" class="form-control" type="text" name="PRO_CCLASS_SERV"
-                                    value="<?php echo $result->PRO_CCLASS_SERV; ?>" maxlength="7" />
+                                <input id="pro_cclass_serv" class="form-control" type="text" name="pro_cclass_serv"
+                                    value="<?php echo $result->pro_cclass_serv; ?>" maxlength="7" />
                                 <button type="button" class="btn btn-success" id="btnBuscarCClass"
                                     style="border-radius: 4px;" data-toggle="modal" data-target="#modalCClass"><i
                                         class="fas fa-search"></i></button>
@@ -411,9 +411,9 @@ L<style>
                     <div class="control-group field-servico" style="display: none;">
                         <label for="precoVenda" class="control-label">Preço Serviço<span class="required">*</span></label>
                         <div class="controls">
-                            <input id="precoVenda" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->PRO_PRECO_VENDA; ?>" placeholder="0,00" />
+                            <input id="precoVenda" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->pro_preco_venda; ?>" placeholder="0,00" />
                             <!-- Campo hidden para garantir que o valor seja enviado mesmo se o campo estiver oculto -->
-                            <input type="hidden" name="precoVenda_servico" id="precoVenda_servico" value="<?php echo $result->PRO_PRECO_VENDA; ?>" />
+                            <input type="hidden" name="precoVenda_servico" id="precoVenda_servico" value="<?php echo $result->pro_preco_venda; ?>" />
                         </div>
                     </div>
                             <div class="control-group field-produto">
@@ -429,7 +429,7 @@ L<style>
                     <div class="control-group field-produto">
                         <label for="precoCompra" class="control-label">Preço de Compra<span class="required">*</span></label>
                         <div class="controls">
-                            <input id="precoCompra" class="preco-simples" type="text" name="precoCompra" value="<?php echo $result->PRO_PRECO_COMPRA; ?>" placeholder="0,00" />
+                            <input id="precoCompra" class="preco-simples" type="text" name="precoCompra" value="<?php echo $result->pro_preco_compra; ?>" placeholder="0,00" />
                             <strong><span style="color: red" id="errorAlert"></span><strong>
                         </div>
                     </div>
@@ -447,28 +447,28 @@ L<style>
                     <div class="control-group field-produto">
                         <label for="precoVenda_produto" class="control-label">Preço de Venda<span class="required">*</span></label>
                         <div class="controls">
-                            <input id="precoVenda_produto" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->PRO_PRECO_VENDA; ?>" placeholder="0,00" />
+                            <input id="precoVenda_produto" class="preco-simples" type="text" name="precoVenda" value="<?php echo $result->pro_preco_venda; ?>" placeholder="0,00" />
                         </div>
                     </div>
                             <div class="control-group field-produto">
                                 <label for="estoqueMinimo" class="control-label">Estoque Mínimo</label>
                                 <div class="controls">
-                                    <input id="estoqueMinimo" type="number" name="estoqueMinimo" value="<?php echo $result->PRO_ESTOQUE_MINIMO; ?>" />
+                                    <input id="estoqueMinimo" type="number" name="estoqueMinimo" value="<?php echo $result->pro_estoque_minimo; ?>" />
                                 </div>
                             </div>
                     <div class="control-group field-produto">
-                        <label for="PRO_ORIGEM" class="control-label">Origem do Produto<span class="required">*</span></label>
+                        <label for="pro_origem" class="control-label">Origem do Produto<span class="required">*</span></label>
                         <div class="controls">
-                            <select id="PRO_ORIGEM" name="PRO_ORIGEM">
-                                <option value="0" <?php if (!isset($result->PRO_ORIGEM) || $result->PRO_ORIGEM == 0) echo 'selected'; ?>>0 - Nacional (exceto as indicadas nos códigos 3, 4, 5 e 8)</option>
-                                <option value="1" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 1) echo 'selected'; ?>>1 - Estrangeira – Importação direta</option>
-                                <option value="2" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 2) echo 'selected'; ?>>2 - Estrangeira – Adquirida no mercado interno</option>
-                                <option value="3" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 3) echo 'selected'; ?>>3 - Nacional – Conteúdo de importação superior a 40% e inferior ou igual a 70%</option>
-                                <option value="4" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 4) echo 'selected'; ?>>4 - Nacional – Produzido conforme os processos produtivos básicos (PPB)</option>
-                                <option value="5" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 5) echo 'selected'; ?>>5 - Nacional – Conteúdo de importação inferior ou igual a 40%</option>
-                                <option value="6" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 6) echo 'selected'; ?>>6 - Estrangeira – Importação direta sem similar nacional, constante da CAMEX</option>
-                                <option value="7" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 7) echo 'selected'; ?>>7 - Estrangeira – Adquirida no mercado interno, sem similar nacional</option>
-                                <option value="8" <?php if (isset($result->PRO_ORIGEM) && $result->PRO_ORIGEM == 8) echo 'selected'; ?>>8 - Nacional – Conteúdo de importação superior a 70%</option>
+                            <select id="pro_origem" name="pro_origem">
+                                <option value="0" <?php if (!isset($result->pro_origem) || $result->pro_origem == 0) echo 'selected'; ?>>0 - Nacional (exceto as indicadas nos códigos 3, 4, 5 e 8)</option>
+                                <option value="1" <?php if (isset($result->pro_origem) && $result->pro_origem == 1) echo 'selected'; ?>>1 - Estrangeira – Importação direta</option>
+                                <option value="2" <?php if (isset($result->pro_origem) && $result->pro_origem == 2) echo 'selected'; ?>>2 - Estrangeira – Adquirida no mercado interno</option>
+                                <option value="3" <?php if (isset($result->pro_origem) && $result->pro_origem == 3) echo 'selected'; ?>>3 - Nacional – Conteúdo de importação superior a 40% e inferior ou igual a 70%</option>
+                                <option value="4" <?php if (isset($result->pro_origem) && $result->pro_origem == 4) echo 'selected'; ?>>4 - Nacional – Produzido conforme os processos produtivos básicos (PPB)</option>
+                                <option value="5" <?php if (isset($result->pro_origem) && $result->pro_origem == 5) echo 'selected'; ?>>5 - Nacional – Conteúdo de importação inferior ou igual a 40%</option>
+                                <option value="6" <?php if (isset($result->pro_origem) && $result->pro_origem == 6) echo 'selected'; ?>>6 - Estrangeira – Importação direta sem similar nacional, constante da CAMEX</option>
+                                <option value="7" <?php if (isset($result->pro_origem) && $result->pro_origem == 7) echo 'selected'; ?>>7 - Estrangeira – Adquirida no mercado interno, sem similar nacional</option>
+                                <option value="8" <?php if (isset($result->pro_origem) && $result->pro_origem == 8) echo 'selected'; ?>>8 - Nacional – Conteúdo de importação superior a 70%</option>
                             </select>
                             <span class="help-inline">Selecione a origem do produto conforme a tabela de códigos</span>
                                 </div>
@@ -487,7 +487,7 @@ L<style>
                             <div class="control-group field-produto">
                                 <label for="peso_bruto" class="control-label">Peso Bruto (kg)</label>
                                 <div class="controls">
-                                    <input id="peso_bruto" type="text" name="peso_bruto" value="<?php echo $result->PRO_PESO_BRUTO; ?>" class="decimal" style="width: 100px; padding: 5px;" placeholder="0,000" />
+                                    <input id="peso_bruto" type="text" name="peso_bruto" value="<?php echo $result->pro_peso_bruto; ?>" class="decimal" style="width: 100px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
                         </div>
@@ -495,7 +495,7 @@ L<style>
                             <div class="control-group">
                                 <label for="peso_liquido" class="control-label">Peso Líquido (kg)</label>
                                 <div class="controls">
-                                    <input id="peso_liquido" type="text" name="peso_liquido" value="<?php echo $result->PRO_PESO_LIQUIDO; ?>" class="decimal" style="width: 100px; padding: 5px;" placeholder="0,000" />
+                                    <input id="peso_liquido" type="text" name="peso_liquido" value="<?php echo $result->pro_peso_liquido; ?>" class="decimal" style="width: 100px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
                         </div>
@@ -503,7 +503,7 @@ L<style>
                             <div class="control-group field-produto">
                                 <label for="largura" class="control-label">Largura (cm)</label>
                                 <div class="controls">
-                                    <input id="largura" type="text" name="largura" value="<?php echo $result->PRO_LARGURA; ?>" class="decimal" style="width: 80px; padding: 5px;" placeholder="0,000" />
+                                    <input id="largura" type="text" name="largura" value="<?php echo $result->pro_largura; ?>" class="decimal" style="width: 80px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
                         </div>
@@ -511,7 +511,7 @@ L<style>
                             <div class="control-group">
                                 <label for="altura" class="control-label">Altura (cm)</label>
                                 <div class="controls">
-                                    <input id="altura" type="text" name="altura" value="<?php echo $result->PRO_ALTURA; ?>" class="decimal" style="width: 80px; padding: 5px;" placeholder="0,000" />
+                                    <input id="altura" type="text" name="altura" value="<?php echo $result->pro_altura; ?>" class="decimal" style="width: 80px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
                         </div>
@@ -519,7 +519,7 @@ L<style>
                     <div class="control-group">
                                 <label for="comprimento" class="control-label">Comprimento (cm)</label>
                         <div class="controls">
-                                    <input id="comprimento" type="text" name="comprimento" value="<?php echo $result->PRO_COMPRIMENTO; ?>" class="decimal" style="width: 80px; padding: 5px;" placeholder="0,000" />
+                                    <input id="comprimento" type="text" name="comprimento" value="<?php echo $result->pro_comprimento; ?>" class="decimal" style="width: 80px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
                         </div>
@@ -725,21 +725,21 @@ L<style>
     $(document).ready(function() {
         // Debug: Verificar valores iniciais do NCM antes de qualquer manipulação
         console.log('=== DEBUG NCM - INÍCIO ===');
-        console.log('PRO_NCM (PHP):', '<?php echo isset($result->PRO_NCM) ? $result->PRO_NCM : "VAZIO"; ?>');
-        console.log('NCM_ID (PHP):', '<?php echo isset($result->NCM_ID) ? $result->NCM_ID : "VAZIO"; ?>');
-        console.log('PRO_NCM (jQuery):', $('#PRO_NCM').val());
-        console.log('NCM_ID (jQuery):', $('#NCM_ID').val());
-        console.log('PRO_TIPO:', $('#PRO_TIPO').val());
+        console.log('pro_ncm (PHP):', '<?php echo isset($result->pro_ncm) ? $result->pro_ncm : "VAZIO"; ?>');
+        console.log('ncm_id (PHP):', '<?php echo isset($result->ncm_id) ? $result->ncm_id : "VAZIO"; ?>');
+        console.log('pro_ncm (jQuery):', $('#pro_ncm').val());
+        console.log('ncm_id (jQuery):', $('#ncm_id').val());
+        console.log('pro_tipo:', $('#pro_tipo').val());
         console.log('=== FIM DEBUG ===');
         
         // Limpar valores "undefined" que possam ter sido inseridos incorretamente
-        if ($('#PRO_NCM').val() === 'undefined' || $('#PRO_NCM').val() === 'null') {
-            console.log('Limpando PRO_NCM com valor inválido');
-            $('#PRO_NCM').val('');
+        if ($('#pro_ncm').val() === 'undefined' || $('#pro_ncm').val() === 'null') {
+            console.log('Limpando pro_ncm com valor inválido');
+            $('#pro_ncm').val('');
         }
-        if ($('#NCM_ID').val() === 'undefined' || $('#NCM_ID').val() === 'null') {
-            console.log('Limpando NCM_ID com valor inválido');
-            $('#NCM_ID').val('');
+        if ($('#ncm_id').val() === 'undefined' || $('#ncm_id').val() === 'null') {
+            console.log('Limpando ncm_id com valor inválido');
+            $('#ncm_id').val('');
         }
         
         // Adiciona método personalizado para validar números decimais
@@ -857,8 +857,8 @@ L<style>
                     select.append($('<option></option>').val(medida.sigla).text(medida.descricao));
                 });
                 // Selecionar a unidade atual
-                if ('<?php echo $result->PRO_UNID_MEDIDA; ?>') {
-                    select.val('<?php echo $result->PRO_UNID_MEDIDA; ?>');
+                if ('<?php echo $result->pro_unid_medida; ?>') {
+                    select.val('<?php echo $result->pro_unid_medida; ?>');
                 }
             });
         }
@@ -875,7 +875,7 @@ L<style>
                 unidade: {
                     required: true
                 },
-                PRO_FINALIDADE: {
+                pro_finalidade: {
                     required: true
                 },
                 precoCompra: {
@@ -910,7 +910,7 @@ L<style>
                 unidade: {
                     required: 'Campo Requerido.'
                 },
-                PRO_FINALIDADE: {
+                pro_finalidade: {
                     required: 'Selecione a finalidade do produto.'
                 },
                 precoCompra: {
@@ -970,7 +970,7 @@ L<style>
         // Função para validar código de barra
         function validarCodigoBarra() {
             // Não validar se for serviço
-            if ($('#PRO_TIPO').val() == '2') {
+            if ($('#pro_tipo').val() == '2') {
                 $('#codigoBarraStatus').html('');
                 return;
             }
@@ -1004,7 +1004,7 @@ L<style>
         // Gerar código de barra
         $('#btnGerarCodigo').click(function() {
             // Não gerar se for serviço
-            if ($('#PRO_TIPO').val() == '2') {
+            if ($('#pro_tipo').val() == '2') {
                 return;
             }
 
@@ -1026,7 +1026,7 @@ L<style>
         });
 
         // Validar código inicial apenas se for produto
-        if ($('#PRO_TIPO').val() != '2') {
+        if ($('#pro_tipo').val() != '2') {
             validarCodigoBarra();
         }
 
@@ -1095,13 +1095,13 @@ L<style>
             var codigo = $(this).data('codigo');
             var descricao = $(this).data('descricao');
 
-            $('#PRO_CCLASS_SERV').val(codigo);
+            $('#pro_cclass_serv').val(codigo);
             $('#modalCClass').modal('hide');
         });
 
         // Função para carregar unidades de produto
         function carregarUnidadesProduto() {
-            var select = $('#PRO_UNID_MEDIDA');
+            var select = $('#pro_unid_medida');
             $.getJSON('<?php echo base_url() ?>assets/json/tabela_medidas.json', function (data) {
                 select.empty();
                 select.append('<option value="">Selecione</option>');
@@ -1109,15 +1109,15 @@ L<style>
                     select.append($('<option></option>').val(medida.sigla).text(medida.descricao));
                 });
                 // Selecionar a unidade atual se existir
-                if ('<?php echo $result->PRO_UNID_MEDIDA; ?>') {
-                    select.val('<?php echo $result->PRO_UNID_MEDIDA; ?>');
+                if ('<?php echo $result->pro_unid_medida; ?>') {
+                    select.val('<?php echo $result->pro_unid_medida; ?>');
                 }
             });
         }
 
         // Função para carregar unidades de serviço
         function carregarUnidadesServico() {
-            var select = $('#PRO_UNID_MEDIDA');
+            var select = $('#pro_unid_medida');
             $.getJSON('<?php echo base_url() ?>assets/json/unidades_servico.json', function (data) {
                 select.empty();
                 select.append('<option value="">Selecione</option>');
@@ -1126,8 +1126,8 @@ L<style>
                     select.append($('<option></option>').val(unidade.valor).text(texto));
                 });
                 // Selecionar a unidade atual se existir, senão usar Minuto como padrão
-                if ('<?php echo $result->PRO_UNID_MEDIDA; ?>') {
-                    select.val('<?php echo $result->PRO_UNID_MEDIDA; ?>');
+                if ('<?php echo $result->pro_unid_medida; ?>') {
+                    select.val('<?php echo $result->pro_unid_medida; ?>');
                 } else {
                     select.val('1'); // Minuto como padrão para serviços
                 }
@@ -1135,7 +1135,7 @@ L<style>
         }
 
         // Carregar unidades iniciais baseadas no tipo atual
-        if ($('#PRO_TIPO').val() == '2') {
+        if ($('#pro_tipo').val() == '2') {
             carregarUnidadesServico();
         } else {
             carregarUnidadesProduto();
@@ -1155,8 +1155,8 @@ L<style>
                 $('.field-servico').show();
                 $('#PRO_TIPO_TOGGLE').prop('checked', true);
                 $('#tipo_label').text('Serviço');
-                $('#PRO_FINALIDADE option[value="Serviço"]').show();
-                $('#PRO_FINALIDADE').val('Serviço').prop('disabled', true);
+                $('#pro_finalidade option[value="Serviço"]').show();
+                $('#pro_finalidade').val('Serviço').prop('disabled', true);
 
                 // Alterar label do código para "Código do Serviço"
                 $('#codigo-label').text('Código do Serviço');
@@ -1175,15 +1175,15 @@ L<style>
 
                 // Auto-set NCM for Service (apenas se for mudança manual)
                 if (manualChange) {
-                    $('#PRO_NCM').val('00000000');
-                    $('#NCM_ID').val('15142');
+                    $('#pro_ncm').val('00000000');
+                    $('#ncm_id').val('15142');
                     console.log('NCM definido para serviço: 00000000');
                 }
 
                 // Definir valores padrão para campos obrigatórios de produto que não se aplicam a serviço
                 if (manualChange) {
                     $('#precoCompra, #estoque, #estoqueMinimo, #codDeBarra').val('');
-                    $('#PRO_ORIGEM').val('0');
+                    $('#pro_origem').val('0');
                     $('#peso_bruto, #peso_liquido, #largura, #altura, #comprimento').val('0.000');
                 }
 
@@ -1191,8 +1191,8 @@ L<style>
                 carregarUnidadesServico();
 
                 // Preencher cClass automaticamente com primeiro código disponível
-                if (!$('#PRO_CCLASS_SERV').val()) {
-                    $('#PRO_CCLASS_SERV').val('0100101'); // Primeiro código disponível
+                if (!$('#pro_cclass_serv').val()) {
+                    $('#pro_cclass_serv').val('0100101'); // Primeiro código disponível
                 }
 
             } else { // Produto
@@ -1200,10 +1200,10 @@ L<style>
                 $('.field-servico').hide();
                 $('#PRO_TIPO_TOGGLE').prop('checked', false);
                 $('#tipo_label').text('Produto');
-                $('#PRO_FINALIDADE').prop('disabled', false);
-                $('#PRO_FINALIDADE option[value="Serviço"]').hide();
-                if ($('#PRO_FINALIDADE').val() === 'Serviço') {
-                    $('#PRO_FINALIDADE').val('Comercialização');
+                $('#pro_finalidade').prop('disabled', false);
+                $('#pro_finalidade option[value="Serviço"]').hide();
+                if ($('#pro_finalidade').val() === 'Serviço') {
+                    $('#pro_finalidade').val('Comercialização');
                 }
 
                 // Alterar label do código de volta para "Código do Produto"
@@ -1220,14 +1220,14 @@ L<style>
                 $('#precoVenda_produto').attr('name', 'precoVenda');
 
                 // Clear NCM apenas se for mudança manual e o NCM for o padrão de serviço
-                if (manualChange && $('#PRO_NCM').val() === '00000000') {
+                if (manualChange && $('#pro_ncm').val() === '00000000') {
                     console.log('Limpando NCM de serviço ao mudar para produto');
-                    $('#PRO_NCM').val('');
-                    $('#NCM_ID').val('');
+                    $('#pro_ncm').val('');
+                    $('#ncm_id').val('');
                 }
 
                 // Limpar cClass quando voltar para produto
-                $('#PRO_CCLASS_SERV').val('');
+                $('#pro_cclass_serv').val('');
 
                 // Carregar unidades de produto
                 carregarUnidadesProduto();
@@ -1256,27 +1256,27 @@ L<style>
         // Evento do toggle switch
         $('#PRO_TIPO_TOGGLE').change(function () {
             if ($(this).is(':checked')) {
-                $('#PRO_TIPO').val('2');
+                $('#pro_tipo').val('2');
             } else {
-                $('#PRO_TIPO').val('1');
+                $('#pro_tipo').val('1');
             }
             toggleFields(true); // true = mudança manual do usuário
         });
 
         // Executa a função no carregamento da página baseado no valor atual
-        if ($('#PRO_TIPO').val() == '2') {
+        if ($('#pro_tipo').val() == '2') {
             $('#PRO_TIPO_TOGGLE').prop('checked', true);
         }
         
         // Debug: mostrar valores do NCM ao carregar
-        console.log('NCM ao carregar:', $('#PRO_NCM').val());
-        console.log('NCM_ID ao carregar:', $('#NCM_ID').val());
+        console.log('NCM ao carregar:', $('#pro_ncm').val());
+        console.log('ncm_id ao carregar:', $('#ncm_id').val());
         
         toggleFields(false); // false = carregamento inicial, não limpar valores
         
         // Debug: verificar valores após toggleFields
-        console.log('NCM após toggleFields:', $('#PRO_NCM').val());
-        console.log('NCM_ID após toggleFields:', $('#NCM_ID').val());
+        console.log('NCM após toggleFields:', $('#pro_ncm').val());
+        console.log('ncm_id após toggleFields:', $('#ncm_id').val());
         
         // Marcar que o primeiro carregamento foi concluído
         primeiroCarregamento = false;
@@ -1312,9 +1312,9 @@ L<style>
 
                     if (ncms && ncms.length > 0) {
                         $.each(ncms, function(i, ncm) {
-                            var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
-                            var descricao = ncm.NCM_DESCRICAO || ncm.descricao || ncm.ncm_descricao || '';
-                            var id = ncm.NCM_ID || ncm.id || ncm.ncm_id || '';
+                            var codigo = ncm.ncm_codigo || ncm.codigo || ncm.ncm_codigo || '';
+                            var descricao = ncm.ncm_descricao || ncm.descricao || ncm.ncm_descricao || '';
+                            var id = ncm.ncm_id || ncm.id || ncm.ncm_id || '';
 
                             tbody.append(
                                 '<tr>' +
@@ -1399,8 +1399,8 @@ L<style>
             var id = $(this).data('id');
             var descricao = $(this).data('descricao');
 
-            $('#PRO_NCM').val(codigo);
-            $('#NCM_ID').val(id);
+            $('#pro_ncm').val(codigo);
+            $('#ncm_id').val(id);
             $('#btnDescricaoNcm').data('descricao', descricao);
             $('#modalNcm').modal('hide');
         });
@@ -1412,7 +1412,7 @@ L<style>
             $('input, select, textarea').prop('disabled', false).prop('readonly', false);
 
             // Garantir especificamente que os campos de preço e estoque estejam liberados
-            $('#precoCompra, #precoVenda, #estoque, #estoqueMinimo, #PRO_ORIGEM').prop('disabled', false).prop('readonly', false);
+            $('#precoCompra, #precoVenda, #estoque, #estoqueMinimo, #pro_origem').prop('disabled', false).prop('readonly', false);
 
             // Verificar se é produto ou serviço
             var isService = $('#PRO_TIPO_TOGGLE').is(':checked');
@@ -1437,8 +1437,8 @@ L<style>
                     console.log('Antes da liberação - precoCompra disabled:', $('#precoCompra').prop('disabled'), 'readonly:', $('#precoCompra').prop('readonly'));
                     console.log('Antes da liberação - precoVenda disabled:', $('#precoVenda').prop('disabled'), 'readonly:', $('#precoVenda').prop('readonly'));
 
-                    $('#precoCompra, #precoVenda, #estoque, #estoqueMinimo, #PRO_ORIGEM').prop('disabled', false).prop('readonly', false);
-                    $('#precoCompra, #precoVenda, #estoque, #estoqueMinimo, #PRO_ORIGEM').removeAttr('disabled');
+                    $('#precoCompra, #precoVenda, #estoque, #estoqueMinimo, #pro_origem').prop('disabled', false).prop('readonly', false);
+                    $('#precoCompra, #precoVenda, #estoque, #estoqueMinimo, #pro_origem').removeAttr('disabled');
 
                     console.log('Após liberação - precoCompra disabled:', $('#precoCompra').prop('disabled'), 'readonly:', $('#precoCompra').prop('readonly'));
                     console.log('Após liberação - precoVenda disabled:', $('#precoVenda').prop('disabled'), 'readonly:', $('#precoVenda').prop('readonly'));
@@ -1490,8 +1490,8 @@ L<style>
 
         // Carregar descrição do NCM ao carregar a página
         function carregarDescricaoNcm() {
-            var ncmCodigo = $('#PRO_NCM').val();
-            var ncmId = $('#NCM_ID').val();
+            var ncmCodigo = $('#pro_ncm').val();
+            var ncmId = $('#ncm_id').val();
             
             if (ncmCodigo && ncmCodigo !== '' && ncmCodigo !== '00000000') {
                 $.ajax({
@@ -1504,7 +1504,7 @@ L<style>
                             // Procura pelo NCM com o código exato
                             var ncmEncontrado = null;
                             $.each(response, function(i, ncm) {
-                                var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
+                                var codigo = ncm.ncm_codigo || ncm.codigo || ncm.ncm_codigo || '';
                                 if (codigo == ncmCodigo) {
                                     ncmEncontrado = ncm;
                                     return false; // break
@@ -1512,7 +1512,7 @@ L<style>
                             });
                             
                             if (ncmEncontrado) {
-                                var descricao = ncmEncontrado.NCM_DESCRICAO || ncmEncontrado.descricao || ncmEncontrado.ncm_descricao || '';
+                                var descricao = ncmEncontrado.ncm_descricao || ncmEncontrado.descricao || ncmEncontrado.ncm_descricao || '';
                                 $('#btnDescricaoNcm').data('descricao', descricao);
                             }
                         }

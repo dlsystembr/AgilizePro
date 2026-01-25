@@ -61,7 +61,7 @@ class Ncms extends MY_Controller
         // Busca informações de tributação para cada NCM
         foreach ($this->data['ncms'] as $ncm) {
             // Verifica tributação federal
-            $tributacao_federal = $this->ncms_model->verificarDadosInseridos($ncm->NCM_ID);
+            $tributacao_federal = $this->ncms_model->verificarDadosInseridos($ncm->ncm_id);
             $ncm->tributacao_federal = !empty($tributacao_federal) && 
                                      ($tributacao_federal->tbf_cst_ipi_entrada != '' || 
                                       $tributacao_federal->tbf_cst_pis_cofins_entrada != '' || 
@@ -69,7 +69,7 @@ class Ncms extends MY_Controller
                                       $tributacao_federal->tbf_cst_pis_cofins_saida != '');
             
             // Verifica tributação estadual
-            $tributacao_estadual = $this->ncms_model->getTributacaoEstadual($ncm->NCM_ID);
+            $tributacao_estadual = $this->ncms_model->getTributacaoEstadual($ncm->ncm_id);
             $ncm->tributacao_estadual = !empty($tributacao_estadual);
         }
 
@@ -537,7 +537,7 @@ class Ncms extends MY_Controller
             'SC' => 'Santa Catarina',
             'SP' => 'São Paulo',
             'SE' => 'Sergipe',
-            'TO' => 'Tocantins'
+            'to' => 'Tocantins'
         ];
 
         // Tipos de tributação
@@ -669,7 +669,7 @@ class Ncms extends MY_Controller
         ];
 
         // Lista de todos os estados do Brasil
-        $estados = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+        $estados = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'to'];
 
         // Log dos dados processados
         log_message('debug', '=== DADOS PROCESSADOS TRIBUTAÇÃO FEDERAL ===');

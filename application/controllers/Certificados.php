@@ -30,7 +30,7 @@ class Certificados extends MY_Controller
         }
 
         $this->data['empresa'] = $empresa;
-        $this->data['certificados'] = $this->Certificados_model->get($empresa->EMP_ID, false);
+        $this->data['certificados'] = $this->Certificados_model->get($empresa->emp_id, false);
         $this->data['custom_error'] = '';
 
         $this->data['view'] = 'certificados/index';
@@ -48,8 +48,8 @@ class Certificados extends MY_Controller
         $this->data['custom_error'] = '';
 
         if ($this->input->method() === 'post') {
-            $this->form_validation->set_rules('CER_SENHA', 'Senha do Certificado', 'required|trim');
-            $this->form_validation->set_rules('CER_TIPO', 'Tipo', 'required');
+            $this->form_validation->set_rules('cer_senha', 'Senha do Certificado', 'required|trim');
+            $this->form_validation->set_rules('cer_tipo', 'Tipo', 'required');
 
             if ($this->form_validation->run() == false) {
                 $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
@@ -61,14 +61,14 @@ class Certificados extends MY_Controller
                     $this->data['custom_error'] = '<div class="alert alert-danger">Nenhuma empresa cadastrada.</div>';
                 } else {
                     // Processa upload do certificado
-                    if (!empty($_FILES['CER_ARQUIVO']['name'])) {
-                        $arquivo = file_get_contents($_FILES['CER_ARQUIVO']['tmp_name']);
+                    if (!empty($_FILES['cer_arquivo']['name'])) {
+                        $arquivo = file_get_contents($_FILES['cer_arquivo']['tmp_name']);
 
                         if ($arquivo === false) {
                             $this->data['custom_error'] = '<div class="alert alert-danger">Erro ao ler arquivo do certificado.</div>';
                         } else {
                             // Tenta extrair informações do certificado
-                            $infoCertificado = $this->extrairInfoCertificado($arquivo, $this->input->post('CER_SENHA'));
+                            $infoCertificado = $this->extrairInfoCertificado($arquivo, $this->input->post('cer_senha'));
 
                             // Se houve conversão bem sucedida, usa o arquivo convertido
                             if (isset($infoCertificado['arquivo_convertido'])) {
@@ -85,13 +85,13 @@ class Certificados extends MY_Controller
                                 $this->data['custom_error'] = '<div class="alert alert-danger">Não foi possível ler o certificado automaticamente. Verifique se a senha está correta e se o arquivo é válido. Tente novamente.</div>';
                             } else {
                                 $data = [
-                                    'EMP_ID' => $empresa->EMP_ID,
-                                    'CER_ARQUIVO' => $arquivo,
-                                    'CER_SENHA' => $this->input->post('CER_SENHA'),
-                                    'CER_TIPO' => $this->input->post('CER_TIPO'),
-                                    'CER_CNPJ' => $cnpj,
-                                    'CER_VALIDADE_FIM' => $validade,
-                                    'CER_ATIVO' => 1
+                                    'emp_id' => $empresa->emp_id,
+                                    'cer_arquivo' => $arquivo,
+                                    'cer_senha' => $this->input->post('cer_senha'),
+                                    'cer_tipo' => $this->input->post('cer_tipo'),
+                                    'cer_cnpj' => $cnpj,
+                                    'cer_validade_fim' => $validade,
+                                    'cer_ativo' => 1
                                 ];
 
                                 if ($this->Certificados_model->add($data)) {
@@ -128,7 +128,7 @@ class Certificados extends MY_Controller
         }
 
         // Verifica se certificado está em uso
-        $this->db->where('CER_ID', $id);
+        $this->db->where('cer_id', $id);
         $emUso = $this->db->count_all_results('configuracoes_fiscais');
 
         if ($emUso > 0) {
@@ -158,10 +158,10 @@ class Certificados extends MY_Controller
         }
 
         // Desativa outros certificados da mesma empresa
-        $this->Certificados_model->desativarOutros($certificado->EMP_ID, $id);
+        $this->Certificados_model->desativarOutros($certificado->emp_id, $id);
 
         // Ativa este certificado
-        $this->Certificados_model->edit($id, ['CER_ATIVO' => 1]);
+        $this->Certificados_model->edit($id, ['cer_ativo' => 1]);
 
         $this->session->set_flashdata('success', 'Certificado ativado com sucesso!');
         redirect(site_url('certificados'));

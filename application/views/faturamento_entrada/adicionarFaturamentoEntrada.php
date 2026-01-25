@@ -543,7 +543,7 @@
                                     <select class="form-control" id="operacao_comercial_id" name="operacao_comercial_id" required>
                                             <option value="">Selecione...</option>
                                             <?php foreach ($operacoes as $o) { ?>
-                                            <option value="<?php echo $o->OPC_ID; ?>"><?php echo $o->OPC_NOME; ?></option>
+                                            <option value="<?php echo $o->opc_id; ?>"><?php echo $o->opc_nome; ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>

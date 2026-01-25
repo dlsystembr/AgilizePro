@@ -20,7 +20,7 @@ class Empresas extends MY_Controller
 
         if ($empresa) {
             // Se existe, redireciona para editar
-            redirect(site_url('empresas/editar/' . $empresa->EMP_ID));
+            redirect(site_url('empresas/editar/' . $empresa->emp_id));
         } else {
             // Se não existe, redireciona para adicionar
             redirect(site_url('empresas/adicionar'));
@@ -43,8 +43,8 @@ class Empresas extends MY_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('EMP_CNPJ', 'CNPJ', 'required|trim');
-        $this->form_validation->set_rules('EMP_RAZAO_SOCIAL', 'Razão Social', 'required|trim');
+        $this->form_validation->set_rules('emp_cnpj', 'cnpj', 'required|trim');
+        $this->form_validation->set_rules('emp_razao_social', 'Razão Social', 'required|trim');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
@@ -74,21 +74,21 @@ class Empresas extends MY_Controller
             }
 
             $data = [
-                'EMP_CNPJ' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_CNPJ')),
-                'EMP_RAZAO_SOCIAL' => $this->input->post('EMP_RAZAO_SOCIAL'),
-                'EMP_NOME_FANTASIA' => $this->input->post('EMP_NOME_FANTASIA'),
-                'EMP_IE' => $this->input->post('EMP_IE'),
-                'EMP_CEP' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_CEP')),
-                'EMP_LOGRADOURO' => $this->input->post('EMP_LOGRADOURO'),
-                'EMP_NUMERO' => $this->input->post('EMP_NUMERO'),
-                'EMP_COMPLEMENTO' => $this->input->post('EMP_COMPLEMENTO'),
-                'EMP_BAIRRO' => $this->input->post('EMP_BAIRRO'),
-                'EMP_CIDADE' => $this->input->post('EMP_CIDADE'),
-                'EMP_UF' => $this->input->post('EMP_UF'),
-                'EMP_TELEFONE' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_TELEFONE')),
-                'EMP_EMAIL' => $this->input->post('EMP_EMAIL'),
-                'EMP_REGIME_TRIBUTARIO' => $this->input->post('EMP_REGIME_TRIBUTARIO'),
-                'EMP_LOGO_PATH' => $logoPath,
+                'emp_cnpj' => preg_replace('/[^0-9]/', '', $this->input->post('emp_cnpj')),
+                'emp_razao_social' => $this->input->post('emp_razao_social'),
+                'emp_nome_fantasia' => $this->input->post('emp_nome_fantasia'),
+                'emp_ie' => $this->input->post('emp_ie'),
+                'emp_cep' => preg_replace('/[^0-9]/', '', $this->input->post('emp_cep')),
+                'emp_logradouro' => $this->input->post('emp_logradouro'),
+                'emp_numero' => $this->input->post('emp_numero'),
+                'emp_complemento' => $this->input->post('emp_complemento'),
+                'emp_bairro' => $this->input->post('emp_bairro'),
+                'emp_cidade' => $this->input->post('emp_cidade'),
+                'emp_uf' => $this->input->post('emp_uf'),
+                'emp_telefone' => preg_replace('/[^0-9]/', '', $this->input->post('emp_telefone')),
+                'emp_email' => $this->input->post('emp_email'),
+                'emp_regime_tributario' => $this->input->post('emp_regime_tributario'),
+                'emp_logo_path' => $logoPath,
             ];
 
             if ($this->Empresas_model->add('empresas', $data)) {
@@ -102,7 +102,7 @@ class Empresas extends MY_Controller
         }
 
         // Carrega estados para o formulário
-        $this->data['estados'] = $this->db->order_by('EST_UF', 'ASC')->get('estados')->result();
+        $this->data['estados'] = $this->db->order_by('est_uf', 'ASC')->get('estados')->result();
 
         $this->data['view'] = 'empresas/adicionarEmpresa';
         return $this->layout();
@@ -123,8 +123,8 @@ class Empresas extends MY_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('EMP_CNPJ', 'CNPJ', 'required|trim');
-        $this->form_validation->set_rules('EMP_RAZAO_SOCIAL', 'Razão Social', 'required|trim');
+        $this->form_validation->set_rules('emp_cnpj', 'cnpj', 'required|trim');
+        $this->form_validation->set_rules('emp_razao_social', 'Razão Social', 'required|trim');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
@@ -160,24 +160,24 @@ class Empresas extends MY_Controller
             }
 
             $data = [
-                'EMP_CNPJ' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_CNPJ')),
-                'EMP_RAZAO_SOCIAL' => $this->input->post('EMP_RAZAO_SOCIAL'),
-                'EMP_NOME_FANTASIA' => $this->input->post('EMP_NOME_FANTASIA'),
-                'EMP_IE' => $this->input->post('EMP_IE'),
-                'EMP_CEP' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_CEP')),
-                'EMP_LOGRADOURO' => $this->input->post('EMP_LOGRADOURO'),
-                'EMP_NUMERO' => $this->input->post('EMP_NUMERO'),
-                'EMP_COMPLEMENTO' => $this->input->post('EMP_COMPLEMENTO'),
-                'EMP_BAIRRO' => $this->input->post('EMP_BAIRRO'),
-                'EMP_CIDADE' => $this->input->post('EMP_CIDADE'),
-                'EMP_UF' => $this->input->post('EMP_UF'),
-                'EMP_TELEFONE' => preg_replace('/[^0-9]/', '', $this->input->post('EMP_TELEFONE')),
-                'EMP_EMAIL' => $this->input->post('EMP_EMAIL'),
-                'EMP_REGIME_TRIBUTARIO' => $this->input->post('EMP_REGIME_TRIBUTARIO'),
-                'EMP_LOGO_PATH' => $logoPath,
+                'emp_cnpj' => preg_replace('/[^0-9]/', '', $this->input->post('emp_cnpj')),
+                'emp_razao_social' => $this->input->post('emp_razao_social'),
+                'emp_nome_fantasia' => $this->input->post('emp_nome_fantasia'),
+                'emp_ie' => $this->input->post('emp_ie'),
+                'emp_cep' => preg_replace('/[^0-9]/', '', $this->input->post('emp_cep')),
+                'emp_logradouro' => $this->input->post('emp_logradouro'),
+                'emp_numero' => $this->input->post('emp_numero'),
+                'emp_complemento' => $this->input->post('emp_complemento'),
+                'emp_bairro' => $this->input->post('emp_bairro'),
+                'emp_cidade' => $this->input->post('emp_cidade'),
+                'emp_uf' => $this->input->post('emp_uf'),
+                'emp_telefone' => preg_replace('/[^0-9]/', '', $this->input->post('emp_telefone')),
+                'emp_email' => $this->input->post('emp_email'),
+                'emp_regime_tributario' => $this->input->post('emp_regime_tributario'),
+                'emp_logo_path' => $logoPath,
             ];
 
-            if ($this->Empresas_model->edit('empresas', $data, 'EMP_ID', $id)) {
+            if ($this->Empresas_model->edit('empresas', $data, 'emp_id', $id)) {
                 $this->session->set_flashdata('success', 'Empresa editada com sucesso!');
                 log_info('Alterou uma empresa. ID ' . $id);
                 redirect(site_url('empresas/editar/') . $id);
@@ -187,7 +187,7 @@ class Empresas extends MY_Controller
         }
 
         $this->data['result'] = $this->Empresas_model->getById($id);
-        $this->data['estados'] = $this->db->order_by('EST_UF', 'ASC')->get('estados')->result();
+        $this->data['estados'] = $this->db->order_by('est_uf', 'ASC')->get('estados')->result();
 
         $this->data['view'] = 'empresas/editarEmpresa';
         return $this->layout();
@@ -206,7 +206,7 @@ class Empresas extends MY_Controller
             redirect(site_url('empresas/gerenciar/'));
         }
 
-        $this->Empresas_model->delete('empresas', 'EMP_ID', $id);
+        $this->Empresas_model->delete('empresas', 'emp_id', $id);
         log_info('Removeu uma empresa. ID ' . $id);
 
         $this->session->set_flashdata('success', 'Empresa excluída com sucesso!');

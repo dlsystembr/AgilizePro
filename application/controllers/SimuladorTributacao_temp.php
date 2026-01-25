@@ -123,10 +123,10 @@ class SimuladorTributacao extends MY_Controller
                 'sucesso' => true,
                 'dados' => [
                     // Dados da Classificação Fiscal
-                    'classificacao_fiscal_id' => isset($tributacao->id) ? $tributacao->id : (isset($tributacao->CLF_ID) ? $tributacao->CLF_ID : 'N/A'),
-                    'cst' => isset($tributacao->cst) ? $tributacao->cst : (isset($tributacao->CLF_CST) ? $tributacao->CLF_CST : 'N/A'),
-                    'csosn' => isset($tributacao->csosn) ? $tributacao->csosn : (isset($tributacao->CLF_CSOSN) ? $tributacao->CLF_CSOSN : 'N/A'),
-                    'cfop' => isset($tributacao->cfop) ? $tributacao->cfop : (isset($tributacao->CLF_CFOP) ? $tributacao->CLF_CFOP : 'N/A'),
+                    'classificacao_fiscal_id' => isset($tributacao->id) ? $tributacao->id : (isset($tributacao->clf_id) ? $tributacao->clf_id : 'N/A'),
+                    'cst' => isset($tributacao->cst) ? $tributacao->cst : (isset($tributacao->clf_cst) ? $tributacao->clf_cst : 'N/A'),
+                    'csosn' => isset($tributacao->csosn) ? $tributacao->csosn : (isset($tributacao->clf_csosn) ? $tributacao->clf_csosn : 'N/A'),
+                    'cfop' => isset($tributacao->cfop) ? $tributacao->cfop : (isset($tributacao->clf_cfop) ? $tributacao->clf_cfop : 'N/A'),
                     'tipo_icms' => isset($tributacao->tipo_icms) ? $tributacao->tipo_icms : (isset($tributacao->CLF_TIPO_ICMS) ? $tributacao->CLF_TIPO_ICMS : 'N/A'),
 
                     // Dados do Cliente

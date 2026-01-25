@@ -84,24 +84,24 @@ class Nfe_model extends CI_Model
     public function getCertificate()
     {
         // Busca o certificado ativo configurado para NFe
-        $this->db->select('cer.CER_ARQUIVO, cer.CER_SENHA, cer.CER_VALIDADE_FIM, cer.CER_TIPO, cer.CER_CNPJ');
+        $this->db->select('cer.cer_arquivo, cer.cer_senha, cer.cer_validade_fim, cer.cer_tipo, cer.cer_cnpj');
         $this->db->from('configuracoes_fiscais cfg');
-        $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'inner');
+        $this->db->join('certificados_digitais cer', 'cer.cer_id = cfg.cer_id', 'inner');
         $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
-        $this->db->where('cfg.CFG_TIPO_DOCUMENTO', 'NFE');
-        $this->db->where('cfg.CFG_ATIVO', 1);
-        $this->db->where('cer.CER_ATIVO', 1);
-        $this->db->order_by('cer.CER_DATA_UPLOAD', 'DESC');
+        $this->db->where('cfg.cfg_tipo_documento', 'NFE');
+        $this->db->where('cfg.cfg_ativo', 1);
+        $this->db->where('cer.cer_ativo', 1);
+        $this->db->order_by('cer.cer_data_upload', 'DESC');
         $this->db->limit(1);
 
         $result = $this->db->get()->row();
 
         // Se não encontrar certificado para NFe, tenta buscar qualquer certificado ativo
         if (!$result) {
-            $this->db->select('CER_ARQUIVO, CER_SENHA, CER_VALIDADE_FIM, CER_TIPO, CER_CNPJ');
+            $this->db->select('cer_arquivo, cer_senha, cer_validade_fim, cer_tipo, cer_cnpj');
             $this->db->from('certificados_digitais');
-            $this->db->where('CER_ATIVO', 1);
-            $this->db->order_by('CER_DATA_UPLOAD', 'DESC');
+            $this->db->where('cer_ativo', 1);
+            $this->db->order_by('cer_data_upload', 'DESC');
             $this->db->limit(1);
             $result = $this->db->get()->row();
         }
@@ -339,13 +339,13 @@ class Nfe_model extends CI_Model
         $this->db->limit(1);
         $regime = $this->db->get()->row();
 
-        $this->db->select('vendas.*, clientes.*, operacao_comercial.OPC_NOME as operacao_comercial,
+        $this->db->select('vendas.*, clientes.*, operacao_comercial.opc_nome as operacao_comercial,
             classificacao_fiscal.cfop, classificacao_fiscal.cst, classificacao_fiscal.csosn, 
             classificacao_fiscal.destinacao, classificacao_fiscal.objetivo_comercial');
         $this->db->from('vendas');
         $this->db->join('clientes', 'clientes.idClientes = vendas.clientes_id');
-        $this->db->join('operacao_comercial', 'operacao_comercial.OPC_ID = vendas.operacao_comercial_id');
-        $this->db->join('classificacao_fiscal', 'classificacao_fiscal.operacao_comercial_id = operacao_comercial.OPC_ID');
+        $this->db->join('operacao_comercial', 'operacao_comercial.opc_id = vendas.operacao_comercial_id');
+        $this->db->join('classificacao_fiscal', 'classificacao_fiscal.operacao_comercial_id = operacao_comercial.opc_id');
         $this->db->where('vendas.idVendas', $venda_id);
 
         // Check if client is Estadual or Interestadual
@@ -399,7 +399,7 @@ class Nfe_model extends CI_Model
 
     public function getEmit()
     {
-        $this->db->select('EMP_RAZAO_SOCIAL as nome, EMP_NOME_FANTASIA as fantasia, EMP_CNPJ as cnpj, EMP_IE as ie, EMP_LOGRADOURO as rua, EMP_NUMERO as numero, EMP_COMPLEMENTO as complemento, EMP_BAIRRO as bairro, EMP_CIDADE as cidade, EMP_UF as uf, EMP_CEP as cep, EMP_IBGE as ibge, EMP_TELEFONE as telefone, EMP_EMAIL as email, EMP_REGIME_TRIBUTARIO as regime_tributario, EMP_LOGO_PATH as url_logo');
+        $this->db->select('emp_razao_social as nome, emp_nome_fantasia as fantasia, emp_cnpj as cnpj, emp_ie as ie, emp_logradouro as rua, emp_numero as numero, emp_complemento as complemento, emp_bairro as bairro, emp_cidade as cidade, emp_uf as uf, emp_cep as cep, emp_ibge as ibge, emp_telefone as telefone, emp_email as email, emp_regime_tributario as regime_tributario, emp_logo_path as url_logo');
         $this->db->from('empresas');
         // Como normalmente há apenas uma empresa emitente, buscamos a primeira
         $this->db->limit(1);
@@ -416,7 +416,7 @@ class Nfe_model extends CI_Model
         }
 
         $emit = [
-            'CNPJ' => preg_replace('/[^0-9]/', '', $empresa->cnpj),
+            'cnpj' => preg_replace('/[^0-9]/', '', $empresa->cnpj),
             'xNome' => $empresa->nome,
             'xFant' => $empresa->fantasia,
             'enderEmit' => [
@@ -426,13 +426,13 @@ class Nfe_model extends CI_Model
                 'xBairro' => $empresa->bairro,
                 'cMun' => $empresa->ibge,
                 'xMun' => $empresa->cidade,
-                'UF' => $empresa->uf,
-                'CEP' => preg_replace('/[^0-9]/', '', $empresa->cep),
+                'uf' => $empresa->uf,
+                'cep' => preg_replace('/[^0-9]/', '', $empresa->cep),
                 'cPais' => '1058',
                 'xPais' => 'BRASIL',
                 'fone' => preg_replace('/[^0-9]/', '', $empresa->telefone)
             ],
-            'IE' => $empresa->ie,
+            'ie' => $empresa->ie,
             'CRT' => $crt,
             'url_logo' => $empresa->url_logo // Adiciona a URL do logo
         ];
@@ -470,7 +470,7 @@ class Nfe_model extends CI_Model
         }
 
         $dest = [
-            'CNPJ' => preg_replace('/[^0-9]/', '', $venda->documento),
+            'cnpj' => preg_replace('/[^0-9]/', '', $venda->documento),
             'xNome' => $venda->nomeCliente,
             'enderDest' => [
                 'xLgr' => $venda->rua,
@@ -479,14 +479,14 @@ class Nfe_model extends CI_Model
                 'xBairro' => $venda->bairro,
                 'cMun' => $venda->cidade,
                 'xMun' => $venda->cidade,
-                'UF' => $venda->estado,
-                'CEP' => preg_replace('/[^0-9]/', '', $venda->cep),
+                'uf' => $venda->estado,
+                'cep' => preg_replace('/[^0-9]/', '', $venda->cep),
                 'cPais' => '1058',
                 'xPais' => 'BRASIL',
                 'fone' => preg_replace('/[^0-9]/', '', $venda->telefone)
             ],
             'indIEDest' => '9',
-            'IE' => $venda->ie,
+            'ie' => $venda->ie,
             'email' => $venda->email
         ];
 
@@ -504,7 +504,7 @@ class Nfe_model extends CI_Model
                     'cProd' => $p->codDeBarra,
                     'xProd' => $p->descricao,
                     'NCM' => $p->ncm,
-                    'CFOP' => $p->cfop,
+                    'cfop' => $p->cfop,
                     'uCom' => $p->unidade,
                     'qCom' => $p->quantidade,
                     'vUnCom' => number_format($p->preco, 2, '.', ''),
@@ -515,7 +515,7 @@ class Nfe_model extends CI_Model
                     'ICMS' => [
                         'ICMS00' => [
                             'orig' => 0,
-                            'CST' => $p->cst,
+                            'cst' => $p->cst,
                             'modBC' => 0,
                             'vBC' => number_format($base_icms, 2, '.', ''),
                             'pICMS' => number_format($aliq_icms, 2, '.', ''),

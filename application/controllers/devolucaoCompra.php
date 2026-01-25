@@ -1163,7 +1163,7 @@ $nfe->tagvol($stdVol);
             $std->xFant = $emitente->nome;
             $std->IE = !empty($emitente->ie) ? $emitente->ie : 'ISENTO';
             $std->CRT = $this->crt;
-            $std->CNPJ = preg_replace('/[^0-9]/', '', $emitente->cnpj);
+            $std->cnpj = preg_replace('/[^0-9]/', '', $emitente->cnpj);
             $nfe->tagemit($std);
 
             // [enderEmit]

@@ -41,30 +41,30 @@
                     </thead>
                     <tbody>
                         <?php foreach ($certificados as $cert) {
-                            $vencido = strtotime($cert->CER_VALIDADE_FIM) < strtotime(date('Y-m-d'));
-                            $diasRestantes = floor((strtotime($cert->CER_VALIDADE_FIM) - strtotime(date('Y-m-d'))) / (60 * 60 * 24));
+                            $vencido = strtotime($cert->cer_validade_fim) < strtotime(date('Y-m-d'));
+                            $diasRestantes = floor((strtotime($cert->cer_validade_fim) - strtotime(date('Y-m-d'))) / (60 * 60 * 24));
                             $proximoVencer = $diasRestantes > 0 && $diasRestantes <= 30;
                             ?>
                             <tr>
                                 <td>
-                                    <?php echo $cert->CER_ID; ?>
+                                    <?php echo $cert->cer_id; ?>
                                 </td>
                                 <td>
                                     <span class="badge badge-info">
-                                        <?php echo $cert->CER_TIPO; ?>
+                                        <?php echo $cert->cer_tipo; ?>
                                     </span>
                                 </td>
                                 <td>
                                     <?php
-                                    if ($cert->CER_CNPJ) {
-                                        echo preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $cert->CER_CNPJ);
+                                    if ($cert->cer_cnpj) {
+                                        echo preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $cert->cer_cnpj);
                                     } else {
                                         echo '<span class="text-muted">Não extraído</span>';
                                     }
                                     ?>
                                 </td>
                                 <td>
-                                    <?php echo date('d/m/Y', strtotime($cert->CER_VALIDADE_FIM)); ?>
+                                    <?php echo date('d/m/Y', strtotime($cert->cer_validade_fim)); ?>
                                 </td>
                                 <td>
                                     <?php if ($vencido) { ?>
@@ -82,7 +82,7 @@
                                         </span>
                                     <?php } ?>
 
-                                    <?php if ($cert->CER_ATIVO) { ?>
+                                    <?php if ($cert->cer_ativo) { ?>
                                         <span class="badge badge-success">
                                             <i class="fas fa-check"></i> Ativo
                                         </span>
@@ -92,12 +92,12 @@
                                 </td>
                                 <td>
                                     <small>
-                                        <?php echo date('d/m/Y H:i', strtotime($cert->CER_DATA_UPLOAD)); ?>
+                                        <?php echo date('d/m/Y H:i', strtotime($cert->cer_data_upload)); ?>
                                     </small>
                                 </td>
                                 <td>
-                                    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'aCertificado') && !$cert->CER_ATIVO && !$vencido) { ?>
-                                        <a href="<?php echo base_url(); ?>index.php/certificados/ativar/<?php echo $cert->CER_ID; ?>"
+                                    <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'aCertificado') && !$cert->cer_ativo && !$vencido) { ?>
+                                        <a href="<?php echo base_url(); ?>index.php/certificados/ativar/<?php echo $cert->cer_id; ?>"
                                             class="btn btn-mini btn-success tip-top" title="Ativar Certificado">
                                             <i class="fas fa-check"></i>
                                         </a>
@@ -105,7 +105,7 @@
 
                                     <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'dCertificado')) { ?>
                                         <a href="#modal-excluir" role="button" data-toggle="modal"
-                                            data-id="<?php echo $cert->CER_ID; ?>" class="btn btn-mini btn-danger tip-top"
+                                            data-id="<?php echo $cert->cer_id; ?>" class="btn btn-mini btn-danger tip-top"
                                             title="Excluir Certificado">
                                             <i class="fas fa-trash"></i>
                                         </a>

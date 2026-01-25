@@ -9,100 +9,100 @@
         <?php echo form_open('operacaocomercial/adicionar', 'id="formOperacaoComercial" class="form-horizontal"'); ?>
         
         <div class="control-group">
-            <label for="OPC_SIGLA" class="control-label">Sigla<span class="required">*</span></label>
+            <label for="opc_sigla" class="control-label">Sigla<span class="required">*</span></label>
             <div class="controls">
-                <input id="OPC_SIGLA" class="span2" name="OPC_SIGLA" type="text" value="<?php echo set_value('OPC_SIGLA'); ?>" />
+                <input id="opc_sigla" class="span2" name="opc_sigla" type="text" value="<?php echo set_value('opc_sigla'); ?>" />
                 <span class="help-inline">Ex: VENDA, COMPRA, DEV</span>
             </div>
         </div>
 
         <div class="control-group">
-            <label for="OPC_NOME" class="control-label">Nome<span class="required">*</span></label>
+            <label for="opc_nome" class="control-label">Nome<span class="required">*</span></label>
             <div class="controls">
-                <input id="OPC_NOME" class="span6" name="OPC_NOME" type="text" value="<?php echo set_value('OPC_NOME'); ?>" />
+                <input id="opc_nome" class="span6" name="opc_nome" type="text" value="<?php echo set_value('opc_nome'); ?>" />
             </div>
         </div>
 
         <div class="control-group">
-            <label for="OPC_NATUREZA_OPERACAO" class="control-label">Natureza da Operação<span class="required">*</span></label>
+            <label for="opc_natureza_operacao" class="control-label">Natureza da Operação<span class="required">*</span></label>
             <div class="controls">
-                <select name="OPC_NATUREZA_OPERACAO" id="OPC_NATUREZA_OPERACAO" class="span4">
-                    <option value="Venda" <?php echo set_value('OPC_NATUREZA_OPERACAO') == 'Venda' ? 'selected' : ''; ?>>Venda</option>
-                    <option value="Compra" <?php echo set_value('OPC_NATUREZA_OPERACAO') == 'Compra' ? 'selected' : ''; ?>>Compra</option>
-                    <option value="Transferencia" <?php echo set_value('OPC_NATUREZA_OPERACAO') == 'Transferencia' ? 'selected' : ''; ?>>Transferência</option>
-                    <option value="Outras" <?php echo set_value('OPC_NATUREZA_OPERACAO') == 'Outras' ? 'selected' : ''; ?>>Outras</option>
+                <select name="opc_natureza_operacao" id="opc_natureza_operacao" class="span4">
+                    <option value="Venda" <?php echo set_value('opc_natureza_operacao') == 'Venda' ? 'selected' : ''; ?>>Venda</option>
+                    <option value="Compra" <?php echo set_value('opc_natureza_operacao') == 'Compra' ? 'selected' : ''; ?>>Compra</option>
+                    <option value="Transferencia" <?php echo set_value('opc_natureza_operacao') == 'Transferencia' ? 'selected' : ''; ?>>Transferência</option>
+                    <option value="Outras" <?php echo set_value('opc_natureza_operacao') == 'Outras' ? 'selected' : ''; ?>>Outras</option>
                 </select>
             </div>
         </div>
 
         <div class="control-group">
-            <label for="OPC_TIPO_MOVIMENTO" class="control-label">Tipo de Movimento<span class="required">*</span></label>
+            <label for="opc_tipo_movimento" class="control-label">Tipo de Movimento<span class="required">*</span></label>
             <div class="controls">
-                <select name="OPC_TIPO_MOVIMENTO" id="OPC_TIPO_MOVIMENTO" class="span4">
-                    <option value="Entrada" <?php echo set_value('OPC_TIPO_MOVIMENTO') == 'Entrada' ? 'selected' : ''; ?>>Entrada</option>
-                    <option value="Saida" <?php echo set_value('OPC_TIPO_MOVIMENTO') == 'Saida' ? 'selected' : ''; ?>>Saída</option>
+                <select name="opc_tipo_movimento" id="opc_tipo_movimento" class="span4">
+                    <option value="Entrada" <?php echo set_value('opc_tipo_movimento') == 'Entrada' ? 'selected' : ''; ?>>Entrada</option>
+                    <option value="Saida" <?php echo set_value('opc_tipo_movimento') == 'Saida' ? 'selected' : ''; ?>>Saída</option>
                 </select>
             </div>
         </div>
 
         <div class="control-group">
-            <label for="OPC_AFETA_CUSTO" class="control-label">Afeta Custo</label>
+            <label for="opc_afeta_custo" class="control-label">Afeta Custo</label>
             <div class="controls">
-                <select name="OPC_AFETA_CUSTO" id="OPC_AFETA_CUSTO" class="span4">
-                    <option value="1" <?php echo set_value('OPC_AFETA_CUSTO') == '1' ? 'selected' : ''; ?>>Sim</option>
-                    <option value="0" <?php echo set_value('OPC_AFETA_CUSTO') == '0' ? 'selected' : ''; ?>>Não</option>
+                <select name="opc_afeta_custo" id="opc_afeta_custo" class="span4">
+                    <option value="1" <?php echo set_value('opc_afeta_custo') == '1' ? 'selected' : ''; ?>>Sim</option>
+                    <option value="0" <?php echo set_value('opc_afeta_custo') == '0' ? 'selected' : ''; ?>>Não</option>
                 </select>
             </div>
         </div>
 
         <div class="control-group">
-            <label for="OPC_FATO_FISCAL" class="control-label">Fato Fiscal</label>
+            <label for="opc_fato_fiscal" class="control-label">Fato Fiscal</label>
             <div class="controls">
-                <select name="OPC_FATO_FISCAL" id="OPC_FATO_FISCAL" class="span4">
-                    <option value="1" <?php echo set_value('OPC_FATO_FISCAL') == '1' ? 'selected' : ''; ?>>Sim</option>
-                    <option value="0" <?php echo set_value('OPC_FATO_FISCAL') == '0' ? 'selected' : ''; ?>>Não</option>
+                <select name="opc_fato_fiscal" id="opc_fato_fiscal" class="span4">
+                    <option value="1" <?php echo set_value('opc_fato_fiscal') == '1' ? 'selected' : ''; ?>>Sim</option>
+                    <option value="0" <?php echo set_value('opc_fato_fiscal') == '0' ? 'selected' : ''; ?>>Não</option>
                 </select>
             </div>
         </div>
 
         <div class="control-group">
-            <label for="OPC_GERA_FINANCEIRO" class="control-label">Gera Financeiro</label>
+            <label for="opc_gera_financeiro" class="control-label">Gera Financeiro</label>
             <div class="controls">
-                <select name="OPC_GERA_FINANCEIRO" id="OPC_GERA_FINANCEIRO" class="span4">
-                    <option value="1" <?php echo set_value('OPC_GERA_FINANCEIRO') == '1' ? 'selected' : ''; ?>>Sim</option>
-                    <option value="0" <?php echo set_value('OPC_GERA_FINANCEIRO') == '0' ? 'selected' : ''; ?>>Não</option>
+                <select name="opc_gera_financeiro" id="opc_gera_financeiro" class="span4">
+                    <option value="1" <?php echo set_value('opc_gera_financeiro') == '1' ? 'selected' : ''; ?>>Sim</option>
+                    <option value="0" <?php echo set_value('opc_gera_financeiro') == '0' ? 'selected' : ''; ?>>Não</option>
                 </select>
             </div>
         </div>
 
         <div class="control-group">
-            <label for="OPC_MOVIMENTA_ESTOQUE" class="control-label">Movimenta Estoque</label>
+            <label for="opc_movimenta_estoque" class="control-label">Movimenta Estoque</label>
             <div class="controls">
-                <select name="OPC_MOVIMENTA_ESTOQUE" id="OPC_MOVIMENTA_ESTOQUE" class="span4">
-                    <option value="1" <?php echo set_value('OPC_MOVIMENTA_ESTOQUE') == '1' ? 'selected' : ''; ?>>Sim</option>
-                    <option value="0" <?php echo set_value('OPC_MOVIMENTA_ESTOQUE') == '0' ? 'selected' : ''; ?>>Não</option>
+                <select name="opc_movimenta_estoque" id="opc_movimenta_estoque" class="span4">
+                    <option value="1" <?php echo set_value('opc_movimenta_estoque') == '1' ? 'selected' : ''; ?>>Sim</option>
+                    <option value="0" <?php echo set_value('opc_movimenta_estoque') == '0' ? 'selected' : ''; ?>>Não</option>
                 </select>
             </div>
         </div>
 
                     <div class="control-group">
-            <label for="OPC_SITUACAO" class="control-label">Situação</label>
+            <label for="opc_situacao" class="control-label">Situação</label>
                         <div class="controls">
-                <select name="OPC_SITUACAO" id="OPC_SITUACAO" class="span4">
-                    <option value="1" <?php echo set_value('OPC_SITUACAO', '1') == '1' ? 'selected' : ''; ?>>Ativo</option>
-                    <option value="0" <?php echo set_value('OPC_SITUACAO') == '0' ? 'selected' : ''; ?>>Inativo</option>
+                <select name="opc_situacao" id="opc_situacao" class="span4">
+                    <option value="1" <?php echo set_value('opc_situacao', '1') == '1' ? 'selected' : ''; ?>>Ativo</option>
+                    <option value="0" <?php echo set_value('opc_situacao') == '0' ? 'selected' : ''; ?>>Inativo</option>
                 </select>
                         </div>
                     </div>
 
                     <div class="control-group">
-            <label for="OPC_FINALIDADE_NFE" class="control-label">Finalidade NFe<span class="required">*</span></label>
+            <label for="opc_finalidade_nfe" class="control-label">Finalidade NFe<span class="required">*</span></label>
                         <div class="controls">
-                <select name="OPC_FINALIDADE_NFE" id="OPC_FINALIDADE_NFE" class="span4">
-                    <option value="1" <?php echo set_value('OPC_FINALIDADE_NFE') == '1' ? 'selected' : ''; ?>>Normal</option>
-                    <option value="2" <?php echo set_value('OPC_FINALIDADE_NFE') == '2' ? 'selected' : ''; ?>>Complementar</option>
-                    <option value="3" <?php echo set_value('OPC_FINALIDADE_NFE') == '3' ? 'selected' : ''; ?>>Ajuste</option>
-                    <option value="4" <?php echo set_value('OPC_FINALIDADE_NFE') == '4' ? 'selected' : ''; ?>>Devolução</option>
+                <select name="opc_finalidade_nfe" id="opc_finalidade_nfe" class="span4">
+                    <option value="1" <?php echo set_value('opc_finalidade_nfe') == '1' ? 'selected' : ''; ?>>Normal</option>
+                    <option value="2" <?php echo set_value('opc_finalidade_nfe') == '2' ? 'selected' : ''; ?>>Complementar</option>
+                    <option value="3" <?php echo set_value('opc_finalidade_nfe') == '3' ? 'selected' : ''; ?>>Ajuste</option>
+                    <option value="4" <?php echo set_value('opc_finalidade_nfe') == '4' ? 'selected' : ''; ?>>Devolução</option>
                 </select>
                         </div>
                     </div>
@@ -128,38 +128,38 @@
     $(document).ready(function() {
         $('#formOperacaoComercial').validate({
             rules: {
-                OPC_SIGLA: {
+                opc_sigla: {
                     required: true,
                     minlength: 2
                 },
-                OPC_NOME: {
+                opc_nome: {
                     required: true
                 },
-                OPC_NATUREZA_OPERACAO: {
+                opc_natureza_operacao: {
                     required: true
                 },
-                OPC_TIPO_MOVIMENTO: {
+                opc_tipo_movimento: {
                     required: true
                 },
-                OPC_FINALIDADE_NFE: {
+                opc_finalidade_nfe: {
                     required: true
                 }
             },
             messages: {
-                OPC_SIGLA: {
+                opc_sigla: {
                     required: "Campo obrigatório",
                     minlength: "Mínimo 2 caracteres"
                 },
-                OPC_NOME: {
+                opc_nome: {
                     required: "Campo obrigatório"
                 },
-                OPC_NATUREZA_OPERACAO: {
+                opc_natureza_operacao: {
                     required: "Campo obrigatório"
                 },
-                OPC_TIPO_MOVIMENTO: {
+                opc_tipo_movimento: {
                     required: "Campo obrigatório"
                 },
-                OPC_FINALIDADE_NFE: {
+                opc_finalidade_nfe: {
                     required: "Campo obrigatório"
                 }
             },

@@ -12,40 +12,40 @@
                     echo '<a href="' . base_url() . 'index.php/nfecom" class="btn-nwe" title="Voltar" style="margin-right: 1%"><i class="bx bx-arrow-back"></i></a>';
 
                     // EDITAR: Status < 2 (Rascunho/Salvo) ou 4 (Rejeitada)
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->NFC_STATUS < 2 || $result->NFC_STATUS == 4)) {
-                        echo '<a href="' . base_url() . 'index.php/nfecom/editar/' . $result->NFC_ID . '" class="btn-nwe" title="Editar NFCom" style="margin-right: 1%"><i class="bx bx-edit"></i></a>';
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->nfc_status < 2 || $result->nfc_status == 4)) {
+                        echo '<a href="' . base_url() . 'index.php/nfecom/editar/' . $result->nfc_id . '" class="btn-nwe" title="Editar NFCom" style="margin-right: 1%"><i class="bx bx-edit"></i></a>';
                     }
 
                     // TRANSMITIR / REEMITIR: Status < 2 (Rascunho/Salvo) ou 4 (Rejeitada)
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->NFC_STATUS < 2 || $result->NFC_STATUS == 4)) {
-                        $label = ($result->NFC_STATUS == 4) ? 'Reemitir' : 'Transmitir';
-                        echo '<a href="#" onclick="gerarNFCom(' . $result->NFC_ID . '); return false;" class="btn-nwe3" title="' . $label . ' NFCom" style="margin-right: 1%"><i class="bx bx-paper-plane"></i></a>';
-                        echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $result->NFC_ID . '" target="_blank" class="btn-nwe" title="Gerar XML (Pré-Emissão)" style="margin-right: 1%"><i class="bx bx-code-alt"></i></a>';
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->nfc_status < 2 || $result->nfc_status == 4)) {
+                        $label = ($result->nfc_status == 4) ? 'Reemitir' : 'Transmitir';
+                        echo '<a href="#" onclick="gerarNFCom(' . $result->nfc_id . '); return false;" class="btn-nwe3" title="' . $label . ' NFCom" style="margin-right: 1%"><i class="bx bx-paper-plane"></i></a>';
+                        echo '<a href="' . base_url() . 'index.php/nfecom/gerarXmlPreEmissao/' . $result->nfc_id . '" target="_blank" class="btn-nwe" title="Gerar XML (Pré-Emissão)" style="margin-right: 1%"><i class="bx bx-code-alt"></i></a>';
                     }
 
                     // CONSULTAR STATUS: Status >= 2 (Enviado+) AND Permissão Editar
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $result->NFC_STATUS >= 2) {
-                        echo '<a href="#" onclick="consultarNFCom(' . $result->NFC_ID . '); return false;" class="btn-nwe2" title="Consultar Status na SEFAZ" style="margin-right: 1%"><i class="bx bx-search"></i></a>';
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $result->nfc_status >= 2) {
+                        echo '<a href="#" onclick="consultarNFCom(' . $result->nfc_id . '); return false;" class="btn-nwe2" title="Consultar Status na SEFAZ" style="margin-right: 1%"><i class="bx bx-search"></i></a>';
                     }
 
                     // IMPRIMIR / DANFE: Permissão de visualizar
                     if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
-                        echo '<a target="_blank" href="' . base_url() . 'index.php/nfecom/danfe/' . $result->NFC_ID . '" class="btn-nwe" title="Imprimir NFCom" style="margin-right: 1%"><i class="bx bx-printer"></i></a>';
+                        echo '<a target="_blank" href="' . base_url() . 'index.php/nfecom/danfe/' . $result->nfc_id . '" class="btn-nwe" title="Imprimir NFCom" style="margin-right: 1%"><i class="bx bx-printer"></i></a>';
                     }
 
                     // XML AUTORIZADO: Status 3 (Autorizada) ou 5 (Autorizada)
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($result->NFC_STATUS == 3 || $result->NFC_STATUS == 5)) {
-                        echo '<a target="_blank" href="' . base_url() . 'index.php/nfecom/gerarXml/' . $result->NFC_ID . '" class="btn-nwe" title="Baixar XML Autorizado" style="margin-right: 1%"><i class="bx bx-download"></i></a>';
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && ($result->nfc_status == 3 || $result->nfc_status == 5)) {
+                        echo '<a target="_blank" href="' . base_url() . 'index.php/nfecom/gerarXml/' . $result->nfc_id . '" class="btn-nwe" title="Baixar XML Autorizado" style="margin-right: 1%"><i class="bx bx-download"></i></a>';
                     }
 
                     // CANCELAR: Status 3 ou 5 AND Permissão Editar
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->NFC_STATUS == 3 || $result->NFC_STATUS == 5)) {
-                        echo '<a href="#" onclick="abrirModalCancelamento(' . $result->NFC_ID . '); return false;" class="btn-nwe4" title="Cancelar NFCom" style="margin-right: 1%"><i class="bx bx-x-circle"></i></a>';
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && ($result->nfc_status == 3 || $result->nfc_status == 5)) {
+                        echo '<a href="#" onclick="abrirModalCancelamento(' . $result->nfc_id . '); return false;" class="btn-nwe4" title="Cancelar NFCom" style="margin-right: 1%"><i class="bx bx-x-circle"></i></a>';
                     }
 
                     // EXCLUIR: Status != 3 (Autorizada) AND Status != 7 (Cancelada) AND Permissão Editar
-                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $result->NFC_STATUS != 3 && $result->NFC_STATUS != 7) {
-                        echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $result->NFC_ID . '" class="btn-nwe4" title="Excluir NFCom" style="margin-right: 1%" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')"><i class="bx bx-trash-alt"></i></a>';
+                    if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom') && $result->nfc_status != 3 && $result->nfc_status != 7) {
+                        echo '<a href="' . base_url() . 'index.php/nfecom/excluir/' . $result->nfc_id . '" class="btn-nwe4" title="Excluir NFCom" style="margin-right: 1%" onclick="return confirm(\'Tem certeza que deseja excluir esta NFCom?\')"><i class="bx bx-trash-alt"></i></a>';
                     }
                     ?>
                 </div>
@@ -57,16 +57,16 @@
                             <tbody>
                                 <tr>
                                     <td style="width: 50%; padding-left: 0">
-                                        <h3 style="margin-top: 0;">NFCom #<?php echo $result->NFC_NNF; ?></h3>
-                                        <span><b>Chave:</b> <?php echo $result->NFC_CH_NFCOM; ?></span><br />
-                                        <span><b>Série:</b> <?php echo $result->NFC_SERIE; ?></span><br />
+                                        <h3 style="margin-top: 0;">NFCom #<?php echo $result->nfc_nnf; ?></h3>
+                                        <span><b>Chave:</b> <?php echo $result->nfc_ch_nfcom; ?></span><br />
+                                        <span><b>Série:</b> <?php echo $result->nfc_serie; ?></span><br />
                                         <span><b>Emissão:</b>
-                                            <?php echo date('d/m/Y H:i', strtotime($result->NFC_DHEMI)); ?></span>
+                                            <?php echo date('d/m/Y H:i', strtotime($result->nfc_dhemi)); ?></span>
                                     </td>
                                     <td style="width: 50%; padding-left: 0; text-align: right;">
                                         <h3>
                                             <?php
-                                            switch ((int) $result->NFC_STATUS) {
+                                            switch ((int) $result->nfc_status) {
                                                 case 0:
                                                     echo '<span class="badge" style="background-color: #CDB380">Rascunho</span>';
                                                     break;
@@ -94,9 +94,9 @@
                                             }
                                             ?>
                                         </h3>
-                                        <?php if ($result->NFC_X_MOTIVO): ?>
+                                        <?php if ($result->nfc_x_motivo): ?>
                                             <span class="text-error"><b>Status SEFAZ:</b>
-                                                <?php echo $result->NFC_C_STAT . ' - ' . $result->NFC_X_MOTIVO; ?></span>
+                                                <?php echo $result->nfc_c_stat . ' - ' . $result->nfc_x_motivo; ?></span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -109,17 +109,17 @@
                                     <td style="width: 50%; padding-left: 0">
                                         <h5><b>EMITENTE</b></h5>
                                         <span><i class="fas fa-building"></i>
-                                            <b><?php echo $result->NFC_X_NOME_EMIT; ?></b></span><br />
-                                        <span>CNPJ: <?php echo $result->NFC_CNPJ_EMIT; ?></span><br />
-                                        <span>IE: <?php echo $result->NFC_IE_EMIT; ?></span>
+                                            <b><?php echo $result->nfc_x_nome_emit; ?></b></span><br />
+                                        <span>CNPJ: <?php echo $result->nfc_cnpj_emit; ?></span><br />
+                                        <span>IE: <?php echo $result->nfc_ie_emit; ?></span>
                                     </td>
                                     <td style="width: 50%; padding-left: 0">
                                         <h5><b>DESTINATÁRIO</b></h5>
                                         <span><i class="fas fa-user"></i>
-                                            <b><?php echo $result->NFC_X_NOME_DEST; ?></b></span><br />
-                                        <span>CNPJ/CPF: <?php echo $result->NFC_CNPJ_DEST; ?></span><br />
-                                        <span><?php echo $result->NFC_X_LGR_DEST . ', ' . $result->NFC_NRO_DEST . ' - ' . $result->NFC_X_BAIRRO_DEST; ?></span><br />
-                                        <span><?php echo $result->NFC_X_MUN_DEST . '/' . $result->NFC_UF_DEST . ' - CEP: ' . $result->NFC_CEP_DEST; ?></span>
+                                            <b><?php echo $result->nfc_x_nome_dest; ?></b></span><br />
+                                        <span>CNPJ/CPF: <?php echo $result->nfc_cnpj_dest; ?></span><br />
+                                        <span><?php echo $result->nfc_x_lgr_dest . ', ' . $result->nfc_nro_dest . ' - ' . $result->nfc_x_bairro_dest; ?></span><br />
+                                        <span><?php echo $result->nfc_x_mun_dest . '/' . $result->nfc_uf_dest . ' - CEP: ' . $result->nfc_cep_dest; ?></span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -151,13 +151,13 @@
                                     <tbody>
                                         <?php foreach ($itens as $item): ?>
                                             <tr>
-                                                <td><?php echo $item->NFI_C_PROD; ?></td>
-                                                <td><?php echo $item->NFI_X_PROD; ?></td>
-                                                <td><?php echo $item->NFI_U_MED; ?></td>
-                                                <td><?php echo number_format($item->NFI_Q_FATURADA, 4, ',', '.'); ?></td>
-                                                <td>R$ <?php echo number_format($item->NFI_V_ITEM, 2, ',', '.'); ?></td>
-                                                <td>R$ <?php echo number_format($item->NFI_V_DESC, 2, ',', '.'); ?></td>
-                                                <td>R$ <?php echo number_format($item->NFI_V_PROD, 2, ',', '.'); ?></td>
+                                                <td><?php echo $item->nfi_c_prod; ?></td>
+                                                <td><?php echo $item->nfi_x_prod; ?></td>
+                                                <td><?php echo $item->nfi_u_med; ?></td>
+                                                <td><?php echo number_format($item->nfi_q_faturada, 4, ',', '.'); ?></td>
+                                                <td>R$ <?php echo number_format($item->nfi_v_item, 2, ',', '.'); ?></td>
+                                                <td>R$ <?php echo number_format($item->nfi_v_desc, 2, ',', '.'); ?></td>
+                                                <td>R$ <?php echo number_format($item->nfi_v_prod, 2, ',', '.'); ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -169,7 +169,7 @@
                                 <?php foreach ($itens as $index => $item): ?>
                                     <div class="well" style="margin-bottom: 15px;">
                                         <h5 style="margin-top: 0; color: #2D335B;">
-                                            <strong>Item <?php echo $index + 1; ?>:</strong> <?php echo $item->NFI_X_PROD; ?>
+                                            <strong>Item <?php echo $index + 1; ?>:</strong> <?php echo $item->nfi_x_prod; ?>
                                         </h5>
                                         <table class="table table-bordered table-condensed" style="margin-bottom: 0;">
                                             <tbody>
@@ -178,112 +178,112 @@
                                                 </tr>
                                                 <tr>
                                                     <td style="width: 20%;"><b>Código:</b></td>
-                                                    <td><?php echo $item->NFI_C_PROD; ?></td>
+                                                    <td><?php echo $item->nfi_c_prod; ?></td>
                                                     <td style="width: 20%;"><b>Unidade:</b></td>
-                                                    <td><?php echo $item->NFI_U_MED ?? '-'; ?></td>
+                                                    <td><?php echo $item->nfi_u_med ?? '-'; ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Quantidade:</b></td>
-                                                    <td><?php echo number_format($item->NFI_Q_FATURADA ?? 0, 4, ',', '.'); ?></td>
+                                                    <td><?php echo number_format($item->nfi_q_faturada ?? 0, 4, ',', '.'); ?></td>
                                                     <td><b>Valor Unitário:</b></td>
-                                                    <td>R$ <?php echo number_format(($item->NFI_V_ITEM ?? 0) / ($item->NFI_Q_FATURADA ?? 1), 2, ',', '.'); ?></td>
+                                                    <td>R$ <?php echo number_format(($item->nfi_v_item ?? 0) / ($item->nfi_q_faturada ?? 1), 2, ',', '.'); ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Valor Total:</b></td>
-                                                    <td>R$ <?php echo number_format($item->NFI_V_PROD ?? 0, 2, ',', '.'); ?></td>
+                                                    <td>R$ <?php echo number_format($item->nfi_v_prod ?? 0, 2, ',', '.'); ?></td>
                                                     <td><b>Desconto:</b></td>
-                                                    <td>R$ <?php echo number_format($item->NFI_V_DESC ?? 0, 2, ',', '.'); ?></td>
+                                                    <td>R$ <?php echo number_format($item->nfi_v_desc ?? 0, 2, ',', '.'); ?></td>
                                                 </tr>
                                                 <tr style="background-color: #e8f4f8;">
                                                     <td colspan="4"><b>Classificação Fiscal</b></td>
                                                 </tr>
                                                 <tr>
                                                     <td style="width: 20%;"><b>CFOP:</b></td>
-                                                    <td><?php echo $item->NFI_CFOP ?? '-'; ?></td>
+                                                    <td><?php echo $item->nfi_cfop ?? '-'; ?></td>
                                                     <td style="width: 20%;"><b>Cód. Classificação:</b></td>
-                                                    <td><?php echo $item->NFI_C_CLASS ?? '-'; ?></td>
+                                                    <td><?php echo $item->nfi_c_class ?? '-'; ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>CST ICMS:</b></td>
-                                                    <td><?php echo $item->NFI_CST_ICMS ?? '-'; ?></td>
+                                                    <td><?php echo $item->nfi_cst_icms ?? '-'; ?></td>
                                                     <td><b>CST PIS:</b></td>
-                                                    <td><?php echo $item->NFI_CST_PIS ?? '-'; ?></td>
+                                                    <td><?php echo $item->nfi_cst_pis ?? '-'; ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>CST COFINS:</b></td>
-                                                    <td colspan="3"><?php echo $item->NFI_CST_COFINS ?? '-'; ?></td>
+                                                    <td colspan="3"><?php echo $item->nfi_cst_cofins ?? '-'; ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>CST PIS:</b></td>
-                                                    <td><?php echo $item->NFI_CST_PIS ?? '-'; ?></td>
+                                                    <td><?php echo $item->nfi_cst_pis ?? '-'; ?></td>
                                                     <td><b>CST COFINS:</b></td>
-                                                    <td><?php echo $item->NFI_CST_COFINS ?? '-'; ?></td>
+                                                    <td><?php echo $item->nfi_cst_cofins ?? '-'; ?></td>
                                                 </tr>
                                                 <tr style="background-color: #f9f9f9;">
                                                     <td colspan="4"><b>PIS</b></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Base de Cálculo PIS:</b></td>
-                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_PIS ?? 0, 2, ',', '.'); ?></td>
+                                                    <td>R$ <?php echo number_format($item->nfi_v_bc_pis ?? 0, 2, ',', '.'); ?></td>
                                                     <td><b>Alíquota PIS (%):</b></td>
-                                                    <td><?php echo number_format($item->NFI_P_PIS ?? 0, 2, ',', '.'); ?>%</td>
+                                                    <td><?php echo number_format($item->nfi_p_pis ?? 0, 2, ',', '.'); ?>%</td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Valor PIS:</b></td>
-                                                    <td colspan="3">R$ <?php echo number_format($item->NFI_V_PIS ?? 0, 2, ',', '.'); ?></td>
+                                                    <td colspan="3">R$ <?php echo number_format($item->nfi_v_pis ?? 0, 2, ',', '.'); ?></td>
                                                 </tr>
                                                 <tr style="background-color: #f9f9f9;">
                                                     <td colspan="4"><b>COFINS</b></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Base de Cálculo COFINS:</b></td>
-                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_COFINS ?? 0, 2, ',', '.'); ?></td>
+                                                    <td>R$ <?php echo number_format($item->nfi_v_bc_cofins ?? 0, 2, ',', '.'); ?></td>
                                                     <td><b>Alíquota COFINS (%):</b></td>
-                                                    <td><?php echo number_format($item->NFI_P_COFINS ?? 0, 2, ',', '.'); ?>%</td>
+                                                    <td><?php echo number_format($item->nfi_p_cofins ?? 0, 2, ',', '.'); ?>%</td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Valor COFINS:</b></td>
-                                                    <td colspan="3">R$ <?php echo number_format($item->NFI_V_COFINS ?? 0, 2, ',', '.'); ?></td>
+                                                    <td colspan="3">R$ <?php echo number_format($item->nfi_v_cofins ?? 0, 2, ',', '.'); ?></td>
                                                 </tr>
-                                                <?php if (isset($item->NFI_V_BC_FUST) && $item->NFI_V_BC_FUST > 0): ?>
+                                                <?php if (isset($item->nfi_v_bc_fust) && $item->nfi_v_bc_fust > 0): ?>
                                                 <tr style="background-color: #f9f9f9;">
                                                     <td colspan="4"><b>FUST</b></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Base de Cálculo FUST:</b></td>
-                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_FUST ?? 0, 2, ',', '.'); ?></td>
+                                                    <td>R$ <?php echo number_format($item->nfi_v_bc_fust ?? 0, 2, ',', '.'); ?></td>
                                                     <td><b>Alíquota FUST (%):</b></td>
-                                                    <td><?php echo number_format($item->NFI_P_FUST ?? 0, 2, ',', '.'); ?>%</td>
+                                                    <td><?php echo number_format($item->nfi_p_fust ?? 0, 2, ',', '.'); ?>%</td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Valor FUST:</b></td>
-                                                    <td colspan="3">R$ <?php echo number_format($item->NFI_V_FUST ?? 0, 2, ',', '.'); ?></td>
+                                                    <td colspan="3">R$ <?php echo number_format($item->nfi_v_fust ?? 0, 2, ',', '.'); ?></td>
                                                 </tr>
                                                 <?php endif; ?>
-                                                <?php if (isset($item->NFI_V_BC_FUNTEL) && $item->NFI_V_BC_FUNTEL > 0): ?>
+                                                <?php if (isset($item->nfi_v_bc_funtel) && $item->nfi_v_bc_funtel > 0): ?>
                                                 <tr style="background-color: #f9f9f9;">
                                                     <td colspan="4"><b>FUNTTEL</b></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Base de Cálculo FUNTTEL:</b></td>
-                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_FUNTEL ?? 0, 2, ',', '.'); ?></td>
+                                                    <td>R$ <?php echo number_format($item->nfi_v_bc_funtel ?? 0, 2, ',', '.'); ?></td>
                                                     <td><b>Alíquota FUNTTEL (%):</b></td>
-                                                    <td><?php echo number_format($item->NFI_P_FUNTEL ?? 0, 2, ',', '.'); ?>%</td>
+                                                    <td><?php echo number_format($item->nfi_p_funtel ?? 0, 2, ',', '.'); ?>%</td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Valor FUNTTEL:</b></td>
-                                                    <td colspan="3">R$ <?php echo number_format($item->NFI_V_FUNTEL ?? 0, 2, ',', '.'); ?></td>
+                                                    <td colspan="3">R$ <?php echo number_format($item->nfi_v_funtel ?? 0, 2, ',', '.'); ?></td>
                                                 </tr>
                                                 <?php endif; ?>
-                                                <?php if (isset($item->NFI_V_BC_IRRF) && $item->NFI_V_BC_IRRF > 0): ?>
+                                                <?php if (isset($item->nfi_v_bc_irrf) && $item->nfi_v_bc_irrf > 0): ?>
                                                 <tr style="background-color: #f9f9f9;">
                                                     <td colspan="4"><b>IRRF</b></td>
                                                 </tr>
                                                 <tr>
                                                     <td><b>Base de Cálculo IRRF:</b></td>
-                                                    <td>R$ <?php echo number_format($item->NFI_V_BC_IRRF ?? 0, 2, ',', '.'); ?></td>
+                                                    <td>R$ <?php echo number_format($item->nfi_v_bc_irrf ?? 0, 2, ',', '.'); ?></td>
                                                     <td><b>Valor IRRF:</b></td>
-                                                    <td>R$ <?php echo number_format($item->NFI_V_IRRF ?? 0, 2, ',', '.'); ?></td>
+                                                    <td>R$ <?php echo number_format($item->nfi_v_irrf ?? 0, 2, ',', '.'); ?></td>
                                                 </tr>
                                                 <?php endif; ?>
                                             </tbody>
@@ -296,29 +296,29 @@
                                 <table class="table table-bordered table-condensed">
                                     <tbody>
                                         <tr>
-                                            <td><b>Contrato:</b> <?php echo $result->NFC_N_CONTRATO; ?></td>
+                                            <td><b>Contrato:</b> <?php echo $result->nfc_n_contrato; ?></td>
                                             <td><b>Início Vigência:</b>
-                                                <?php echo date('d/m/Y', strtotime($result->NFC_D_CONTRATO_INI)); ?>
+                                                <?php echo date('d/m/Y', strtotime($result->nfc_d_contrato_ini)); ?>
                                             </td>
                                             <td><b>Fim Vigência:</b>
-                                                <?php echo $result->NFC_D_CONTRATO_FIM ? date('d/m/Y', strtotime($result->NFC_D_CONTRATO_FIM)) : '-'; ?>
+                                                <?php echo $result->nfc_d_contrato_fim ? date('d/m/Y', strtotime($result->nfc_d_contrato_fim)) : '-'; ?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td><b>Cód. Assinante:</b> <?php echo $result->NFC_I_COD_ASSINANTE; ?></td>
-                                            <td><b>Tipo Assinante:</b> <?php echo $result->NFC_TP_ASSINANTE; ?></td>
-                                            <td><b>Tipo Serviço:</b> <?php echo $result->NFC_TP_SERV_UTIL; ?></td>
+                                            <td><b>Cód. Assinante:</b> <?php echo $result->nfc_i_cod_assinante; ?></td>
+                                            <td><b>Tipo Assinante:</b> <?php echo $result->nfc_tp_assinante; ?></td>
+                                            <td><b>Tipo Serviço:</b> <?php echo $result->nfc_tp_serv_util; ?></td>
                                         </tr>
                                         <tr>
-                                            <td><b>Competência:</b> <?php echo $result->NFC_COMPET_FAT; ?></td>
+                                            <td><b>Competência:</b> <?php echo $result->nfc_compet_fat; ?></td>
                                             <td><b>Vencimento:</b>
-                                                <?php echo date('d/m/Y', strtotime($result->NFC_D_VENC_FAT)); ?></td>
-                                            <td><b>Protocolo:</b> <?php echo $result->NFC_N_PROT; ?></td>
+                                                <?php echo date('d/m/Y', strtotime($result->nfc_d_venc_fat)); ?></td>
+                                            <td><b>Protocolo:</b> <?php echo $result->nfc_n_prot; ?></td>
                                         </tr>
-                                        <?php if ($result->NFC_INF_CPL): ?>
+                                        <?php if ($result->nfc_inf_cpl): ?>
                                             <tr>
                                                 <td colspan="3"><b>Informações
-                                                        Complementares:</b><br><?php echo nl2br($result->NFC_INF_CPL); ?>
+                                                        Complementares:</b><br><?php echo nl2br($result->nfc_inf_cpl); ?>
                                                 </td>
                                             </tr>
                                         <?php endif; ?>
@@ -333,37 +333,37 @@
                                             <td style="text-align: right; width: 60%;"><b>Total Produtos/Serviços:</b>
                                             </td>
                                             <td style="text-align: right;">R$
-                                                <?php echo number_format($result->NFC_V_PROD, 2, ',', '.'); ?>
+                                                <?php echo number_format($result->nfc_v_prod, 2, ',', '.'); ?>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td style="text-align: right;"><b>Total Descontos:</b></td>
                                             <td style="text-align: right;">R$
-                                                <?php echo number_format($result->NFC_V_DESC, 2, ',', '.'); ?>
+                                                <?php echo number_format($result->nfc_v_desc, 2, ',', '.'); ?>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td style="text-align: right;"><b>Total Outras Despesas:</b></td>
                                             <td style="text-align: right;">R$
-                                                <?php echo number_format($result->NFC_V_OUTRO, 2, ',', '.'); ?>
+                                                <?php echo number_format($result->nfc_v_outro, 2, ',', '.'); ?>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td style="text-align: right;"><b>Total PIS:</b></td>
                                             <td style="text-align: right;">R$
-                                                <?php echo number_format($result->NFC_V_PIS, 2, ',', '.'); ?>
+                                                <?php echo number_format($result->nfc_v_pis, 2, ',', '.'); ?>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td style="text-align: right;"><b>Total COFINS:</b></td>
                                             <td style="text-align: right;">R$
-                                                <?php echo number_format($result->NFC_V_COFINS, 2, ',', '.'); ?>
+                                                <?php echo number_format($result->nfc_v_cofins, 2, ',', '.'); ?>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td style="text-align: right; font-size: 16px;"><b>TOTAL NF:</b></td>
                                             <td style="text-align: right; font-size: 16px;"><b>R$
-                                                    <?php echo number_format($result->NFC_V_NF, 2, ',', '.'); ?></b>
+                                                    <?php echo number_format($result->nfc_v_nf, 2, ',', '.'); ?></b>
                                             </td>
                                         </tr>
                                     </tbody>

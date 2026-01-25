@@ -273,7 +273,7 @@
                                     <select class="form-control" id="operacao_comercial_id" name="operacao_comercial_id" required>
                                             <option value="">Selecione...</option>
                                             <?php foreach ($operacoes as $o) { ?>
-                                            <option value="<?php echo $o->OPC_ID; ?>" <?php echo (isset($faturamento->operacao_comercial_id) && $o->OPC_ID == $faturamento->operacao_comercial_id) ? 'selected' : ''; ?>><?php echo $o->OPC_NOME; ?></option>
+                                            <option value="<?php echo $o->opc_id; ?>" <?php echo (isset($faturamento->operacao_comercial_id) && $o->opc_id == $faturamento->operacao_comercial_id) ? 'selected' : ''; ?>><?php echo $o->opc_nome; ?></option>
                                             <?php } ?>
                                         </select>
                                 </div>

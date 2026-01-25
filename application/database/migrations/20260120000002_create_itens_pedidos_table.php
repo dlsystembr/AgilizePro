@@ -14,37 +14,37 @@ class Migration_Create_itens_pedidos_table extends CI_Migration
     {
         // Criar tabela ITENS_PEDIDOS
         $this->dbforge->add_field([
-            'ITP_ID' => [
+            'itp_id' => [
                 'type' => 'INT',
                 'constraint' => 11,
                 'unsigned' => TRUE,
                 'auto_increment' => TRUE
             ],
-            'ITP_SUBTOTAL' => [
+            'itp_subtotal' => [
                 'type' => 'DECIMAL',
                 'constraint' => '10,2',
                 'null' => TRUE,
                 'default' => 0
             ],
-            'ITP_QUANTIDADE' => [
+            'itp_quantidade' => [
                 'type' => 'INT',
                 'constraint' => 11,
                 'null' => TRUE
             ],
-            'ITP_PRECO' => [
+            'itp_preco' => [
                 'type' => 'DECIMAL',
                 'constraint' => '10,2',
                 'null' => TRUE,
                 'default' => 0
             ],
-            'PDS_ID' => [
+            'pds_id' => [
                 'type' => 'INT',
                 'constraint' => 11,
                 'unsigned' => TRUE,
                 'null' => FALSE,
                 'comment' => 'FK para PEDIDOS (mantém nome original)'
             ],
-            'PRO_ID' => [
+            'pro_id' => [
                 'type' => 'INT',
                 'constraint' => 11,
                 'null' => FALSE,
@@ -52,25 +52,25 @@ class Migration_Create_itens_pedidos_table extends CI_Migration
             ]
         ]);
 
-        $this->dbforge->add_key('ITP_ID', TRUE);
+        $this->dbforge->add_key('itp_id', TRUE);
         $this->dbforge->create_table('ITENS_PEDIDOS', TRUE);
 
         // Adicionar índices
-        $this->db->query('CREATE INDEX idx_itens_pedidos_pds_id ON ITENS_PEDIDOS(PDS_ID)');
-        $this->db->query('CREATE INDEX idx_itens_pedidos_pro_id ON ITENS_PEDIDOS(PRO_ID)');
+        $this->db->query('CREATE INDEX idx_itens_pedidos_pds_id ON ITENS_PEDIDOS(pds_id)');
+        $this->db->query('CREATE INDEX idx_itens_pedidos_pro_id ON ITENS_PEDIDOS(pro_id)');
 
         // Adicionar foreign keys
         $this->db->query('
             ALTER TABLE ITENS_PEDIDOS
             ADD CONSTRAINT fk_itens_pedidos_pedidos
-            FOREIGN KEY (PDS_ID) REFERENCES PEDIDOS(PDS_ID)
+            FOREIGN KEY (pds_id) REFERENCES PEDIDOS(pds_id)
             ON DELETE CASCADE ON UPDATE NO ACTION
         ');
 
         $this->db->query('
             ALTER TABLE ITENS_PEDIDOS
             ADD CONSTRAINT fk_itens_pedidos_produtos
-            FOREIGN KEY (PRO_ID) REFERENCES produtos(idProdutos)
+            FOREIGN KEY (pro_id) REFERENCES produtos(idProdutos)
             ON DELETE NO ACTION ON UPDATE NO ACTION
         ');
     }

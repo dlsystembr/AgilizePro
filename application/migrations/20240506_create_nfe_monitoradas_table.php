@@ -31,7 +31,7 @@ class Migration_Create_nfe_monitoradas_table extends CI_Migration
                 'constraint' => 255
             ],
             'data_emissao' => [
-                'type' => 'DATE'
+                'type' => 'date'
             ],
             'valor' => [
                 'type' => 'DECIMAL',

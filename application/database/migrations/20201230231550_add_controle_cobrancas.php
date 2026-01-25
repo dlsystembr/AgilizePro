@@ -17,7 +17,7 @@ class Migration_add_controle_cobrancas extends CI_Migration
                 'null' => false,
             ],
             'conditional_discount_date' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => false,
             ],
             'created_at' => [
@@ -30,7 +30,7 @@ class Migration_add_controle_cobrancas extends CI_Migration
                 'null' => true,
             ],
             'expire_at' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => false,
             ],
             'message' => [

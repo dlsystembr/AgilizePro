@@ -18,16 +18,16 @@ class Ncms_model extends CI_Model
         
         if ($search) {
             $this->db->group_start();
-            $this->db->like('NCM_CODIGO', $search);
-            $this->db->or_like('NCM_DESCRICAO', $search);
+            $this->db->like('ncm_codigo', $search);
+            $this->db->or_like('ncm_descricao', $search);
             $this->db->group_end();
         }
 
         if ($tipo) {
             if ($tipo == 'analitico') {
-                $this->db->where('LENGTH(NCM_CODIGO) = 8');
+                $this->db->where('LENGTH(ncm_codigo) = 8');
             } else if ($tipo == 'sintetico') {
-                $this->db->where('LENGTH(NCM_CODIGO) < 8');
+                $this->db->where('LENGTH(ncm_codigo) < 8');
             } else if ($tipo == 'configurados') {
                 // Subconsulta para NCMs com tributação federal configurada (filtrado por ten_id)
                 $this->db->where("EXISTS (
@@ -49,7 +49,7 @@ class Ncms_model extends CI_Model
             }
         }
         
-        $this->db->order_by('NCM_CODIGO', 'ASC');
+        $this->db->order_by('ncm_codigo', 'ASC');
         
         if ($per_page && $start !== null) {
             $this->db->limit($per_page, $start);
@@ -67,16 +67,16 @@ class Ncms_model extends CI_Model
         
         if ($search) {
             $this->db->group_start();
-            $this->db->like('NCM_CODIGO', $search);
-            $this->db->or_like('NCM_DESCRICAO', $search);
+            $this->db->like('ncm_codigo', $search);
+            $this->db->or_like('ncm_descricao', $search);
             $this->db->group_end();
         }
 
         if ($tipo) {
             if ($tipo == 'analitico') {
-                $this->db->where('LENGTH(NCM_CODIGO) = 8');
+                $this->db->where('LENGTH(ncm_codigo) = 8');
             } else if ($tipo == 'sintetico') {
-                $this->db->where('LENGTH(NCM_CODIGO) < 8');
+                $this->db->where('LENGTH(ncm_codigo) < 8');
             } else if ($tipo == 'configurados') {
                 // Subconsulta para NCMs com tributação federal configurada (filtrado por ten_id)
                 $this->db->where("EXISTS (
@@ -104,7 +104,7 @@ class Ncms_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->select('NCM_ID, NCM_CODIGO, NCM_DESCRICAO, data_inicio, data_fim, tipo_ato, numero_ato, ano_ato');
+        $this->db->select('ncm_id, ncm_codigo, ncm_descricao, data_inicio, data_fim, tipo_ato, numero_ato, ano_ato');
         $this->db->from('ncms');
         $this->db->where('ncm_id', $id);
         // NCMs são compartilhados entre todos os tenants
@@ -143,10 +143,10 @@ class Ncms_model extends CI_Model
         $this->db->from('ncms');
         // NCMs são compartilhados entre todos os tenants
         $this->db->group_start();
-        $this->db->like('NCM_CODIGO', $termo, 'both'); // 'both' adiciona % no início e fim
-        $this->db->or_like('NCM_DESCRICAO', $termo, 'both'); // 'both' adiciona % no início e fim
+        $this->db->like('ncm_codigo', $termo, 'both'); // 'both' adiciona % no início e fim
+        $this->db->or_like('ncm_descricao', $termo, 'both'); // 'both' adiciona % no início e fim
         $this->db->group_end();
-        $this->db->order_by('NCM_CODIGO', 'asc');
+        $this->db->order_by('ncm_codigo', 'asc');
 
         if ($limite !== null && $start !== null) {
             $this->db->limit($limite, $start);
@@ -432,11 +432,11 @@ class Ncms_model extends CI_Model
         }
     }
 
-    public function getByCodigo($NCM_CODIGO)
+    public function getByCodigo($ncm_codigo)
     {
         $this->db->select('*');
         $this->db->from('ncms');
-        $this->db->where('NCM_CODIGO', $NCM_CODIGO);
+        $this->db->where('ncm_codigo', $ncm_codigo);
         // NCMs são compartilhados entre todos os tenants
         return $this->db->get()->row();
     }
@@ -741,7 +741,7 @@ class Ncms_model extends CI_Model
             // Lista de todos os estados do Brasil
             $estados = [
                 'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',
-                'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+                'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'to'
             ];
 
             $this->db->trans_start();

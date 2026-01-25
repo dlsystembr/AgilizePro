@@ -16,68 +16,68 @@
 
     <form action="<?= base_url('index.php/super/adicionarSuperUsuario') ?>" method="post" class="form-horizontal">
       <div class="control-group">
-        <label for="USS_NOME" class="control-label">Nome<span class="required">*</span></label>
+        <label for="uss_nome" class="control-label">Nome<span class="required">*</span></label>
         <div class="controls">
-          <input type="text" id="USS_NOME" name="USS_NOME" value="<?= set_value('USS_NOME') ?>" required />
+          <input type="text" id="uss_nome" name="uss_nome" value="<?= set_value('uss_nome') ?>" required />
         </div>
       </div>
 
       <div class="control-group">
-        <label for="USS_CPF" class="control-label">CPF<span class="required">*</span></label>
+        <label for="uss_cpf" class="control-label">CPF<span class="required">*</span></label>
         <div class="controls">
-          <input type="text" id="USS_CPF" name="USS_CPF" value="<?= set_value('USS_CPF') ?>" required />
+          <input type="text" id="uss_cpf" name="uss_cpf" value="<?= set_value('uss_cpf') ?>" required />
         </div>
       </div>
 
       <div class="control-group">
-        <label for="USS_RG" class="control-label">RG</label>
+        <label for="uss_rg" class="control-label">RG</label>
         <div class="controls">
-          <input type="text" id="USS_RG" name="USS_RG" value="<?= set_value('USS_RG') ?>" />
+          <input type="text" id="uss_rg" name="uss_rg" value="<?= set_value('uss_rg') ?>" />
         </div>
       </div>
 
       <div class="control-group">
-        <label for="USS_EMAIL" class="control-label">E-mail<span class="required">*</span></label>
+        <label for="uss_email" class="control-label">E-mail<span class="required">*</span></label>
         <div class="controls">
-          <input type="email" id="USS_EMAIL" name="USS_EMAIL" value="<?= set_value('USS_EMAIL') ?>" required />
+          <input type="email" id="uss_email" name="uss_email" value="<?= set_value('uss_email') ?>" required />
         </div>
       </div>
 
       <div class="control-group">
-        <label for="USS_SENHA" class="control-label">Senha<span class="required">*</span></label>
+        <label for="uss_senha" class="control-label">Senha<span class="required">*</span></label>
         <div class="controls">
-          <input type="password" id="USS_SENHA" name="USS_SENHA" value="<?= set_value('USS_SENHA') ?>" required minlength="6" />
+          <input type="password" id="uss_senha" name="uss_senha" value="<?= set_value('uss_senha') ?>" required minlength="6" />
         </div>
       </div>
 
       <div class="control-group">
-        <label for="USS_TELEFONE" class="control-label">Telefone<span class="required">*</span></label>
+        <label for="uss_telefone" class="control-label">Telefone<span class="required">*</span></label>
         <div class="controls">
-          <input type="text" id="USS_TELEFONE" name="USS_TELEFONE" value="<?= set_value('USS_TELEFONE') ?>" required />
+          <input type="text" id="uss_telefone" name="uss_telefone" value="<?= set_value('uss_telefone') ?>" required />
         </div>
       </div>
 
       <div class="control-group">
-        <label for="USS_CELULAR" class="control-label">Celular</label>
+        <label for="uss_celular" class="control-label">Celular</label>
         <div class="controls">
-          <input type="text" id="USS_CELULAR" name="USS_CELULAR" value="<?= set_value('USS_CELULAR') ?>" />
+          <input type="text" id="uss_celular" name="uss_celular" value="<?= set_value('uss_celular') ?>" />
         </div>
       </div>
 
       <div class="control-group">
-        <label for="USS_SITUACAO" class="control-label">Situação</label>
+        <label for="uss_situacao" class="control-label">Situação</label>
         <div class="controls">
-          <select id="USS_SITUACAO" name="USS_SITUACAO">
-            <option value="1" <?= set_select('USS_SITUACAO', '1', true) ?>>Ativo</option>
-            <option value="0" <?= set_select('USS_SITUACAO', '0') ?>>Inativo</option>
+          <select id="uss_situacao" name="uss_situacao">
+            <option value="1" <?= set_select('uss_situacao', '1', true) ?>>Ativo</option>
+            <option value="0" <?= set_select('uss_situacao', '0') ?>>Inativo</option>
           </select>
         </div>
       </div>
 
       <div class="control-group">
-        <label for="USS_DATA_EXPIRACAO" class="control-label">Data de Expiração</label>
+        <label for="uss_data_expiracao" class="control-label">Data de Expiração</label>
         <div class="controls">
-          <input type="date" id="USS_DATA_EXPIRACAO" name="USS_DATA_EXPIRACAO" value="<?= set_value('USS_DATA_EXPIRACAO') ?>" />
+          <input type="date" id="uss_data_expiracao" name="uss_data_expiracao" value="<?= set_value('uss_data_expiracao') ?>" />
         </div>
       </div>
 

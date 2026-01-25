@@ -54,7 +54,7 @@ $config = [
         ],
         [
             'field' => 'cep',
-            'label' => 'CEP',
+            'label' => 'cep',
             'rules' => 'trim',
         ],
     ],
@@ -145,12 +145,12 @@ $config = [
         ],
         [
             'field' => 'rg',
-            'label' => 'RG',
+            'label' => 'rg',
             'rules' => 'required|trim',
         ],
         [
             'field' => 'cpf',
-            'label' => 'CPF',
+            'label' => 'cpf',
             'rules' => 'required|trim|verific_cpf_cnpj|is_unique[usuarios.cpf]',
             'errors' => [
                 'verific_cpf_cnpj' => 'O campo %s não é um CPF válido.',
@@ -183,7 +183,7 @@ $config = [
         ],
         [
             'field' => 'cep',
-            'label' => 'CEP',
+            'label' => 'cep',
             'rules' => 'required|trim',
         ],
         [

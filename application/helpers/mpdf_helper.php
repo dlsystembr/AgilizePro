@@ -8,6 +8,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 function pdf_create($html, $filename, $stream = true, $landscape = false)
 {
+    // Usar o formato original que funciona nos outros relatórios
     if ($landscape) {
         $mpdf = new \Mpdf\Mpdf(['c', 'A4-L', 'tempDir' => FCPATH . 'assets/uploads/temp/']);
     } else {

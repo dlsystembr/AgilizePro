@@ -19,14 +19,14 @@ class Empresas_model extends CI_Model
 
         if ($searchTerm) {
             $this->db->group_start();
-            $this->db->like('EMP_RAZAO_SOCIAL', $searchTerm);
-            $this->db->or_like('EMP_CNPJ', $searchTerm);
+            $this->db->like('emp_razao_social', $searchTerm);
+            $this->db->or_like('emp_cnpj', $searchTerm);
             $this->db->or_like('EMP_CODIGO', $searchTerm);
-            $this->db->or_like('EMP_NOME_FANTASIA', $searchTerm);
+            $this->db->or_like('emp_nome_fantasia', $searchTerm);
             $this->db->group_end();
         }
 
-        $this->db->order_by('EMP_ID', 'desc');
+        $this->db->order_by('emp_id', 'desc');
         $this->db->limit($perpage, $start);
 
         return $this->db->get()->result();
@@ -34,7 +34,7 @@ class Empresas_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->where('EMP_ID', $id);
+        $this->db->where('emp_id', $id);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
         return $this->db->get('empresas')->row();

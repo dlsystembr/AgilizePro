@@ -27,17 +27,17 @@ class FiscalClassificationService
     /**
      * Método principal para encontrar a classificação fiscal
      * 
-     * @param int $operacaoComercialId ID da Operação Comercial (OPC_ID)
-     * @param int $clienteId ID do Cliente (PES_ID)
-     * @param int $produtoId ID do Produto (PRO_ID)
-     * @param int $empresaId ID da Empresa (EMP_ID)
+     * @param int $operacaoComercialId ID da Operação Comercial (opc_id)
+     * @param int $clienteId ID do Cliente (pes_id)
+     * @param int $produtoId ID do Produto (pro_id)
+     * @param int $empresaId ID da Empresa (emp_id)
      * @return array|null Retorna array com CFOP, CST e cClassTrib ou null se não encontrar
      * @throws Exception Se não houver tributação configurada para a destinação
      */
     public function findClassification($operacaoComercialId, $clienteId, $produtoId, $empresaId)
     {
         log_message('debug', '=== INÍCIO findClassification ===');
-        log_message('debug', "Parâmetros: OPC_ID={$operacaoComercialId}, Cliente={$clienteId}, Produto={$produtoId}, Empresa={$empresaId}");
+        log_message('debug', "Parâmetros: opc_id={$operacaoComercialId}, Cliente={$clienteId}, Produto={$produtoId}, Empresa={$empresaId}");
 
         // PASSO 1: Carga Inicial - Buscar todas as classificações da operação comercial
         $classificacoes = $this->carregarClassificacoesIniciais($operacaoComercialId);
@@ -191,24 +191,24 @@ class FiscalClassificationService
     private function carregarClassificacoesIniciais($operacaoComercialId)
     {
         $this->db->select('
-            CLF_ID as id,
-            OPC_ID as operacao_comercial_id,
-            CLF_CST as cst,
-            CLF_CSOSN as csosn,
-            CLF_CFOP as cfop,
-            CLF_DESTINACAO as destinacao,
-            CLF_TIPO_TRIBUTACAO as tipo_icms,
-            CLF_NATUREZA_CONTRIBUINTE as natureza_contribuinte,
-            CLF_OBJETIVO_COMERCIAL as objetivo_comercial,
-            CLF_CCLASSTRIB as cClassTrib,
-            CLF_MENSAGEM as mensagem_fiscal,
-            TPC_ID as tipo_cliente_id
+            clf_id as id,
+            opc_id as operacao_comercial_id,
+            clf_cst as cst,
+            clf_csosn as csosn,
+            clf_cfop as cfop,
+            clf_destinacao as destinacao,
+            clf_tipo_tributacao as tipo_icms,
+            clf_natureza_contribuinte as natureza_contribuinte,
+            clf_objetivo_comercial as objetivo_comercial,
+            clf_cclasstrib as cClassTrib,
+            clf_mensagem as mensagem_fiscal,
+            tpc_id as tipo_cliente_id
         ');
         $this->db->from('classificacao_fiscal');
-        $this->db->where('OPC_ID', $operacaoComercialId);
-        // Filtrar apenas classificações ativas (CLF_SITUACAO = 1)
+        $this->db->where('opc_id', $operacaoComercialId);
+        // Filtrar apenas classificações ativas (clf_situacao = 1)
         // Se o campo não existir, a query falhará, mas isso é esperado
-        $this->db->where('CLF_SITUACAO', 1);
+        $this->db->where('clf_situacao', 1);
         // Filtrar por ten_id
         $this->db->where('ten_id', $this->CI->session->userdata('ten_id'));
         
@@ -233,9 +233,9 @@ class FiscalClassificationService
     {
         try {
             // Buscar UF da empresa
-            $this->db->select('EMP_UF');
+            $this->db->select('emp_uf');
             $this->db->from('empresas');
-            $this->db->where('EMP_ID', $empresaId);
+            $this->db->where('emp_id', $empresaId);
             $this->db->where('ten_id', $this->CI->session->userdata('ten_id'));
             $empresaQuery = $this->db->get();
             
@@ -244,15 +244,15 @@ class FiscalClassificationService
                 return 'Interestadual'; // Default
             }
             
-            $empresaUf = $empresaQuery->row()->EMP_UF;
+            $empresaUf = $empresaQuery->row()->emp_uf;
             
             // Buscar UF do cliente
-            $this->db->select('E3.EST_UF');
+            $this->db->select('E3.est_uf');
             $this->db->from('pessoas P');
-            $this->db->join('enderecos E2', 'P.PES_ID = E2.PES_ID', 'left');
-            $this->db->join('municipios M', 'E2.MUN_ID = M.MUN_ID', 'left');
-            $this->db->join('estados E3', 'M.EST_ID = E3.EST_ID', 'left');
-            $this->db->where('P.PES_ID', $clienteId);
+            $this->db->join('enderecos E2', 'P.pes_id = E2.pes_id', 'left');
+            $this->db->join('municipios M', 'E2.mun_id = M.mun_id', 'left');
+            $this->db->join('estados E3', 'M.est_id = E3.est_id', 'left');
+            $this->db->where('P.pes_id', $clienteId);
             $this->db->where('P.ten_id', $this->CI->session->userdata('ten_id'));
             $this->db->limit(1);
             
@@ -263,7 +263,7 @@ class FiscalClassificationService
                 return 'Interestadual'; // Default
             }
             
-            $clienteUf = $clienteQuery->row()->EST_UF;
+            $clienteUf = $clienteQuery->row()->est_uf;
             
             // Comparar UFs
             if ($empresaUf && $clienteUf && $empresaUf == $clienteUf) {
@@ -310,12 +310,12 @@ class FiscalClassificationService
     {
         $this->db->select('te.tbe_tipo_tributacao');
         $this->db->from('produtos p1');
-        $this->db->join('pessoas P', 'P.PES_ID = ' . (int)$clienteId, 'left');
-        $this->db->join('enderecos E2', 'P.PES_ID = E2.PES_ID', 'left');
-        $this->db->join('municipios M', 'E2.MUN_ID = M.MUN_ID', 'left');
-        $this->db->join('estados E3', 'M.EST_ID = E3.EST_ID', 'left');
-        $this->db->join('tributacao_estadual te', 'p1.NCM_ID = te.ncm_id AND E3.EST_UF = te.tbe_uf', 'left');
-        $this->db->where('p1.PRO_ID', $produtoId);
+        $this->db->join('pessoas P', 'P.pes_id = ' . (int)$clienteId, 'left');
+        $this->db->join('enderecos E2', 'P.pes_id = E2.pes_id', 'left');
+        $this->db->join('municipios M', 'E2.mun_id = M.mun_id', 'left');
+        $this->db->join('estados E3', 'M.est_id = E3.est_id', 'left');
+        $this->db->join('tributacao_estadual te', 'p1.ncm_id = te.ncm_id AND E3.est_uf = te.tbe_uf', 'left');
+        $this->db->where('p1.pro_id', $produtoId);
         $this->db->where('p1.ten_id', $this->CI->session->userdata('ten_id'));
         $this->db->where('te.ten_id', $this->CI->session->userdata('ten_id'));
         $this->db->limit(1);
@@ -324,7 +324,7 @@ class FiscalClassificationService
         $result = $query->row();
         
         if ($result && $result->tbe_tipo_tributacao) {
-            // Normalizar para comparar com CLF_TIPO_TRIBUTACAO
+            // Normalizar para comparar com clf_tipo_tributacao
             $tipo = $result->tbe_tipo_tributacao;
             if ($tipo === 'ICMS Normal') {
                 return 'normal';
@@ -359,23 +359,23 @@ class FiscalClassificationService
     }
 
     /**
-     * PASSO 4: Obtém o TPC_ID do cliente
+     * PASSO 4: Obtém o tpc_id do cliente
      * 
      * @param int $clienteId
      * @return int|null
      */
     private function obterTipoCliente($clienteId)
     {
-        $this->db->select('c.TPC_ID');
+        $this->db->select('c.tpc_id');
         $this->db->from('pessoas P');
-        $this->db->join('clientes c', 'P.PES_ID = c.PES_ID', 'left');
-        $this->db->where('P.PES_ID', $clienteId);
+        $this->db->join('clientes c', 'P.pes_id = c.pes_id', 'left');
+        $this->db->where('P.pes_id', $clienteId);
         $this->db->limit(1);
         
         $query = $this->db->get();
         $result = $query->row();
         
-        return $result && $result->TPC_ID ? (int)$result->TPC_ID : null;
+        return $result && $result->tpc_id ? (int)$result->tpc_id : null;
     }
 
     /**
@@ -403,19 +403,19 @@ class FiscalClassificationService
      */
     private function obterNaturezaContribuinte($clienteId)
     {
-        $this->db->select('d.DOC_NATUREZA_CONTRIBUINTE');
+        $this->db->select('d.doc_natureza_contribuinte');
         $this->db->from('pessoas P');
-        $this->db->join('enderecos E2', 'P.PES_ID = E2.PES_ID', 'left');
-        $this->db->join('documentos d', 'E2.END_ID = d.END_ID AND P.PES_ID = d.PES_ID', 'left');
-        $this->db->where('P.PES_ID', $clienteId);
+        $this->db->join('enderecos E2', 'P.pes_id = E2.pes_id', 'left');
+        $this->db->join('documentos d', 'E2.end_id = d.end_id AND P.pes_id = d.pes_id', 'left');
+        $this->db->where('P.pes_id', $clienteId);
         $this->db->limit(1);
         
         $query = $this->db->get();
         $result = $query->row();
         
-        if ($result && $result->DOC_NATUREZA_CONTRIBUINTE) {
+        if ($result && $result->doc_natureza_contribuinte) {
             // Normalizar valores
-            $natureza = $result->DOC_NATUREZA_CONTRIBUINTE;
+            $natureza = $result->doc_natureza_contribuinte;
             if (in_array(strtolower($natureza), ['contribuinte', 'inscrito'])) {
                 return 'Contribuinte';
             } elseif (in_array(strtolower($natureza), ['não contribuinte', 'nao contribuinte', 'nao_inscrito'])) {
@@ -470,18 +470,18 @@ class FiscalClassificationService
      */
     private function obterObjetivoComercial($clienteId)
     {
-        $this->db->select('c.CLN_OBJETIVO_COMERCIAL');
+        $this->db->select('c.cln_objetivo_comercial');
         $this->db->from('pessoas P');
-        $this->db->join('clientes c', 'P.PES_ID = c.PES_ID', 'left');
-        $this->db->where('P.PES_ID', $clienteId);
+        $this->db->join('clientes c', 'P.pes_id = c.pes_id', 'left');
+        $this->db->where('P.pes_id', $clienteId);
         $this->db->limit(1);
         
         $query = $this->db->get();
         $result = $query->row();
         
-        if ($result && $result->CLN_OBJETIVO_COMERCIAL) {
+        if ($result && $result->cln_objetivo_comercial) {
             // Normalizar valores
-            $objetivo = $result->CLN_OBJETIVO_COMERCIAL;
+            $objetivo = $result->cln_objetivo_comercial;
             $objetivoLower = strtolower($objetivo);
             
             if (in_array($objetivoLower, ['consumo', 'consumo'])) {
@@ -548,13 +548,13 @@ class FiscalClassificationService
         }
         
         return [
-            'CLF_CFOP' => $classificacao->cfop ?? null,
-            'CLF_CST' => $classificacao->cst ?? null,
-            'CLF_CSOSN' => $classificacao->csosn ?? null,
-            'CLF_CCLASSTRIB' => $classificacao->cClassTrib ?? null,
-            'CLF_TIPO_TRIBUTACAO' => $classificacao->tipo_icms ?? null,
-            'CLF_ID' => $classificacao->id ?? null,
-            'CLF_MENSAGEM' => $classificacao->mensagem_fiscal ?? null
+            'clf_cfop' => $classificacao->cfop ?? null,
+            'clf_cst' => $classificacao->cst ?? null,
+            'clf_csosn' => $classificacao->csosn ?? null,
+            'clf_cclasstrib' => $classificacao->cClassTrib ?? null,
+            'clf_tipo_tributacao' => $classificacao->tipo_icms ?? null,
+            'clf_id' => $classificacao->id ?? null,
+            'clf_mensagem' => $classificacao->mensagem_fiscal ?? null
         ];
     }
 }

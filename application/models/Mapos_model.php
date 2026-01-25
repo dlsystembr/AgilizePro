@@ -77,8 +77,8 @@ class Mapos_model extends CI_Model
 
         // buscando produtos
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
-        $this->db->like('PRO_COD_BARRA', $termo);
-        $this->db->or_like('PRO_DESCRICAO', $termo);
+        $this->db->like('pro_cod_barra', $termo);
+        $this->db->or_like('pro_descricao', $termo);
         $this->db->limit(50);
         $data['produtos'] = $this->db->get('produtos')->result();
 
@@ -135,8 +135,8 @@ class Mapos_model extends CI_Model
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
         $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
-        $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
+        $this->db->join('clientes', 'clientes.cln_id = os.clientes_id');
+        $this->db->join('pessoas', 'pessoas.pes_id = clientes.pes_id');
         $this->db->where('os.status', 'Orçamento');
         $this->db->limit(10);
 
@@ -148,8 +148,8 @@ class Mapos_model extends CI_Model
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
         $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
-        $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
+        $this->db->join('clientes', 'clientes.cln_id = os.clientes_id');
+        $this->db->join('pessoas', 'pessoas.pes_id = clientes.pes_id');
         $this->db->where('os.status', 'Aberto');
         $this->db->limit(10);
 
@@ -161,8 +161,8 @@ class Mapos_model extends CI_Model
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
         $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
-        $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
+        $this->db->join('clientes', 'clientes.cln_id = os.clientes_id');
+        $this->db->join('pessoas', 'pessoas.pes_id = clientes.pes_id');
         $this->db->where('os.status', 'Finalizado');
         $this->db->order_by('os.idOs', 'DESC');
         $this->db->limit(10);
@@ -175,8 +175,8 @@ class Mapos_model extends CI_Model
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
         $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
-        $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
+        $this->db->join('clientes', 'clientes.cln_id = os.clientes_id');
+        $this->db->join('pessoas', 'pessoas.pes_id = clientes.pes_id');
         $this->db->where('os.status', 'Aprovado');
         $this->db->limit(10);
 
@@ -188,8 +188,8 @@ class Mapos_model extends CI_Model
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
         $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
-        $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
+        $this->db->join('clientes', 'clientes.cln_id = os.clientes_id');
+        $this->db->join('pessoas', 'pessoas.pes_id = clientes.pes_id');
         $this->db->where('os.status', 'Aguardando Peças');
         $this->db->limit(10);
 
@@ -201,8 +201,8 @@ class Mapos_model extends CI_Model
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
         $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
-        $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
+        $this->db->join('clientes', 'clientes.cln_id = os.clientes_id');
+        $this->db->join('pessoas', 'pessoas.pes_id = clientes.pes_id');
         $this->db->where('os.status', 'Em Andamento');
         $this->db->limit(10);
 
@@ -214,8 +214,8 @@ class Mapos_model extends CI_Model
         $this->db->select('os.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('os');
         $this->db->where('os.ten_id', $this->session->userdata('ten_id'));
-        $this->db->join('clientes', 'clientes.CLN_ID = os.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
+        $this->db->join('clientes', 'clientes.cln_id = os.clientes_id');
+        $this->db->join('pessoas', 'pessoas.pes_id = clientes.pes_id');
         $this->db->where_in('os.status', $status);
         $this->db->order_by('os.idOs', 'DESC');
         $this->db->limit(10);
@@ -235,8 +235,8 @@ class Mapos_model extends CI_Model
         $this->db->select('vendas.*, pessoas.pes_nome as nomeCliente');
         $this->db->from('vendas');
         $this->db->where('vendas.ten_id', $this->session->userdata('ten_id'));
-        $this->db->join('clientes', 'clientes.CLN_ID = vendas.clientes_id');
-        $this->db->join('pessoas', 'pessoas.pes_id = clientes.PES_ID');
+        $this->db->join('clientes', 'clientes.cln_id = vendas.clientes_id');
+        $this->db->join('pessoas', 'pessoas.pes_id = clientes.pes_id');
         $this->db->where_in('vendas.status', $vstatus);
         $this->db->order_by('vendas.idVendas', 'DESC');
         $this->db->limit(10);
@@ -261,17 +261,17 @@ class Mapos_model extends CI_Model
     {
         $this->db->select(
             'ordem_servico.*,
-            pessoas.PES_NOME as nomeCliente'
+            pessoas.pes_nome as nomeCliente'
         );
         $this->db->from('ordem_servico');
-        $this->db->join('pessoas', 'pessoas.PES_ID = ordem_servico.ORV_PESS_ID');
+        $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.orv_pess_id');
         $this->db->where('ordem_servico.ten_id', $this->session->userdata('ten_id'));
-        $this->db->where('ordem_servico.ORV_DATA_FINAL >=', $start);
-        $this->db->where('ordem_servico.ORV_DATA_FINAL <=', $end);
-        $this->db->group_by('ordem_servico.ORV_ID');
+        $this->db->where('ordem_servico.orv_data_final >=', $start);
+        $this->db->where('ordem_servico.orv_data_final <=', $end);
+        $this->db->group_by('ordem_servico.orv_id');
 
         if (! empty($status)) {
-            $this->db->where('ordem_servico.ORV_STATUS', $status);
+            $this->db->where('ordem_servico.orv_status', $status);
         }
 
         return $this->db->get()->result();
@@ -282,9 +282,9 @@ class Mapos_model extends CI_Model
         $this->db->select('nfecom_capa.*');
         $this->db->from('nfecom_capa');
         $this->db->where('nfecom_capa.ten_id', $this->session->userdata('ten_id'));
-        $this->db->where('nfecom_capa.NFC_DHEMI >=', $start);
-        $this->db->where('nfecom_capa.NFC_DHEMI <=', $end);
-        $this->db->order_by('nfecom_capa.NFC_DHEMI', 'DESC');
+        $this->db->where('nfecom_capa.nfc_dhemi >=', $start);
+        $this->db->where('nfecom_capa.nfc_dhemi <=', $end);
+        $this->db->order_by('nfecom_capa.nfc_dhemi', 'DESC');
 
         return $this->db->get()->result();
     }
@@ -295,8 +295,8 @@ class Mapos_model extends CI_Model
         $this->db->select('nfecom_capa.*');
         $this->db->from('nfecom_capa');
         $this->db->where('nfecom_capa.ten_id', $this->session->userdata('ten_id'));
-        $this->db->like('nfecom_capa.NFC_DHEMI', $hoje);
-        $this->db->order_by('nfecom_capa.NFC_DHEMI', 'DESC');
+        $this->db->like('nfecom_capa.nfc_dhemi', $hoje);
+        $this->db->order_by('nfecom_capa.nfc_dhemi', 'DESC');
         $this->db->limit(10);
 
         return $this->db->get()->result();
@@ -304,7 +304,7 @@ class Mapos_model extends CI_Model
 
     public function getProdutosMinimo()
     {
-        $sql = 'SELECT * FROM produtos WHERE ten_id = ? AND PRO_ESTOQUE <= PRO_ESTOQUE_MINIMO AND PRO_ESTOQUE_MINIMO > 0 LIMIT 10';
+        $sql = 'SELECT * FROM produtos WHERE ten_id = ? AND pro_estoque <= pro_estoque_minimo AND pro_estoque_minimo > 0 LIMIT 10';
 
         return $this->db->query($sql, [$this->session->userdata('ten_id')])->result();
     }

@@ -1,0 +1,150 @@
+================================================================================
+  INSTRUÇÕES DE ATUALIZAÇÃO - RELATÓRIO DE CONTRATOS
+  Versão: 1.0 | Data: 25/01/2026
+================================================================================
+
+IMPORTANTE: SEMPRE FAÇA BACKUP ANTES DE ATUALIZAR!
+
+================================================================================
+OPÇÃO 1: ATUALIZAÇÃO VIA FTP (MANUAL)
+================================================================================
+
+1. BACKUP OBRIGATÓRIO
+   - Exporte o banco de dados (phpMyAdmin ou ferramenta de backup)
+   - Faça download completo das pastas:
+     * application/
+     * assets/
+
+2. CONECTE-SE VIA FTP
+   - Use FileZilla, WinSCP ou outro cliente FTP
+   - Acesse a raiz do projeto MapOS
+
+3. FAÇA UPLOAD DOS ARQUIVOS
+   Mantenha a estrutura de pastas exatamente como está:
+
+   application/
+   ├── controllers/
+   │   ├── Relatorios.php
+   │   └── Permissoes.php
+   ├── models/
+   │   └── Relatorios_model.php
+   ├── views/
+   │   ├── relatorios/
+   │   │   ├── rel_contratos.php (NOVO)
+   │   │   └── imprimir/
+   │   │       ├── imprimirContratos.php (NOVO)
+   │   │       └── imprimirTopo.php
+   │   ├── permissoes/
+   │   │   ├── adicionarPermissao.php
+   │   │   ├── editarPermissao.php
+   │   │   └── permissoes.php
+   │   ├── tema/
+   │   │   └── topo.php
+   │   └── menu.php
+   ├── config/
+   │   └── permission.php
+   └── helpers/
+       └── mpdf_helper.php
+
+4. ATUALIZE O BANCO DE DADOS
+   Opção A - Via Interface Web (Recomendado):
+   - Acesse como administrador
+   - Vá em: Configurações > Sistema
+   - Clique em: "Atualizar Banco de Dados"
+
+   Opção B - Via Terminal/SSH:
+   php index.php tools migrate
+
+5. VERIFICAÇÃO
+   - Acesse: Permissões > Editar
+   - Verifique se aparece "Relatório Contrato" (rContrato)
+   - Acesse: Relatórios > Relatório de Contratos
+   - Teste a geração de PDF
+
+================================================================================
+OPÇÃO 2: ATUALIZAÇÃO VIA ZIP (AUTOMÁTICA)
+================================================================================
+
+1. Execute o script PowerShell (Windows):
+   .\criar_pacote_atualizacao.ps1
+
+2. O script criará um arquivo ZIP com todos os arquivos necessários
+
+3. Faça upload do ZIP para o servidor
+
+4. Extraia o ZIP no servidor mantendo a estrutura de pastas
+
+5. Siga os passos 4 e 5 da Opção 1 (Atualizar BD e Verificação)
+
+================================================================================
+ARQUIVOS MODIFICADOS/CRIADOS
+================================================================================
+
+NOVOS:
+- application/views/relatorios/rel_contratos.php
+- application/views/relatorios/imprimir/imprimirContratos.php
+
+MODIFICADOS:
+- application/controllers/Relatorios.php
+- application/controllers/Permissoes.php
+- application/models/Relatorios_model.php
+- application/views/relatorios/imprimir/imprimirTopo.php
+- application/views/permissoes/adicionarPermissao.php
+- application/views/permissoes/editarPermissao.php
+- application/views/permissoes/permissoes.php
+- application/views/tema/topo.php
+- application/views/menu.php
+- application/config/permission.php
+- application/helpers/mpdf_helper.php
+
+OPCIONAL (apenas se houver problemas com PDF):
+- application/vendor/mpdf/mpdf/src/Language/ScriptToLanguage.php
+- application/vendor/mpdf/mpdf/src/Mpdf.php
+
+================================================================================
+CHECKLIST DE ATUALIZAÇÃO
+================================================================================
+
+[ ] Backup do banco de dados realizado
+[ ] Backup dos arquivos realizado
+[ ] Upload dos arquivos via FTP concluído
+[ ] Estrutura de pastas verificada
+[ ] Banco de dados atualizado (migrate)
+[ ] Permissões de arquivo ajustadas (se Linux)
+[ ] Teste de acesso ao relatório realizado
+[ ] Teste de geração de PDF realizado
+[ ] Verificação de permissões no sistema realizada
+
+================================================================================
+PERMISSÕES DE ARQUIVO (Linux/Unix)
+================================================================================
+
+Se o servidor for Linux, ajuste as permissões:
+
+chmod 644 application/controllers/Relatorios.php
+chmod 644 application/controllers/Permissoes.php
+chmod 644 application/models/Relatorios_model.php
+chmod 644 application/views/relatorios/rel_contratos.php
+chmod 644 application/views/relatorios/imprimir/imprimirContratos.php
+chmod 644 application/views/relatorios/imprimir/imprimirTopo.php
+chmod 755 application/views/relatorios/
+chmod 755 application/views/relatorios/imprimir/
+
+================================================================================
+ROLLBACK (EM CASO DE PROBLEMAS)
+================================================================================
+
+1. Restaure o backup dos arquivos
+2. Restaure o backup do banco de dados
+3. Verifique os logs em: application/logs/
+
+================================================================================
+SUPORTE
+================================================================================
+
+Em caso de dúvidas:
+- Verifique os logs em: application/logs/
+- Verifique as permissões de arquivo
+- Verifique se todas as dependências estão instaladas (composer)
+
+================================================================================

@@ -16,7 +16,7 @@ class Nfecom_model extends CI_Model
         $this->db->select($fields);
         $this->db->from($table);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
-        $this->db->order_by('NFC_ID', 'desc');
+        $this->db->order_by('nfc_id', 'desc');
 
         if ($perpage > 0) {
             $this->db->limit($perpage, $start);
@@ -27,24 +27,24 @@ class Nfecom_model extends CI_Model
             // Condicional de pesquisa (chave, cliente, etc)
             if (array_key_exists('pesquisa', $where)) {
                 $this->db->group_start();
-                $this->db->like('NFC_CH_NFCOM', $where['pesquisa']);
-                $this->db->or_like('NFC_X_NOME_DEST', $where['pesquisa']);
-                $this->db->or_like('NFC_NNF', $where['pesquisa']);
+                $this->db->like('nfc_ch_nfcom', $where['pesquisa']);
+                $this->db->or_like('nfc_x_nome_dest', $where['pesquisa']);
+                $this->db->or_like('nfc_nnf', $where['pesquisa']);
                 $this->db->group_end();
             }
 
             // Condicional de status
             if (array_key_exists('status', $where)) {
-                $this->db->where_in('NFC_STATUS', $where['status']);
+                $this->db->where_in('nfc_status', $where['status']);
             }
 
             // Condicional data emissão
             if (array_key_exists('de', $where)) {
-                $this->db->where('DATE(NFC_DHEMI) >=', $where['de']);
+                $this->db->where('DATE(nfc_dhemi) >=', $where['de']);
             }
             // Condicional data final
             if (array_key_exists('ate', $where)) {
-                $this->db->where('DATE(NFC_DHEMI) <=', $where['ate']);
+                $this->db->where('DATE(nfc_dhemi) <=', $where['ate']);
             }
         }
 
@@ -59,7 +59,7 @@ class Nfecom_model extends CI_Model
     {
         $this->db->select('*');
         $this->db->from('nfecom_capa');
-        $this->db->where('NFC_ID', $id);
+        $this->db->where('nfc_id', $id);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $query = $this->db->get();
 
@@ -68,10 +68,10 @@ class Nfecom_model extends CI_Model
 
     public function getByIdWithOperation($id)
     {
-        $this->db->select('nfecom_capa.*, operacao_comercial.OPC_NOME as operacao_nome');
+        $this->db->select('nfecom_capa.*, operacao_comercial.opc_nome as operacao_nome');
         $this->db->from('nfecom_capa');
-        $this->db->join('operacao_comercial', 'operacao_comercial.OPC_ID = nfecom_capa.OPC_ID', 'left');
-        $this->db->where('nfecom_capa.NFC_ID', $id);
+        $this->db->join('operacao_comercial', 'operacao_comercial.opc_id = nfecom_capa.opc_id', 'left');
+        $this->db->where('nfecom_capa.nfc_id', $id);
         $this->db->where('nfecom_capa.ten_id', $this->session->userdata('ten_id'));
         $query = $this->db->get();
 
@@ -80,20 +80,20 @@ class Nfecom_model extends CI_Model
 
     public function getItens($nfecomId)
     {
-        // Verificar se o campo CLF_ID existe na tabela
+        // Verificar se o campo clf_id existe na tabela
         $fields = $this->db->list_fields('nfecom_itens');
         $selectFields = '*';
-        if (in_array('CLF_ID', $fields)) {
-            $selectFields = '*, CLF_ID';
+        if (in_array('clf_id', $fields)) {
+            $selectFields = '*, clf_id';
         } elseif (in_array('clf_id', $fields)) {
             $selectFields = '*, clf_id';
         }
         
         $this->db->select($selectFields);
         $this->db->from('nfecom_itens');
-        $this->db->where('NFC_ID', $nfecomId);
+        $this->db->where('nfc_id', $nfecomId);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
-        $this->db->order_by('NFI_N_ITEM', 'asc');
+        $this->db->order_by('nfi_n_item', 'asc');
         $query = $this->db->get();
 
         return $query->result();
@@ -140,16 +140,16 @@ class Nfecom_model extends CI_Model
 
     public function getNextNumero()
     {
-        $this->db->select_max('NFC_NNF');
+        $this->db->select_max('nfc_nnf');
         $query = $this->db->get('nfecom_capa');
         $result = $query->row();
 
-        return ($result->NFC_NNF ?? 0) + 1;
+        return ($result->nfc_nnf ?? 0) + 1;
     }
 
     public function updateStatus($id, $data)
     {
-        $this->db->where('NFC_ID', $id);
+        $this->db->where('nfc_id', $id);
         $this->db->update('nfecom_capa', $data);
 
         return $this->db->affected_rows() > 0;
@@ -170,19 +170,19 @@ class Nfecom_model extends CI_Model
 
     public function getTotalValor($id)
     {
-        $this->db->select_sum('NFI_V_PROD');
+        $this->db->select_sum('nfi_v_prod');
         $this->db->from('nfecom_itens');
-        $this->db->where('NFC_ID', $id);
+        $this->db->where('nfc_id', $id);
         $query = $this->db->get();
 
-        return $query->row()->NFI_V_PROD ?? 0;
+        return $query->row()->nfi_v_prod ?? 0;
     }
 
     public function getNfecomByChave($chave)
     {
         $this->db->select('*');
         $this->db->from('nfecom_capa');
-        $this->db->where('NFC_CH_NFCOM', $chave);
+        $this->db->where('nfc_ch_nfcom', $chave);
         $query = $this->db->get();
 
         return $query->row();

@@ -71,7 +71,7 @@
                             </tr>
                     <?php } else {
                         foreach ($ncms as $ncm) { 
-                            $tipo = strlen($ncm->NCM_CODIGO) == 8 ? 'Analítico' : 'Sintético';
+                            $tipo = strlen($ncm->ncm_codigo) == 8 ? 'Analítico' : 'Sintético';
                             $corTipo = $tipo == 'Analítico' ? '#436eee' : '#B266FF';
                             $configuracao = '';
                             if ($ncm->tributacao_federal) {
@@ -85,20 +85,20 @@
                             }
                         ?>
                                 <tr>
-                                    <td><?php echo $ncm->NCM_CODIGO; ?></td>
-                                    <td><?php echo $ncm->NCM_DESCRICAO; ?></td>
+                                    <td><?php echo $ncm->ncm_codigo; ?></td>
+                                    <td><?php echo $ncm->ncm_descricao; ?></td>
                                     <td><span class="badge" style="background-color: <?php echo $corTipo; ?>; border-color: <?php echo $corTipo; ?>"><?php echo $tipo; ?></span></td>
                                     <td><?php echo $ncm->data_inicio ? date('d/m/Y', strtotime($ncm->data_inicio)) : ''; ?></td>
                                     <td><?php echo $ncm->data_fim ? date('d/m/Y', strtotime($ncm->data_fim)) : ''; ?></td>
                                     <td><?php echo $configuracao; ?></td>
                                     <td style="text-align:left">
                                         <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNcm')) { ?>
-                                        <a style="margin-right: 1%" href="<?php echo base_url() ?>index.php/ncms/visualizarTributacao/<?php echo $ncm->NCM_ID; ?>" class="btn-nwe" title="Visualizar NCM">
+                                        <a style="margin-right: 1%" href="<?php echo base_url() ?>index.php/ncms/visualizarTributacao/<?php echo $ncm->ncm_id; ?>" class="btn-nwe" title="Visualizar NCM">
                                                 <i class="bx bx-show bx-xs"></i>
                                             </a>
                                         <?php } ?>
                                     <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eNcm')) { ?>
-                                        <a style="margin-right: 1%" href="<?php echo base_url() ?>index.php/ncms/tributacao/<?php echo $ncm->NCM_ID; ?>" class="btn-nwe6" title="Configurar Tributação">
+                                        <a style="margin-right: 1%" href="<?php echo base_url() ?>index.php/ncms/tributacao/<?php echo $ncm->ncm_id; ?>" class="btn-nwe6" title="Configurar Tributação">
                                             <i class="bx bx-list-plus "></i>
                                             </a>
                                         <?php } ?>

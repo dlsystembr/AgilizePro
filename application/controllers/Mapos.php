@@ -46,7 +46,7 @@ class Mapos extends MY_Controller {
         
         // Contar NFCom autorizadas (status 3 ou 5) filtradas por ten_id
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
-        $this->db->where_in('NFC_STATUS', [3, 5]);
+        $this->db->where_in('nfc_status', [3, 5]);
         $this->data['total_nfcom_autorizadas'] = $this->db->count_all_results('nfecom_capa');
         
         $this->data['menuPainel'] = 'Painel';
@@ -225,14 +225,14 @@ class Mapos extends MY_Controller {
 
         $this->load->library('form_validation');
         $this->form_validation->set_rules('nome', 'Razão Social', 'required|trim');
-        $this->form_validation->set_rules('cnpj', 'CNPJ', 'required|trim');
-        $this->form_validation->set_rules('ie', 'IE', 'trim');
-        $this->form_validation->set_rules('cep', 'CEP', 'required|trim');
+        $this->form_validation->set_rules('cnpj', 'cnpj', 'required|trim');
+        $this->form_validation->set_rules('ie', 'ie', 'trim');
+        $this->form_validation->set_rules('cep', 'cep', 'required|trim');
         $this->form_validation->set_rules('logradouro', 'Logradouro', 'required|trim');
         $this->form_validation->set_rules('numero', 'Número', 'required|trim');
         $this->form_validation->set_rules('bairro', 'Bairro', 'required|trim');
         $this->form_validation->set_rules('cidade', 'Cidade', 'required|trim');
-        $this->form_validation->set_rules('uf', 'UF', 'required|trim');
+        $this->form_validation->set_rules('uf', 'uf', 'required|trim');
         $this->form_validation->set_rules('ibge', 'Código IBGE', 'required|trim');
         $this->form_validation->set_rules('telefone', 'Telefone', 'required|trim');
         $this->form_validation->set_rules('email', 'E-mail', 'required|trim');
@@ -276,14 +276,14 @@ class Mapos extends MY_Controller {
 
         $this->load->library('form_validation');
         $this->form_validation->set_rules('nome', 'Razão Social', 'required|trim');
-        $this->form_validation->set_rules('cnpj', 'CNPJ', 'required|trim');
-        $this->form_validation->set_rules('ie', 'IE', 'trim');
-        $this->form_validation->set_rules('cep', 'CEP', 'required|trim');
+        $this->form_validation->set_rules('cnpj', 'cnpj', 'required|trim');
+        $this->form_validation->set_rules('ie', 'ie', 'trim');
+        $this->form_validation->set_rules('cep', 'cep', 'required|trim');
         $this->form_validation->set_rules('logradouro', 'Logradouro', 'required|trim');
         $this->form_validation->set_rules('numero', 'Número', 'required|trim');
         $this->form_validation->set_rules('bairro', 'Bairro', 'required|trim');
         $this->form_validation->set_rules('cidade', 'Cidade', 'required|trim');
-        $this->form_validation->set_rules('uf', 'UF', 'required|trim');
+        $this->form_validation->set_rules('uf', 'uf', 'required|trim');
         $this->form_validation->set_rules('ibge', 'Código IBGE', 'required|trim');
         $this->form_validation->set_rules('telefone', 'Telefone', 'required|trim');
         $this->form_validation->set_rules('email', 'E-mail', 'required|trim');
@@ -543,7 +543,7 @@ class Mapos extends MY_Controller {
         }
         
         $events = array_map(function ($os) {
-            switch ($os->ORV_STATUS) {
+            switch ($os->orv_status) {
                 case 'Aberto':
                     $cor = '#00cd00';
                     break;
@@ -576,41 +576,41 @@ class Mapos extends MY_Controller {
                     break;
             }
 
-            $produtos = $this->os_model->getProdutos($os->ORV_ID);
+            $produtos = $this->os_model->getProdutos($os->orv_id);
             $totalProdutos = array_reduce($produtos, function ($acc, $p) {
-                return $acc + (isset($p->PRO_OS_SUBTOTAL) ? (float)$p->PRO_OS_SUBTOTAL : (float)(($p->PRO_OS_PRECO ?? 0) * ($p->PRO_OS_QUANTIDADE ?? 0)));
+                return $acc + (isset($p->pro_os_subtotal) ? (float)$p->pro_os_subtotal : (float)(($p->pro_os_preco ?? 0) * ($p->pro_os_quantidade ?? 0)));
             }, 0);
 
-            $servicos = $this->os_model->getServicos($os->ORV_ID);
+            $servicos = $this->os_model->getServicos($os->orv_id);
             $totalServicos = array_reduce($servicos, function ($acc, $s) {
-                return $acc + (isset($s->SOS_SUBTOTAL) ? (float)$s->SOS_SUBTOTAL : (float)(($s->SOS_PRECO ?? 0) * ($s->SOS_QUANTIDADE ?? 0)));
+                return $acc + (isset($s->sos_subtotal) ? (float)$s->sos_subtotal : (float)(($s->sos_preco ?? 0) * ($s->sos_quantidade ?? 0)));
             }, 0);
 
             $subtotalGeral = $totalProdutos + $totalServicos;
-            $valorDesconto = (float) ($os->ORV_VALOR_DESCONTO ?? 0);
-            $valorDescontoExibicao = (float) ($os->ORV_DESCONTO ?? 0);
+            $valorDesconto = (float) ($os->orv_valor_desconto ?? 0);
+            $valorDescontoExibicao = (float) ($os->orv_desconto ?? 0);
 
             return [
-                'title' => "OS: {$os->ORV_ID}, Cliente: {$os->nomeCliente}",
-                'start' => $os->ORV_DATA_FINAL,
-                'end' => $os->ORV_DATA_FINAL,
+                'title' => "OS: {$os->orv_id}, Cliente: {$os->nomeCliente}",
+                'start' => $os->orv_data_final,
+                'end' => $os->orv_data_final,
                 'color' => $cor,
                 'extendedProps' => [
-                    'id' => $os->ORV_ID,
+                    'id' => $os->orv_id,
                     'tipo' => 'os',
                     'cliente' => '<b>Cliente:</b> ' . $os->nomeCliente,
-                    'dataInicial' => '<b>Data Inicial:</b> ' . date('d/m/Y', strtotime($os->ORV_DATA_INICIAL)),
-                    'dataFinal' => '<b>Data Final:</b> ' . date('d/m/Y', strtotime($os->ORV_DATA_FINAL)),
-                    'garantia' => '<b>Garantia:</b> ' . $os->ORV_GARANTIA . ' dias',
-                    'status' => '<b>Status da OS:</b> ' . $os->ORV_STATUS,
-                    'description' => '<b>Descrição/Produto:</b> ' . strip_tags(html_entity_decode($os->ORV_DESCRICAO_PRODUTO)),
-                    'defeito' => '<b>Defeito:</b> ' . strip_tags(html_entity_decode($os->ORV_DEFEITO)),
-                    'observacoes' => '<b>Observações:</b> ' . strip_tags(html_entity_decode($os->ORV_OBSERVACOES)),
+                    'dataInicial' => '<b>Data Inicial:</b> ' . date('d/m/Y', strtotime($os->orv_data_inicial)),
+                    'dataFinal' => '<b>Data Final:</b> ' . date('d/m/Y', strtotime($os->orv_data_final)),
+                    'garantia' => '<b>Garantia:</b> ' . $os->orv_garantia . ' dias',
+                    'status' => '<b>Status da OS:</b> ' . $os->orv_status,
+                    'description' => '<b>Descrição/Produto:</b> ' . strip_tags(html_entity_decode($os->orv_descricao_produto)),
+                    'defeito' => '<b>Defeito:</b> ' . strip_tags(html_entity_decode($os->orv_defeito)),
+                    'observacoes' => '<b>Observações:</b> ' . strip_tags(html_entity_decode($os->orv_observacoes)),
                     'subtotal' => '<br><b>Subtotal:</b> R$ ' . number_format($subtotalGeral, 2, ',', '.'),
                     'desconto' => '<b>Desconto:</b> -R$ ' . ($valorDescontoExibicao > 0 ? number_format($subtotalGeral - $valorDesconto, 2, ',', '.') : number_format($valorDescontoExibicao, 2, ',', '.')),
                     'total' => '<b>Total:</b> R$ ' . ($valorDesconto == 0 ? number_format($subtotalGeral, 2, ',', '.') : number_format($valorDesconto, 2, ',', '.')),
-                    'faturado' => '<br><b>Faturado:</b> ' . ($os->ORV_FATURADO ? 'SIM' : 'PENDENTE'),
-                    'editar' => $this->os_model->isEditable($os->ORV_ID),
+                    'faturado' => '<br><b>Faturado:</b> ' . ($os->orv_faturado ? 'SIM' : 'PENDENTE'),
+                    'editar' => $this->os_model->isEditable($os->orv_id),
                 ],
             ];
         }, $allOs);
@@ -624,7 +624,7 @@ class Mapos extends MY_Controller {
             foreach ($allNfcom as $nfcom) {
                 // Mapear status de NFCom para texto
                 $statusText = 'Desconhecido';
-                switch ($nfcom->NFC_STATUS) {
+                switch ($nfcom->nfc_status) {
                     case 0: $statusText = 'Rascunho'; break;
                     case 1: $statusText = 'Pendente'; break;
                     case 2: $statusText = 'Enviada'; break;
@@ -635,18 +635,18 @@ class Mapos extends MY_Controller {
                 }
 
                 $events[] = [
-                    'title' => "NFCom: {$nfcom->NFC_NNF}, Cliente: {$nfcom->NFC_X_NOME_DEST}",
-                    'start' => date('Y-m-d', strtotime($nfcom->NFC_DHEMI)),
-                    'end' => date('Y-m-d', strtotime($nfcom->NFC_DHEMI)),
+                    'title' => "NFCom: {$nfcom->nfc_nnf}, Cliente: {$nfcom->nfc_x_nome_dest}",
+                    'start' => date('Y-m-d', strtotime($nfcom->nfc_dhemi)),
+                    'end' => date('Y-m-d', strtotime($nfcom->nfc_dhemi)),
                     'color' => '#3a86ff',
                     'extendedProps' => [
-                        'id' => $nfcom->NFC_ID,
+                        'id' => $nfcom->nfc_id,
                         'tipo' => 'nfcom',
-                        'cliente' => '<b>Cliente:</b> ' . $nfcom->NFC_X_NOME_DEST,
-                        'dataEmissao' => '<b>Emissão:</b> ' . date('d/m/Y H:i', strtotime($nfcom->NFC_DHEMI)),
+                        'cliente' => '<b>Cliente:</b> ' . $nfcom->nfc_x_nome_dest,
+                        'dataEmissao' => '<b>Emissão:</b> ' . date('d/m/Y H:i', strtotime($nfcom->nfc_dhemi)),
                         'status' => '<b>Status NFCom:</b> ' . $statusText,
-                        'valor' => '<b>Total:</b> R$ ' . number_format($nfcom->NFC_V_NF, 2, ',', '.'),
-                        'visualizar' => site_url('nfecom/visualizar/' . $nfcom->NFC_ID)
+                        'valor' => '<b>Total:</b> R$ ' . number_format($nfcom->nfc_v_nf, 2, ',', '.'),
+                        'visualizar' => site_url('nfecom/visualizar/' . $nfcom->nfc_id)
                     ],
                 ];
             }

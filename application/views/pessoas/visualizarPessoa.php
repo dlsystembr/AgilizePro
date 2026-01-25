@@ -180,7 +180,7 @@
                                         <div class="control-group" style="margin-bottom: 0;">
                                             <label class="control-label">Código</label>
                                             <div class="controls">
-                                                <input type="text" value="<?php echo $result->PES_CODIGO; ?>" readonly
+                                                <input type="text" value="<?php echo $result->pes_codigo; ?>" readonly
                                                     style="width: 150px;" />
                                             </div>
                                         </div>
@@ -191,7 +191,7 @@
                                             <div class="controls">
                                                 <select disabled class="span12">
                                                     <option selected>
-                                                        <?php echo $result->PES_SITUACAO == '1' ? 'Ativo' : 'Inativo'; ?>
+                                                        <?php echo $result->pes_situacao == '1' ? 'Ativo' : 'Inativo'; ?>
                                                     </option>
                                                 </select>
                                             </div>
@@ -205,7 +205,7 @@
                                         <div class="control-group" style="margin-bottom: 0;">
                                             <label class="control-label">CPF/CNPJ</label>
                                             <div class="controls">
-                                                <input type="text" value="<?php echo $result->PES_CPFCNPJ; ?>" readonly
+                                                <input type="text" value="<?php echo $result->pes_cpfcnpj; ?>" readonly
                                                     class="span12" />
                                             </div>
                                         </div>
@@ -213,10 +213,10 @@
                                     <div class="span5">
                                         <div class="control-group" style="margin-bottom: 0;">
                                             <label
-                                                class="control-label"><?php echo $result->PES_FISICO_JURIDICO == 'F' ? 'Nascimento' : 'Abertura'; ?></label>
+                                                class="control-label"><?php echo $result->pes_fisico_juridico == 'F' ? 'Nascimento' : 'Abertura'; ?></label>
                                             <div class="controls">
                                                 <input type="date"
-                                                    value="<?php echo $result->PES_NASCIMENTO_ABERTURA; ?>" readonly
+                                                    value="<?php echo $result->pes_nascimento_abertura; ?>" readonly
                                                     class="span12" />
                                             </div>
                                         </div>
@@ -229,7 +229,7 @@
                                         <div class="control-group" style="margin-bottom: 0;">
                                             <label class="control-label">Nome</label>
                                             <div class="controls">
-                                                <input type="text" value="<?php echo $result->PES_NOME; ?>" readonly
+                                                <input type="text" value="<?php echo $result->pes_nome; ?>" readonly
                                                     class="span12" />
                                             </div>
                                         </div>
@@ -242,7 +242,7 @@
                                         <div class="control-group" style="margin-bottom: 0;">
                                             <label class="control-label">Razão Social</label>
                                             <div class="controls">
-                                                <input type="text" value="<?php echo $result->PES_RAZAO_SOCIAL; ?>"
+                                                <input type="text" value="<?php echo $result->pes_razao_social; ?>"
                                                     readonly class="span12" />
                                             </div>
                                         </div>
@@ -306,11 +306,11 @@
                                     <?php foreach ($telefones as $tel): ?>
                                         <div class="row-fluid" style="margin-bottom: 10px; display: flex; gap: 5px;">
                                             <select disabled style="width: 120px; flex-shrink: 0;">
-                                                <option selected><?php echo $tel->TEL_TIPO; ?></option>
+                                                <option selected><?php echo $tel->tel_tipo; ?></option>
                                             </select>
-                                            <input type="text" readonly style="width: 50px; flex-shrink: 0;" value="<?php echo $tel->TEL_DDD; ?>" placeholder="DDD">
-                                            <input type="text" readonly style="flex: 1;" value="<?php echo $tel->TEL_NUMERO; ?>" placeholder="Número">
-                                            <input type="text" readonly style="flex: 1;" value="<?php echo $tel->TEL_OBSERVACAO; ?>" placeholder="Observação">
+                                            <input type="text" readonly style="width: 50px; flex-shrink: 0;" value="<?php echo $tel->tel_ddd; ?>" placeholder="DDD">
+                                            <input type="text" readonly style="flex: 1;" value="<?php echo $tel->tel_numero; ?>" placeholder="Número">
+                                            <input type="text" readonly style="flex: 1;" value="<?php echo $tel->tel_observacao; ?>" placeholder="Observação">
                                         </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -331,10 +331,10 @@
                                     <?php foreach ($emails as $email): ?>
                                         <div class="row-fluid" style="margin-bottom: 10px; display: flex; gap: 5px;">
                                             <select disabled style="width: 120px; flex-shrink: 0;">
-                                                <option selected><?php echo $email->EML_TIPO; ?></option>
+                                                <option selected><?php echo $email->eml_tipo; ?></option>
                                             </select>
-                                            <input type="text" readonly style="flex: 1;" value="<?php echo $email->EML_NOME ?: 'Geral'; ?>" placeholder="Nome">
-                                            <input type="text" readonly style="flex: 1.5;" value="<?php echo $email->EML_EMAIL; ?>" placeholder="Email">
+                                            <input type="text" readonly style="flex: 1;" value="<?php echo $email->eml_nome ?: 'Geral'; ?>" placeholder="Nome">
+                                            <input type="text" readonly style="flex: 1.5;" value="<?php echo $email->eml_email; ?>" placeholder="Email">
                                         </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -356,22 +356,22 @@
                             <?php foreach ($enderecos as $end): ?>
                                 <div class="endereco-entry" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #eee;">
                                     <div class="row-fluid" style="margin-bottom: 5px; display: flex; gap: 5px;">
-                                        <input type="text" readonly style="flex: 3;" value="<?php echo $end->END_LOGRADOURO; ?>" placeholder="Logradouro">
-                                        <input type="text" readonly style="width: 80px; flex-shrink: 0;" value="<?php echo $end->END_NUMERO; ?>" placeholder="Número">
-                                        <input type="text" readonly style="flex: 2;" value="<?php echo $end->END_COMPLEMENTO; ?>" placeholder="Complemento">
+                                        <input type="text" readonly style="flex: 3;" value="<?php echo $end->end_logradouro; ?>" placeholder="Logradouro">
+                                        <input type="text" readonly style="width: 80px; flex-shrink: 0;" value="<?php echo $end->end_numero; ?>" placeholder="Número">
+                                        <input type="text" readonly style="flex: 2;" value="<?php echo $end->end_complemento; ?>" placeholder="Complemento">
                                     </div>
                                     <div class="row-fluid" style="margin-bottom: 5px; display: flex; gap: 5px;">
-                                        <input type="text" readonly style="width: 100px; flex-shrink: 0;" value="<?php echo $end->END_CEP; ?>" placeholder="CEP">
-                                        <input type="text" readonly style="flex: 1;" value="<?php echo $end->BAI_NOME; ?>" placeholder="Bairro">
-                                        <input type="text" readonly style="flex: 1;" value="<?php echo $end->MUN_NOME; ?>" placeholder="Cidade">
-                                        <input type="text" readonly style="width: 40px; flex-shrink: 0;" value="<?php echo $end->EST_UF; ?>" placeholder="UF">
+                                        <input type="text" readonly style="width: 100px; flex-shrink: 0;" value="<?php echo $end->end_cep; ?>" placeholder="cep">
+                                        <input type="text" readonly style="flex: 1;" value="<?php echo $end->bai_nome; ?>" placeholder="Bairro">
+                                        <input type="text" readonly style="flex: 1;" value="<?php echo $end->mun_nome; ?>" placeholder="Cidade">
+                                        <input type="text" readonly style="width: 40px; flex-shrink: 0;" value="<?php echo $end->est_uf; ?>" placeholder="uf">
                                     </div>
                                     <div class="row-fluid" style="display: flex; gap: 10px; align-items: center;">
                                         <select disabled style="width: 150px; flex-shrink: 0;">
-                                            <option selected><?php echo $end->END_TIPO_ENDENRECO ?: 'Geral'; ?></option>
+                                            <option selected><?php echo $end->end_tipo_endenreco ?: 'Geral'; ?></option>
                                         </select>
                                         <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
-                                            <input type="checkbox" disabled <?php echo (isset($end->END_PADRAO) && $end->END_PADRAO) ? 'checked' : ''; ?> />
+                                            <input type="checkbox" disabled <?php echo (isset($end->end_padrao) && $end->end_padrao) ? 'checked' : ''; ?> />
                                             <strong>Endereço Padrão</strong>
                                         </label>
                                     </div>
@@ -397,12 +397,12 @@
                                         <div class="documento-entry" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #eee;">
                                             <div class="row-fluid" style="display: flex; gap: 5px; margin-bottom: <?php echo $doc->DOC_ENDE_IDX !== null ? '5px' : '0'; ?>;">
                                                 <select disabled style="width: 150px; flex-shrink: 0;">
-                                                    <option selected><?php echo $doc->DOC_TIPO_DOCUMENTO; ?></option>
+                                                    <option selected><?php echo $doc->doc_tipo_documento; ?></option>
                                                 </select>
-                                                <input type="text" readonly style="flex: 1;" value="<?php echo $doc->DOC_NUMERO; ?>" placeholder="Número">
-                                                <input type="text" readonly style="flex: 1;" value="<?php echo $doc->DOC_ORGAO_EXPEDIDOR; ?>" placeholder="Órgão Expedidor">
+                                                <input type="text" readonly style="flex: 1;" value="<?php echo $doc->doc_numero; ?>" placeholder="Número">
+                                                <input type="text" readonly style="flex: 1;" value="<?php echo $doc->doc_orgao_expedidor; ?>" placeholder="Órgão Expedidor">
                                                 <select disabled style="width: 120px; flex-shrink: 0;">
-                                                    <option selected><?php echo $doc->DOC_NATUREZA_CONTRIBUINTE ?: 'Natureza'; ?></option>
+                                                    <option selected><?php echo $doc->doc_natureza_contribuinte ?: 'Natureza'; ?></option>
                                                 </select>
                                             </div>
                                             <?php if ($doc->DOC_ENDE_IDX !== null): ?>
@@ -412,7 +412,7 @@
                                                     <?php
                                                     if (isset($enderecos[$doc->DOC_ENDE_IDX])) {
                                                         $e = $enderecos[$doc->DOC_ENDE_IDX];
-                                                        echo "<option selected>{$e->END_TIPO_ENDENRECO} - {$e->END_LOGRADOURO}, {$e->END_NUMERO}</option>";
+                                                        echo "<option selected>{$e->end_tipo_endenreco} - {$e->end_logradouro}, {$e->end_numero}</option>";
                                                     } else {
                                                         echo "<option selected>Endereço vinculado</option>";
                                                     }
@@ -435,7 +435,7 @@
                             </div>
                             <div class="form-section-content">
                                 <textarea readonly rows="6"
-                                    style="width:100%; resize: vertical; box-sizing: border-box;"><?php echo $result->PES_OBSERVACAO; ?></textarea>
+                                    style="width:100%; resize: vertical; box-sizing: border-box;"><?php echo $result->pes_observacao; ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -455,14 +455,14 @@
                                         <label class="control-label">Limite de Crédito</label>
                                         <div class="controls">
                                             <input type="text" readonly
-                                                value="<?php echo number_format($cliente->CLN_LIMITE_CREDITO, 2, ',', '.'); ?>"
+                                                value="<?php echo number_format($cliente->cln_limite_credito, 2, ',', '.'); ?>"
                                                 class="span12">
                                         </div>
                                     </div>
                                     <div class="control-group">
                                         <label class="control-label">Dias de Carência</label>
                                         <div class="controls">
-                                            <input type="text" readonly value="<?php echo $cliente->CLN_DIAS_CARENCIA; ?>"
+                                            <input type="text" readonly value="<?php echo $cliente->cln_dias_carencia; ?>"
                                                 class="span12">
                                         </div>
                                     </div>
@@ -471,7 +471,7 @@
                                         <div class="controls">
                                             <select disabled class="span12">
                                                 <option selected>
-                                                    <?php echo $cliente->CLN_SITUACAO == 1 ? 'Ativo' : 'Inativo'; ?>
+                                                    <?php echo $cliente->cln_situacao == 1 ? 'Ativo' : 'Inativo'; ?>
                                                 </option>
                                             </select>
                                         </div>
@@ -482,7 +482,7 @@
                                         <div class="controls">
                                             <select disabled class="span12">
                                                 <option selected>
-                                                    <?php echo $cliente->CLN_OBJETIVO_COMERCIAL ?: 'Consumo'; ?></option>
+                                                    <?php echo $cliente->cln_objetivo_comercial ?: 'Consumo'; ?></option>
                                             </select>
                                         </div>
                                     </div>
@@ -490,7 +490,7 @@
                                     <div class="control-group">
                                         <label class="control-label">Tipo de Cliente</label>
                                         <div class="controls">
-                                            <input type="text" readonly value="<?php echo isset($cliente->TPC_NOME) ? $cliente->TPC_NOME : 'Não definido'; ?>" class="span12">
+                                            <input type="text" readonly value="<?php echo isset($cliente->tpc_nome) ? $cliente->tpc_nome : 'Não definido'; ?>" class="span12">
                                         </div>
                                     </div>
                                 </div>
@@ -499,13 +499,13 @@
                                         <label class="control-label">Opções</label>
                                         <div class="controls">
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
-                                                <input type="checkbox" disabled <?php echo $cliente->CLN_COMPRAR_APRAZO ? 'checked' : ''; ?>> Comprar a prazo
+                                                <input type="checkbox" disabled <?php echo $cliente->cln_comprar_aprazo ? 'checked' : ''; ?>> Comprar a prazo
                                             </label>
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
-                                                <input type="checkbox" disabled <?php echo $cliente->CLN_BLOQUEIO_FINANCEIRO ? 'checked' : ''; ?>> Bloqueio financeiro
+                                                <input type="checkbox" disabled <?php echo $cliente->cln_bloqueio_financeiro ? 'checked' : ''; ?>> Bloqueio financeiro
                                             </label>
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
-                                                <input type="checkbox" disabled <?php echo $cliente->CLN_EMITIR_NFE ? 'checked' : ''; ?>> Emitir NFe
+                                                <input type="checkbox" disabled <?php echo $cliente->cln_emitir_nfe ? 'checked' : ''; ?>> Emitir NFe
                                             </label>
                                         </div>
                                     </div>
@@ -524,7 +524,7 @@
                                                             <option selected><?php echo $vp->VEN_NOME; ?></option>
                                                         </select>
                                                         <label class="checkbox" style="margin: 0; white-space: nowrap;">
-                                                            <input type="radio" disabled <?php echo $vp->CLV_PADRAO ? 'checked' : ''; ?>>
+                                                            <input type="radio" disabled <?php echo $vp->clv_padrao ? 'checked' : ''; ?>>
                                                             <small>Padrão</small>
                                                         </label>
                                                     </div>
@@ -552,7 +552,7 @@
                                         <label class="control-label">Percentual de Comissão (%)</label>
                                         <div class="controls">
                                             <input type="text" readonly
-                                                value="<?php echo number_format($vendedor->VEN_PERCENTUAL_COMISSAO, 2, ',', '.'); ?>"
+                                                value="<?php echo number_format($vendedor->ven_percentual_comissao, 2, ',', '.'); ?>"
                                                 class="span12">
                                         </div>
                                     </div>
@@ -562,7 +562,7 @@
                                         <label class="control-label">Tipo de Comissão</label>
                                         <div class="controls">
                                             <select disabled class="span12">
-                                                <option selected><?php echo $vendedor->VEN_TIPO_COMISSAO ?: 'Selecione'; ?>
+                                                <option selected><?php echo $vendedor->ven_tipo_comissao ?: 'Selecione'; ?>
                                                 </option>
                                             </select>
                                         </div>
@@ -573,7 +573,7 @@
                                         <label class="control-label">Meta Mensal (R$)</label>
                                         <div class="controls">
                                             <input type="text" readonly
-                                                value="<?php echo number_format($vendedor->VEN_META_MENSAL, 2, ',', '.'); ?>"
+                                                value="<?php echo number_format($vendedor->ven_meta_mensal, 2, ',', '.'); ?>"
                                                 class="span12">
                                         </div>
                                     </div>
@@ -586,7 +586,7 @@
                 <!-- Ações -->
                 <div class="form-actions" style="margin: 0; padding: 20px; text-align: center;">
                     <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'ePessoa')): ?>
-                        <a href="<?php echo base_url('index.php/pessoas/editar/' . $result->PES_ID); ?>" class="btn btn-info" style="margin: 0 5px;">
+                        <a href="<?php echo base_url('index.php/pessoas/editar/' . $result->pes_id); ?>" class="btn btn-info" style="margin: 0 5px;">
                             <i class='bx bx-edit'></i> Editar
                         </a>
                     <?php endif; ?>

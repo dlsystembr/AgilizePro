@@ -89,30 +89,30 @@
                 foreach ($results as $r) {
                     // Determinar o tipo de item
                     $tipoBadge = '';
-                    if (isset($r->PRO_TIPO) && $r->PRO_TIPO == '2') {
+                    if (isset($r->pro_tipo) && $r->pro_tipo == '2') {
                         $tipoBadge = '<span class="badge-tipo badge-servico"><i class="bx bx-briefcase"></i> Serviço</span>';
                     } else {
                         $tipoBadge = '<span class="badge-tipo badge-produto"><i class="bx bx-package"></i> Produto</span>';
                     }
-                    $finalidadeLabel = $finalidadesProduto[$r->PRO_FINALIDADE] ?? ($r->PRO_FINALIDADE ?: 'Não informado');
+                    $finalidadeLabel = $finalidadesProduto[$r->pro_finalidade] ?? ($r->pro_finalidade ?: 'Não informado');
                     
                     echo '<tr>';
-                    echo '<td>' . $r->PRO_ID . '</td>';
-                    echo '<td>' . $r->PRO_COD_BARRA . '</td>';
-                    echo '<td>' . $r->PRO_DESCRICAO . '</td>';
+                    echo '<td>' . $r->pro_id . '</td>';
+                    echo '<td>' . $r->pro_cod_barra . '</td>';
+                    echo '<td>' . $r->pro_descricao . '</td>';
                     echo '<td style="text-align: center;">' . $tipoBadge . '</td>';
                     echo '<td>' . $finalidadeLabel . '</td>';
-                    echo '<td>' . $r->PRO_ESTOQUE . '</td>';
-                    echo '<td>R$ ' . number_format($r->PRO_PRECO_VENDA, 2, ',', '.') . '</td>';
+                    echo '<td>' . $r->pro_estoque . '</td>';
+                    echo '<td>R$ ' . number_format($r->pro_preco_venda, 2, ',', '.') . '</td>';
                     echo '<td>';
                     if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vProduto')) {
-                        echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/produtos/visualizar/' . $r->PRO_ID . '" class="btn-nwe" title="Visualizar Produto"><i class="bx bx-show bx-xs"></i></a>  ';
+                        echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/produtos/visualizar/' . $r->pro_id . '" class="btn-nwe" title="Visualizar Produto"><i class="bx bx-show bx-xs"></i></a>  ';
                     }
                     if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eProduto')) {
-                        echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/produtos/editar/' . $r->PRO_ID . '" class="btn-nwe3" title="Editar Produto"><i class="bx bx-edit bx-xs"></i></a>';
+                        echo '<a style="margin-right: 1%" href="' . base_url() . 'index.php/produtos/editar/' . $r->pro_id . '" class="btn-nwe3" title="Editar Produto"><i class="bx bx-edit bx-xs"></i></a>';
                     }
                     if ($this->permission->checkPermission($this->session->userdata('permissao'), 'dProduto')) {
-                        echo '<a style="margin-right: 1%" href="#modal-excluir" role="button" data-toggle="modal" produto="' . $r->PRO_ID . '" class="btn-nwe4" title="Excluir Produto"><i class="bx bx-trash-alt bx-xs"></i></a>';
+                        echo '<a style="margin-right: 1%" href="#modal-excluir" role="button" data-toggle="modal" produto="' . $r->pro_id . '" class="btn-nwe4" title="Excluir Produto"><i class="bx bx-trash-alt bx-xs"></i></a>';
                     }
                     echo '</td>';
                     echo '</tr>';

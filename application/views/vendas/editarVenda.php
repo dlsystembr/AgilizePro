@@ -47,7 +47,7 @@
                                             <select name="operacao_comercial_id" id="operacao_comercial" class="span12" required>
                                                 <option value="">Selecione...</option>
                                                 <?php foreach ($operacoes as $o) { ?>
-                                                    <option value="<?php echo $o->OPC_ID; ?>" <?php echo ($o->OPC_ID == $result->operacao_comercial_id) ? 'selected' : ''; ?>><?php echo $o->OPC_NOME; ?></option>
+                                                    <option value="<?php echo $o->opc_id; ?>" <?php echo ($o->opc_id == $result->operacao_comercial_id) ? 'selected' : ''; ?>><?php echo $o->opc_nome; ?></option>
                                                 <?php } ?>
                                             </select>
                                         </div>

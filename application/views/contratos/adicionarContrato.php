@@ -144,7 +144,7 @@
                                 <label for="cliente_busca" class="control-label">Cliente<span class="required">*</span></label>
                                 <div class="controls">
                                     <input type="text" id="cliente_busca" placeholder="Digite o nome, razão social ou CPF/CNPJ do cliente..." class="span6" autocomplete="off" />
-                                    <input type="hidden" id="PES_ID" name="PES_ID" value="<?php echo set_value('PES_ID'); ?>" />
+                                    <input type="hidden" id="pes_id" name="pes_id" value="<?php echo set_value('pes_id'); ?>" />
                                     <div id="cliente_selecionado" style="display: none;">
                                         <strong><i class="fas fa-user"></i> Cliente Selecionado:</strong> <span id="cliente_nome"></span>
                                     </div>
@@ -153,9 +153,9 @@
 
                             <!-- Número do Contrato -->
                             <div class="control-group">
-                                <label for="CTR_NUMERO" class="control-label">Número do Contrato<span class="required">*</span></label>
+                                <label for="ctr_numero" class="control-label">Número do Contrato<span class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="CTR_NUMERO" type="text" name="CTR_NUMERO" value="<?php echo set_value('CTR_NUMERO'); ?>" class="span6" placeholder="Ex: 152662" />
+                                    <input id="ctr_numero" type="text" name="ctr_numero" value="<?php echo set_value('ctr_numero'); ?>" class="span6" placeholder="Ex: 152662" />
                                 </div>
                             </div>
 
@@ -163,20 +163,20 @@
                             <div class="row-fluid">
                                 <div class="span6">
                                     <div class="control-group">
-                                        <label for="CTR_DATA_INICIO" class="control-label">Data de Início<span class="required">*</span></label>
+                                        <label for="ctr_data_inicio" class="control-label">Data de Início<span class="required">*</span></label>
                                         <div class="controls">
                                             <div class="date-input-wrapper">
-                                                <input id="CTR_DATA_INICIO" type="text" name="CTR_DATA_INICIO" value="<?php echo set_value('CTR_DATA_INICIO'); ?>" class="datepicker" placeholder="dd/mm/aaaa" />
+                                                <input id="ctr_data_inicio" type="text" name="ctr_data_inicio" value="<?php echo set_value('ctr_data_inicio'); ?>" class="datepicker" placeholder="dd/mm/aaaa" />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="span6">
                                     <div class="control-group">
-                                        <label for="CTR_DATA_FIM" class="control-label">Data de Fim</label>
+                                        <label for="ctr_data_fim" class="control-label">Data de Fim</label>
                                         <div class="controls">
                                             <div class="date-input-wrapper">
-                                                <input id="CTR_DATA_FIM" type="text" name="CTR_DATA_FIM" value="<?php echo set_value('CTR_DATA_FIM'); ?>" class="datepicker" placeholder="dd/mm/aaaa" />
+                                                <input id="ctr_data_fim" type="text" name="ctr_data_fim" value="<?php echo set_value('ctr_data_fim'); ?>" class="datepicker" placeholder="dd/mm/aaaa" />
                                             </div>
                                             <span class="help-block">Deixe em branco se o contrato não tiver data de término</span>
                                         </div>
@@ -186,12 +186,12 @@
 
                             <!-- Tipo de Assinante -->
                             <div class="control-group">
-                                <label for="CTR_TIPO_ASSINANTE" class="control-label">Tipo de Assinante<span class="required">*</span></label>
+                                <label for="ctr_tipo_assinante" class="control-label">Tipo de Assinante<span class="required">*</span></label>
                                 <div class="controls">
-                                    <select id="CTR_TIPO_ASSINANTE" name="CTR_TIPO_ASSINANTE" class="span6">
+                                    <select id="ctr_tipo_assinante" name="ctr_tipo_assinante" class="span6">
                                         <option value="">Selecione o tipo de assinante...</option>
                                         <?php foreach ($tiposAssinante as $key => $value): ?>
-                                            <option value="<?= $key ?>" <?= set_value('CTR_TIPO_ASSINANTE') == $key ? 'selected' : '' ?>><?= $value ?></option>
+                                            <option value="<?= $key ?>" <?= set_value('ctr_tipo_assinante') == $key ? 'selected' : '' ?>><?= $value ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -199,28 +199,28 @@
 
                             <!-- Anexo -->
                             <div class="control-group">
-                                <label for="CTR_ANEXO" class="control-label">Anexo do Contrato</label>
+                                <label for="ctr_anexo" class="control-label">Anexo do Contrato</label>
                                 <div class="controls">
-                                    <input id="CTR_ANEXO" type="file" name="CTR_ANEXO" accept=".pdf,.jpg,.jpeg,.png" />
+                                    <input id="ctr_anexo" type="file" name="ctr_anexo" accept=".pdf,.jpg,.jpeg,.png" />
                                     <span class="help-block"><i class="fas fa-info-circle"></i> Formatos aceitos: PDF, JPG, PNG (máx. 5MB)</span>
                                 </div>
                             </div>
 
                             <!-- Observação -->
                             <div class="control-group">
-                                <label for="CTR_OBSERVACAO" class="control-label">Observações</label>
+                                <label for="ctr_observacao" class="control-label">Observações</label>
                                 <div class="controls">
-                                    <textarea id="CTR_OBSERVACAO" name="CTR_OBSERVACAO" rows="4" class="span6" placeholder="Digite observações adicionais sobre o contrato..."><?php echo set_value('CTR_OBSERVACAO'); ?></textarea>
+                                    <textarea id="ctr_observacao" name="ctr_observacao" rows="4" class="span6" placeholder="Digite observações adicionais sobre o contrato..."><?php echo set_value('ctr_observacao'); ?></textarea>
                                 </div>
                             </div>
 
                             <!-- Situação -->
                             <div class="control-group">
-                                <label for="CTR_SITUACAO" class="control-label">Situação do Contrato</label>
+                                <label for="ctr_situacao" class="control-label">Situação do Contrato</label>
                                 <div class="controls">
-                                    <select id="CTR_SITUACAO" name="CTR_SITUACAO" class="span3">
-                                        <option value="1" <?= set_value('CTR_SITUACAO', '1') == '1' ? 'selected' : '' ?>>Ativo</option>
-                                        <option value="0" <?= set_value('CTR_SITUACAO') == '0' ? 'selected' : '' ?>>Inativo</option>
+                                    <select id="ctr_situacao" name="ctr_situacao" class="span3">
+                                        <option value="1" <?= set_value('ctr_situacao', '1') == '1' ? 'selected' : '' ?>>Ativo</option>
+                                        <option value="0" <?= set_value('ctr_situacao') == '0' ? 'selected' : '' ?>>Inativo</option>
                                     </select>
                                 </div>
                             </div>
@@ -342,7 +342,7 @@
             },
             minLength: 2,
             select: function(event, ui) {
-                $("#PES_ID").val(ui.item.id);
+                $("#pes_id").val(ui.item.id);
                 $("#cliente_nome").text(ui.item.label);
                 $("#cliente_selecionado").slideDown();
                 return false;
@@ -423,11 +423,11 @@
             // Adicionar ao array
             var item = {
                 index: itemIndex++,
-                PRO_ID: servicoId,
+                pro_id: servicoId,
                 servico_nome: servicoNome,
-                CTI_PRECO: formatMoney(preco),
-                CTI_QUANTIDADE: quantidade.toFixed(4).replace('.', ','),
-                CTI_OBSERVACAO: observacao
+                cti_preco: formatMoney(preco),
+                cti_quantidade: quantidade.toFixed(4).replace('.', ','),
+                cti_observacao: observacao
             };
             itensContrato.push(item);
 
@@ -451,9 +451,9 @@
 
             var row = '<tr data-index="' + item.index + '">' +
                 '<td>' + item.servico_nome + '</td>' +
-                '<td>R$ ' + item.CTI_PRECO + '</td>' +
-                '<td>' + item.CTI_QUANTIDADE + '</td>' +
-                '<td>' + (item.CTI_OBSERVACAO || '-') + '</td>' +
+                '<td>R$ ' + item.cti_preco + '</td>' +
+                '<td>' + item.cti_quantidade + '</td>' +
+                '<td>' + (item.cti_observacao || '-') + '</td>' +
                 '<td><button type="button" class="btn btn-danger btn-mini remover-item" data-index="' + item.index + '"><i class="fas fa-trash"></i></button></td>' +
                 '</tr>';
 
@@ -478,19 +478,19 @@
         $("#formContrato").submit(function(e) {
             var errors = [];
 
-            if (!$("#PES_ID").val()) {
+            if (!$("#pes_id").val()) {
                 errors.push("• Selecione um cliente");
             }
 
-            if (!$("#CTR_NUMERO").val().trim()) {
+            if (!$("#ctr_numero").val().trim()) {
                 errors.push("• Informe o número do contrato");
             }
 
-            if (!$("#CTR_DATA_INICIO").val().trim()) {
+            if (!$("#ctr_data_inicio").val().trim()) {
                 errors.push("• Informe a data de início");
             }
 
-            if (!$("#CTR_TIPO_ASSINANTE").val()) {
+            if (!$("#ctr_tipo_assinante").val()) {
                 errors.push("• Selecione o tipo de assinante");
             }
 
@@ -509,24 +509,24 @@
             itensContrato.forEach(function(item, index) {
                 $('<input>').attr({
                     type: 'hidden',
-                    name: 'itens[' + index + '][PRO_ID]',
-                    value: item.PRO_ID
+                    name: 'itens[' + index + '][pro_id]',
+                    value: item.pro_id
                 }).appendTo('#formContrato');
                 $('<input>').attr({
                     type: 'hidden',
-                    name: 'itens[' + index + '][CTI_PRECO]',
-                    value: item.CTI_PRECO
+                    name: 'itens[' + index + '][cti_preco]',
+                    value: item.cti_preco
                 }).appendTo('#formContrato');
                 $('<input>').attr({
                     type: 'hidden',
-                    name: 'itens[' + index + '][CTI_QUANTIDADE]',
-                    value: item.CTI_QUANTIDADE
+                    name: 'itens[' + index + '][cti_quantidade]',
+                    value: item.cti_quantidade
                 }).appendTo('#formContrato');
-                if (item.CTI_OBSERVACAO) {
+                if (item.cti_observacao) {
                     $('<input>').attr({
                         type: 'hidden',
-                        name: 'itens[' + index + '][CTI_OBSERVACAO]',
-                        value: item.CTI_OBSERVACAO
+                        name: 'itens[' + index + '][cti_observacao]',
+                        value: item.cti_observacao
                     }).appendTo('#formContrato');
                 }
             });

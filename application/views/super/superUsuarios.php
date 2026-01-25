@@ -36,30 +36,30 @@
         <?php else: ?>
           <?php foreach ($results as $super): ?>
             <tr>
-              <td><?= $super->USS_ID ?></td>
-              <td><?= $super->USS_NOME ?></td>
-              <td><?= $super->USS_EMAIL ?></td>
-              <td><?= $super->USS_CPF ?></td>
-              <td><?= $super->USS_TELEFONE ?></td>
-              <td><?= $super->USS_SITUACAO == 1 ? 'Ativo' : 'Inativo' ?></td>
-              <td><?= date('d/m/Y', strtotime($super->USS_DATA_CADASTRO)) ?></td>
+              <td><?= $super->uss_id ?></td>
+              <td><?= $super->uss_nome ?></td>
+              <td><?= $super->uss_email ?></td>
+              <td><?= $super->uss_cpf ?></td>
+              <td><?= $super->uss_telefone ?></td>
+              <td><?= $super->uss_situacao == 1 ? 'Ativo' : 'Inativo' ?></td>
+              <td><?= date('d/m/Y', strtotime($super->uss_data_cadastro)) ?></td>
               <td>
-                <a href="<?= base_url("index.php/super/editarSuperUsuario/{$super->USS_ID}") ?>" class="btn-nwe3" title="Editar"><i class="bx bx-edit"></i></a>
-                <?php if ($super->USS_ID != $this->session->userdata('id_admin')): ?>
-                  <a href="#modal-excluir-<?= $super->USS_ID ?>" data-toggle="modal" class="btn-nwe3" title="Excluir" style="color: #d32f2f;"><i class="bx bx-trash"></i></a>
+                <a href="<?= base_url("index.php/super/editarSuperUsuario/{$super->uss_id}") ?>" class="btn-nwe3" title="Editar"><i class="bx bx-edit"></i></a>
+                <?php if ($super->uss_id != $this->session->userdata('id_admin')): ?>
+                  <a href="#modal-excluir-<?= $super->uss_id ?>" data-toggle="modal" class="btn-nwe3" title="Excluir" style="color: #d32f2f;"><i class="bx bx-trash"></i></a>
                   
-                  <div id="modal-excluir-<?= $super->USS_ID ?>" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                  <div id="modal-excluir-<?= $super->uss_id ?>" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                     <div class="modal-header">
                       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                       <h3 id="myModalLabel">Excluir Super Usuário</h3>
                     </div>
                     <div class="modal-body">
-                      <p>Deseja realmente excluir o super usuário <strong><?= $super->USS_NOME ?></strong>?</p>
+                      <p>Deseja realmente excluir o super usuário <strong><?= $super->uss_nome ?></strong>?</p>
                       <p class="text-error"><strong>Atenção:</strong> Esta ação não pode ser desfeita!</p>
                     </div>
                     <div class="modal-footer">
                       <form method="post" action="<?= base_url('index.php/super/excluirSuperUsuario') ?>">
-                        <input type="hidden" name="id" value="<?= $super->USS_ID ?>" />
+                        <input type="hidden" name="id" value="<?= $super->uss_id ?>" />
                         <button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>
                         <button class="btn btn-danger">Excluir</button>
                       </form>

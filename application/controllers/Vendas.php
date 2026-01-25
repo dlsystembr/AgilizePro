@@ -120,7 +120,7 @@ class Vendas extends MY_Controller
         $this->data['result'] = $result;
         
         // Buscar produtos da tabela correspondente
-        if (isset($result->PDS_ID)) {
+        if (isset($result->pds_id)) {
             // É um pedido novo (PEDIDOS)
             $this->data['produtos'] = $this->pedidos_model->getProdutos($id);
         } else {
@@ -713,19 +713,19 @@ class Vendas extends MY_Controller
         }
 
         $dadosPedido = [
-            'PDS_DATA' => $dataVenda,
-            'PDS_OBSERVACOES' => $this->input->post('observacoes'),
-            'PDS_OBSERVACOES_CLIENTE' => $this->input->post('observacoes_cliente'),
-            'PES_ID' => $this->input->post('clientes_id'),
-            'USU_ID' => $this->input->post('usuarios_id'),
-            'PDS_OPERACAO_COMERCIAL' => $this->input->post('operacao_comercial_id'),
-            'PDS_FATURADO' => 0,
-            'PDS_STATUS' => $this->input->post('status'),
-            'PDS_GARANTIA' => $this->input->post('garantia'),
-            'PDS_TIPO' => 'VENDA', // Sempre VENDA para este módulo
-            'PDS_VALOR_TOTAL' => 0,
-            'PDS_DESCONTO' => 0,
-            'PDS_VALOR_DESCONTO' => 0
+            'pds_data' => $dataVenda,
+            'pds_observacoes' => $this->input->post('observacoes'),
+            'pds_observacoes_cliente' => $this->input->post('observacoes_cliente'),
+            'pes_id' => $this->input->post('clientes_id'),
+            'usu_id' => $this->input->post('usuarios_id'),
+            'pds_operacao_comercial' => $this->input->post('operacao_comercial_id'),
+            'pds_faturado' => 0,
+            'pds_status' => $this->input->post('status'),
+            'pds_garantia' => $this->input->post('garantia'),
+            'pds_tipo' => 'VENDA', // Sempre VENDA para este módulo
+            'pds_valor_total' => 0,
+            'pds_desconto' => 0,
+            'pds_valor_desconto' => 0
         ];
 
         // Preparar itens do pedido
@@ -737,15 +737,15 @@ class Vendas extends MY_Controller
             $valorTotal += $subtotal;
 
             $itensPedido[] = [
-                'ITP_QUANTIDADE' => $produto['quantidade'],
-                'ITP_PRECO' => $produto['preco'],
-                'ITP_SUBTOTAL' => $subtotal,
-                'PRO_ID' => $produto['idProduto']
+                'itp_quantidade' => $produto['quantidade'],
+                'itp_preco' => $produto['preco'],
+                'itp_subtotal' => $subtotal,
+                'pro_id' => $produto['idProduto']
             ];
         }
 
-        $dadosPedido['PDS_VALOR_TOTAL'] = $valorTotal;
-        $dadosPedido['PDS_VALOR_DESCONTO'] = $valorTotal;
+        $dadosPedido['pds_valor_total'] = $valorTotal;
+        $dadosPedido['pds_valor_desconto'] = $valorTotal;
 
         // Salvar pedido completo
         $pedidoId = $this->pedidos_model->addPedidoCompleto($dadosPedido, $itensPedido);

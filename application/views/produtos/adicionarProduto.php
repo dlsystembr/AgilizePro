@@ -346,18 +346,18 @@
                     <div class="row-fluid">
                         <div class="span12">
                             <div class="control-group">
-                                <label for="PRO_TIPO" class="control-label">Tipo de Item<span
+                                <label for="pro_tipo" class="control-label">Tipo de Item<span
                                         class="required">*</span></label>
                                 <div class="controls">
                                     <div class="switch-container">
                                         <label class="toggle-switch">
-                                            <input type="checkbox" id="PRO_TIPO_TOGGLE" <?= set_value('PRO_TIPO') == '2' ? 'checked' : '' ?>>
+                                            <input type="checkbox" id="PRO_TIPO_TOGGLE" <?= set_value('pro_tipo') == '2' ? 'checked' : '' ?>>
                                             <span class="toggle-slider"></span>
                                         </label>
-                                        <input type="hidden" name="PRO_TIPO" id="PRO_TIPO"
-                                            value="<?= set_value('PRO_TIPO', '1') ?>">
+                                        <input type="hidden" name="pro_tipo" id="pro_tipo"
+                                            value="<?= set_value('pro_tipo', '1') ?>">
                                         <span id="tipo_label"
-                                            class="switch-label"><?= set_value('PRO_TIPO') == '2' ? 'Serviço' : 'Produto' ?></span>
+                                            class="switch-label"><?= set_value('pro_tipo') == '2' ? 'Serviço' : 'Produto' ?></span>
                                     </div>
                                 </div>
                             </div>
@@ -375,11 +375,11 @@
                                 </div>
                             </div>
                             <div class="control-group field-produto">
-                                <label for="PRO_COD_BARRA" class="control-label">Código de Barra</label>
+                                <label for="pro_cod_barra" class="control-label">Código de Barra</label>
                                 <div class="controls">
                                     <div class="input-group" style="display: flex; gap: 5px;">
-                                        <input id="PRO_COD_BARRA" type="text" name="PRO_COD_BARRA"
-                                            value="<?php echo set_value('PRO_COD_BARRA'); ?>" />
+                                        <input id="pro_cod_barra" type="text" name="pro_cod_barra"
+                                            value="<?php echo set_value('pro_cod_barra'); ?>" />
                                         <button type="button" class="btn btn-info" id="btnGerarCodigo"
                                             style="border-radius: 4px;" disabled>
                                             <i class="fas fa-barcode"></i> Gerar
@@ -399,35 +399,35 @@
                                 </div>
                             </div>
                             <div class="control-group">
-                                <label for="PRO_DESCRICAO" class="control-label">Descrição<span
+                                <label for="pro_descricao" class="control-label">Descrição<span
                                         class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="PRO_DESCRICAO" type="text" name="PRO_DESCRICAO"
-                                        value="<?php echo set_value('PRO_DESCRICAO'); ?>" />
+                                    <input id="pro_descricao" type="text" name="pro_descricao"
+                                        value="<?php echo set_value('pro_descricao'); ?>" />
                                 </div>
                             </div>
 
                             <div class="control-group field-produto">
-                                <label for="PRO_NCM" class="control-label">NCM<span class="required">*</span></label>
+                                <label for="pro_ncm" class="control-label">NCM<span class="required">*</span></label>
                                 <div class="controls">
                                     <div class="input-group" style="display: flex; gap: 5px;">
-                                        <input id="PRO_NCM" class="form-control" type="text" name="PRO_NCM"
-                                            value="<?php echo set_value('PRO_NCM'); ?>" maxlength="8" />
+                                        <input id="pro_ncm" class="form-control" type="text" name="pro_ncm"
+                                            value="<?php echo set_value('pro_ncm'); ?>" maxlength="8" />
                                         <button type="button" class="btn btn-success" id="btnBuscarNcm"
                                             style="border-radius: 4px;" data-toggle="modal" data-target="#modalNcm"><i
                                                 class="fas fa-search"></i></button>
                                         <button type="button" class="btn btn-warning" id="btnDescricaoNcm"
                                             style="border-radius: 4px;" title="Nomenclatura Comum do Mercosul - Código de 8 dígitos que classifica produtos para fins fiscais e aduaneiros"><i class="fas fa-info-circle"></i></button>
                                     </div>
-                                    <input id="NCM_ID" class="form-control" type="hidden" name="NCM_ID"
-                                        value="<?php echo set_value('NCM_ID'); ?>" />
+                                    <input id="ncm_id" class="form-control" type="hidden" name="ncm_id"
+                                        value="<?php echo set_value('ncm_id'); ?>" />
                                 </div>
                             </div>
-                            <?php $finalidadeSelecionada = set_value('PRO_FINALIDADE', 'Comercialização'); ?>
+                            <?php $finalidadeSelecionada = set_value('pro_finalidade', 'Comercialização'); ?>
                             <div class="control-group field-produto">
-                                <label for="PRO_FINALIDADE" class="control-label">Finalidade<span class="required">*</span></label>
+                                <label for="pro_finalidade" class="control-label">Finalidade<span class="required">*</span></label>
                                 <div class="controls">
-                                    <select id="PRO_FINALIDADE" name="PRO_FINALIDADE">
+                                    <select id="pro_finalidade" name="pro_finalidade">
                                         <?php foreach ($finalidadesProduto as $valor => $rotulo) : ?>
                                             <option value="<?php echo $valor; ?>" <?php echo $finalidadeSelecionada === $valor ? 'selected' : ''; ?>>
                                                 <?php echo $rotulo; ?>
@@ -438,11 +438,11 @@
                                 </div>
                             </div>
                             <div class="control-group field-servico" style="display: none;">
-                                <label for="PRO_CCLASS_SERV" class="control-label">cClass (Serviço)</label>
+                                <label for="pro_cclass_serv" class="control-label">cClass (Serviço)</label>
                                 <div class="controls">
                                     <div class="input-group" style="display: flex; gap: 5px;">
-                                        <input id="PRO_CCLASS_SERV" class="form-control" type="text" name="PRO_CCLASS_SERV"
-                                            value="<?php echo set_value('PRO_CCLASS_SERV'); ?>" maxlength="7" />
+                                        <input id="pro_cclass_serv" class="form-control" type="text" name="pro_cclass_serv"
+                                            value="<?php echo set_value('pro_cclass_serv'); ?>" maxlength="7" />
                                         <button type="button" class="btn btn-success" id="btnBuscarCClass"
                                             style="border-radius: 4px;" data-toggle="modal" data-target="#modalCClass"><i
                                                 class="fas fa-search"></i></button>
@@ -452,19 +452,19 @@
                                 </div>
                             </div>
                             <div class="control-group">
-                                <label for="PRO_UNID_MEDIDA" class="control-label">Unidade<span
+                                <label for="pro_unid_medida" class="control-label">Unidade<span
                                         class="required">*</span></label>
                                 <div class="controls">
-                                    <select id="PRO_UNID_MEDIDA" name="PRO_UNID_MEDIDA"></select>
+                                    <select id="pro_unid_medida" name="pro_unid_medida"></select>
                                 </div>
                             </div>
                             <!-- Preço de Venda para Serviços (aparece na coluna esquerda) -->
                             <div class="control-group field-servico" style="display: none;">
-                                <label for="PRO_PRECO_VENDA" class="control-label" id="label-preco-venda">Preço Serviço<span
+                                <label for="pro_preco_venda" class="control-label" id="label-preco-venda">Preço Serviço<span
                                         class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="PRO_PRECO_VENDA" class="preco-simples" type="text" name="PRO_PRECO_VENDA"
-                                        value="<?php echo set_value('PRO_PRECO_VENDA'); ?>" placeholder="0,00" />
+                                    <input id="pro_preco_venda" class="preco-simples" type="text" name="pro_preco_venda"
+                                        value="<?php echo set_value('pro_preco_venda'); ?>" placeholder="0,00" />
                                 </div>
                             </div>
                         </div>
@@ -472,11 +472,11 @@
                         <div class="span6">
                             <!-- Coluna 2: Preços e Estoque -->
                             <div class="control-group field-produto">
-                                <label for="PRO_PRECO_COMPRA" class="control-label">Preço de Compra<span
+                                <label for="pro_preco_compra" class="control-label">Preço de Compra<span
                                         class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="PRO_PRECO_COMPRA" class="preco-simples" type="text" name="PRO_PRECO_COMPRA"
-                                        value="<?php echo set_value('PRO_PRECO_COMPRA'); ?>" placeholder="0,00" />
+                                    <input id="pro_preco_compra" class="preco-simples" type="text" name="pro_preco_compra"
+                                        value="<?php echo set_value('pro_preco_compra'); ?>" placeholder="0,00" />
                                     <strong><span style="color: red" id="errorAlert"></span><strong>
                                 </div>
                             </div>
@@ -498,22 +498,22 @@
                                 <label for="PRO_PRECO_VENDA_PRODUTO" class="control-label">Preço de Venda<span
                                         class="required">*</span></label>
                                 <div class="controls">
-                                    <input id="PRO_PRECO_VENDA_PRODUTO" class="preco-simples" type="text" name="PRO_PRECO_VENDA"
-                                        value="<?php echo set_value('PRO_PRECO_VENDA'); ?>" placeholder="0,00" />
+                                    <input id="PRO_PRECO_VENDA_PRODUTO" class="preco-simples" type="text" name="pro_preco_venda"
+                                        value="<?php echo set_value('pro_preco_venda'); ?>" placeholder="0,00" />
                                 </div>
                             </div>
                             <div class="control-group field-produto">
-                                <label for="PRO_ESTOQUE_MINIMO" class="control-label">Estoque Mínimo</label>
+                                <label for="pro_estoque_minimo" class="control-label">Estoque Mínimo</label>
                                 <div class="controls">
-                                    <input id="PRO_ESTOQUE_MINIMO" type="number" name="PRO_ESTOQUE_MINIMO"
-                                        value="<?php echo set_value('PRO_ESTOQUE_MINIMO'); ?>" />
+                                    <input id="pro_estoque_minimo" type="number" name="pro_estoque_minimo"
+                                        value="<?php echo set_value('pro_estoque_minimo'); ?>" />
                                 </div>
                             </div>
                             <div class="control-group field-produto">
-                                <label for="PRO_ORIGEM" class="control-label">Origem do Produto<span
+                                <label for="pro_origem" class="control-label">Origem do Produto<span
                                         class="required">*</span></label>
                                 <div class="controls">
-                                    <select id="PRO_ORIGEM" name="PRO_ORIGEM">
+                                    <select id="pro_origem" name="pro_origem">
                                         <option value="0" selected>0 - Nacional (exceto as indicadas nos códigos 3, 4, 5
                                             e 8)</option>
                                         <option value="1">1 - Estrangeira – Importação direta</option>
@@ -548,50 +548,50 @@
                     <div class="row-fluid field-produto" style="margin-left: 0;">
                         <div class="span2">
                             <div class="control-group">
-                                <label for="PRO_PESO_BRUTO" class="control-label">Peso Bruto (kg)</label>
+                                <label for="pro_peso_bruto" class="control-label">Peso Bruto (kg)</label>
                                 <div class="controls">
-                                    <input id="PRO_PESO_BRUTO" type="text" name="PRO_PESO_BRUTO"
-                                        value="<?php echo set_value('PRO_PESO_BRUTO'); ?>" class="decimal"
+                                    <input id="pro_peso_bruto" type="text" name="pro_peso_bruto"
+                                        value="<?php echo set_value('pro_peso_bruto'); ?>" class="decimal"
                                         style="width: 100px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
                         </div>
                         <div class="span2">
                             <div class="control-group">
-                                <label for="PRO_PESO_LIQUIDO" class="control-label">Peso Líquido (kg)</label>
+                                <label for="pro_peso_liquido" class="control-label">Peso Líquido (kg)</label>
                                 <div class="controls">
-                                    <input id="PRO_PESO_LIQUIDO" type="text" name="PRO_PESO_LIQUIDO"
-                                        value="<?php echo set_value('PRO_PESO_LIQUIDO'); ?>" class="decimal"
+                                    <input id="pro_peso_liquido" type="text" name="pro_peso_liquido"
+                                        value="<?php echo set_value('pro_peso_liquido'); ?>" class="decimal"
                                         style="width: 100px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
                         </div>
                         <div class="span2">
                             <div class="control-group">
-                                <label for="PRO_LARGURA" class="control-label">Largura (cm)</label>
+                                <label for="pro_largura" class="control-label">Largura (cm)</label>
                                 <div class="controls">
-                                    <input id="PRO_LARGURA" type="text" name="PRO_LARGURA"
-                                        value="<?php echo set_value('PRO_LARGURA'); ?>" class="decimal"
+                                    <input id="pro_largura" type="text" name="pro_largura"
+                                        value="<?php echo set_value('pro_largura'); ?>" class="decimal"
                                         style="width: 80px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
                         </div>
                         <div class="span2">
                             <div class="control-group">
-                                <label for="PRO_ALTURA" class="control-label">Altura (cm)</label>
+                                <label for="pro_altura" class="control-label">Altura (cm)</label>
                                 <div class="controls">
-                                    <input id="PRO_ALTURA" type="text" name="PRO_ALTURA"
-                                        value="<?php echo set_value('PRO_ALTURA'); ?>" class="decimal"
+                                    <input id="pro_altura" type="text" name="pro_altura"
+                                        value="<?php echo set_value('pro_altura'); ?>" class="decimal"
                                         style="width: 80px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
                         </div>
                         <div class="span2">
                             <div class="control-group">
-                                <label for="PRO_COMPRIMENTO" class="control-label">Comprimento (cm)</label>
+                                <label for="pro_comprimento" class="control-label">Comprimento (cm)</label>
                                 <div class="controls">
-                                    <input id="PRO_COMPRIMENTO" type="text" name="PRO_COMPRIMENTO"
-                                        value="<?php echo set_value('PRO_COMPRIMENTO'); ?>" class="decimal"
+                                    <input id="pro_comprimento" type="text" name="pro_comprimento"
+                                        value="<?php echo set_value('pro_comprimento'); ?>" class="decimal"
                                         style="width: 80px; padding: 5px;" placeholder="0,000" />
                                 </div>
                             </div>
@@ -748,7 +748,7 @@
     }
 
     function atualizarPrecoVenda() {
-        var precoCompraStr = $("#PRO_PRECO_COMPRA").val();
+        var precoCompraStr = $("#pro_preco_compra").val();
         var lucro = Number($("#Lucro").val());
 
         // Converte valor com vírgula para número
@@ -757,50 +757,50 @@
         if (precoCompra > 0 && lucro >= 0 && !isNaN(precoCompra)) {
             var precoCalculado = calcLucro(precoCompra, lucro);
             // Atualiza ambos os campos de preço
-            $('#PRO_PRECO_VENDA').val(precoCalculado.toString().replace('.', ','));
+            $('#pro_preco_venda').val(precoCalculado.toString().replace('.', ','));
             $('#PRO_PRECO_VENDA_PRODUTO').val(precoCalculado.toString().replace('.', ','));
         }
     }
 
     // Atualizar quando mudar preço de compra também
-    $("#PRO_PRECO_COMPRA").on('input change', atualizarPrecoVenda);
+    $("#pro_preco_compra").on('input change', atualizarPrecoVenda);
     $("#Lucro, #selectLucro").on('input change', atualizarPrecoVenda);
 
     // Removido: Não limpar preço de venda automaticamente quando editando preço de compra
 
     $("#Lucro").keyup(function () {
         this.value = this.value.replace(/[^0-9.]/g, '');
-        if ($("#PRO_PRECO_COMPRA").val() == null || $("#PRO_PRECO_COMPRA").val() == '') {
+        if ($("#pro_preco_compra").val() == null || $("#pro_preco_compra").val() == '') {
             $('#errorAlert').text('Preencher valor da compra primeiro.').css("display", "inline").fadeOut(5000);
             $('#Lucro').val('');
-            $('#PRO_PRECO_VENDA').val('');
+            $('#pro_preco_venda').val('');
             $('#PRO_PRECO_VENDA_PRODUTO').val('');
-            $("#PRO_PRECO_COMPRA").focus();
+            $("#pro_preco_compra").focus();
 
         } else if (Number($("#Lucro").val()) >= 0) {
-            var precoCompraStr = $("#PRO_PRECO_COMPRA").val();
+            var precoCompraStr = $("#pro_preco_compra").val();
             var precoCompra = parseFloat(precoCompraStr.replace(',', '.'));
             var precoCalculado = calcLucro(precoCompra, Number($("#Lucro").val()));
-            $('#PRO_PRECO_VENDA').val(precoCalculado.toString().replace('.', ','));
+            $('#pro_preco_venda').val(precoCalculado.toString().replace('.', ','));
             $('#PRO_PRECO_VENDA_PRODUTO').val(precoCalculado.toString().replace('.', ','));
         } else {
             $('#errorAlert').text('Não é permitido número negativo.').css("display", "inline").fadeOut(5000);
             $('#Lucro').val('');
-            $('#PRO_PRECO_VENDA').val('');
+            $('#pro_preco_venda').val('');
             $('#PRO_PRECO_VENDA_PRODUTO').val('');
         }
     });
 
-    $('#PRO_PRECO_VENDA').focusout(function () {
-        var precoVendaStr = $('#PRO_PRECO_VENDA').val();
-        var precoCompraStr = $("#PRO_PRECO_COMPRA").val();
+    $('#pro_preco_venda').focusout(function () {
+        var precoVendaStr = $('#pro_preco_venda').val();
+        var precoCompraStr = $("#pro_preco_compra").val();
 
         var precoVenda = parseFloat(precoVendaStr.replace(',', '.'));
         var precoCompra = parseFloat(precoCompraStr.replace(',', '.'));
 
         if (precoVenda < precoCompra) {
             $('#errorAlert').text('Preço de venda não pode ser menor que o preço de compra.').css("display", "inline").fadeOut(6000);
-            $('#PRO_PRECO_VENDA').val('');
+            $('#pro_preco_venda').val('');
         }
     });
 
@@ -810,12 +810,12 @@
     });
 
     // Sincronizar os dois campos de preço (serviço e produto)
-    $('#PRO_PRECO_VENDA').on('input', function() {
+    $('#pro_preco_venda').on('input', function() {
         $('#PRO_PRECO_VENDA_PRODUTO').val($(this).val());
     });
     
     $('#PRO_PRECO_VENDA_PRODUTO').on('input', function() {
-        $('#PRO_PRECO_VENDA').val($(this).val());
+        $('#pro_preco_venda').val($(this).val());
     });
 
 
@@ -892,7 +892,7 @@
 
         // Função para carregar unidades de produto
         function carregarUnidadesProduto() {
-            var select = $('#PRO_UNID_MEDIDA');
+            var select = $('#pro_unid_medida');
             $.getJSON('<?php echo base_url() ?>assets/json/tabela_medidas.json', function (data) {
                 select.empty();
                 select.append('<option value="">Selecione</option>');
@@ -900,15 +900,15 @@
                     select.append($('<option></option>').val(medida.sigla).text(medida.descricao));
                 });
                 // Selecionar a unidade atual se existir
-                if ('<?php echo set_value('PRO_UNID_MEDIDA'); ?>') {
-                    select.val('<?php echo set_value('PRO_UNID_MEDIDA'); ?>');
+                if ('<?php echo set_value('pro_unid_medida'); ?>') {
+                    select.val('<?php echo set_value('pro_unid_medida'); ?>');
                 }
             });
         }
 
         // Função para carregar unidades de serviço
         function carregarUnidadesServico() {
-            var select = $('#PRO_UNID_MEDIDA');
+            var select = $('#pro_unid_medida');
             $.getJSON('<?php echo base_url() ?>assets/json/unidades_servico.json', function (data) {
                 select.empty();
                 select.append('<option value="">Selecione</option>');
@@ -917,8 +917,8 @@
                     select.append($('<option></option>').val(unidade.valor).text(texto));
                 });
                 // Selecionar unidade padrão para serviço (1=Minuto) se não houver valor definido
-                if ('<?php echo set_value('PRO_UNID_MEDIDA'); ?>') {
-                    select.val('<?php echo set_value('PRO_UNID_MEDIDA'); ?>');
+                if ('<?php echo set_value('pro_unid_medida'); ?>') {
+                    select.val('<?php echo set_value('pro_unid_medida'); ?>');
                 } else {
                     select.val('1'); // Minuto como padrão para serviços
                 }
@@ -935,27 +935,27 @@
                 $('.field-servico').show();
                 $('#PRO_TIPO_TOGGLE').prop('checked', true);
                 $('#tipo_label').text('Serviço');
-                $('#PRO_FINALIDADE option[value="Serviço"]').show();
-                $('#PRO_FINALIDADE').val('Serviço').prop('disabled', true);
+                $('#pro_finalidade option[value="Serviço"]').show();
+                $('#pro_finalidade').val('Serviço').prop('disabled', true);
 
                 // Alterar label do código para "Código do Serviço"
                 $('label[for="codigo"]').text('Código do Serviço');
 
                 // Auto-set NCM for Service
-                $('#PRO_NCM').val('00000000');
-                $('#NCM_ID').val('15142');
+                $('#pro_ncm').val('00000000');
+                $('#ncm_id').val('15142');
 
                 // Definir valores padrão para campos obrigatórios de produto que não se aplicam a serviço
-                $('#PRO_PRECO_COMPRA, #PRO_ESTOQUE, #PRO_ESTOQUE_MINIMO').val('0');
-                $('#PRO_ORIGEM').val('0');
-                $('#PRO_PESO_BRUTO, #PRO_PESO_LIQUIDO, #PRO_LARGURA, #PRO_ALTURA, #PRO_COMPRIMENTO').val('0.000');
+                $('#pro_preco_compra, #pro_estoque, #pro_estoque_minimo').val('0');
+                $('#pro_origem').val('0');
+                $('#pro_peso_bruto, #pro_peso_liquido, #pro_largura, #pro_altura, #pro_comprimento').val('0.000');
 
                 // Carregar unidades de serviço
                 carregarUnidadesServico();
 
                 // Deixar cClass vazio por padrão para serviços
-                if (!$('#PRO_CCLASS_SERV').val()) {
-                    $('#PRO_CCLASS_SERV').val(''); // Vazio por padrão
+                if (!$('#pro_cclass_serv').val()) {
+                    $('#pro_cclass_serv').val(''); // Vazio por padrão
                 }
 
             } else { // Produto
@@ -963,23 +963,23 @@
                 $('.field-servico').hide();
                 $('#PRO_TIPO_TOGGLE').prop('checked', false);
                 $('#tipo_label').text('Produto');
-                $('#PRO_FINALIDADE').prop('disabled', false);
-                $('#PRO_FINALIDADE option[value="Serviço"]').hide();
-                if ($('#PRO_FINALIDADE').val() === 'Serviço') {
-                    $('#PRO_FINALIDADE').val('Comercialização');
+                $('#pro_finalidade').prop('disabled', false);
+                $('#pro_finalidade option[value="Serviço"]').hide();
+                if ($('#pro_finalidade').val() === 'Serviço') {
+                    $('#pro_finalidade').val('Comercialização');
                 }
 
                 // Alterar label do código de volta para "Código do Produto"
                 $('label[for="codigo"]').text('Código do Produto');
 
                 // Clear NCM if it was the default service NCM
-                if ($('#PRO_NCM').val() === '00000000') {
-                    $('#PRO_NCM').val('');
-                    $('#NCM_ID').val('');
+                if ($('#pro_ncm').val() === '00000000') {
+                    $('#pro_ncm').val('');
+                    $('#ncm_id').val('');
                 }
 
                 // Limpar cClass quando voltar para produto
-                $('#PRO_CCLASS_SERV').val('');
+                $('#pro_cclass_serv').val('');
 
                 // Carregar unidades de produto
                 carregarUnidadesProduto();
@@ -988,9 +988,9 @@
 
         $('#PRO_TIPO_TOGGLE').change(function () {
             if ($(this).is(':checked')) {
-                $('#PRO_TIPO').val('2');
+                $('#pro_tipo').val('2');
             } else {
-                $('#PRO_TIPO').val('1');
+                $('#pro_tipo').val('1');
             }
             toggleFields();
         });
@@ -999,8 +999,8 @@
 
         // Validação dos campos
         $('#formProduto').on('submit', function(e) {
-            console.log('Valor PRO_PRECO_COMPRA sendo enviado:', $('#PRO_PRECO_COMPRA').val());
-            console.log('Valor PRO_PRECO_VENDA sendo enviado:', $('#PRO_PRECO_VENDA').val());
+            console.log('Valor pro_preco_compra sendo enviado:', $('#pro_preco_compra').val());
+            console.log('Valor pro_preco_venda sendo enviado:', $('#pro_preco_venda').val());
         });
 
         $('#formProduto').validate({
@@ -1019,38 +1019,38 @@
                 element.closest('.controls').append(error);
             },
             rules: {
-                PRO_DESCRICAO: {
+                pro_descricao: {
                     required: true
                 },
-                PRO_UNID_MEDIDA: {
+                pro_unid_medida: {
                     required: true
                 },
-                PRO_PRECO_COMPRA: {
+                pro_preco_compra: {
                     required: function () {
-                        return $('#PRO_TIPO').val() == '1';
+                        return $('#pro_tipo').val() == '1';
                     }
                 },
-                PRO_PRECO_VENDA: {
+                pro_preco_venda: {
                     required: true
                 },
-                PRO_ESTOQUE: {
+                pro_estoque: {
                     required: function () {
-                        return $('#PRO_TIPO').val() == '1';
+                        return $('#pro_tipo').val() == '1';
                     }
                 },
-                PRO_NCM: {
+                pro_ncm: {
                     required: function () {
-                        return $('#PRO_TIPO').val() == '1';
+                        return $('#pro_tipo').val() == '1';
                     }
                 },
-                PRO_ORIGEM: {
+                pro_origem: {
                     required: function () {
-                        return $('#PRO_TIPO').val() == '1';
+                        return $('#pro_tipo').val() == '1';
                     }
                 },
-                PRO_FINALIDADE: {
+                pro_finalidade: {
                     required: function () {
-                        return $('#PRO_TIPO').val() == '1';
+                        return $('#pro_tipo').val() == '1';
                     }
                 },
                 PRO_REFERENCIA: {
@@ -1058,28 +1058,28 @@
                 }
             },
             messages: {
-                PRO_DESCRICAO: {
+                pro_descricao: {
                     required: 'Campo obrigatório'
                 },
-                PRO_UNID_MEDIDA: {
+                pro_unid_medida: {
                     required: 'Campo obrigatório'
                 },
-                PRO_PRECO_COMPRA: {
+                pro_preco_compra: {
                     required: 'Campo obrigatório'
                 },
-                PRO_PRECO_VENDA: {
+                pro_preco_venda: {
                     required: 'Campo obrigatório'
                 },
-                PRO_ESTOQUE: {
+                pro_estoque: {
                     required: 'Campo obrigatório'
                 },
-                PRO_NCM: {
+                pro_ncm: {
                     required: 'Campo obrigatório'
                 },
-                PRO_ORIGEM: {
+                pro_origem: {
                     required: 'Campo obrigatório'
                 },
-                PRO_FINALIDADE: {
+                pro_finalidade: {
                     required: 'Selecione a finalidade do produto'
                 },
                 PRO_REFERENCIA: {
@@ -1115,7 +1115,7 @@
 
         // Função para validar código de barra
         function validarCodigoBarra() {
-            var codigo = $('#PRO_COD_BARRA').val();
+            var codigo = $('#pro_cod_barra').val();
             if (!codigo) {
                 $('#codigoBarraStatus').html('');
                 return;
@@ -1137,7 +1137,7 @@
         }
 
         // Validar ao digitar
-        $('#PRO_COD_BARRA').on('input', function () {
+        $('#pro_cod_barra').on('input', function () {
             validarCodigoBarra();
         });
 
@@ -1164,7 +1164,7 @@
                     dataType: 'json',
                     success: function (response) {
                         if (response.codigo) {
-                            $('#PRO_COD_BARRA').val(response.codigo);
+                            $('#pro_cod_barra').val(response.codigo);
                             validarCodigoBarra();
                         }
                     }
@@ -1189,9 +1189,9 @@
 
                     if (ncms && ncms.length > 0) {
                         $.each(ncms, function(i, ncm) {
-                            var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
-                            var descricao = ncm.NCM_DESCRICAO || ncm.descricao || ncm.ncm_descricao || '';
-                            var id = ncm.NCM_ID || ncm.id || ncm.ncm_id || '';
+                            var codigo = ncm.ncm_codigo || ncm.codigo || ncm.ncm_codigo || '';
+                            var descricao = ncm.ncm_descricao || ncm.descricao || ncm.ncm_descricao || '';
+                            var id = ncm.ncm_id || ncm.id || ncm.ncm_id || '';
 
                             tbody.append(
                                 '<tr>' +
@@ -1247,9 +1247,9 @@
                         console.log('Encontrados ' + ncms.length + ' NCMs');
 
                         $.each(ncms, function(i, ncm) {
-                            var codigo = ncm.NCM_CODIGO || ncm.codigo || ncm.ncm_codigo || '';
-                            var descricao = ncm.NCM_DESCRICAO || ncm.descricao || ncm.ncm_descricao || '';
-                            var id = ncm.NCM_ID || ncm.id || ncm.ncm_id || '';
+                            var codigo = ncm.ncm_codigo || ncm.codigo || ncm.ncm_codigo || '';
+                            var descricao = ncm.ncm_descricao || ncm.descricao || ncm.ncm_descricao || '';
+                            var id = ncm.ncm_id || ncm.id || ncm.ncm_id || '';
 
                             tbody.append(
                                 '<tr>' +
@@ -1292,8 +1292,8 @@
             var id = $(this).data('id');
 
             // Apenas define os valores nos campos do formulário
-            $('#PRO_NCM').val(codigo);
-            $('#NCM_ID').val(id);
+            $('#pro_ncm').val(codigo);
+            $('#ncm_id').val(id);
 
             // Fecha o modal
             $('#modalNcm').modal('hide');
@@ -1561,7 +1561,7 @@
             var descricao = $(this).data('descricao');
 
             // Apenas define os valores nos campos do formulário
-            $('#PRO_CCLASS_SERV').val(codigo);
+            $('#pro_cclass_serv').val(codigo);
 
             // Fecha o modal
             $('#modalCClass').modal('hide');

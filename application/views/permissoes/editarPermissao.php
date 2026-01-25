@@ -105,7 +105,10 @@ $ten_id = $this->session->userdata('ten_id');
                     <div class="span4">
                         <label>Nome da Permissão</label>
                         <input name="nome" type="text" id="nome" class="span12" value="<?php echo $result->nome; ?>" />
-                        <input type="hidden" name="idPermissao" value="<?php echo $result->idPermissao; ?>">
+                        <input type="hidden" name="idPermissao" value="<?php 
+                            $idPermissao = isset($result->idPermissao) ? $result->idPermissao : (isset($result->idpermissao) ? $result->idpermissao : '');
+                            echo $idPermissao;
+                        ?>">
                     </div>
                     <div class="span3">
                         <label>Situação</label>
@@ -1098,6 +1101,19 @@ $ten_id = $this->session->userdata('ten_id');
                                                             </td>
                                                             <td>
                                                                 <label>
+                                                                    <input <?php if (isset($permissoes['rContrato'])) {
+                                                                        if ($permissoes['rContrato'] == '1') {
+                                                                            echo 'checked';
+                                                                        }
+                                                                    } ?> name="rContrato" class="marcar" type="checkbox"
+                                                                        value="1" />
+                                                                    <span class="lbl"> Relatório Contrato</span>
+                                                                </label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <label>
                                                                     <input <?php if (isset($permissoes['rNfe'])) {
                                                                         if ($permissoes['rNfe'] == '1') {
                                                                             echo 'checked';
@@ -1107,7 +1123,7 @@ $ten_id = $this->session->userdata('ten_id');
                                                                     <span class="lbl"> Relatório de NF-e Emitidas</span>
                                                                 </label>
                                                             </td>
-                                                            <td colspan="2"></td>
+                                                            <td colspan="3"></td>
                                                         </tr>
                                                     </table>
                                                 </div>

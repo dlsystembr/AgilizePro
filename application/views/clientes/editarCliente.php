@@ -232,7 +232,7 @@
                                     <option value="SC" <?php echo ($result->estado == 'SC') ? 'selected' : ''; ?>>Santa Catarina</option>
                                     <option value="SP" <?php echo ($result->estado == 'SP') ? 'selected' : ''; ?>>São Paulo</option>
                                     <option value="SE" <?php echo ($result->estado == 'SE') ? 'selected' : ''; ?>>Sergipe</option>
-                                    <option value="TO" <?php echo ($result->estado == 'TO') ? 'selected' : ''; ?>>Tocantins</option>
+                                    <option value="to" <?php echo ($result->estado == 'to') ? 'selected' : ''; ?>>Tocantins</option>
                                 </select>
                             </div>
                         </div>

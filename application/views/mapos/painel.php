@@ -1063,7 +1063,7 @@
                     <?php if ($nfcom_dia != null) : ?>
                         <?php foreach ($nfcom_dia as $n) : ?>
                             <?php
-                                    switch ($n->NFC_STATUS) {
+                                    switch ($n->nfc_status) {
                                         case 0: $cor = '#CDB380'; $status = 'Rascunho'; break;
                                         case 1: $cor = '#f39c12'; $status = 'Pendente'; break;
                                         case 2: $cor = '#00cd00'; $status = 'Enviado'; break;
@@ -1075,14 +1075,14 @@
                                     }
                                 ?>
                             <tr>
-                                <td><?= $n->NFC_NNF ?></td>
-                                <td class="cli1"><?= $n->NFC_X_NOME_DEST ?></td>
-                                <td><?= date('d/m/Y', strtotime($n->NFC_DHEMI)) ?></td>
-                                <td>R$ <?= number_format($n->NFC_V_NF, 2, ',', '.') ?></td>
+                                <td><?= $n->nfc_nnf ?></td>
+                                <td class="cli1"><?= $n->nfc_x_nome_dest ?></td>
+                                <td><?= date('d/m/Y', strtotime($n->nfc_dhemi)) ?></td>
+                                <td>R$ <?= number_format($n->nfc_v_nf, 2, ',', '.') ?></td>
                                 <td><span class="badge" style="background-color: <?= $cor ?>; border-color: <?= $cor ?>;"><?= $status ?></span></td>
                                 <td>
                                     <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) : ?>
-                                        <a href="<?= base_url() ?>index.php/nfecom/visualizar/<?= $n->NFC_ID ?>" class="btn-nwe tip-top" title="Visualizar">
+                                        <a href="<?= base_url() ?>index.php/nfecom/visualizar/<?= $n->nfc_id ?>" class="btn-nwe tip-top" title="Visualizar">
                                             <i class="bx bx-show"></i> </a>
                                     <?php endif ?>
                                 </td>

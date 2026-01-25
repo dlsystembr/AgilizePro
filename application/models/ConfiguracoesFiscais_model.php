@@ -16,12 +16,12 @@ class ConfiguracoesFiscais_model extends CI_Model
      */
     public function get($empId)
     {
-        $this->db->select('cfg.*, cer.CER_CNPJ, cer.CER_VALIDADE_FIM, cer.CER_ATIVO as CER_ATIVO_STATUS');
+        $this->db->select('cfg.*, cer.cer_cnpj, cer.cer_validade_fim, cer.cer_ativo as CER_ATIVO_STATUS');
         $this->db->from('configuracoes_fiscais cfg');
-        $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'left');
-        $this->db->where('cfg.EMP_ID', $empId);
+        $this->db->join('certificados_digitais cer', 'cer.cer_id = cfg.cer_id', 'left');
+        $this->db->where('cfg.emp_id', $empId);
         $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
-        $this->db->order_by('cfg.CFG_TIPO_DOCUMENTO', 'ASC');
+        $this->db->order_by('cfg.cfg_tipo_documento', 'ASC');
 
         return $this->db->get()->result();
     }
@@ -31,11 +31,11 @@ class ConfiguracoesFiscais_model extends CI_Model
      */
     public function getByTipo($empId, $tipoDocumento)
     {
-        $this->db->select('cfg.*, cer.CER_ARQUIVO, cer.CER_SENHA, cer.CER_TIPO');
+        $this->db->select('cfg.*, cer.cer_arquivo, cer.cer_senha, cer.cer_tipo');
         $this->db->from('configuracoes_fiscais cfg');
-        $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'left');
-        $this->db->where('cfg.EMP_ID', $empId);
-        $this->db->where('cfg.CFG_TIPO_DOCUMENTO', $tipoDocumento);
+        $this->db->join('certificados_digitais cer', 'cer.cer_id = cfg.cer_id', 'left');
+        $this->db->where('cfg.emp_id', $empId);
+        $this->db->where('cfg.cfg_tipo_documento', $tipoDocumento);
         $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->get()->row();
@@ -46,10 +46,10 @@ class ConfiguracoesFiscais_model extends CI_Model
      */
     public function getById($id)
     {
-        $this->db->select('cfg.*, cer.CER_CNPJ, cer.CER_VALIDADE_FIM');
+        $this->db->select('cfg.*, cer.cer_cnpj, cer.cer_validade_fim');
         $this->db->from('configuracoes_fiscais cfg');
-        $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'left');
-        $this->db->where('cfg.CFG_ID', $id);
+        $this->db->join('certificados_digitais cer', 'cer.cer_id = cfg.cer_id', 'left');
+        $this->db->where('cfg.cfg_id', $id);
         $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->get()->row();
@@ -62,24 +62,24 @@ class ConfiguracoesFiscais_model extends CI_Model
     {
         $this->db->select('
             emp.*,
-            cfg.CFG_AMBIENTE,
-            cfg.CFG_SERIE,
-            cfg.CFG_NUMERO_ATUAL,
-            cfg.CFG_CSC_ID,
-            cfg.CFG_CSC_TOKEN,
-            cfg.CFG_ALIQUOTA_ISS,
-            cfg.CFG_REGIME_ESPECIAL,
-            cfg.CFG_FORMATO_IMPRESSAO,
-            cer.CER_ARQUIVO,
-            cer.CER_SENHA,
-            cer.CER_TIPO
+            cfg.cfg_ambiente,
+            cfg.cfg_serie,
+            cfg.cfg_numero_atual,
+            cfg.cfg_csc_id,
+            cfg.cfg_csc_token,
+            cfg.cfg_aliquota_iss,
+            cfg.cfg_regime_especial,
+            cfg.cfg_formato_impressao,
+            cer.cer_arquivo,
+            cer.cer_senha,
+            cer.cer_tipo
         ');
         $this->db->from('configuracoes_fiscais cfg');
-        $this->db->join('empresas emp', 'emp.EMP_ID = cfg.EMP_ID');
-        $this->db->join('certificados_digitais cer', 'cer.CER_ID = cfg.CER_ID', 'left');
-        $this->db->where('cfg.EMP_ID', $empId);
-        $this->db->where('cfg.CFG_TIPO_DOCUMENTO', $tipoDocumento);
-        $this->db->where('cfg.CFG_ATIVO', 1);
+        $this->db->join('empresas emp', 'emp.emp_id = cfg.emp_id');
+        $this->db->join('certificados_digitais cer', 'cer.cer_id = cfg.cer_id', 'left');
+        $this->db->where('cfg.emp_id', $empId);
+        $this->db->where('cfg.cfg_tipo_documento', $tipoDocumento);
+        $this->db->where('cfg.cfg_ativo', 1);
         $this->db->where('cfg.ten_id', $this->session->userdata('ten_id'));
 
         return $this->db->get()->row();
@@ -105,7 +105,7 @@ class ConfiguracoesFiscais_model extends CI_Model
      */
     public function edit($id, $data)
     {
-        $this->db->where('CFG_ID', $id);
+        $this->db->where('cfg_id', $id);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update('configuracoes_fiscais', $data);
         return $this->db->affected_rows() >= 0;
@@ -116,8 +116,8 @@ class ConfiguracoesFiscais_model extends CI_Model
      */
     public function editByTipo($empId, $tipoDocumento, $data)
     {
-        $this->db->where('EMP_ID', $empId);
-        $this->db->where('CFG_TIPO_DOCUMENTO', $tipoDocumento);
+        $this->db->where('emp_id', $empId);
+        $this->db->where('cfg_tipo_documento', $tipoDocumento);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update('configuracoes_fiscais', $data);
         return $this->db->affected_rows() >= 0;
@@ -128,7 +128,7 @@ class ConfiguracoesFiscais_model extends CI_Model
      */
     public function delete($id)
     {
-        $this->db->where('CFG_ID', $id);
+        $this->db->where('cfg_id', $id);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->delete('configuracoes_fiscais');
         return $this->db->affected_rows() == 1;
@@ -139,9 +139,9 @@ class ConfiguracoesFiscais_model extends CI_Model
      */
     public function incrementarNumero($empId, $tipoDocumento)
     {
-        $this->db->set('CFG_NUMERO_ATUAL', 'CFG_NUMERO_ATUAL + 1', FALSE);
-        $this->db->where('EMP_ID', $empId);
-        $this->db->where('CFG_TIPO_DOCUMENTO', $tipoDocumento);
+        $this->db->set('cfg_numero_atual', 'cfg_numero_atual + 1', FALSE);
+        $this->db->where('emp_id', $empId);
+        $this->db->where('cfg_tipo_documento', $tipoDocumento);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->update('configuracoes_fiscais');
 
@@ -153,8 +153,8 @@ class ConfiguracoesFiscais_model extends CI_Model
      */
     public function existe($empId, $tipoDocumento)
     {
-        $this->db->where('EMP_ID', $empId);
-        $this->db->where('CFG_TIPO_DOCUMENTO', $tipoDocumento);
+        $this->db->where('emp_id', $empId);
+        $this->db->where('cfg_tipo_documento', $tipoDocumento);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $count = $this->db->count_all_results('configuracoes_fiscais');
 
@@ -169,8 +169,8 @@ class ConfiguracoesFiscais_model extends CI_Model
         if ($this->existe($empId, $tipoDocumento)) {
             return $this->editByTipo($empId, $tipoDocumento, $data);
         } else {
-            $data['EMP_ID'] = $empId;
-            $data['CFG_TIPO_DOCUMENTO'] = $tipoDocumento;
+            $data['emp_id'] = $empId;
+            $data['cfg_tipo_documento'] = $tipoDocumento;
             if (!isset($data['ten_id'])) {
                 $data['ten_id'] = $this->session->userdata('ten_id');
             }

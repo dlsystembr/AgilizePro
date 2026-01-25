@@ -37,11 +37,11 @@ class Migration_Update_faturamento_entrada_structure extends CI_Migration
                     'null' => false
                 ],
                 'data_entrada' => [
-                    'type' => 'DATE',
+                    'type' => 'date',
                     'null' => false
                 ],
                 'data_emissao' => [
-                    'type' => 'DATE',
+                    'type' => 'date',
                     'null' => false
                 ],
                 'valor_total' => [

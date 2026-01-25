@@ -1,0 +1,105 @@
+================================================================================
+  GUIA RÁPIDO - ATUALIZAÇÃO VIA FTP
+  AgilizePro - Servidor: ftp.agilizepro.dlsystem.com.br
+================================================================================
+
+OPÇÃO 1: ATUALIZAÇÃO SIMPLES (RECOMENDADO)
+===========================================
+
+1. Execute o arquivo: ATUALIZAR_SERVIDOR.ps1
+   (Clique com botão direito > Executar com PowerShell)
+
+2. Escolha a opção:
+   - Opção 1: Atualização GERAL (todos os arquivos modificados)
+   - Opção 2: Apenas Relatório de Contratos
+
+3. Confirme quando solicitado
+
+4. Aguarde a conclusão
+
+================================================================================
+
+OPÇÃO 2: ATUALIZAÇÃO ESPECÍFICA
+================================
+
+Execute diretamente:
+  .\atualizar_geral_via_ftp.ps1
+
+Para apenas o relatório:
+  .\atualizar_geral_via_ftp.ps1 -ApenasRelatorio
+
+================================================================================
+
+O QUE O SCRIPT FAZ:
+==================
+
+✓ Compara arquivos locais com o servidor
+✓ Identifica arquivos modificados ou novos
+✓ Ignora arquivos sensíveis (.env, config.php, etc.)
+✓ Faz upload apenas dos arquivos que precisam
+✓ Cria diretórios automaticamente se necessário
+✓ Mostra progresso em tempo real
+
+================================================================================
+
+ARQUIVOS IGNORADOS (não serão enviados):
+=========================================
+
+- .env e arquivos de configuração sensíveis
+- application/config/config.php
+- application/config/database.php
+- application/config/email.php
+- application/logs/*
+- assets/uploads/*
+- assets/anexos/*
+- assets/arquivos/*
+- assets/userImage/*
+- vendor/* (dependências)
+- Arquivos temporários e de desenvolvimento
+
+================================================================================
+
+APÓS A ATUALIZAÇÃO:
+==================
+
+1. Acesse o sistema como administrador
+2. Vá em: Configurações > Sistema
+3. Clique em: "Atualizar Banco de Dados"
+4. Verifique se tudo está funcionando
+
+================================================================================
+
+OBSERVAÇÕES:
+===========
+
+- O script NUNCA sobrescreve arquivos de configuração do cliente
+- Arquivos locais mais recentes substituem os do servidor
+- O script cria backup automático antes de substituir? NÃO
+  → Faça backup manual antes se necessário
+
+================================================================================
+
+PROBLEMAS COMUNS:
+=================
+
+1. Erro de conexão FTP:
+   → Verifique se o servidor está acessível
+   → Verifique credenciais
+
+2. Timeout:
+   → Arquivo muito grande ou conexão lenta
+   → Tente novamente
+
+3. Permissão negada:
+   → Verifique permissões no servidor
+
+================================================================================
+
+CREDENCIAIS CONFIGURADAS:
+=========================
+
+Servidor: ftp.agilizepro.dlsystem.com.br
+Usuário: u204502606.dlsystem
+Senha: DiegoLucas@2024
+
+================================================================================

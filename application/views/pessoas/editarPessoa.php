@@ -153,7 +153,7 @@
     }
 
     /* Ajuste específico para o campo código */
-    .form-section input#PES_CODIGO {
+    .form-section input#pes_codigo {
         width: 150px;
         max-width: 150px;
     }
@@ -358,7 +358,7 @@
                 echo '<div class="alert alert-danger">' . $custom_error . '</div>';
             } ?>
             <form action="<?php echo current_url(); ?>" id="formPessoa" method="post" class="form-horizontal">
-                <?php echo form_hidden('PES_ID', $result->PES_ID) ?>
+                <?php echo form_hidden('pes_id', $result->pes_id) ?>
                 <div class="widget-content nopadding tab-content">
 
                     <!-- Seções lado a lado -->
@@ -371,28 +371,28 @@
                                 </div>
                                 <div class="form-section-content">
                                     <!-- Campo Tipo oculto mas mantido para JavaScript -->
-                                    <input type="hidden" id="PES_FISICO_JURIDICO" name="PES_FISICO_JURIDICO"
-                                        value="<?php echo $result->PES_FISICO_JURIDICO; ?>">
+                                    <input type="hidden" id="pes_fisico_juridico" name="pes_fisico_juridico"
+                                        value="<?php echo $result->pes_fisico_juridico; ?>">
 
                                     <!-- Linha 1: Código e Situação -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="PES_CODIGO" class="control-label">Código</label>
+                                                <label for="pes_codigo" class="control-label">Código</label>
                                                 <div class="controls">
-                                                    <input id="PES_CODIGO" type="text" name="PES_CODIGO"
-                                                        value="<?php echo $result->PES_CODIGO; ?>" readonly
+                                                    <input id="pes_codigo" type="text" name="pes_codigo"
+                                                        value="<?php echo $result->pes_codigo; ?>" readonly
                                                         style="width: 150px;" />
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="PES_SITUACAO" class="control-label">Situação</label>
+                                                <label for="pes_situacao" class="control-label">Situação</label>
                                                 <div class="controls">
-                                                    <select id="PES_SITUACAO" name="PES_SITUACAO">
-                                                        <option value="1" <?php echo $result->PES_SITUACAO == '1' ? 'selected' : ''; ?>>Ativo</option>
-                                                        <option value="0" <?php echo $result->PES_SITUACAO == '0' ? 'selected' : ''; ?>>Inativo</option>
+                                                    <select id="pes_situacao" name="pes_situacao">
+                                                        <option value="1" <?php echo $result->pes_situacao == '1' ? 'selected' : ''; ?>>Ativo</option>
+                                                        <option value="0" <?php echo $result->pes_situacao == '0' ? 'selected' : ''; ?>>Inativo</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -403,23 +403,23 @@
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span7">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="PES_CPFCNPJ" class="control-label">CPF/CNPJ<span
+                                                <label for="pes_cpfcnpj" class="control-label">CPF/CNPJ<span
                                                         class="required">*</span></label>
                                                 <div class="controls">
-                                                    <input id="PES_CPFCNPJ" type="text" name="PES_CPFCNPJ"
-                                                        value="<?php echo $result->PES_CPFCNPJ; ?>" inputmode="numeric"
+                                                    <input id="pes_cpfcnpj" type="text" name="pes_cpfcnpj"
+                                                        value="<?php echo $result->pes_cpfcnpj; ?>" inputmode="numeric"
                                                         autocomplete="off" />
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="span5">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="PES_NASCIMENTO_ABERTURA" id="labelNascimentoAbertura"
+                                                <label for="pes_nascimento_abertura" id="labelNascimentoAbertura"
                                                     class="control-label">Abertura</label>
                                                 <div class="controls">
-                                                    <input id="PES_NASCIMENTO_ABERTURA" type="date"
-                                                        name="PES_NASCIMENTO_ABERTURA"
-                                                        value="<?php echo $result->PES_NASCIMENTO_ABERTURA; ?>" />
+                                                    <input id="pes_nascimento_abertura" type="date"
+                                                        name="pes_nascimento_abertura"
+                                                        value="<?php echo $result->pes_nascimento_abertura; ?>" />
                                                 </div>
                                             </div>
                                         </div>
@@ -429,11 +429,11 @@
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="PES_NOME" class="control-label">Nome<span
+                                                <label for="pes_nome" class="control-label">Nome<span
                                                         class="required">*</span></label>
                                                 <div class="controls">
-                                                    <input id="PES_NOME" type="text" name="PES_NOME"
-                                                        value="<?php echo $result->PES_NOME; ?>" />
+                                                    <input id="pes_nome" type="text" name="pes_nome"
+                                                        value="<?php echo $result->pes_nome; ?>" />
                                                 </div>
                                             </div>
                                         </div>
@@ -443,10 +443,10 @@
                                     <div class="row-fluid">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="PES_RAZAO_SOCIAL" class="control-label">Razão Social</label>
+                                                <label for="pes_razao_social" class="control-label">Razão Social</label>
                                                 <div class="controls">
-                                                    <input id="PES_RAZAO_SOCIAL" type="text" name="PES_RAZAO_SOCIAL"
-                                                        value="<?php echo $result->PES_RAZAO_SOCIAL; ?>" />
+                                                    <input id="pes_razao_social" type="text" name="pes_razao_social"
+                                                        value="<?php echo $result->pes_razao_social; ?>" />
                                                 </div>
                                             </div>
                                         </div>
@@ -625,8 +625,8 @@
                                 <div class="form-section-content" style="flex: 1;">
                                     <div class="control-group" style="margin: 0;">
                                         <div class="controls">
-                                            <textarea id="PES_OBSERVACAO" name="PES_OBSERVACAO" rows="4"
-                                                style="width:100%; resize: vertical;"><?php echo isset($result->PES_OBSERVACAO) ? $result->PES_OBSERVACAO : ''; ?></textarea>
+                                            <textarea id="pes_observacao" name="pes_observacao" rows="4"
+                                                style="width:100%; resize: vertical;"><?php echo isset($result->pes_observacao) ? $result->pes_observacao : ''; ?></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -650,10 +650,10 @@
                                     <div class="row-fluid">
                                         <div class="span6">
                                             <div class="control-group">
-                                                <label for="CLN_LIMITE_CREDITO" class="control-label">Limite de
+                                                <label for="cln_limite_credito" class="control-label">Limite de
                                                     Crédito</label>
                                                 <div class="controls">
-                                                    <input id="CLN_LIMITE_CREDITO" type="text" name="CLN_LIMITE_CREDITO"
+                                                    <input id="cln_limite_credito" type="text" name="cln_limite_credito"
                                                         class="span12" value="0,00" placeholder="0,00" />
                                                 </div>
                                             </div>
@@ -661,10 +661,10 @@
 
                                         <div class="span6">
                                             <div class="control-group">
-                                                <label for="CLN_DIAS_CARENCIA" class="control-label">Dias de
+                                                <label for="cln_dias_carencia" class="control-label">Dias de
                                                     Carência</label>
                                                 <div class="controls">
-                                                    <input id="CLN_DIAS_CARENCIA" type="number" name="CLN_DIAS_CARENCIA"
+                                                    <input id="cln_dias_carencia" type="number" name="cln_dias_carencia"
                                                         class="span12" value="0" />
                                                 </div>
                                             </div>
@@ -672,36 +672,36 @@
                                     </div>
 
                                     <div class="control-group">
-                                        <label for="CLN_SITUACAO" class="control-label">Situação</label>
+                                        <label for="cln_situacao" class="control-label">Situação</label>
                                         <div class="controls">
-                                            <select id="CLN_SITUACAO" name="CLN_SITUACAO" class="span12">
-                                                <option value="1" <?php echo (isset($cliente) && $cliente->CLN_SITUACAO == 1) ? 'selected' : ''; ?>>Ativo</option>
-                                                <option value="0" <?php echo (isset($cliente) && $cliente->CLN_SITUACAO == 0) ? 'selected' : ''; ?>>Inativo</option>
+                                            <select id="cln_situacao" name="cln_situacao" class="span12">
+                                                <option value="1" <?php echo (isset($cliente) && $cliente->cln_situacao == 1) ? 'selected' : ''; ?>>Ativo</option>
+                                                <option value="0" <?php echo (isset($cliente) && $cliente->cln_situacao == 0) ? 'selected' : ''; ?>>Inativo</option>
                                             </select>
                                         </div>
                                     </div>
 
                                     <div class="control-group">
-                                        <label for="CLN_OBJETIVO_COMERCIAL" class="control-label">Objetivo Comercial</label>
+                                        <label for="cln_objetivo_comercial" class="control-label">Objetivo Comercial</label>
                                         <div class="controls">
-                                            <select id="CLN_OBJETIVO_COMERCIAL" name="CLN_OBJETIVO_COMERCIAL" class="span12">
-                                                <option value="Consumo" <?php echo (isset($cliente) && $cliente->CLN_OBJETIVO_COMERCIAL == 'Consumo') ? 'selected' : ''; ?>>Consumo</option>
-                                                <option value="Revenda" <?php echo (isset($cliente) && $cliente->CLN_OBJETIVO_COMERCIAL == 'Revenda') ? 'selected' : ''; ?>>Revenda</option>
-                                                <option value="Industrialização" <?php echo (isset($cliente) && $cliente->CLN_OBJETIVO_COMERCIAL == 'Industrialização') ? 'selected' : ''; ?>>Industrialização</option>
-                                                <option value="Orgão Público" <?php echo (isset($cliente) && $cliente->CLN_OBJETIVO_COMERCIAL == 'Orgão Público') ? 'selected' : ''; ?>>Orgão Público</option>
+                                            <select id="cln_objetivo_comercial" name="cln_objetivo_comercial" class="span12">
+                                                <option value="Consumo" <?php echo (isset($cliente) && $cliente->cln_objetivo_comercial == 'Consumo') ? 'selected' : ''; ?>>Consumo</option>
+                                                <option value="Revenda" <?php echo (isset($cliente) && $cliente->cln_objetivo_comercial == 'Revenda') ? 'selected' : ''; ?>>Revenda</option>
+                                                <option value="Industrialização" <?php echo (isset($cliente) && $cliente->cln_objetivo_comercial == 'Industrialização') ? 'selected' : ''; ?>>Industrialização</option>
+                                                <option value="Orgão Público" <?php echo (isset($cliente) && $cliente->cln_objetivo_comercial == 'Orgão Público') ? 'selected' : ''; ?>>Orgão Público</option>
                                             </select>
                                         </div>
                                     </div>
 
                                     <div class="control-group">
-                                        <label for="TPC_ID" class="control-label">Tipo de Cliente</label>
+                                        <label for="tpc_id" class="control-label">Tipo de Cliente</label>
                                         <div class="controls">
-                                            <select id="TPC_ID" name="TPC_ID" class="span12">
+                                            <select id="tpc_id" name="tpc_id" class="span12">
                                                 <option value="">Selecione um tipo</option>
                                                 <?php if (!empty($tipos_clientes)): ?>
                                                     <?php foreach ($tipos_clientes as $tc): ?>
-                                                        <option value="<?php echo $tc->TPC_ID; ?>" <?php echo (isset($cliente) && $cliente->TPC_ID == $tc->TPC_ID) ? 'selected' : set_select('TPC_ID', $tc->TPC_ID); ?>>
-                                                            <?php echo htmlspecialchars($tc->TPC_NOME, ENT_QUOTES, 'UTF-8'); ?>
+                                                        <option value="<?php echo $tc->tpc_id; ?>" <?php echo (isset($cliente) && $cliente->tpc_id == $tc->tpc_id) ? 'selected' : set_select('tpc_id', $tc->tpc_id); ?>>
+                                                            <?php echo htmlspecialchars($tc->tpc_nome, ENT_QUOTES, 'UTF-8'); ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
@@ -718,16 +718,16 @@
                                         <label class="control-label">Opções</label>
                                         <div class="controls">
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
-                                                <input type="checkbox" id="CLN_COMPRAR_APRAZO" name="CLN_COMPRAR_APRAZO"
+                                                <input type="checkbox" id="cln_comprar_aprazo" name="cln_comprar_aprazo"
                                                     value="1" /> Comprar a prazo
                                             </label>
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
-                                                <input type="checkbox" id="CLN_BLOQUEIO_FINANCEIRO"
-                                                    name="CLN_BLOQUEIO_FINANCEIRO" value="1" checked /> Bloqueio
+                                                <input type="checkbox" id="cln_bloqueio_financeiro"
+                                                    name="cln_bloqueio_financeiro" value="1" checked /> Bloqueio
                                                 financeiro
                                             </label>
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
-                                                <input type="checkbox" id="CLN_EMITIR_NFE" name="CLN_EMITIR_NFE"
+                                                <input type="checkbox" id="cln_emitir_nfe" name="cln_emitir_nfe"
                                                     value="1" checked /> Emitir NFe
                                             </label>
                                         </div>
@@ -772,12 +772,12 @@
                             <div class="row-fluid">
                                 <div class="span4">
                                     <div class="control-group">
-                                        <label for="VEN_PERCENTUAL_COMISSAO" class="control-label">Percentual de
+                                        <label for="ven_percentual_comissao" class="control-label">Percentual de
                                             Comissão (%)</label>
                                         <div class="controls">
-                                            <input id="VEN_PERCENTUAL_COMISSAO" type="text"
-                                                name="VEN_PERCENTUAL_COMISSAO"
-                                                value="<?php echo set_value('VEN_PERCENTUAL_COMISSAO'); ?>"
+                                            <input id="ven_percentual_comissao" type="text"
+                                                name="ven_percentual_comissao"
+                                                value="<?php echo set_value('ven_percentual_comissao'); ?>"
                                                 placeholder="0,00" />
                                         </div>
                                     </div>
@@ -785,13 +785,13 @@
 
                                 <div class="span4">
                                     <div class="control-group">
-                                        <label for="VEN_TIPO_COMISSAO" class="control-label">Tipo de Comissão</label>
+                                        <label for="ven_tipo_comissao" class="control-label">Tipo de Comissão</label>
                                         <div class="controls">
-                                            <select id="VEN_TIPO_COMISSAO" name="VEN_TIPO_COMISSAO">
+                                            <select id="ven_tipo_comissao" name="ven_tipo_comissao">
                                                 <option value="">Selecione</option>
-                                                <option value="Sobre Venda" <?php echo set_value('VEN_TIPO_COMISSAO') == 'Sobre Venda' ? 'selected' : ''; ?>>
+                                                <option value="Sobre Venda" <?php echo set_value('ven_tipo_comissao') == 'Sobre Venda' ? 'selected' : ''; ?>>
                                                     Sobre Venda</option>
-                                                <option value="Sobre Lucro" <?php echo set_value('VEN_TIPO_COMISSAO') == 'Sobre Lucro' ? 'selected' : ''; ?>>
+                                                <option value="Sobre Lucro" <?php echo set_value('ven_tipo_comissao') == 'Sobre Lucro' ? 'selected' : ''; ?>>
                                                     Sobre Lucro</option>
                                             </select>
                                         </div>
@@ -800,10 +800,10 @@
 
                                 <div class="span4">
                                     <div class="control-group">
-                                        <label for="VEN_META_MENSAL" class="control-label">Meta Mensal (R$)</label>
+                                        <label for="ven_meta_mensal" class="control-label">Meta Mensal (R$)</label>
                                         <div class="controls">
-                                            <input id="VEN_META_MENSAL" type="text" name="VEN_META_MENSAL"
-                                                value="<?php echo set_value('VEN_META_MENSAL'); ?>"
+                                            <input id="ven_meta_mensal" type="text" name="ven_meta_mensal"
+                                                value="<?php echo set_value('ven_meta_mensal'); ?>"
                                                 placeholder="0,00" />
                                         </div>
                                     </div>
@@ -859,7 +859,7 @@
                 } else {
                     // CPF: todos os tipos
                     select.append('<option value="">Tipo</option>');
-                    select.append('<option value="RG">RG</option>');
+                    select.append('<option value="rg">RG</option>');
                     select.append('<option value="Inscrição Estadual">Inscrição Estadual</option>');
                     select.append('<option value="Inscrição Municipal">Inscrição Municipal</option>');
                     select.append('<option value="CNH">CNH</option>');
@@ -898,12 +898,12 @@
 
                 // Atualizar tipo e botão automaticamente
                 if (cleanVal.length <= 11) {
-                    $('#PES_FISICO_JURIDICO').val('F');
+                    $('#pes_fisico_juridico').val('F');
                     $('#btnBuscarCNPJ').hide();
                     atualizarTiposDocumento('F');
                     atualizarLabelData('F');
                 } else {
-                    $('#PES_FISICO_JURIDICO').val('J');
+                    $('#pes_fisico_juridico').val('J');
                     $('#btnBuscarCNPJ').show();
                     atualizarTiposDocumento('J');
                     atualizarLabelData('J');
@@ -920,10 +920,10 @@
             }
         };
 
-        $('#PES_CPFCNPJ').mask(cpfCnpjMascara, cpfCnpjOptions);
+        $('#pes_cpfcnpj').mask(cpfCnpjMascara, cpfCnpjOptions);
 
         // Suporte para colar (paste)
-        $('#PES_CPFCNPJ').on('paste', function (e) {
+        $('#pes_cpfcnpj').on('paste', function (e) {
             e.preventDefault();
             var campo = $(this);
             var clipboardData = (e.originalEvent || e).clipboardData.getData('text/plain');
@@ -936,7 +936,7 @@
                 // CNPJ
                 campo.mask('00.000.000/0000-00');
                 campo.val(val);
-                $('#PES_FISICO_JURIDICO').val('J');
+                $('#pes_fisico_juridico').val('J');
                 $('#btnBuscarCNPJ').show();
                 atualizarTiposDocumento('J');
                 atualizarLabelData('J');
@@ -950,7 +950,7 @@
                 // CPF
                 campo.mask('000.000.000-009');
                 campo.val(val);
-                $('#PES_FISICO_JURIDICO').val('F');
+                $('#pes_fisico_juridico').val('F');
                 $('#btnBuscarCNPJ').hide();
                 atualizarTiposDocumento('F');
                 atualizarLabelData('F');
@@ -967,14 +967,14 @@
         // Na edição, não verificar CPF/CNPJ duplicado (é o próprio registro)
 
         // Copiar nome para razão social se for Pessoa Física
-        $('#PES_NOME').on('blur', function () {
-            var tipo = $('#PES_FISICO_JURIDICO').val();
+        $('#pes_nome').on('blur', function () {
+            var tipo = $('#pes_fisico_juridico').val();
             var nome = $(this).val();
-            var razaoSocial = $('#PES_RAZAO_SOCIAL').val();
+            var razaoSocial = $('#pes_razao_social').val();
 
             // Se for pessoa física (F) e nome não estiver vazio e razão social estiver vazia
             if (tipo === 'F' && nome.trim() !== '' && razaoSocial.trim() === '') {
-                $('#PES_RAZAO_SOCIAL').val(nome);
+                $('#pes_razao_social').val(nome);
             }
         });
 
@@ -1046,9 +1046,9 @@
         }
 
         // Controle do tipo F/J (quando mudado manualmente)
-        $('#PES_FISICO_JURIDICO').on('change', function () {
+        $('#pes_fisico_juridico').on('change', function () {
             const tipo = $(this).val();
-            const cnpj = $('#PES_CPFCNPJ');
+            const cnpj = $('#pes_cpfcnpj');
 
             if (tipo === 'F') {
                 $('#btnBuscarCNPJ').hide();
@@ -1069,7 +1069,7 @@
 
         // Busca CNPJ
         $('#btnBuscarCNPJ').on('click', function () {
-            const cnpj = $('#PES_CPFCNPJ').val().replace(/[^\d]/g, '');
+            const cnpj = $('#pes_cpfcnpj').val().replace(/[^\d]/g, '');
             const btn = $(this);
 
             if (cnpj.length !== 14) {
@@ -1097,30 +1097,30 @@
 
                         // Preencher nome fantasia
                         if (estab.nome_fantasia) {
-                            $('#PES_NOME').val(estab.nome_fantasia);
+                            $('#pes_nome').val(estab.nome_fantasia);
                         } else {
-                            $('#PES_NOME').val(data.razao_social);
+                            $('#pes_nome').val(data.razao_social);
                         }
-                        $('#PES_RAZAO_SOCIAL').val(data.razao_social);
+                        $('#pes_razao_social').val(data.razao_social);
 
                         // Preencher data de abertura
                         if (estab.data_inicio_atividade) {
-                            $('#PES_NASCIMENTO_ABERTURA').val(estab.data_inicio_atividade);
+                            $('#pes_nascimento_abertura').val(estab.data_inicio_atividade);
                         }
 
                         // Adicionar telefone se disponível (ddd1 e telefone1)
                         if (estab.ddd1 && estab.telefone1) {
                             const telefoneRow = `
                             <div class="telefone-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">
-                                <select name="TEL_TIPO[]" class="form-control" style="width: 120px;">
+                                <select name="tel_tipo[]" class="form-control" style="width: 120px;">
                                     <option value="Comercial" selected>Comercial</option>
                                     <option value="Residencial">Residencial</option>
                                     <option value="Celular">Celular</option>
                                     <option value="WhatsApp">WhatsApp</option>
                                 </select>
-                                <input type="text" name="TEL_DDD[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" value="${estab.ddd1}" />
-                                <input type="text" name="TEL_NUMERO[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" value="${estab.telefone1}" />
-                                <input type="text" name="TEL_OBSERVACAO[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />
+                                <input type="text" name="tel_ddd[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" value="${estab.ddd1}" />
+                                <input type="text" name="tel_numero[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" value="${estab.telefone1}" />
+                                <input type="text" name="tel_observacao[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />
                                 <button type="button" class="btn btn-mini btn-danger remove-telefone" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -1157,15 +1157,15 @@
                             const enderecoRow = `
                             <div class="endereco-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
                                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                                    <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 3;" value="${estab.logradouro || ''}" />
-                                    <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 80px;" value="${estab.numero || ''}" />
-                                    <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 2;" value="${estab.complemento || ''}" />
+                                    <input type="text" name="end_logradouro[]" placeholder="Logradouro" class="form-control" style="flex: 3;" value="${estab.logradouro || ''}" />
+                                    <input type="text" name="end_numero[]" placeholder="Número" class="form-control" style="width: 80px;" value="${estab.numero || ''}" />
+                                    <input type="text" name="end_complemento[]" placeholder="Complemento" class="form-control" style="flex: 2;" value="${estab.complemento || ''}" />
                                 </div>
                                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                                    <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 110px;" value="${estab.cep || ''}" />
+                                    <input type="text" name="end_cep[]" placeholder="cep" class="form-control cep-mask" style="width: 110px;" value="${estab.cep || ''}" />
                                     <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="${estab.bairro || ''}" />
                                     <input type="text" name="END_CIDADE[]" placeholder="Cidade" class="form-control" style="flex: 1;" value="${estab.cidade ? estab.cidade.nome : ''}" />
-                                    <input type="text" name="END_UF[]" placeholder="UF" class="form-control" style="width: 50px;" maxlength="2" value="${estab.estado ? estab.estado.sigla : ''}" />
+                                    <input type="text" name="END_UF[]" placeholder="uf" class="form-control" style="width: 50px;" maxlength="2" value="${estab.estado ? estab.estado.sigla : ''}" />
                                 </div>
                                 <div style="display: flex; gap: 10px; align-items: center;">
                                     <select name="END_TIPO[]" class="form-control" style="width: 150px;">
@@ -1303,21 +1303,21 @@
                     $('#secao-financeiro').slideDown(300);
                     $('#CLN_ENABLE').val('1');
                     // Definir valores padrão
-                    $('#CLN_LIMITE_CREDITO').val('0,00');
-                    $('#CLN_DIAS_CARENCIA').val('0');
-                    $('#CLN_BLOQUEIO_FINANCEIRO').prop('checked', true);
-                    $('#CLN_EMITIR_NFE').prop('checked', true);
-                    $('#CLN_OBJETIVO_COMERCIAL').val('Consumo');
+                    $('#cln_limite_credito').val('0,00');
+                    $('#cln_dias_carencia').val('0');
+                    $('#cln_bloqueio_financeiro').prop('checked', true);
+                    $('#cln_emitir_nfe').prop('checked', true);
+                    $('#cln_objetivo_comercial').val('Consumo');
                 } else {
                     $('#secao-financeiro').slideUp(300);
                     $('#CLN_ENABLE').val('0');
                     // Limpar campos de cliente quando desmarcar
-                    $('#CLN_LIMITE_CREDITO').val('0,00');
-                    $('#CLN_DIAS_CARENCIA').val('0');
-                    $('#CLN_SITUACAO').val('1');
-                    $('#CLN_COMPRAR_APRAZO, #CLN_BLOQUEIO_FINANCEIRO, #CLN_EMITIR_NFE').prop('checked', false);
-                    $('#CLN_OBJETIVO_COMERCIAL').val('');
-                    $('#TPC_ID').val('');
+                    $('#cln_limite_credito').val('0,00');
+                    $('#cln_dias_carencia').val('0');
+                    $('#cln_situacao').val('1');
+                    $('#cln_comprar_aprazo, #cln_bloqueio_financeiro, #cln_emitir_nfe').prop('checked', false);
+                    $('#cln_objetivo_comercial').val('');
+                    $('#tpc_id').val('');
                     // Limpar vendedores permitidos
                     $('#vendedores-permitidos-container').empty();
                 }
@@ -1332,9 +1332,9 @@
                     $('#secao-vendedor').slideUp(300);
                     $('#VEN_ENABLE').val('0');
                     // Limpar campos de vendedor quando desmarcar
-                    $('#VEN_PERCENTUAL_COMISSAO').val('');
-                    $('#VEN_TIPO_COMISSAO').val('');
-                    $('#VEN_META_MENSAL').val('');
+                    $('#ven_percentual_comissao').val('');
+                    $('#ven_tipo_comissao').val('');
+                    $('#ven_meta_mensal').val('');
                 }
             }
         });
@@ -1355,7 +1355,7 @@
                     // Criar select com vendedores
                     var optionsHtml = '<option value="">Selecione um vendedor</option>';
                     vendedores.forEach(function (v) {
-                        optionsHtml += `<option value="${v.PES_ID}">${v.PES_NOME}</option>`;
+                        optionsHtml += `<option value="${v.pes_id}">${v.pes_nome}</option>`;
                     });
 
                     // Verificar se é o primeiro vendedor
@@ -1369,7 +1369,7 @@
                                 ${optionsHtml}
                             </select>
                             <label class="checkbox" style="margin: 0; white-space: nowrap;">
-                                <input type="radio" name="CLV_PADRAO" value="" class="vendedor-padrao-radio" ${checkedAttr} style="margin-right: 3px;" /> 
+                                <input type="radio" name="clv_padrao" value="" class="vendedor-padrao-radio" ${checkedAttr} style="margin-right: 3px;" /> 
                                 <small>Padrão</small>
                             </label>
                             <button type="button" class="btn btn-mini btn-danger remove-vendedor-permitido" style="width: 25px; height: 25px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -1450,15 +1450,15 @@
         $('#btnAdicionarTelefone').on('click', function () {
             const telefoneRow = `
             <div class="telefone-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">
-                <select name="TEL_TIPO[]" class="form-control" style="width: 120px;">
+                <select name="tel_tipo[]" class="form-control" style="width: 120px;">
                     <option value="Comercial">Comercial</option>
                     <option value="Residencial">Residencial</option>
                     <option value="Celular">Celular</option>
                     <option value="WhatsApp">WhatsApp</option>
                 </select>
-                <input type="text" name="TEL_DDD[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" />
-                <input type="text" name="TEL_NUMERO[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" />
-                <input type="text" name="TEL_OBSERVACAO[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />
+                <input type="text" name="tel_ddd[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" />
+                <input type="text" name="tel_numero[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" />
+                <input type="text" name="tel_observacao[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />
                 <button type="button" class="btn btn-mini btn-danger remove-telefone" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     <i class="fas fa-trash"></i>
                 </button>
@@ -1515,7 +1515,7 @@
             const natureza = dados.natureza || '';
 
             const showEndereco = tipo === 'Inscrição Estadual' || tipo === 'Inscrição Municipal';
-            const tipoPessoa = $('#PES_FISICO_JURIDICO').val() || 'F';
+            const tipoPessoa = $('#pes_fisico_juridico').val() || 'F';
 
             let opcoesDocumento = '';
             if (tipoPessoa === 'J') {
@@ -1527,7 +1527,7 @@
             } else {
                 opcoesDocumento = `
                 <option value="">Tipo</option>
-                <option value="RG" ${tipo === 'RG' ? 'selected' : ''}>RG</option>
+                <option value="rg" ${tipo === 'rg' ? 'selected' : ''}>RG</option>
                 <option value="Inscrição Estadual" ${tipo === 'Inscrição Estadual' ? 'selected' : ''}>Inscrição Estadual</option>
                 <option value="Inscrição Municipal" ${tipo === 'Inscrição Municipal' ? 'selected' : ''}>Inscrição Municipal</option>
                 <option value="CNH" ${tipo === 'CNH' ? 'selected' : ''}>CNH</option>
@@ -1539,12 +1539,12 @@
             const documentoRow = `
             <div class="documento-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
                 <div style="display: flex; gap: 10px; margin-bottom: ${showEndereco ? '10px' : '0'}; align-items: center;">
-                    <select name="DOC_TIPO_DOCUMENTO[]" class="form-control doc-tipo" style="width: 150px;">
+                    <select name="doc_tipo_documento[]" class="form-control doc-tipo" style="width: 150px;">
                         ${opcoesDocumento}
                     </select>
-                    <input type="text" name="DOC_NUMERO[]" value="${numero}" placeholder="Número" class="form-control" style="flex: 1;" />
-                    <input type="text" name="DOC_ORGAO_EXPEDIDOR[]" value="${orgao}" placeholder="Órgão Expedidor" class="form-control" style="flex: 1;" />
-                    <select name="DOC_NATUREZA_CONTRIBUINTE[]" class="form-control" style="width: 150px;">
+                    <input type="text" name="doc_numero[]" value="${numero}" placeholder="Número" class="form-control" style="flex: 1;" />
+                    <input type="text" name="doc_orgao_expedidor[]" value="${orgao}" placeholder="Órgão Expedidor" class="form-control" style="flex: 1;" />
+                    <select name="doc_natureza_contribuinte[]" class="form-control" style="width: 150px;">
                         <option value="">Natureza</option>
                         <option value="Contribuinte" ${natureza === 'Contribuinte' ? 'selected' : ''}>Contribuinte</option>
                         <option value="Não Contribuinte">Não Contribuinte</option>
@@ -1594,12 +1594,12 @@
             const enderecoRow = `
             <div class="endereco-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 3;" />
-                    <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 80px;" />
-                    <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 2;" />
+                    <input type="text" name="end_logradouro[]" placeholder="Logradouro" class="form-control" style="flex: 3;" />
+                    <input type="text" name="end_numero[]" placeholder="Número" class="form-control" style="width: 80px;" />
+                    <input type="text" name="end_complemento[]" placeholder="Complemento" class="form-control" style="flex: 2;" />
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 110px;" />
+                    <input type="text" name="end_cep[]" placeholder="cep" class="form-control cep-mask" style="width: 110px;" />
                     <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" />
                     <input type="text" name="END_CIDADE[]" placeholder="Cidade *" class="form-control" style="flex: 1;" title="Campo obrigatório - necessário para determinar o município" />
                     <input type="text" name="END_UF[]" placeholder="UF *" class="form-control" style="width: 50px;" maxlength="2" title="Campo obrigatório - necessário para determinar o estado" />
@@ -1640,8 +1640,8 @@
                 $('#enderecos-container .endereco-row').each(function (index) {
                     const row = $(this);
                     const tipo = row.find('select[name="END_TIPO[]"]').val();
-                    const logradouro = row.find('input[name="END_LOGRADOURO[]"]').val();
-                    const numero = row.find('input[name="END_NUMERO[]"]').val();
+                    const logradouro = row.find('input[name="end_logradouro[]"]').val();
+                    const numero = row.find('input[name="end_numero[]"]').val();
 
                     select.append(`<option value="${index}">${tipo} - ${logradouro}, ${numero}</option>`);
                 });
@@ -1674,16 +1674,16 @@
         });
 
         // Auto-focus no logradouro quando CEP completo
-        $(document).on('input', 'input[name="END_CEP[]"]', function () {
+        $(document).on('input', 'input[name="end_cep[]"]', function () {
             var cep = $(this).val().replace(/\D/g, '');
             if (cep.length === 8) {
                 var enderecoRow = $(this).closest('.endereco-row');
-                enderecoRow.find('input[name="END_LOGRADOURO[]"]').focus();
+                enderecoRow.find('input[name="end_logradouro[]"]').focus();
             }
         });
 
         // Buscar endereço pelo CEP quando sair do campo
-        $(document).on('blur', 'input[name="END_CEP[]"]', function () {
+        $(document).on('blur', 'input[name="end_cep[]"]', function () {
             var cepField = $(this);
             var cep = cepField.val().replace(/\D/g, '');
 
@@ -1702,14 +1702,14 @@
                     success: function (data) {
                         if (!data.erro) {
                             // Preencher campos do endereço
-                            enderecoRow.find('input[name="END_LOGRADOURO[]"]').val(data.logradouro || '');
+                            enderecoRow.find('input[name="end_logradouro[]"]').val(data.logradouro || '');
                             enderecoRow.find('input[name="END_BAIRRO[]"]').val(data.bairro || '');
                             enderecoRow.find('input[name="END_CIDADE[]"]').val(data.localidade || '');
                             enderecoRow.find('input[name="END_UF[]"]').val(data.uf || '');
-                            enderecoRow.find('input[name="END_COMPLEMENTO[]"]').val(data.complemento || '');
+                            enderecoRow.find('input[name="end_complemento[]"]').val(data.complemento || '');
 
                             // Focar no campo número
-                            enderecoRow.find('input[name="END_NUMERO[]"]').focus();
+                            enderecoRow.find('input[name="end_numero[]"]').focus();
 
                             // Feedback visual de sucesso
                             cepField.css('background-color', '#d4edda');
@@ -1722,11 +1722,11 @@
                             cepField.attr('placeholder', 'CEP não encontrado');
                             setTimeout(function () {
                                 cepField.css('background-color', '');
-                                cepField.attr('placeholder', 'CEP');
+                                cepField.attr('placeholder', 'cep');
                             }, 2000);
 
                             // Focar no campo número para continuar manualmente
-                            enderecoRow.find('input[name="END_NUMERO[]"]').focus();
+                            enderecoRow.find('input[name="end_numero[]"]').focus();
                         }
                     },
                     error: function () {
@@ -1792,9 +1792,9 @@
                 element.closest('.controls').append(error);
             },
             rules: {
-                PES_FISICO_JURIDICO: { required: true },
-                PES_NOME: { required: true },
-                PES_CPFCNPJ: {
+                pes_fisico_juridico: { required: true },
+                pes_nome: { required: true },
+                pes_cpfcnpj: {
                     required: true,
                     customCPFCNPJ: true
                 },
@@ -1802,9 +1802,9 @@
                 'END_UF[]': { required: true }
             },
             messages: {
-                PES_FISICO_JURIDICO: 'Selecione o tipo de cliente',
-                PES_NOME: 'Nome é obrigatório',
-                PES_CPFCNPJ: 'CPF/CNPJ é obrigatório e deve ser válido',
+                pes_fisico_juridico: 'Selecione o tipo de cliente',
+                pes_nome: 'Nome é obrigatório',
+                pes_cpfcnpj: 'CPF/CNPJ é obrigatório e deve ser válido',
                 'END_CIDADE[]': 'Cidade é obrigatória para determinar o município',
                 'END_UF[]': 'UF é obrigatória para determinar o estado'
             },
@@ -1883,46 +1883,46 @@
         // Carregar telefones
         <?php if (isset($telefones) && !empty($telefones)): ?>
             <?php foreach ($telefones as $tel): ?>
-                const telefoneExistente<?php echo $tel->TEL_ID; ?> = `
+                const telefoneExistente<?php echo $tel->tel_id; ?> = `
                 <div class="telefone-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">
-                    <input type="hidden" name="TEL_ID[]" value="<?php echo $tel->TEL_ID; ?>" />
-                    <select name="TEL_TIPO[]" class="form-control" style="width: 120px;">
-                        <option value="Comercial" <?php echo $tel->TEL_TIPO == 'Comercial' ? 'selected' : ''; ?>>Comercial</option>
-                        <option value="Residencial" <?php echo $tel->TEL_TIPO == 'Residencial' ? 'selected' : ''; ?>>Residencial</option>
-                        <option value="Celular" <?php echo $tel->TEL_TIPO == 'Celular' ? 'selected' : ''; ?>>Celular</option>
-                        <option value="WhatsApp" <?php echo $tel->TEL_TIPO == 'WhatsApp' ? 'selected' : ''; ?>>WhatsApp</option>
+                    <input type="hidden" name="tel_id[]" value="<?php echo $tel->tel_id; ?>" />
+                    <select name="tel_tipo[]" class="form-control" style="width: 120px;">
+                        <option value="Comercial" <?php echo $tel->tel_tipo == 'Comercial' ? 'selected' : ''; ?>>Comercial</option>
+                        <option value="Residencial" <?php echo $tel->tel_tipo == 'Residencial' ? 'selected' : ''; ?>>Residencial</option>
+                        <option value="Celular" <?php echo $tel->tel_tipo == 'Celular' ? 'selected' : ''; ?>>Celular</option>
+                        <option value="WhatsApp" <?php echo $tel->tel_tipo == 'WhatsApp' ? 'selected' : ''; ?>>WhatsApp</option>
                     </select>
-                    <input type="text" name="TEL_DDD[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" value="<?php echo $tel->TEL_DDD; ?>" />
-                    <input type="text" name="TEL_NUMERO[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" value="<?php echo $tel->TEL_NUMERO; ?>" />
-                    <input type="text" name="TEL_OBSERVACAO[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" value="<?php echo $tel->TEL_OBSERVACAO; ?>" />
+                    <input type="text" name="tel_ddd[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" value="<?php echo $tel->tel_ddd; ?>" />
+                    <input type="text" name="tel_numero[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" value="<?php echo $tel->tel_numero; ?>" />
+                    <input type="text" name="tel_observacao[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" value="<?php echo $tel->tel_observacao; ?>" />
                     <button type="button" class="btn btn-mini btn-danger remove-telefone" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             `;
-                $('#telefones-container').append(telefoneExistente<?php echo $tel->TEL_ID; ?>);
+                $('#telefones-container').append(telefoneExistente<?php echo $tel->tel_id; ?>);
             <?php endforeach; ?>
         <?php endif; ?>
 
         // Carregar emails
         <?php if (isset($emails) && !empty($emails)): ?>
             <?php foreach ($emails as $email): ?>
-                const emailExistente<?php echo $email->EML_ID; ?> = `
+                const emailExistente<?php echo $email->eml_id; ?> = `
                 <div class="email-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">
-                    <input type="hidden" name="EMAIL_ID[]" value="<?php echo $email->EML_ID; ?>" />
+                    <input type="hidden" name="EMAIL_ID[]" value="<?php echo $email->eml_id; ?>" />
                     <select name="EMAIL_TIPO[]" class="form-control" style="width: 120px;">
-                        <option value="Comercial" <?php echo $email->EML_TIPO == 'Comercial' ? 'selected' : ''; ?>>Comercial</option>
-                        <option value="Pessoal" <?php echo $email->EML_TIPO == 'Pessoal' ? 'selected' : ''; ?>>Pessoal</option>
-                        <option value="Outros" <?php echo $email->EML_TIPO == 'Outros' ? 'selected' : ''; ?>>Outros</option>
+                        <option value="Comercial" <?php echo $email->eml_tipo == 'Comercial' ? 'selected' : ''; ?>>Comercial</option>
+                        <option value="Pessoal" <?php echo $email->eml_tipo == 'Pessoal' ? 'selected' : ''; ?>>Pessoal</option>
+                        <option value="Outros" <?php echo $email->eml_tipo == 'Outros' ? 'selected' : ''; ?>>Outros</option>
                     </select>
-                    <input type="text" name="EMAIL_NOME[]" placeholder="Nome" class="form-control" style="flex: 1;" value="<?php echo $email->EML_NOME; ?>" />
-                    <input type="email" name="EMAIL_ENDERECO[]" placeholder="Email" class="form-control" style="flex: 1.5;" value="<?php echo $email->EML_EMAIL; ?>" />
+                    <input type="text" name="EMAIL_NOME[]" placeholder="Nome" class="form-control" style="flex: 1;" value="<?php echo $email->eml_nome; ?>" />
+                    <input type="email" name="EMAIL_ENDERECO[]" placeholder="Email" class="form-control" style="flex: 1.5;" value="<?php echo $email->eml_email; ?>" />
                     <button type="button" class="btn btn-mini btn-danger remove-email" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             `;
-                $('#emails-container').append(emailExistente<?php echo $email->EML_ID; ?>);
+                $('#emails-container').append(emailExistente<?php echo $email->eml_id; ?>);
                 emailIndex++;
             <?php endforeach; ?>
         <?php endif; ?>
@@ -1932,31 +1932,31 @@
         <?php if (isset($enderecos) && !empty($enderecos)): ?>
             console.log('Carregando endereços...');
             <?php foreach ($enderecos as $end): ?>
-                console.log('Endereço ID:', <?php echo $end->END_ID; ?>);
-                const enderecoExistente<?php echo $end->END_ID; ?> = `
+                console.log('Endereço ID:', <?php echo $end->end_id; ?>);
+                const enderecoExistente<?php echo $end->end_id; ?> = `
                 <div class="endereco-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
-                    <input type="hidden" name="END_ID[]" value="<?php echo $end->END_ID; ?>" />
+                    <input type="hidden" name="end_id[]" value="<?php echo $end->end_id; ?>" />
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <input type="text" name="END_LOGRADOURO[]" placeholder="Logradouro" class="form-control" style="flex: 3;" value="<?php echo isset($end->END_LOGRADOURO) ? $end->END_LOGRADOURO : ''; ?>" />
-                        <input type="text" name="END_NUMERO[]" placeholder="Número" class="form-control" style="width: 80px;" value="<?php echo isset($end->END_NUMERO) ? $end->END_NUMERO : ''; ?>" />
-                        <input type="text" name="END_COMPLEMENTO[]" placeholder="Complemento" class="form-control" style="flex: 2;" value="<?php echo isset($end->END_COMPLEMENTO) ? $end->END_COMPLEMENTO : ''; ?>" />
+                        <input type="text" name="end_logradouro[]" placeholder="Logradouro" class="form-control" style="flex: 3;" value="<?php echo isset($end->end_logradouro) ? $end->end_logradouro : ''; ?>" />
+                        <input type="text" name="end_numero[]" placeholder="Número" class="form-control" style="width: 80px;" value="<?php echo isset($end->end_numero) ? $end->end_numero : ''; ?>" />
+                        <input type="text" name="end_complemento[]" placeholder="Complemento" class="form-control" style="flex: 2;" value="<?php echo isset($end->end_complemento) ? $end->end_complemento : ''; ?>" />
                     </div>
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <input type="text" name="END_CEP[]" placeholder="CEP" class="form-control cep-mask" style="width: 110px;" value="<?php echo isset($end->END_CEP) ? $end->END_CEP : ''; ?>" />
-                        <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="<?php echo isset($end->BAI_NOME) ? $end->BAI_NOME : ''; ?>" />
-                        <input type="text" name="END_CIDADE[]" placeholder="Cidade *" class="form-control" style="flex: 1;" value="<?php echo isset($end->MUN_NOME) ? $end->MUN_NOME : ''; ?>" title="Campo obrigatório - necessário para determinar o município" />
-                        <input type="text" name="END_UF[]" placeholder="UF *" class="form-control" style="width: 50px;" maxlength="2" value="<?php echo isset($end->EST_UF) ? $end->EST_UF : ''; ?>" title="Campo obrigatório - necessário para determinar o estado" />
+                        <input type="text" name="end_cep[]" placeholder="cep" class="form-control cep-mask" style="width: 110px;" value="<?php echo isset($end->end_cep) ? $end->end_cep : ''; ?>" />
+                        <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="<?php echo isset($end->bai_nome) ? $end->bai_nome : ''; ?>" />
+                        <input type="text" name="END_CIDADE[]" placeholder="Cidade *" class="form-control" style="flex: 1;" value="<?php echo isset($end->mun_nome) ? $end->mun_nome : ''; ?>" title="Campo obrigatório - necessário para determinar o município" />
+                        <input type="text" name="END_UF[]" placeholder="UF *" class="form-control" style="width: 50px;" maxlength="2" value="<?php echo isset($end->est_uf) ? $end->est_uf : ''; ?>" title="Campo obrigatório - necessário para determinar o estado" />
                     </div>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <select name="END_TIPO[]" class="form-control" style="width: 150px;">
-                            <option value="Comercial" <?php echo $end->END_TIPO_ENDENRECO == 'Geral' || $end->END_TIPO_ENDENRECO == 'Comercial' ? 'selected' : ''; ?>>Comercial</option>
-                            <option value="Residencial" <?php echo $end->END_TIPO_ENDENRECO == 'Residencial' ? 'selected' : ''; ?>>Residencial</option>
-                            <option value="Cobrança" <?php echo $end->END_TIPO_ENDENRECO == 'Cobranca' ? 'selected' : ''; ?>>Cobrança</option>
-                            <option value="Entrega" <?php echo $end->END_TIPO_ENDENRECO == 'Entrega' ? 'selected' : ''; ?>>Entrega</option>
-                            <option value="Outros" <?php echo $end->END_TIPO_ENDENRECO == 'Outros' ? 'selected' : ''; ?>>Outros</option>
+                            <option value="Comercial" <?php echo $end->end_tipo_endenreco == 'Geral' || $end->end_tipo_endenreco == 'Comercial' ? 'selected' : ''; ?>>Comercial</option>
+                            <option value="Residencial" <?php echo $end->end_tipo_endenreco == 'Residencial' ? 'selected' : ''; ?>>Residencial</option>
+                            <option value="Cobrança" <?php echo $end->end_tipo_endenreco == 'Cobranca' ? 'selected' : ''; ?>>Cobrança</option>
+                            <option value="Entrega" <?php echo $end->end_tipo_endenreco == 'Entrega' ? 'selected' : ''; ?>>Entrega</option>
+                            <option value="Outros" <?php echo $end->end_tipo_endenreco == 'Outros' ? 'selected' : ''; ?>>Outros</option>
                         </select>
                         <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
-                            <input type="radio" name="endereco_padrao" value="<?php echo $end->END_ID; ?>" <?php echo ($end->END_PADRAO == 1) ? 'checked' : ''; ?> />
+                            <input type="radio" name="endereco_padrao" value="<?php echo $end->end_id; ?>" <?php echo ($end->end_padrao == 1) ? 'checked' : ''; ?> />
                             <strong>Endereço Padrão</strong>
                         </label>
                         <div style="flex: 1;"></div>
@@ -1966,7 +1966,7 @@
                     </div>
                 </div>
             `;
-                $('#enderecos-container').append(enderecoExistente<?php echo $end->END_ID; ?>);
+                $('#enderecos-container').append(enderecoExistente<?php echo $end->end_id; ?>);
                 enderecoIndex++;
 
                 // Aplicar máscara de CEP
@@ -1981,10 +1981,10 @@
         <?php if (isset($documentos) && !empty($documentos)): ?>
             <?php foreach ($documentos as $doc): ?>
                 adicionarDocumento({
-                    tipo: '<?php echo $doc->DOC_TIPO_DOCUMENTO; ?>',
-                    numero: '<?php echo $doc->DOC_NUMERO; ?>',
-                    orgao: '<?php echo $doc->DOC_ORGAO_EXPEDIDOR; ?>',
-                    natureza: '<?php echo $doc->DOC_NATUREZA_CONTRIBUINTE; ?>'
+                    tipo: '<?php echo $doc->doc_tipo_documento; ?>',
+                    numero: '<?php echo $doc->doc_numero; ?>',
+                    orgao: '<?php echo $doc->doc_orgao_expedidor; ?>',
+                    natureza: '<?php echo $doc->doc_natureza_contribuinte; ?>'
                 });
             <?php endforeach; ?>
         <?php endif; ?>
@@ -1999,13 +1999,13 @@
         // Carregar dados de cliente
         <?php if (isset($cliente) && $cliente): ?>
             $('#CLN_ENABLE').val('1');
-            $('#CLN_LIMITE_CREDITO').val('<?php echo number_format($cliente->CLN_LIMITE_CREDITO, 2, ',', '.'); ?>');
-            $('#CLN_DIAS_CARENCIA').val('<?php echo $cliente->CLN_DIAS_CARENCIA; ?>');
-            $('#CLN_SITUACAO').val('<?php echo $cliente->CLN_SITUACAO; ?>');
-            $('#CLN_COMPRAR_APRAZO').prop('checked', <?php echo $cliente->CLN_COMPRAR_APRAZO ? 'true' : 'false'; ?>);
-            $('#CLN_BLOQUEIO_FINANCEIRO').prop('checked', <?php echo $cliente->CLN_BLOQUEIO_FINANCEIRO ? 'true' : 'false'; ?>);
-            $('#CLN_EMITIR_NFE').prop('checked', <?php echo $cliente->CLN_EMITIR_NFE ? 'true' : 'false'; ?>);
-            $('#CLN_OBJETIVO_COMERCIAL').val('<?php echo isset($cliente->CLN_OBJETIVO_COMERCIAL) ? $cliente->CLN_OBJETIVO_COMERCIAL : ''; ?>');
+            $('#cln_limite_credito').val('<?php echo number_format($cliente->cln_limite_credito, 2, ',', '.'); ?>');
+            $('#cln_dias_carencia').val('<?php echo $cliente->cln_dias_carencia; ?>');
+            $('#cln_situacao').val('<?php echo $cliente->cln_situacao; ?>');
+            $('#cln_comprar_aprazo').prop('checked', <?php echo $cliente->cln_comprar_aprazo ? 'true' : 'false'; ?>);
+            $('#cln_bloqueio_financeiro').prop('checked', <?php echo $cliente->cln_bloqueio_financeiro ? 'true' : 'false'; ?>);
+            $('#cln_emitir_nfe').prop('checked', <?php echo $cliente->cln_emitir_nfe ? 'true' : 'false'; ?>);
+            $('#cln_objetivo_comercial').val('<?php echo isset($cliente->cln_objetivo_comercial) ? $cliente->cln_objetivo_comercial : ''; ?>');
             $('#secao-financeiro').show();
 
             // Carregar vendedores permitidos
@@ -2020,21 +2020,21 @@
                         success: function (vendedores) {
                             var optionsHtml = '<option value="">Selecione um vendedor</option>';
                             vendedores.forEach(function (v) {
-                                var selected = v.PES_ID == <?php echo $vp->VEN_PES_ID; ?> ? 'selected' : '';
-                                optionsHtml += `<option value="${v.PES_ID}" ${selected}>${v.PES_NOME}</option>`;
+                                var selected = v.pes_id == <?php echo $vp->VEN_PES_ID; ?> ? 'selected' : '';
+                                optionsHtml += `<option value="${v.pes_id}" ${selected}>${v.pes_nome}</option>`;
                             });
 
-                            var checkedAttr = <?php echo $vp->CLV_PADRAO ? 'true' : 'false'; ?> ? 'checked' : '';
+                            var checkedAttr = <?php echo $vp->clv_padrao ? 'true' : 'false'; ?> ? 'checked' : '';
 
                             const vendedorRow = `
                             <div class="vendedor-permitido-row" style="margin-bottom: 8px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
-                                <input type="hidden" name="CLV_ID[]" value="<?php echo $vp->CLV_ID; ?>" />
+                                <input type="hidden" name="clv_id[]" value="<?php echo $vp->clv_id; ?>" />
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <select name="CLV_VEN_PES_ID[]" class="form-control vendedor-select" style="flex: 1; font-size: 12px;">
                                         ${optionsHtml}
                                     </select>
                                     <label class="checkbox" style="margin: 0; white-space: nowrap;">
-                                        <input type="radio" name="CLV_PADRAO" value="<?php echo $vp->VEN_PES_ID; ?>" class="vendedor-padrao-radio" ${checkedAttr} style="margin-right: 3px;" /> 
+                                        <input type="radio" name="clv_padrao" value="<?php echo $vp->VEN_PES_ID; ?>" class="vendedor-padrao-radio" ${checkedAttr} style="margin-right: 3px;" /> 
                                         <small>Padrão</small>
                                     </label>
                                     <button type="button" class="btn btn-mini btn-danger remove-vendedor-permitido" style="width: 25px; height: 25px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -2053,14 +2053,14 @@
         // Carregar dados de vendedor
         <?php if (isset($vendedor) && $vendedor): ?>
             $('#VEN_ENABLE').val('1');
-            $('#VEN_PERCENTUAL_COMISSAO').val('<?php echo number_format($vendedor->VEN_PERCENTUAL_COMISSAO, 2, ',', '.'); ?>');
-            $('#VEN_TIPO_COMISSAO').val('<?php echo $vendedor->VEN_TIPO_COMISSAO; ?>');
-            $('#VEN_META_MENSAL').val('<?php echo number_format($vendedor->VEN_META_MENSAL, 2, ',', '.'); ?>');
+            $('#ven_percentual_comissao').val('<?php echo number_format($vendedor->ven_percentual_comissao, 2, ',', '.'); ?>');
+            $('#ven_tipo_comissao').val('<?php echo $vendedor->ven_tipo_comissao; ?>');
+            $('#ven_meta_mensal').val('<?php echo number_format($vendedor->ven_meta_mensal, 2, ',', '.'); ?>');
             $('#secao-vendedor').show();
         <?php endif; ?>
 
         // Mostrar botão buscar CNPJ se for pessoa jurídica
-        <?php if (isset($result) && $result->PES_FISICO_JURIDICO == 'J'): ?>
+        <?php if (isset($result) && $result->pes_fisico_juridico == 'J'): ?>
             $('#btnBuscarCNPJ').show();
         <?php endif; ?>
     });

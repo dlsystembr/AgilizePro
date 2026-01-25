@@ -57,7 +57,7 @@ class Login extends CI_Controller
                     log_message('debug', 'Login - Email recebido: ' . $email);
                     log_message('debug', 'Login - Senha recebida: ' . $password);
                     // Usar minúsculas para acessar propriedades do objeto
-                    $uss_senha = isset($super_user->uss_senha) ? $super_user->uss_senha : (isset($super_user->USS_SENHA) ? $super_user->USS_SENHA : '');
+                    $uss_senha = isset($super_user->uss_senha) ? $super_user->uss_senha : (isset($super_user->uss_senha) ? $super_user->uss_senha : '');
                     log_message('debug', 'Login - Hash da senha no banco (completo): ' . $uss_senha);
                     log_message('debug', 'Login - Tamanho do hash: ' . strlen($uss_senha));
                     
@@ -100,7 +100,7 @@ class Login extends CI_Controller
                     // Verificar senha
                     if ($senha_verificada) {
                         // Verificar se acesso está expirado
-                        $uss_data_expiracao = isset($super_user->uss_data_expiracao) ? $super_user->uss_data_expiracao : (isset($super_user->USS_DATA_EXPIRACAO) ? $super_user->USS_DATA_EXPIRACAO : null);
+                        $uss_data_expiracao = isset($super_user->uss_data_expiracao) ? $super_user->uss_data_expiracao : (isset($super_user->uss_data_expiracao) ? $super_user->uss_data_expiracao : null);
                         if ($uss_data_expiracao && $this->chk_date($uss_data_expiracao)) {
                             $json = ['result' => false, 'message' => 'A conta do super usuário está expirada.'];
                             echo json_encode($json);
@@ -108,10 +108,10 @@ class Login extends CI_Controller
                         }
                         
                         // Login como super usuário - usar minúsculas
-                        $uss_nome = isset($super_user->uss_nome) ? $super_user->uss_nome : (isset($super_user->USS_NOME) ? $super_user->USS_NOME : '');
-                        $uss_email = isset($super_user->uss_email) ? $super_user->uss_email : (isset($super_user->USS_EMAIL) ? $super_user->USS_EMAIL : '');
-                        $uss_url_image = isset($super_user->uss_url_image_user) ? $super_user->uss_url_image_user : (isset($super_user->USS_URL_IMAGE_USER) ? $super_user->USS_URL_IMAGE_USER : '');
-                        $uss_id = isset($super_user->uss_id) ? $super_user->uss_id : (isset($super_user->USS_ID) ? $super_user->USS_ID : 0);
+                        $uss_nome = isset($super_user->uss_nome) ? $super_user->uss_nome : (isset($super_user->uss_nome) ? $super_user->uss_nome : '');
+                        $uss_email = isset($super_user->uss_email) ? $super_user->uss_email : (isset($super_user->uss_email) ? $super_user->uss_email : '');
+                        $uss_url_image = isset($super_user->uss_url_image_user) ? $super_user->uss_url_image_user : (isset($super_user->uss_url_image_user) ? $super_user->uss_url_image_user : '');
+                        $uss_id = isset($super_user->uss_id) ? $super_user->uss_id : (isset($super_user->uss_id) ? $super_user->uss_id : 0);
                         
                         $session_super_data = [
                             'nome_admin' => $uss_nome,

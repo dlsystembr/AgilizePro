@@ -78,7 +78,7 @@ class Migration_create_base extends CI_Migration
                 'null' => false,
             ],
             'dataCadastro' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'rua' => [
@@ -130,7 +130,7 @@ class Migration_create_base extends CI_Migration
                 'null' => true,
             ],
             'cadastro' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'status' => [
@@ -177,7 +177,7 @@ class Migration_create_base extends CI_Migration
                 'null' => true,
             ],
             'cadastro' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'status' => [
@@ -214,11 +214,11 @@ class Migration_create_base extends CI_Migration
                 'null' => false,
             ],
             'data_vencimento' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => false,
             ],
             'data_pagamento' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'baixado' => [
@@ -316,7 +316,7 @@ class Migration_create_base extends CI_Migration
                 'null' => true,
             ],
             'data' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
         ]);
@@ -398,7 +398,7 @@ class Migration_create_base extends CI_Migration
                 'null' => false,
             ],
             'dataCadastro' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => false,
             ],
             'permissoes_id' => [
@@ -407,7 +407,7 @@ class Migration_create_base extends CI_Migration
                 'null' => false,
             ],
             'dataExpiracao' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
         ]);
@@ -431,7 +431,7 @@ class Migration_create_base extends CI_Migration
                 'auto_increment' => true,
             ],
             'dataGarantia' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'refGarantia' => [
@@ -469,11 +469,11 @@ class Migration_create_base extends CI_Migration
                 'auto_increment' => true,
             ],
             'dataInicial' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'dataFinal' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'garantia' => [
@@ -767,7 +767,7 @@ class Migration_create_base extends CI_Migration
                 'auto_increment' => true,
             ],
             'dataVenda' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'valorTotal' => [
@@ -956,7 +956,7 @@ class Migration_create_base extends CI_Migration
                 'null' => true,
             ],
             'cadastro' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'categoria' => [
@@ -993,7 +993,7 @@ class Migration_create_base extends CI_Migration
                 'null' => true,
             ],
             'cadastro' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'situacao' => [
@@ -1055,7 +1055,7 @@ class Migration_create_base extends CI_Migration
                 'null' => true,
             ],
             'data_fabricacao' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'marcas_id' => [
@@ -1158,7 +1158,7 @@ class Migration_create_base extends CI_Migration
                 'null' => true,
             ],
             'data' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true,
             ],
             'hora' => [

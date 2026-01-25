@@ -100,7 +100,7 @@ class Relatorios extends MY_Controller
                 'Bairro' => 'string',
                 'Cidade' => 'string',
                 'Estado' => 'string',
-                'CEP' => 'string',
+                'cep' => 'string',
             ];
 
             $writer = new XLSXWriter();
@@ -1028,7 +1028,7 @@ class Relatorios extends MY_Controller
 
             $templateProcessor->saveAs($tempFilePath);
             $template = IOFactory::load($tempFilePath);
-            $pdfWriter = IOFactory::createWriter($template, 'PDF');
+            $pdfWriter = IOFactory::createWriter($template, 'pdf');
             $pdfWriter->save($generatedFilePath);
 
             $fileContents = file_get_contents($generatedFilePath);
@@ -1092,7 +1092,7 @@ class Relatorios extends MY_Controller
 
             $templateProcessor->saveAs($tempFilePath);
             $template = IOFactory::load($tempFilePath);
-            $pdfWriter = IOFactory::createWriter($template, 'PDF');
+            $pdfWriter = IOFactory::createWriter($template, 'pdf');
             $pdfWriter->save($generatedFilePath);
 
             $fileContents = file_get_contents($generatedFilePath);
@@ -1204,7 +1204,7 @@ class Relatorios extends MY_Controller
                 }, $all_nfe);
 
                 $cabecalho = [
-                    'ID' => 'integer',
+                    'id' => 'integer',
                     'Data Emissão' => 'string',
                     'Número NFe' => 'string',
                     'Chave NFe' => 'string',
@@ -1378,7 +1378,7 @@ class Relatorios extends MY_Controller
         $this->excel->getActiveSheet()->setTitle('NF-e Emitidas');
         
         // Cabeçalho
-        $this->excel->getActiveSheet()->setCellValue('A1', 'ID');
+        $this->excel->getActiveSheet()->setCellValue('A1', 'id');
         $this->excel->getActiveSheet()->setCellValue('B1', 'Data Emissão');
         $this->excel->getActiveSheet()->setCellValue('C1', 'Número NFe');
         $this->excel->getActiveSheet()->setCellValue('D1', 'Chave NFe');
@@ -1547,5 +1547,272 @@ class Relatorios extends MY_Controller
             $this->session->set_flashdata('error', 'Erro ao criar arquivo ZIP. Verifique as permissões do diretório: ' . $tempDir);
             redirect('relatorios/nfe_emitidas');
         }
+    }
+
+    public function contratos()
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para gerar relatórios de contratos.');
+            redirect(base_url());
+        }
+        $this->data['view'] = 'relatorios/rel_contratos';
+
+        return $this->layout();
+    }
+
+    public function contratosRapid()
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para gerar relatórios de contratos.');
+            redirect(base_url());
+        }
+
+        $format = $this->input->get('format');
+        $isXls = $format === 'xls';
+        $contratos = $this->Relatorios_model->contratosRapid($isXls);
+
+        if ($isXls) {
+            $contratosFormatados = array_map(function ($item) {
+                $tiposAssinante = [
+                    '1' => 'Comercial',
+                    '2' => 'Industrial',
+                    '3' => 'Residencial/PF',
+                    '4' => 'Produtor Rural',
+                    '5' => 'Orgão Público Estadual',
+                    '6' => 'Prestador de Telecom',
+                    '7' => 'Missões Diplomáticas',
+                    '8' => 'Igrejas e Templos',
+                    '99' => 'Outros'
+                ];
+
+                return [
+                    'numero' => $item['ctr_numero'],
+                    'cliente' => $item['pes_nome'] ?: $item['pes_razao_social'] ?: '-',
+                    'cpf_cnpj' => $item['pes_cpfcnpj'] ?: '-',
+                    'data_inicio' => $item['ctr_data_inicio'] ? date('d/m/Y', strtotime($item['ctr_data_inicio'])) : '-',
+                    'data_fim' => $item['ctr_data_fim'] ? date('d/m/Y', strtotime($item['ctr_data_fim'])) : '-',
+                    'tipo_assinante' => $tiposAssinante[$item['ctr_tipo_assinante']] ?? '-',
+                    'situacao' => (int)$item['ctr_situacao'] === 1 ? 'Ativo' : 'Inativo',
+                    'data_cadastro' => $item['ctr_data_cadastro'] ? date('d/m/Y H:i', strtotime($item['ctr_data_cadastro'])) : '-',
+                ];
+            }, $contratos);
+
+            $cabecalho = [
+                'Número' => 'string',
+                'Cliente' => 'string',
+                'CPF/CNPJ' => 'string',
+                'Data Início' => 'string',
+                'Data Fim' => 'string',
+                'Tipo Assinante' => 'string',
+                'Situação' => 'string',
+                'Data Cadastro' => 'string',
+            ];
+
+            $writer = new XLSXWriter();
+            $writer->writeSheetHeader('Sheet1', $cabecalho);
+            foreach ($contratosFormatados as $contrato) {
+                $writer->writeSheetRow('Sheet1', $contrato);
+            }
+
+            $arquivo = $writer->writeToString();
+            $this->load->helper('download');
+            force_download('relatorio_contratos.xlsx', $arquivo);
+
+            return;
+        }
+
+        $data['contratos'] = $contratos;
+        
+        // Buscar dados da empresa (tabela empresas) como na NFCom
+        $this->load->model('Nfe_model');
+        $emit = $this->Nfe_model->getEmit();
+        
+        // Buscar email diretamente da tabela empresas
+        $this->db->select('emp_email');
+        $this->db->from('empresas');
+        $this->db->limit(1);
+        $empresaEmail = $this->db->get()->row();
+        $email = $empresaEmail ? $empresaEmail->emp_email : '';
+        
+        // Converter array para objeto para compatibilidade com a view
+        $emitente = null;
+        if ($emit) {
+            $emitente = new stdClass();
+            $emitente->nome = $emit['xNome'] ?? '';
+            $emitente->cnpj = $emit['cnpj'] ?? '';
+            $emitente->telefone = isset($emit['enderEmit']['fone']) ? $emit['enderEmit']['fone'] : '';
+            $emitente->email = $email;
+            $emitente->rua = isset($emit['enderEmit']['xLgr']) ? $emit['enderEmit']['xLgr'] : '';
+            $emitente->numero = isset($emit['enderEmit']['nro']) ? $emit['enderEmit']['nro'] : '';
+            $emitente->bairro = isset($emit['enderEmit']['xBairro']) ? $emit['enderEmit']['xBairro'] : '';
+            $emitente->cidade = isset($emit['enderEmit']['xMun']) ? $emit['enderEmit']['xMun'] : '';
+            $emitente->uf = isset($emit['enderEmit']['uf']) ? $emit['enderEmit']['uf'] : '';
+            $emitente->cep = isset($emit['enderEmit']['cep']) ? $emit['enderEmit']['cep'] : '';
+            $emitente->url_logo = $emit['url_logo'] ?? '';
+        }
+        
+        $data['emitente'] = $emitente;
+        $data['title'] = 'Relatório de Contratos';
+        
+        // Garantir que o topo seja sempre gerado
+        $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
+
+        $this->load->helper('mpdf');
+        $html = $this->load->view('relatorios/imprimir/imprimirContratos', $data, true);
+        pdf_create($html, 'relatorio_contratos_' . date('d/m/y'), true, true); // true = landscape
+    }
+
+    public function contratosCustom()
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para gerar relatórios de contratos.');
+            redirect(base_url());
+        }
+
+        $dataInicial = $this->input->get('dataInicial');
+        $dataFinal = $this->input->get('dataFinal');
+        $cliente = $this->input->get('cliente');
+        $tipoAssinante = $this->input->get('tipoAssinante');
+        $situacao = $this->input->get('situacao');
+        $format = $this->input->get('format');
+        $incluirItens = $this->input->get('incluirItens') == '1';
+
+        $isXls = $format === 'xls';
+        $contratos = $this->Relatorios_model->contratosCustom($dataInicial, $dataFinal, $cliente, $tipoAssinante, $situacao, $isXls);
+
+        // Buscar itens se solicitado
+        $itensContratos = [];
+        if ($incluirItens) {
+            foreach ($contratos as $contrato) {
+                $contratoId = $isXls ? $contrato['ctr_id'] : $contrato->ctr_id;
+                $itensContratos[$contratoId] = $this->Relatorios_model->getItensContrato($contratoId);
+            }
+        }
+
+        if ($isXls) {
+            $contratosFormatados = array_map(function ($item) {
+                $tiposAssinante = [
+                    '1' => 'Comercial',
+                    '2' => 'Industrial',
+                    '3' => 'Residencial/PF',
+                    '4' => 'Produtor Rural',
+                    '5' => 'Orgão Público Estadual',
+                    '6' => 'Prestador de Telecom',
+                    '7' => 'Missões Diplomáticas',
+                    '8' => 'Igrejas e Templos',
+                    '99' => 'Outros'
+                ];
+
+                return [
+                    'numero' => $item['ctr_numero'],
+                    'cliente' => $item['pes_nome'] ?: $item['pes_razao_social'] ?: '-',
+                    'cpf_cnpj' => $item['pes_cpfcnpj'] ?: '-',
+                    'data_inicio' => $item['ctr_data_inicio'] ? date('d/m/Y', strtotime($item['ctr_data_inicio'])) : '-',
+                    'data_fim' => $item['ctr_data_fim'] ? date('d/m/Y', strtotime($item['ctr_data_fim'])) : '-',
+                    'tipo_assinante' => $tiposAssinante[$item['ctr_tipo_assinante']] ?? '-',
+                    'situacao' => (int)$item['ctr_situacao'] === 1 ? 'Ativo' : 'Inativo',
+                    'data_cadastro' => $item['ctr_data_cadastro'] ? date('d/m/Y H:i', strtotime($item['ctr_data_cadastro'])) : '-',
+                ];
+            }, $contratos);
+
+            $cabecalho = [
+                'Número' => 'string',
+                'Cliente' => 'string',
+                'CPF/CNPJ' => 'string',
+                'Data Início' => 'string',
+                'Data Fim' => 'string',
+                'Tipo Assinante' => 'string',
+                'Situação' => 'string',
+                'Data Cadastro' => 'string',
+            ];
+
+            $writer = new XLSXWriter();
+            $writer->writeSheetHeader('Sheet1', $cabecalho);
+            foreach ($contratosFormatados as $contrato) {
+                $writer->writeSheetRow('Sheet1', $contrato);
+            }
+
+            // Se incluir itens, adicionar em outra aba
+            if ($incluirItens && !empty($itensContratos)) {
+                $cabecalhoItens = [
+                    'Contrato' => 'string',
+                    'Serviço' => 'string',
+                    'Quantidade' => 'number',
+                    'Preço Unitário' => 'price',
+                    'Preço Total' => 'price',
+                    'Ativo' => 'string',
+                ];
+
+                $writer->writeSheetHeader('Itens', $cabecalhoItens);
+                foreach ($itensContratos as $contratoId => $itens) {
+                    $contratoNumero = '';
+                    foreach ($contratos as $c) {
+                        if (($isXls ? $c['ctr_id'] : $c->ctr_id) == $contratoId) {
+                            $contratoNumero = $isXls ? $c['ctr_numero'] : $c->ctr_numero;
+                            break;
+                        }
+                    }
+                    
+                    foreach ($itens as $item) {
+                        $writer->writeSheetRow('Itens', [
+                            'numero' => $contratoNumero,
+                            'servico' => $item->pro_descricao ?: '-',
+                            'quantidade' => floatval($item->cti_quantidade),
+                            'preco_unitario' => floatval($item->cti_preco),
+                            'preco_total' => floatval($item->cti_preco) * floatval($item->cti_quantidade),
+                            'ativo' => (int)$item->cti_ativo === 1 ? 'Sim' : 'Não',
+                        ]);
+                    }
+                }
+            }
+
+            $arquivo = $writer->writeToString();
+            $this->load->helper('download');
+            force_download('relatorio_contratos_custom.xlsx', $arquivo);
+
+            return;
+        }
+
+        $data['contratos'] = $contratos;
+        $data['itensContratos'] = $incluirItens ? $itensContratos : [];
+        $data['incluirItens'] = $incluirItens;
+        
+        // Buscar dados da empresa (tabela empresas) como na NFCom
+        $this->load->model('Nfe_model');
+        $emit = $this->Nfe_model->getEmit();
+        
+        // Buscar email diretamente da tabela empresas
+        $this->db->select('emp_email');
+        $this->db->from('empresas');
+        $this->db->limit(1);
+        $empresaEmail = $this->db->get()->row();
+        $email = $empresaEmail ? $empresaEmail->emp_email : '';
+        
+        // Converter array para objeto para compatibilidade com a view
+        $emitente = null;
+        if ($emit) {
+            $emitente = new stdClass();
+            $emitente->nome = $emit['xNome'] ?? '';
+            $emitente->cnpj = $emit['cnpj'] ?? '';
+            $emitente->telefone = isset($emit['enderEmit']['fone']) ? $emit['enderEmit']['fone'] : '';
+            $emitente->email = $email;
+            $emitente->rua = isset($emit['enderEmit']['xLgr']) ? $emit['enderEmit']['xLgr'] : '';
+            $emitente->numero = isset($emit['enderEmit']['nro']) ? $emit['enderEmit']['nro'] : '';
+            $emitente->bairro = isset($emit['enderEmit']['xBairro']) ? $emit['enderEmit']['xBairro'] : '';
+            $emitente->cidade = isset($emit['enderEmit']['xMun']) ? $emit['enderEmit']['xMun'] : '';
+            $emitente->uf = isset($emit['enderEmit']['uf']) ? $emit['enderEmit']['uf'] : '';
+            $emitente->cep = isset($emit['enderEmit']['cep']) ? $emit['enderEmit']['cep'] : '';
+            $emitente->url_logo = $emit['url_logo'] ?? '';
+        }
+        
+        $data['emitente'] = $emitente;
+        $data['title'] = 'Relatório de Contratos Customizado';
+        $data['dataInicial'] = $dataInicial ? date('d/m/Y', strtotime($dataInicial)) : 'indefinida';
+        $data['dataFinal'] = $dataFinal ? date('d/m/Y', strtotime($dataFinal)) : 'indefinida';
+        $data['topo'] = $this->load->view('relatorios/imprimir/imprimirTopo', $data, true);
+
+        $this->load->helper('mpdf');
+        $html = $this->load->view('relatorios/imprimir/imprimirContratos', $data, true);
+        pdf_create($html, 'relatorio_contratos_' . date('d/m/y'), true, true); // true = landscape
     }
 }

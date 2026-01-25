@@ -54,10 +54,10 @@ class Contratos extends MY_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('PES_ID', 'Cliente', 'required|trim');
-        $this->form_validation->set_rules('CTR_NUMERO', 'Número do Contrato', 'required|trim|is_unique[contratos.CTR_NUMERO]');
-        $this->form_validation->set_rules('CTR_DATA_INICIO', 'Data de Início', 'required|trim');
-        $this->form_validation->set_rules('CTR_TIPO_ASSINANTE', 'Tipo de Assinante', 'required|in_list[1,2,3,4,5,6,7,8,99]');
+        $this->form_validation->set_rules('pes_id', 'Cliente', 'required|trim');
+        $this->form_validation->set_rules('ctr_numero', 'Número do Contrato', 'required|trim|is_unique[contratos.ctr_numero]');
+        $this->form_validation->set_rules('ctr_data_inicio', 'Data de Início', 'required|trim');
+        $this->form_validation->set_rules('ctr_tipo_assinante', 'Tipo de Assinante', 'required|in_list[1,2,3,4,5,6,7,8,99]');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
@@ -65,7 +65,7 @@ class Contratos extends MY_Controller
             $anexo = null;
             
             // Processar upload de anexo
-            if (!empty($_FILES['CTR_ANEXO']['name'])) {
+            if (!empty($_FILES['ctr_anexo']['name'])) {
                 $config['upload_path'] = './uploads/contratos/';
                 $config['allowed_types'] = 'pdf|jpg|jpeg|png';
                 $config['max_size'] = 5120; // 5MB
@@ -78,7 +78,7 @@ class Contratos extends MY_Controller
 
                 $this->load->library('upload', $config);
 
-                if ($this->upload->do_upload('CTR_ANEXO')) {
+                if ($this->upload->do_upload('ctr_anexo')) {
                     $upload_data = $this->upload->data();
                     $anexo = 'uploads/contratos/' . $upload_data['file_name'];
                 } else {
@@ -88,8 +88,8 @@ class Contratos extends MY_Controller
 
             if (!$this->data['custom_error']) {
                 // Converter datas do formato brasileiro para o formato do banco
-                $dataInicio = $this->input->post('CTR_DATA_INICIO');
-                $dataFim = $this->input->post('CTR_DATA_FIM');
+                $dataInicio = $this->input->post('ctr_data_inicio');
+                $dataFim = $this->input->post('ctr_data_fim');
                 
                 if ($dataInicio) {
                     $dataInicio = DateTime::createFromFormat('d/m/Y', $dataInicio);
@@ -102,15 +102,15 @@ class Contratos extends MY_Controller
                 }
                 
                 $data = [
-                    'PES_ID' => $this->input->post('PES_ID'),
-                    'CTR_NUMERO' => $this->input->post('CTR_NUMERO'),
-                    'CTR_DATA_INICIO' => $dataInicio,
-                    'CTR_DATA_FIM' => $dataFim,
-                    'CTR_TIPO_ASSINANTE' => $this->input->post('CTR_TIPO_ASSINANTE'),
-                    'CTR_ANEXO' => $anexo,
-                    'CTR_OBSERVACAO' => $this->input->post('CTR_OBSERVACAO'),
-                    'CTR_SITUACAO' => $this->input->post('CTR_SITUACAO') !== null ? (int) $this->input->post('CTR_SITUACAO') : 1,
-                    'CTR_DATA_CADASTRO' => date('Y-m-d H:i:s'),
+                    'pes_id' => $this->input->post('pes_id'),
+                    'ctr_numero' => $this->input->post('ctr_numero'),
+                    'ctr_data_inicio' => $dataInicio,
+                    'ctr_data_fim' => $dataFim,
+                    'ctr_tipo_assinante' => $this->input->post('ctr_tipo_assinante'),
+                    'ctr_anexo' => $anexo,
+                    'ctr_observacao' => $this->input->post('ctr_observacao'),
+                    'ctr_situacao' => $this->input->post('ctr_situacao') !== null ? (int) $this->input->post('ctr_situacao') : 1,
+                    'ctr_data_cadastro' => date('Y-m-d H:i:s'),
                 ];
 
                 if ($this->Contratos_model->add('contratos', $data)) {
@@ -120,14 +120,14 @@ class Contratos extends MY_Controller
                     $itens = $this->input->post('itens');
                     if (!empty($itens) && is_array($itens)) {
                         foreach ($itens as $item) {
-                            if (!empty($item['PRO_ID']) && !empty($item['CTI_PRECO'])) {
+                            if (!empty($item['pro_id']) && !empty($item['cti_preco'])) {
                                 $itemData = [
-                                    'CTR_ID' => $contratoId,
-                                    'PRO_ID' => $item['PRO_ID'],
-                                    'CTI_PRECO' => str_replace(',', '.', $item['CTI_PRECO']),
-                                    'CTI_QUANTIDADE' => !empty($item['CTI_QUANTIDADE']) ? str_replace(',', '.', $item['CTI_QUANTIDADE']) : 1.0000,
-                                    'CTI_OBSERVACAO' => !empty($item['CTI_OBSERVACAO']) ? $item['CTI_OBSERVACAO'] : null,
-                                    'CTI_ATIVO' => 1
+                                    'ctr_id' => $contratoId,
+                                    'pro_id' => $item['pro_id'],
+                                    'cti_preco' => str_replace(',', '.', $item['cti_preco']),
+                                    'cti_quantidade' => !empty($item['cti_quantidade']) ? str_replace(',', '.', $item['cti_quantidade']) : 1.0000,
+                                    'cti_observacao' => !empty($item['cti_observacao']) ? $item['cti_observacao'] : null,
+                                    'cti_ativo' => 1
                                 ];
                                 $this->Contratos_model->addItem($itemData);
                             }
@@ -163,19 +163,19 @@ class Contratos extends MY_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('PES_ID', 'Cliente', 'required|trim');
-        $this->form_validation->set_rules('CTR_NUMERO', 'Número do Contrato', 'required|trim');
-        $this->form_validation->set_rules('CTR_DATA_INICIO', 'Data de Início', 'required|trim');
-        $this->form_validation->set_rules('CTR_TIPO_ASSINANTE', 'Tipo de Assinante', 'required|in_list[1,2,3,4,5,6,7,8,99]');
+        $this->form_validation->set_rules('pes_id', 'Cliente', 'required|trim');
+        $this->form_validation->set_rules('ctr_numero', 'Número do Contrato', 'required|trim');
+        $this->form_validation->set_rules('ctr_data_inicio', 'Data de Início', 'required|trim');
+        $this->form_validation->set_rules('ctr_tipo_assinante', 'Tipo de Assinante', 'required|in_list[1,2,3,4,5,6,7,8,99]');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $contrato = $this->Contratos_model->getById($id);
-            $anexo = $contrato->CTR_ANEXO;
+            $anexo = $contrato->ctr_anexo;
             
             // Processar upload de novo anexo
-            if (!empty($_FILES['CTR_ANEXO']['name'])) {
+            if (!empty($_FILES['ctr_anexo']['name'])) {
                 $config['upload_path'] = './uploads/contratos/';
                 $config['allowed_types'] = 'pdf|jpg|jpeg|png';
                 $config['max_size'] = 5120; // 5MB
@@ -187,7 +187,7 @@ class Contratos extends MY_Controller
 
                 $this->load->library('upload', $config);
 
-                if ($this->upload->do_upload('CTR_ANEXO')) {
+                if ($this->upload->do_upload('ctr_anexo')) {
                     // Remover anexo antigo
                     if ($anexo && file_exists($anexo)) {
                         unlink($anexo);
@@ -201,8 +201,8 @@ class Contratos extends MY_Controller
 
             if (!$this->data['custom_error']) {
                 // Converter datas do formato brasileiro para o formato do banco
-                $dataInicio = $this->input->post('CTR_DATA_INICIO');
-                $dataFim = $this->input->post('CTR_DATA_FIM');
+                $dataInicio = $this->input->post('ctr_data_inicio');
+                $dataFim = $this->input->post('ctr_data_fim');
                 
                 if ($dataInicio) {
                     $dataInicio = DateTime::createFromFormat('d/m/Y', $dataInicio);
@@ -215,18 +215,18 @@ class Contratos extends MY_Controller
                 }
                 
                 $data = [
-                    'PES_ID' => $this->input->post('PES_ID'),
-                    'CTR_NUMERO' => $this->input->post('CTR_NUMERO'),
-                    'CTR_DATA_INICIO' => $dataInicio,
-                    'CTR_DATA_FIM' => $dataFim,
-                    'CTR_TIPO_ASSINANTE' => $this->input->post('CTR_TIPO_ASSINANTE'),
-                    'CTR_ANEXO' => $anexo,
-                    'CTR_OBSERVACAO' => $this->input->post('CTR_OBSERVACAO'),
-                    'CTR_SITUACAO' => $this->input->post('CTR_SITUACAO') !== null ? (int) $this->input->post('CTR_SITUACAO') : 1,
-                    'CTR_DATA_ALTERACAO' => date('Y-m-d H:i:s'),
+                    'pes_id' => $this->input->post('pes_id'),
+                    'ctr_numero' => $this->input->post('ctr_numero'),
+                    'ctr_data_inicio' => $dataInicio,
+                    'ctr_data_fim' => $dataFim,
+                    'ctr_tipo_assinante' => $this->input->post('ctr_tipo_assinante'),
+                    'ctr_anexo' => $anexo,
+                    'ctr_observacao' => $this->input->post('ctr_observacao'),
+                    'ctr_situacao' => $this->input->post('ctr_situacao') !== null ? (int) $this->input->post('ctr_situacao') : 1,
+                    'ctr_data_alteracao' => date('Y-m-d H:i:s'),
                 ];
 
-                if ($this->Contratos_model->edit('contratos', $data, 'CTR_ID', $id)) {
+                if ($this->Contratos_model->edit('contratos', $data, 'ctr_id', $id)) {
                     // Processar itens do contrato
                     $itens = $this->input->post('itens');
                     $itensExistentes = $this->input->post('itens_existentes'); // IDs dos itens que devem ser mantidos
@@ -240,34 +240,34 @@ class Contratos extends MY_Controller
                     
                     if (!empty($itens) && is_array($itens)) {
                         foreach ($itens as $index => $item) {
-                            // Validar se tem PRO_ID e CTI_PRECO
-                            if (!empty($item['PRO_ID']) && isset($item['CTI_PRECO']) && trim($item['CTI_PRECO']) !== '') {
+                            // Validar se tem pro_id e cti_preco
+                            if (!empty($item['pro_id']) && isset($item['cti_preco']) && trim($item['cti_preco']) !== '') {
                                 $itemData = [
-                                    'CTR_ID' => $id,
-                                    'PRO_ID' => $item['PRO_ID'],
-                                    'CTI_PRECO' => str_replace(',', '.', $item['CTI_PRECO']),
-                                    'CTI_QUANTIDADE' => !empty($item['CTI_QUANTIDADE']) ? str_replace(',', '.', $item['CTI_QUANTIDADE']) : 1.0000,
-                                    'CTI_OBSERVACAO' => !empty($item['CTI_OBSERVACAO']) ? $item['CTI_OBSERVACAO'] : null,
-                                    'CTI_ATIVO' => isset($item['CTI_ATIVO']) ? (int)$item['CTI_ATIVO'] : 1
+                                    'ctr_id' => $id,
+                                    'pro_id' => $item['pro_id'],
+                                    'cti_preco' => str_replace(',', '.', $item['cti_preco']),
+                                    'cti_quantidade' => !empty($item['cti_quantidade']) ? str_replace(',', '.', $item['cti_quantidade']) : 1.0000,
+                                    'cti_observacao' => !empty($item['cti_observacao']) ? $item['cti_observacao'] : null,
+                                    'cti_ativo' => isset($item['cti_ativo']) ? (int)$item['cti_ativo'] : 1
                                 ];
                                 
-                                // Se tem CTI_ID, é atualização
-                                if (!empty($item['CTI_ID'])) {
-                                    $this->Contratos_model->updateItem($item['CTI_ID'], $itemData);
-                                    $itensIdsForm[] = $item['CTI_ID'];
-                                    log_message('debug', 'Item atualizado: CTI_ID=' . $item['CTI_ID']);
+                                // Se tem cti_id, é atualização
+                                if (!empty($item['cti_id'])) {
+                                    $this->Contratos_model->updateItem($item['cti_id'], $itemData);
+                                    $itensIdsForm[] = $item['cti_id'];
+                                    log_message('debug', 'Item atualizado: cti_id=' . $item['cti_id']);
                                 } else {
                                     // É novo item
                                     $resultado = $this->Contratos_model->addItem($itemData);
                                     if ($resultado) {
                                         $itensIdsForm[] = $resultado; // Adicionar o ID do novo item
-                                        log_message('debug', 'Novo item adicionado: CTI_ID=' . $resultado);
+                                        log_message('debug', 'Novo item adicionado: cti_id=' . $resultado);
                                     } else {
                                         log_message('error', 'Erro ao adicionar novo item');
                                     }
                                 }
                             } else {
-                                log_message('debug', 'Item ignorado - PRO_ID ou CTI_PRECO vazio: ' . print_r($item, true));
+                                log_message('debug', 'Item ignorado - pro_id ou cti_preco vazio: ' . print_r($item, true));
                             }
                         }
                     } else {
@@ -277,9 +277,9 @@ class Contratos extends MY_Controller
                     // Remover itens que não vieram no formulário
                     $itensAtuais = $this->Contratos_model->getItensByContratoId($id);
                     foreach ($itensAtuais as $itemAtual) {
-                        if (!in_array($itemAtual->CTI_ID, $itensIdsForm)) {
-                            $this->Contratos_model->deleteItem($itemAtual->CTI_ID);
-                            log_message('debug', 'Item removido: CTI_ID=' . $itemAtual->CTI_ID);
+                        if (!in_array($itemAtual->cti_id, $itensIdsForm)) {
+                            $this->Contratos_model->deleteItem($itemAtual->cti_id);
+                            log_message('debug', 'Item removido: cti_id=' . $itemAtual->cti_id);
                         }
                     }
                     
@@ -354,11 +354,11 @@ class Contratos extends MY_Controller
         }
 
         // Remover anexo se existir
-        if ($contrato->CTR_ANEXO && file_exists($contrato->CTR_ANEXO)) {
-            unlink($contrato->CTR_ANEXO);
+        if ($contrato->ctr_anexo && file_exists($contrato->ctr_anexo)) {
+            unlink($contrato->ctr_anexo);
         }
 
-        if ($this->Contratos_model->delete('contratos', 'CTR_ID', $id)) {
+        if ($this->Contratos_model->delete('contratos', 'ctr_id', $id)) {
             $this->session->set_flashdata('success', 'Contrato excluído com sucesso!');
             log_info('Excluiu um contrato. ID ' . $id);
         } else {
@@ -382,18 +382,18 @@ class Contratos extends MY_Controller
 
         $contrato = $this->Contratos_model->getById($id);
         
-        if (!$contrato || !$contrato->CTR_ANEXO) {
+        if (!$contrato || !$contrato->ctr_anexo) {
             $this->session->set_flashdata('error', 'Anexo não encontrado.');
             redirect(base_url('index.php/contratos/visualizar/' . $id));
         }
 
-        if (!file_exists($contrato->CTR_ANEXO)) {
+        if (!file_exists($contrato->ctr_anexo)) {
             $this->session->set_flashdata('error', 'Arquivo não encontrado.');
             redirect(base_url('index.php/contratos/visualizar/' . $id));
         }
 
         $this->load->helper('download');
-        force_download($contrato->CTR_ANEXO, null);
+        force_download($contrato->ctr_anexo, null);
     }
 
     public function buscarCliente()
@@ -405,33 +405,33 @@ class Contratos extends MY_Controller
             return;
         }
 
-        $this->db->select('PES_ID, PES_NOME, PES_RAZAO_SOCIAL, PES_CPFCNPJ');
+        $this->db->select('pes_id, pes_nome, pes_razao_social, pes_cpfcnpj');
         $this->db->from('pessoas');
         $this->db->group_start();
-        $this->db->like('PES_NOME', $termo);
-        $this->db->or_like('PES_RAZAO_SOCIAL', $termo);
-        $this->db->or_like('PES_CPFCNPJ', $termo);
+        $this->db->like('pes_nome', $termo);
+        $this->db->or_like('pes_razao_social', $termo);
+        $this->db->or_like('pes_cpfcnpj', $termo);
         $this->db->group_end();
-        $this->db->where('PES_SITUACAO', 1);
+        $this->db->where('pes_situacao', 1);
         $this->db->limit(10);
         
         $pessoas = $this->db->get()->result();
         
         $resultado = [];
         foreach ($pessoas as $pessoa) {
-            $label = $pessoa->PES_NOME;
-            if ($pessoa->PES_RAZAO_SOCIAL) {
-                $label .= ' (' . $pessoa->PES_RAZAO_SOCIAL . ')';
+            $label = $pessoa->pes_nome;
+            if ($pessoa->pes_razao_social) {
+                $label .= ' (' . $pessoa->pes_razao_social . ')';
             }
-            $label .= ' - ' . $pessoa->PES_CPFCNPJ;
+            $label .= ' - ' . $pessoa->pes_cpfcnpj;
             
             $resultado[] = [
-                'id' => $pessoa->PES_ID,
+                'id' => $pessoa->pes_id,
                 'label' => $label,
-                'value' => $pessoa->PES_NOME,
-                'nome' => $pessoa->PES_NOME,
-                'razao_social' => $pessoa->PES_RAZAO_SOCIAL,
-                'cpfcnpj' => $pessoa->PES_CPFCNPJ
+                'value' => $pessoa->pes_nome,
+                'nome' => $pessoa->pes_nome,
+                'razao_social' => $pessoa->pes_razao_social,
+                'cpfcnpj' => $pessoa->pes_cpfcnpj
             ];
         }
         
@@ -452,18 +452,18 @@ class Contratos extends MY_Controller
 
         // Descobrir a chave primária da tabela produtos
         $primary_key_query = $this->db->query("SHOW KEYS FROM produtos WHERE Key_name = 'PRIMARY'");
-        $primary_key = 'PRO_ID';
+        $primary_key = 'pro_id';
         if ($primary_key_query->num_rows() > 0) {
             $key_info = $primary_key_query->row();
             $primary_key = $key_info->Column_name;
         }
 
-        $this->db->select("$primary_key as id, PRO_DESCRICAO as label, PRO_DESCRICAO as value, PRO_PRECO_VENDA as preco");
+        $this->db->select("$primary_key as id, pro_descricao as label, pro_descricao as value, pro_preco_venda as preco");
         $this->db->from('produtos');
         $this->db->where('pro_tipo', 2); // Serviços
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
-        $this->db->like('PRO_DESCRICAO', $termo);
-        $this->db->order_by('PRO_DESCRICAO', 'asc');
+        $this->db->like('pro_descricao', $termo);
+        $this->db->order_by('pro_descricao', 'asc');
         $this->db->limit(20);
         
         $servicos = $this->db->get()->result();

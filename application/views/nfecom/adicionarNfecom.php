@@ -385,8 +385,8 @@
                                                     <select name="opc_id" id="opc_id" required style="width: 100%;">
                                                         <option value="">Selecione uma operação...</option>
                                                         <?php foreach ($operacoes as $index => $op): ?>
-                                                            <option value="<?php echo $op->OPC_ID; ?>" <?php echo ((isset($_POST['opc_id']) && $_POST['opc_id'] == $op->OPC_ID) || (!isset($_POST['opc_id']) && $index === 0)) ? 'selected' : ''; ?>>
-                                                                <?php echo $op->OPC_NOME; ?>
+                                                            <option value="<?php echo $op->opc_id; ?>" <?php echo ((isset($_POST['opc_id']) && $_POST['opc_id'] == $op->opc_id) || (!isset($_POST['opc_id']) && $index === 0)) ? 'selected' : ''; ?>>
+                                                                <?php echo $op->opc_nome; ?>
                                                             </option>
                                                         <?php endforeach; ?>
                                                     </select>
@@ -999,9 +999,9 @@
                             console.log('✅ Apenas 1 contrato encontrado, preenchendo automaticamente...');
                             var contrato = contratos[0];
                             preencherDadosContrato(contrato);
-                            $('#codigoContrato').val(contrato.CTR_NUMERO);
-                            $('#contratoId').val(contrato.CTR_ID);
-                            buscarServicosContrato(contrato.CTR_ID);
+                            $('#codigoContrato').val(contrato.ctr_numero);
+                            $('#contratoId').val(contrato.ctr_id);
+                            buscarServicosContrato(contrato.ctr_id);
                         }
                     },
                     error: function(xhr, status, error) {
@@ -1052,7 +1052,7 @@
                             console.log('🏠 Endereço processado:', endereco.id, endereco.enderecoCompleto, 'Padrão:', endereco.enderecoPadrao);
                             options += '<option value="' + endereco.id + '" data-endereco="' + JSON.stringify(endereco).replace(/"/g, '&quot;') + '">' + endereco.enderecoCompleto + '</option>';
 
-                            // Identificar endereço padrão (END_PADRAO = 1)
+                            // Identificar endereço padrão (end_padrao = 1)
                             if (endereco.enderecoPadrao == 1 && !enderecoPadrao) {
                                 enderecoPadrao = endereco;
                                 console.log('🎯 Endereço padrão encontrado:', enderecoPadrao);
@@ -1100,24 +1100,24 @@
         function preencherDadosContrato(contrato) {
             console.log('📝 Preenchendo dados do contrato:', contrato);
             
-            if (contrato.CTR_NUMERO) {
-                $('#numeroContrato').val(contrato.CTR_NUMERO);
+            if (contrato.ctr_numero) {
+                $('#numeroContrato').val(contrato.ctr_numero);
             }
             
-            if (contrato.CTR_DATA_INICIO) {
-                $('#dataContratoIni').val(contrato.CTR_DATA_INICIO);
+            if (contrato.ctr_data_inicio) {
+                $('#dataContratoIni').val(contrato.ctr_data_inicio);
             }
             
-            if (contrato.CTR_DATA_FIM) {
-                $('#dataContratoFim').val(contrato.CTR_DATA_FIM);
+            if (contrato.ctr_data_fim) {
+                $('#dataContratoFim').val(contrato.ctr_data_fim);
             }
             
-            if (contrato.CTR_OBSERVACAO) {
-                $('#observacoes').val(contrato.CTR_OBSERVACAO);
+            if (contrato.ctr_observacao) {
+                $('#observacoes').val(contrato.ctr_observacao);
             }
             
-            if (contrato.CTR_TIPO_ASSINANTE) {
-                $('#tpAssinante').val(contrato.CTR_TIPO_ASSINANTE);
+            if (contrato.ctr_tipo_assinante) {
+                $('#tpAssinante').val(contrato.ctr_tipo_assinante);
             }
             
             console.log('✅ Dados do contrato preenchidos com sucesso');
@@ -1145,50 +1145,50 @@
                 event.preventDefault();
                 
                 // Preencher dados do contrato
-                $('#codigoContrato').val(ui.item.CTR_NUMERO);
-                $('#contratoId').val(ui.item.CTR_ID);
-                $('#numeroContrato').val(ui.item.CTR_NUMERO);
+                $('#codigoContrato').val(ui.item.ctr_numero);
+                $('#contratoId').val(ui.item.ctr_id);
+                $('#numeroContrato').val(ui.item.ctr_numero);
                 
-                if (ui.item.CTR_DATA_INICIO) {
-                    $('#dataContratoIni').val(ui.item.CTR_DATA_INICIO);
+                if (ui.item.ctr_data_inicio) {
+                    $('#dataContratoIni').val(ui.item.ctr_data_inicio);
                 }
-                if (ui.item.CTR_DATA_FIM) {
-                    $('#dataContratoFim').val(ui.item.CTR_DATA_FIM);
+                if (ui.item.ctr_data_fim) {
+                    $('#dataContratoFim').val(ui.item.ctr_data_fim);
                 }
-                if (ui.item.CTR_OBSERVACAO) {
-                    $('#observacoes').val(ui.item.CTR_OBSERVACAO);
+                if (ui.item.ctr_observacao) {
+                    $('#observacoes').val(ui.item.ctr_observacao);
                 }
-                if (ui.item.CTR_TIPO_ASSINANTE) {
-                    $('#tpAssinante').val(ui.item.CTR_TIPO_ASSINANTE);
+                if (ui.item.ctr_tipo_assinante) {
+                    $('#tpAssinante').val(ui.item.ctr_tipo_assinante);
                 }
                 
                 // Preencher cliente se não estiver preenchido
-                if (ui.item.CLN_ID) {
+                if (ui.item.cln_id) {
                     var clienteAtual = $('#cliente').val();
-                    if (!clienteAtual || clienteAtual != ui.item.CLN_ID) {
+                    if (!clienteAtual || clienteAtual != ui.item.cln_id) {
                         // Buscar o cliente no select2 ou criar nova opção
-                        var clienteExiste = $('#cliente option[value="' + ui.item.CLN_ID + '"]').length > 0;
+                        var clienteExiste = $('#cliente option[value="' + ui.item.cln_id + '"]').length > 0;
                         
                         if (!clienteExiste) {
                             // Criar nova opção
-                            var labelCliente = ui.item.PES_NOME;
-                            if (ui.item.PES_RAZAO_SOCIAL) {
-                                labelCliente = ui.item.PES_RAZAO_SOCIAL + ' (' + ui.item.PES_NOME + ')';
+                            var labelCliente = ui.item.pes_nome;
+                            if (ui.item.pes_razao_social) {
+                                labelCliente = ui.item.pes_razao_social + ' (' + ui.item.pes_nome + ')';
                             }
-                            if (ui.item.PES_CPFCNPJ) {
-                                labelCliente += ' (' + ui.item.PES_CPFCNPJ + ')';
+                            if (ui.item.pes_cpfcnpj) {
+                                labelCliente += ' (' + ui.item.pes_cpfcnpj + ')';
                             }
-                            var newOption = new Option(labelCliente, ui.item.CLN_ID, true, true);
+                            var newOption = new Option(labelCliente, ui.item.cln_id, true, true);
                             $('#cliente').append(newOption);
                         }
                         
                         // Selecionar o cliente
-                        $('#cliente').val(ui.item.CLN_ID).trigger('change');
+                        $('#cliente').val(ui.item.cln_id).trigger('change');
                     }
                 }
                 
                 // Buscar e preencher serviços do contrato
-                buscarServicosContrato(ui.item.CTR_ID);
+                buscarServicosContrato(ui.item.ctr_id);
                 
                 return false;
             },
@@ -1197,12 +1197,12 @@
                 return false;
             }
         }).autocomplete("instance")._renderItem = function(ul, item) {
-            var label = item.CTR_NUMERO;
-            if (item.CTR_DATA_INICIO) {
-                label += ' - ' + new Date(item.CTR_DATA_INICIO).toLocaleDateString('pt-BR');
+            var label = item.ctr_numero;
+            if (item.ctr_data_inicio) {
+                label += ' - ' + new Date(item.ctr_data_inicio).toLocaleDateString('pt-BR');
             }
-            if (item.PES_NOME) {
-                label += ' (' + item.PES_NOME + ')';
+            if (item.pes_nome) {
+                label += ' (' + item.pes_nome + ')';
             }
             return $("<li>")
                 .append("<div>" + label + "</div>")
@@ -1228,10 +1228,10 @@
                         // Adicionar cada serviço do contrato usando a função existente
                         servicosContrato.forEach(function(servico) {
                             // Preencher campos do formulário
-                            var servicoId = servico.PRO_ID || servico.idServicos;
-                            var servicoNome = servico.nome || servico.PRO_DESCRICAO || '';
-                            var servicoPreco = parseFloat(servico.CTI_PRECO || servico.preco || 0);
-                            var servicoQuantidade = parseFloat(servico.CTI_QUANTIDADE || servico.quantidade || 1);
+                            var servicoId = servico.pro_id || servico.idServicos;
+                            var servicoNome = servico.nome || servico.pro_descricao || '';
+                            var servicoPreco = parseFloat(servico.cti_preco || servico.preco || 0);
+                            var servicoQuantidade = parseFloat(servico.cti_quantidade || servico.quantidade || 1);
                             
                             // Preencher campos do formulário
                             $("#idServicoNfecom").val(servicoId);
@@ -1555,7 +1555,7 @@
             
             if (operacaoComercialId && clienteId) {
                 console.log('🔍 Buscando classificação fiscal...');
-                console.log('   OPC_ID:', operacaoComercialId);
+                console.log('   opc_id:', operacaoComercialId);
                 console.log('   Cliente ID:', clienteId);
                 console.log('   Produto ID:', servicoId);
                 
@@ -1579,7 +1579,7 @@
                             // cClassTrib é apenas informativo da classificação fiscal
                             
                             console.log('✅ Classificação Fiscal encontrada:');
-                            console.log('   CLF_ID:', clfId);
+                            console.log('   clf_id:', clfId);
                             console.log('   CFOP:', defaultCfop);
                             console.log('   CST:', defaultCst);
                             console.log('   CSOSN:', response.data.csosn);

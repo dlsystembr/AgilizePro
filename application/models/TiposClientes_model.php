@@ -13,7 +13,7 @@ class TiposClientes_model extends CI_Model
     {
         $this->db->select('*');
         $this->db->from('tipos_clientes');
-        $this->db->order_by('TPC_NOME', 'ASC');
+        $this->db->order_by('tpc_nome', 'ASC');
         $query = $this->db->get();
 
         if ($query->num_rows() > 0) {

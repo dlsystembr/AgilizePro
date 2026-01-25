@@ -23,11 +23,11 @@ class Migration_Create_ncms_table extends CI_Migration
                 'null' => false
             ],
             'data_inicio' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true
             ],
             'data_fim' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => true
             ],
             'tipo_ato' => [

@@ -775,7 +775,7 @@ abstract class REST_Controller extends CI_Controller
         }
 
         //check request limit by ip without login
-        elseif ($this->config->item('rest_limits_method') == 'IP_ADDRESS' && $this->config->item('rest_enable_limits') && $this->_check_limit($controller_method) === false) {
+        elseif ($this->config->item('rest_limits_method') == 'ip_address' && $this->config->item('rest_enable_limits') && $this->_check_limit($controller_method) === false) {
             $response = [$this->config->item('rest_status_field_name') => false, $this->config->item('rest_message_field_name') => $this->lang->line('text_rest_ip_address_time_limit')];
             $this->response($response, self::HTTP_UNAUTHORIZED);
         }
@@ -1166,7 +1166,7 @@ abstract class REST_Controller extends CI_Controller
         $api_key = isset($this->rest->key) ? $this->rest->key : '';
 
         switch ($this->config->item('rest_limits_method')) {
-            case 'IP_ADDRESS':
+            case 'ip_address':
                 $api_key = $this->input->ip_address();
                 $limited_uri = 'ip-address:' . $api_key;
                 break;

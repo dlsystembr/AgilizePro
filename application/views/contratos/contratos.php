@@ -73,22 +73,22 @@
                     
                     foreach ($results as $r) {
                         echo '<tr>';
-                        echo '<td>' . $r->CTR_NUMERO . '</td>';
-                        echo '<td>' . ($r->PES_NOME ?: '-') . '</td>';
-                        echo '<td>' . ($r->PES_CPFCNPJ ?: '-') . '</td>';
-                        echo '<td>' . date('d/m/Y', strtotime($r->CTR_DATA_INICIO)) . '</td>';
-                        echo '<td>' . ($r->CTR_DATA_FIM ? date('d/m/Y', strtotime($r->CTR_DATA_FIM)) : '-') . '</td>';
-                        echo '<td>' . ($tiposAssinante[$r->CTR_TIPO_ASSINANTE] ?? '-') . '</td>';
-                        echo '<td>' . ((int)$r->CTR_SITUACAO === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>') . '</td>';
+                        echo '<td>' . $r->ctr_numero . '</td>';
+                        echo '<td>' . ($r->pes_nome ?: '-') . '</td>';
+                        echo '<td>' . ($r->pes_cpfcnpj ?: '-') . '</td>';
+                        echo '<td>' . date('d/m/Y', strtotime($r->ctr_data_inicio)) . '</td>';
+                        echo '<td>' . ($r->ctr_data_fim ? date('d/m/Y', strtotime($r->ctr_data_fim)) : '-') . '</td>';
+                        echo '<td>' . ($tiposAssinante[$r->ctr_tipo_assinante] ?? '-') . '</td>';
+                        echo '<td>' . ((int)$r->ctr_situacao === 1 ? '<span class="label label-success">Ativo</span>' : '<span class="label">Inativo</span>') . '</td>';
                         echo '<td>';
                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vContrato')) {
-                            echo '<a href="' . base_url() . 'index.php/contratos/visualizar/' . $r->CTR_ID . '" style="margin-right: 1%" class="btn-nwe" title="Visualizar Contrato"><i class="bx bx-show bx-xs"></i></a>';
+                            echo '<a href="' . base_url() . 'index.php/contratos/visualizar/' . $r->ctr_id . '" style="margin-right: 1%" class="btn-nwe" title="Visualizar Contrato"><i class="bx bx-show bx-xs"></i></a>';
                         }
                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'eContrato')) {
-                            echo '<a href="' . base_url() . 'index.php/contratos/editar/' . $r->CTR_ID . '" style="margin-right: 1%" class="btn-nwe3" title="Editar Contrato"><i class="bx bx-edit bx-xs"></i></a>';
+                            echo '<a href="' . base_url() . 'index.php/contratos/editar/' . $r->ctr_id . '" style="margin-right: 1%" class="btn-nwe3" title="Editar Contrato"><i class="bx bx-edit bx-xs"></i></a>';
                         }
                         if ($this->permission->checkPermission($this->session->userdata('permissao'), 'dContrato')) {
-                            echo '<a href="#modal-excluir" role="button" data-toggle="modal" contrato="' . $r->CTR_ID . '" style="margin-right: 1%" class="btn-nwe4" title="Excluir Contrato"><i class="bx bx-trash-alt bx-xs"></i></a>';
+                            echo '<a href="#modal-excluir" role="button" data-toggle="modal" contrato="' . $r->ctr_id . '" style="margin-right: 1%" class="btn-nwe4" title="Excluir Contrato"><i class="bx bx-trash-alt bx-xs"></i></a>';
                         }
                         echo '</td>';
                         echo '</tr>';

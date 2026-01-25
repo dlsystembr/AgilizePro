@@ -12,13 +12,13 @@ class Tipos_clientes_model extends CI_Model
         parent::__construct();
     }
 
-    public function get($table, $fields, $where = '', $perpage = 0, $start = 0, $one = false, $array = 'object', $order_field = 'TPC_NOME', $order_direction = 'asc')
+    public function get($table, $fields, $where = '', $perpage = 0, $start = 0, $one = false, $array = 'object', $order_field = 'tpc_nome', $order_direction = 'asc')
     {
         $this->db->select($fields);
         $this->db->from($table);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
 
-        $order_field = $order_field ?: 'TPC_NOME';
+        $order_field = $order_field ?: 'tpc_nome';
         $order_direction = $order_direction ?: 'asc';
         $this->db->order_by($order_field, $order_direction);
 
@@ -40,7 +40,7 @@ class Tipos_clientes_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->where('TPC_ID', $id);
+        $this->db->where('tpc_id', $id);
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
 

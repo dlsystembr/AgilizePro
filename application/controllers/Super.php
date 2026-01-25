@@ -79,7 +79,7 @@ class Super extends CI_Controller
         $this->data['custom_error'] = '';
 
         $this->form_validation->set_rules('ten_nome', 'Nome do Tenant', 'required|trim');
-        $this->form_validation->set_rules('ten_cnpj', 'CNPJ', 'trim');
+        $this->form_validation->set_rules('ten_cnpj', 'cnpj', 'trim');
         $this->form_validation->set_rules('ten_email', 'E-mail', 'valid_email|trim');
         $this->form_validation->set_rules('ten_telefone', 'Telefone', 'trim');
 
@@ -148,11 +148,11 @@ class Super extends CI_Controller
                 foreach ($permissoes_padrao as $codigo_perm => $valor) {
                     if ($valor == 1) {
                         $perm_menu_data = [
-                            'TPM_TEN_ID' => $ten_id,
-                            'TPM_MENU_CODIGO' => $codigo_perm,
-                            'TPM_PERMISSAO' => $codigo_perm,
-                            'TPM_ATIVO' => 1,
-                            'TPM_DATA_CADASTRO' => date('Y-m-d H:i:s'),
+                            'tpm_ten_id' => $ten_id,
+                            'tpm_menu_codigo' => $codigo_perm,
+                            'tpm_permissao' => $codigo_perm,
+                            'tpm_ativo' => 1,
+                            'tpm_data_cadastro' => date('Y-m-d H:i:s'),
                         ];
                         $this->db->insert('tenant_permissoes_menu', $perm_menu_data);
                     }
@@ -211,7 +211,7 @@ class Super extends CI_Controller
         $this->data['custom_error'] = '';
 
         $this->form_validation->set_rules('ten_nome', 'Nome do Tenant', 'required|trim');
-        $this->form_validation->set_rules('ten_cnpj', 'CNPJ', 'trim');
+        $this->form_validation->set_rules('ten_cnpj', 'cnpj', 'trim');
         $this->form_validation->set_rules('ten_email', 'E-mail', 'valid_email|trim');
         $this->form_validation->set_rules('ten_telefone', 'Telefone', 'trim');
 
@@ -342,7 +342,7 @@ class Super extends CI_Controller
         $this->form_validation->set_rules('nome', 'Nome', 'required|trim');
         $this->form_validation->set_rules('email', 'E-mail', 'required|valid_email|trim');
         $this->form_validation->set_rules('senha', 'Senha', 'required|trim|min_length[6]');
-        $this->form_validation->set_rules('cpf', 'CPF', 'required|trim');
+        $this->form_validation->set_rules('cpf', 'cpf', 'required|trim');
         $this->form_validation->set_rules('telefone', 'Telefone', 'required|trim');
         $this->form_validation->set_rules('permissoes_id', 'Permissões', 'required|trim');
 
@@ -404,7 +404,7 @@ class Super extends CI_Controller
 
         $this->form_validation->set_rules('nome', 'Nome', 'required|trim');
         $this->form_validation->set_rules('email', 'E-mail', 'required|valid_email|trim');
-        $this->form_validation->set_rules('cpf', 'CPF', 'required|trim');
+        $this->form_validation->set_rules('cpf', 'cpf', 'required|trim');
         $this->form_validation->set_rules('telefone', 'Telefone', 'required|trim');
         $this->form_validation->set_rules('permissoes_id', 'Permissões', 'required|trim');
 
@@ -533,14 +533,14 @@ class Super extends CI_Controller
         }
 
         // Buscar permissões já configuradas para este tenant
-        $this->db->where('TPM_TEN_ID', $tenant_id);
-        $this->db->where('TPM_ATIVO', 1);
+        $this->db->where('tpm_ten_id', $tenant_id);
+        $this->db->where('tpm_ativo', 1);
         $permissoes_configuradas = $this->db->get('tenant_permissoes_menu')->result();
         
         // Verificar quais módulos estão habilitados (se pelo menos uma permissão do módulo estiver ativa)
         $modulos_habilitados = [];
         foreach ($permissoes_configuradas as $perm) {
-            $codigo = $perm->TPM_PERMISSAO;
+            $codigo = $perm->tpm_permissao;
             // Extrair módulo da mesma forma que foi feito no agrupamento
             $modulo = preg_replace('/^[vaedcr]/', '', $codigo);
             
@@ -564,7 +564,7 @@ class Super extends CI_Controller
 
         if ($this->input->post()) {
             // Salvar permissões por módulo
-            $this->db->where('TPM_TEN_ID', $tenant_id);
+            $this->db->where('tpm_ten_id', $tenant_id);
             $this->db->delete('tenant_permissoes_menu');
 
             $modulos_post = $this->input->post('modulos');
@@ -585,11 +585,11 @@ class Super extends CI_Controller
                                 // Verificar se a permissão existe no sistema
                                 if (in_array($codigo_permissao, $permissoes_sistema)) {
                                     $data = [
-                                        'TPM_TEN_ID' => $tenant_id,
-                                        'TPM_MENU_CODIGO' => $codigo_permissao,
-                                        'TPM_PERMISSAO' => $codigo_permissao,
-                                        'TPM_ATIVO' => 1,
-                                        'TPM_DATA_CADASTRO' => date('Y-m-d H:i:s'),
+                                        'tpm_ten_id' => $tenant_id,
+                                        'tpm_menu_codigo' => $codigo_permissao,
+                                        'tpm_permissao' => $codigo_permissao,
+                                        'tpm_ativo' => 1,
+                                        'tpm_data_cadastro' => date('Y-m-d H:i:s'),
                                     ];
                                     
                                     $insert_result = $this->db->insert('tenant_permissoes_menu', $data);
@@ -601,9 +601,9 @@ class Super extends CI_Controller
                                         // Se for erro de duplicata, ignorar (pode acontecer em race conditions)
                                         if (isset($db_error['code']) && $db_error['code'] == 1062) {
                                             // Duplicata - atualizar para ativo
-                                            $this->db->where('TPM_TEN_ID', $tenant_id);
-                                            $this->db->where('TPM_PERMISSAO', $codigo_permissao);
-                                            $this->db->update('tenant_permissoes_menu', ['TPM_ATIVO' => 1]);
+                                            $this->db->where('tpm_ten_id', $tenant_id);
+                                            $this->db->where('tpm_permissao', $codigo_permissao);
+                                            $this->db->update('tenant_permissoes_menu', ['tpm_ativo' => 1]);
                                             $permissoes_salvas++;
                                         } else {
                                             $erro_msg = isset($db_error['message']) ? $db_error['message'] : 'Erro desconhecido';
@@ -672,26 +672,26 @@ class Super extends CI_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('USS_NOME', 'Nome', 'required|trim');
-        $this->form_validation->set_rules('USS_EMAIL', 'E-mail', 'required|valid_email|trim|is_unique[usuarios_super.USS_EMAIL]');
-        $this->form_validation->set_rules('USS_SENHA', 'Senha', 'required|trim|min_length[6]');
-        $this->form_validation->set_rules('USS_CPF', 'CPF', 'required|trim');
-        $this->form_validation->set_rules('USS_TELEFONE', 'Telefone', 'required|trim');
+        $this->form_validation->set_rules('uss_nome', 'Nome', 'required|trim');
+        $this->form_validation->set_rules('uss_email', 'E-mail', 'required|valid_email|trim|is_unique[usuarios_super.uss_email]');
+        $this->form_validation->set_rules('uss_senha', 'Senha', 'required|trim|min_length[6]');
+        $this->form_validation->set_rules('uss_cpf', 'cpf', 'required|trim');
+        $this->form_validation->set_rules('uss_telefone', 'Telefone', 'required|trim');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $data = [
-                'USS_NOME' => $this->input->post('USS_NOME'),
-                'USS_RG' => $this->input->post('USS_RG'),
-                'USS_CPF' => $this->input->post('USS_CPF'),
-                'USS_EMAIL' => $this->input->post('USS_EMAIL'),
-                'USS_SENHA' => password_hash($this->input->post('USS_SENHA'), PASSWORD_DEFAULT),
-                'USS_TELEFONE' => $this->input->post('USS_TELEFONE'),
-                'USS_CELULAR' => $this->input->post('USS_CELULAR'),
-                'USS_SITUACAO' => $this->input->post('USS_SITUACAO') ?: 1,
-                'USS_DATA_CADASTRO' => date('Y-m-d'),
-                'USS_DATA_EXPIRACAO' => $this->input->post('USS_DATA_EXPIRACAO') ?: null,
+                'uss_nome' => $this->input->post('uss_nome'),
+                'uss_rg' => $this->input->post('uss_rg'),
+                'uss_cpf' => $this->input->post('uss_cpf'),
+                'uss_email' => $this->input->post('uss_email'),
+                'uss_senha' => password_hash($this->input->post('uss_senha'), PASSWORD_DEFAULT),
+                'uss_telefone' => $this->input->post('uss_telefone'),
+                'uss_celular' => $this->input->post('uss_celular'),
+                'uss_situacao' => $this->input->post('uss_situacao') ?: 1,
+                'uss_data_cadastro' => date('Y-m-d'),
+                'uss_data_expiracao' => $this->input->post('uss_data_expiracao') ?: null,
             ];
 
             if ($this->Usuarios_super_model->add($data)) {
@@ -717,28 +717,28 @@ class Super extends CI_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('USS_NOME', 'Nome', 'required|trim');
-        $this->form_validation->set_rules('USS_EMAIL', 'E-mail', 'required|valid_email|trim');
-        $this->form_validation->set_rules('USS_CPF', 'CPF', 'required|trim');
-        $this->form_validation->set_rules('USS_TELEFONE', 'Telefone', 'required|trim');
+        $this->form_validation->set_rules('uss_nome', 'Nome', 'required|trim');
+        $this->form_validation->set_rules('uss_email', 'E-mail', 'required|valid_email|trim');
+        $this->form_validation->set_rules('uss_cpf', 'cpf', 'required|trim');
+        $this->form_validation->set_rules('uss_telefone', 'Telefone', 'required|trim');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $data = [
-                'USS_NOME' => $this->input->post('USS_NOME'),
-                'USS_RG' => $this->input->post('USS_RG'),
-                'USS_CPF' => $this->input->post('USS_CPF'),
-                'USS_EMAIL' => $this->input->post('USS_EMAIL'),
-                'USS_TELEFONE' => $this->input->post('USS_TELEFONE'),
-                'USS_CELULAR' => $this->input->post('USS_CELULAR'),
-                'USS_SITUACAO' => $this->input->post('USS_SITUACAO') ?: 1,
-                'USS_DATA_EXPIRACAO' => $this->input->post('USS_DATA_EXPIRACAO') ?: null,
+                'uss_nome' => $this->input->post('uss_nome'),
+                'uss_rg' => $this->input->post('uss_rg'),
+                'uss_cpf' => $this->input->post('uss_cpf'),
+                'uss_email' => $this->input->post('uss_email'),
+                'uss_telefone' => $this->input->post('uss_telefone'),
+                'uss_celular' => $this->input->post('uss_celular'),
+                'uss_situacao' => $this->input->post('uss_situacao') ?: 1,
+                'uss_data_expiracao' => $this->input->post('uss_data_expiracao') ?: null,
             ];
 
-            $senha = $this->input->post('USS_SENHA');
+            $senha = $this->input->post('uss_senha');
             if ($senha != null && $senha != '') {
-                $data['USS_SENHA'] = password_hash($senha, PASSWORD_DEFAULT);
+                $data['uss_senha'] = password_hash($senha, PASSWORD_DEFAULT);
             }
 
             if ($this->Usuarios_super_model->edit($data, $id)) {

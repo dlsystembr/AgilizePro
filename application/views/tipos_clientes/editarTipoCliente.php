@@ -8,23 +8,23 @@
             <div class="widget-content nopadding tab-content">
                 <?php echo $custom_error; ?>
                 <form action="<?php echo current_url(); ?>" id="formTipoCliente" method="post" class="form-horizontal">
-                    <?php echo form_hidden('id', $result->TPC_ID) ?>
+                    <?php echo form_hidden('id', $result->tpc_id) ?>
                     <div class="control-group">
                         <label for="codigo" class="control-label">Código</label>
                         <div class="controls">
-                            <input id="codigo" type="text" name="codigo" value="<?php echo $result->TPC_ID; ?>" readonly />
+                            <input id="codigo" type="text" name="codigo" value="<?php echo $result->tpc_id; ?>" readonly />
                         </div>
                     </div>
                     <div class="control-group">
                         <label for="nome" class="control-label">Nome<span class="required">*</span></label>
                         <div class="controls">
-                            <input id="nome" type="text" name="nome" value="<?php echo $result->TPC_NOME; ?>" />
+                            <input id="nome" type="text" name="nome" value="<?php echo $result->tpc_nome; ?>" />
                         </div>
                     </div>
                     <div class="control-group">
                         <label for="codigoCliente" class="control-label">Código Cliente</label>
                         <div class="controls">
-                            <input id="codigoCliente" type="text" name="codigoCliente" value="<?php echo $result->TPC_CODIGO_CLIENTE; ?>" />
+                            <input id="codigoCliente" type="text" name="codigoCliente" value="<?php echo $result->tpc_codigo_cliente; ?>" />
                         </div>
                     </div>
 

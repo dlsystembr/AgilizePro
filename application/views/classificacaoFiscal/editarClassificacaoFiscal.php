@@ -134,8 +134,8 @@
                                     <select name="operacao_comercial_id" id="operacao_comercial_id" class="span12">
                                         <option value="">Selecione</option>
                                         <?php foreach ($operacoes as $o) { ?>
-                                            <option value="<?= $o->OPC_ID ?>" <?= (set_value('operacao_comercial_id', $result->operacao_comercial_id) == $o->OPC_ID) ? 'selected' : '' ?>>
-                                                <?= $o->OPC_NOME ?>
+                                            <option value="<?= $o->opc_id ?>" <?= (set_value('operacao_comercial_id', $result->operacao_comercial_id) == $o->opc_id) ? 'selected' : '' ?>>
+                                                <?= $o->opc_nome ?>
                                             </option>
                                         <?php } ?>
                                     </select>
@@ -148,8 +148,8 @@
                                     <select name="tipo_cliente_id" id="tipo_cliente_id" class="span12">
                                         <option value="">Selecione (Opcional)</option>
                                         <?php foreach ($tipos_clientes as $tc) { ?>
-                                            <option value="<?= $tc->TPC_ID ?>" <?= (set_value('tipo_cliente_id', $result->tipo_cliente_id) == $tc->TPC_ID) ? 'selected' : '' ?>>
-                                                <?= $tc->TPC_NOME ?>
+                                            <option value="<?= $tc->tpc_id ?>" <?= (set_value('tipo_cliente_id', $result->tipo_cliente_id) == $tc->tpc_id) ? 'selected' : '' ?>>
+                                                <?= $tc->tpc_nome ?>
                                             </option>
                                         <?php } ?>
                                     </select>

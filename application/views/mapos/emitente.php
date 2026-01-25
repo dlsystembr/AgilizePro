@@ -92,7 +92,7 @@
                 <div class="control-group">
                     <label for="descricao" class="control-label"></label>
                     <div class="controls">
-                        <input type="text" placeholder="IE" name="ie" value="" />
+                        <input type="text" placeholder="ie" name="ie" value="" />
                     </div>
                 </div>
                 <div class="control-group">

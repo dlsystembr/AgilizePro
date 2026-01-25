@@ -24,7 +24,7 @@ class Migration_Create_nfe_tables extends CI_Migration
                 'null' => TRUE
             ],
             'data_validade' => [
-                'type' => 'DATE',
+                'type' => 'date',
                 'null' => TRUE
             ],
             'nome_certificado' => [

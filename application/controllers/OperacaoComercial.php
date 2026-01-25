@@ -61,26 +61,26 @@ class OperacaoComercial extends MY_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('OPC_SIGLA', 'Sigla', 'required|trim|max_length[10]');
-        $this->form_validation->set_rules('OPC_NOME', 'Nome', 'required|trim|max_length[100]');
-        $this->form_validation->set_rules('OPC_NATUREZA_OPERACAO', 'Natureza da Operação', 'required|trim');
-        $this->form_validation->set_rules('OPC_TIPO_MOVIMENTO', 'Tipo de Movimento', 'required|trim');
-        $this->form_validation->set_rules('OPC_FINALIDADE_NFE', 'Finalidade NFe', 'required|trim');
+        $this->form_validation->set_rules('opc_sigla', 'Sigla', 'required|trim|max_length[10]');
+        $this->form_validation->set_rules('opc_nome', 'Nome', 'required|trim|max_length[100]');
+        $this->form_validation->set_rules('opc_natureza_operacao', 'Natureza da Operação', 'required|trim');
+        $this->form_validation->set_rules('opc_tipo_movimento', 'Tipo de Movimento', 'required|trim');
+        $this->form_validation->set_rules('opc_finalidade_nfe', 'Finalidade NFe', 'required|trim');
 
         if ($this->form_validation->run('operacao_comercial') == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $data = array(
-                'OPC_SIGLA' => $this->input->post('OPC_SIGLA'),
-                'OPC_NOME' => $this->input->post('OPC_NOME'),
-                'OPC_NATUREZA_OPERACAO' => $this->input->post('OPC_NATUREZA_OPERACAO'),
-                'OPC_TIPO_MOVIMENTO' => $this->input->post('OPC_TIPO_MOVIMENTO'),
-                'OPC_AFETA_CUSTO' => $this->input->post('OPC_AFETA_CUSTO'),
-                'OPC_FATO_FISCAL' => $this->input->post('OPC_FATO_FISCAL'),
-                'OPC_GERA_FINANCEIRO' => $this->input->post('OPC_GERA_FINANCEIRO'),
-                'OPC_MOVIMENTA_ESTOQUE' => $this->input->post('OPC_MOVIMENTA_ESTOQUE'),
-                'OPC_SITUACAO' => $this->input->post('OPC_SITUACAO'),
-                'OPC_FINALIDADE_NFE' => $this->input->post('OPC_FINALIDADE_NFE')
+                'opc_sigla' => $this->input->post('opc_sigla'),
+                'opc_nome' => $this->input->post('opc_nome'),
+                'opc_natureza_operacao' => $this->input->post('opc_natureza_operacao'),
+                'opc_tipo_movimento' => $this->input->post('opc_tipo_movimento'),
+                'opc_afeta_custo' => $this->input->post('opc_afeta_custo'),
+                'opc_fato_fiscal' => $this->input->post('opc_fato_fiscal'),
+                'opc_gera_financeiro' => $this->input->post('opc_gera_financeiro'),
+                'opc_movimenta_estoque' => $this->input->post('opc_movimenta_estoque'),
+                'opc_situacao' => $this->input->post('opc_situacao'),
+                'opc_finalidade_nfe' => $this->input->post('opc_finalidade_nfe')
             );
             if ($id = $this->OperacaoComercial_model->add($data)) {
                 $this->session->set_flashdata('success', 'Operação Comercial adicionada com sucesso!');
@@ -111,26 +111,26 @@ class OperacaoComercial extends MY_Controller
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
 
-        $this->form_validation->set_rules('OPC_SIGLA', 'Sigla', 'required|trim|max_length[10]');
-        $this->form_validation->set_rules('OPC_NOME', 'Nome', 'required|trim|max_length[100]');
-        $this->form_validation->set_rules('OPC_NATUREZA_OPERACAO', 'Natureza da Operação', 'required|trim');
-        $this->form_validation->set_rules('OPC_TIPO_MOVIMENTO', 'Tipo de Movimento', 'required|trim');
-        $this->form_validation->set_rules('OPC_FINALIDADE_NFE', 'Finalidade NFe', 'required|trim');
+        $this->form_validation->set_rules('opc_sigla', 'Sigla', 'required|trim|max_length[10]');
+        $this->form_validation->set_rules('opc_nome', 'Nome', 'required|trim|max_length[100]');
+        $this->form_validation->set_rules('opc_natureza_operacao', 'Natureza da Operação', 'required|trim');
+        $this->form_validation->set_rules('opc_tipo_movimento', 'Tipo de Movimento', 'required|trim');
+        $this->form_validation->set_rules('opc_finalidade_nfe', 'Finalidade NFe', 'required|trim');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $data = array(
-                'OPC_SIGLA' => $this->input->post('OPC_SIGLA'),
-                'OPC_NOME' => $this->input->post('OPC_NOME'),
-                'OPC_NATUREZA_OPERACAO' => $this->input->post('OPC_NATUREZA_OPERACAO'),
-                'OPC_TIPO_MOVIMENTO' => $this->input->post('OPC_TIPO_MOVIMENTO'),
-                'OPC_AFETA_CUSTO' => $this->input->post('OPC_AFETA_CUSTO'),
-                'OPC_FATO_FISCAL' => $this->input->post('OPC_FATO_FISCAL'),
-                'OPC_GERA_FINANCEIRO' => $this->input->post('OPC_GERA_FINANCEIRO'),
-                'OPC_MOVIMENTA_ESTOQUE' => $this->input->post('OPC_MOVIMENTA_ESTOQUE'),
-                'OPC_SITUACAO' => $this->input->post('OPC_SITUACAO'),
-                'OPC_FINALIDADE_NFE' => $this->input->post('OPC_FINALIDADE_NFE')
+                'opc_sigla' => $this->input->post('opc_sigla'),
+                'opc_nome' => $this->input->post('opc_nome'),
+                'opc_natureza_operacao' => $this->input->post('opc_natureza_operacao'),
+                'opc_tipo_movimento' => $this->input->post('opc_tipo_movimento'),
+                'opc_afeta_custo' => $this->input->post('opc_afeta_custo'),
+                'opc_fato_fiscal' => $this->input->post('opc_fato_fiscal'),
+                'opc_gera_financeiro' => $this->input->post('opc_gera_financeiro'),
+                'opc_movimenta_estoque' => $this->input->post('opc_movimenta_estoque'),
+                'opc_situacao' => $this->input->post('opc_situacao'),
+                'opc_finalidade_nfe' => $this->input->post('opc_finalidade_nfe')
             );
             if ($this->OperacaoComercial_model->update($id, $data)) {
                 $this->session->set_flashdata('success', 'Operação Comercial editada com sucesso!');
@@ -200,16 +200,16 @@ class OperacaoComercial extends MY_Controller
             $data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $data = array(
-                'OPC_SIGLA' => $this->input->post('OPC_SIGLA'),
-                'OPC_NOME' => $this->input->post('OPC_NOME'),
-                'OPC_NATUREZA_OPERACAO' => $this->input->post('OPC_NATUREZA_OPERACAO'),
-                'OPC_TIPO_MOVIMENTO' => $this->input->post('OPC_TIPO_MOVIMENTO'),
-                'OPC_AFETA_CUSTO' => $this->input->post('OPC_AFETA_CUSTO'),
-                'OPC_FATO_FISCAL' => $this->input->post('OPC_FATO_FISCAL'),
-                'OPC_GERA_FINANCEIRO' => $this->input->post('OPC_GERA_FINANCEIRO'),
-                'OPC_MOVIMENTA_ESTOQUE' => $this->input->post('OPC_MOVIMENTA_ESTOQUE'),
-                'OPC_SITUACAO' => $this->input->post('OPC_SITUACAO'),
-                'OPC_FINALIDADE_NFE' => $this->input->post('OPC_FINALIDADE_NFE')
+                'opc_sigla' => $this->input->post('opc_sigla'),
+                'opc_nome' => $this->input->post('opc_nome'),
+                'opc_natureza_operacao' => $this->input->post('opc_natureza_operacao'),
+                'opc_tipo_movimento' => $this->input->post('opc_tipo_movimento'),
+                'opc_afeta_custo' => $this->input->post('opc_afeta_custo'),
+                'opc_fato_fiscal' => $this->input->post('opc_fato_fiscal'),
+                'opc_gera_financeiro' => $this->input->post('opc_gera_financeiro'),
+                'opc_movimenta_estoque' => $this->input->post('opc_movimenta_estoque'),
+                'opc_situacao' => $this->input->post('opc_situacao'),
+                'opc_finalidade_nfe' => $this->input->post('opc_finalidade_nfe')
             );
 
             if ($this->operacao_comercial_model->add('operacao_comercial', $data) == true) {
@@ -236,21 +236,21 @@ class OperacaoComercial extends MY_Controller
             $data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $data = array(
-                'OPC_SIGLA' => $this->input->post('OPC_SIGLA'),
-                'OPC_NOME' => $this->input->post('OPC_NOME'),
-                'OPC_NATUREZA_OPERACAO' => $this->input->post('OPC_NATUREZA_OPERACAO'),
-                'OPC_TIPO_MOVIMENTO' => $this->input->post('OPC_TIPO_MOVIMENTO'),
-                'OPC_AFETA_CUSTO' => $this->input->post('OPC_AFETA_CUSTO'),
-                'OPC_FATO_FISCAL' => $this->input->post('OPC_FATO_FISCAL'),
-                'OPC_GERA_FINANCEIRO' => $this->input->post('OPC_GERA_FINANCEIRO'),
-                'OPC_MOVIMENTA_ESTOQUE' => $this->input->post('OPC_MOVIMENTA_ESTOQUE'),
-                'OPC_SITUACAO' => $this->input->post('OPC_SITUACAO'),
-                'OPC_FINALIDADE_NFE' => $this->input->post('OPC_FINALIDADE_NFE')
+                'opc_sigla' => $this->input->post('opc_sigla'),
+                'opc_nome' => $this->input->post('opc_nome'),
+                'opc_natureza_operacao' => $this->input->post('opc_natureza_operacao'),
+                'opc_tipo_movimento' => $this->input->post('opc_tipo_movimento'),
+                'opc_afeta_custo' => $this->input->post('opc_afeta_custo'),
+                'opc_fato_fiscal' => $this->input->post('opc_fato_fiscal'),
+                'opc_gera_financeiro' => $this->input->post('opc_gera_financeiro'),
+                'opc_movimenta_estoque' => $this->input->post('opc_movimenta_estoque'),
+                'opc_situacao' => $this->input->post('opc_situacao'),
+                'opc_finalidade_nfe' => $this->input->post('opc_finalidade_nfe')
             );
 
-            if ($this->operacao_comercial_model->edit('operacao_comercial', $data, 'OPC_ID', $this->input->post('OPC_ID')) == true) {
+            if ($this->operacao_comercial_model->edit('operacao_comercial', $data, 'opc_id', $this->input->post('opc_id')) == true) {
                 $this->session->set_flashdata('success', 'Operação comercial editada com sucesso!');
-                redirect(base_url() . 'index.php/operacaocomercial/visualizarOperacao/' . $this->input->post('OPC_ID'));
+                redirect(base_url() . 'index.php/operacaocomercial/visualizarOperacao/' . $this->input->post('opc_id'));
             } else {
                 $data['custom_error'] = '<div class="alert alert-danger">Ocorreu um erro ao tentar editar a operação comercial.</div>';
             }

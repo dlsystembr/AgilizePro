@@ -87,7 +87,7 @@
                 foreach ($tiposDocumento as $tipo => $nome) {
                     $configAtiva = null;
                     foreach ($configuracoes as $cfg) {
-                        if ($cfg->CFG_TIPO_DOCUMENTO === $tipo) {
+                        if ($cfg->cfg_tipo_documento === $tipo) {
                             $configAtiva = $cfg;
                             break;
                         }
@@ -98,7 +98,7 @@
                             onclick="location.href='<?php echo base_url(); ?>index.php/configuracoesfiscais/configurar/<?php echo $tipo; ?>'">
                             <div class="card-header">
                                 <i class="fas <?php echo $icones[$tipo] ?? 'fa-file'; ?>"></i>
-                                <?php if ($configAtiva && $configAtiva->CFG_ATIVO): ?>
+                                <?php if ($configAtiva && $configAtiva->cfg_ativo): ?>
                                     <span class="badge badge-success status-badge">ATIVO</span>
                                 <?php else: ?>
                                     <span class="badge status-badge">INATIVO</span>
@@ -111,12 +111,12 @@
                                 <?php if ($configAtiva): ?>
                                     <small class="text-muted">
                                         Ambiente:
-                                        <?php echo $configAtiva->CFG_AMBIENTE == 1 ? 'Produção' : 'Homologação'; ?><br>
+                                        <?php echo $configAtiva->cfg_ambiente == 1 ? 'Produção' : 'Homologação'; ?><br>
                                         Série:
-                                        <?php echo $configAtiva->CFG_SERIE; ?> | Próximo Nº:
-                                        <?php echo $configAtiva->CFG_NUMERO_ATUAL; ?><br>
+                                        <?php echo $configAtiva->cfg_serie; ?> | Próximo Nº:
+                                        <?php echo $configAtiva->cfg_numero_atual; ?><br>
                                         Certificado:
-                                        <?php echo $configAtiva->CER_CNPJ ? preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $configAtiva->CER_CNPJ) : 'Não vinculado'; ?>
+                                        <?php echo $configAtiva->cer_cnpj ? preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $configAtiva->cer_cnpj) : 'Não vinculado'; ?>
                                     </small>
                                 <?php else: ?>
                                     <p class="text-muted"><small>Ainda não configurado.</small></p>
