@@ -321,6 +321,7 @@ class Pessoas extends MY_Controller
                         'cln_bloqueio_financeiro' => $this->input->post('cln_bloqueio_financeiro') ? 1 : 0,
                         'cln_dias_carencia' => $this->input->post('cln_dias_carencia') !== null ? (int) $this->input->post('cln_dias_carencia') : null,
                         'cln_emitir_nfe' => $this->input->post('cln_emitir_nfe') ? 1 : 0,
+                        'cln_cobrar_irrf' => $this->input->post('cln_cobrar_irrf') ? 1 : 0,
                         'cln_objetivo_comercial' => $this->input->post('cln_objetivo_comercial'),
                         'tpc_id' => $this->input->post('tpc_id') ?: null,
                         'cln_data_cadastro' => date('Y-m-d H:i:s'),
@@ -616,7 +617,72 @@ class Pessoas extends MY_Controller
                     }
                 }
 
+                // Processar documentos (deletar antigos e inserir novos)
+                if ($this->db->table_exists('documentos')) {
+                    // Remover documentos antigos
+                    $this->db->where('pes_id', $id);
+                    $this->db->delete('documentos');
 
+                    // Inserir novos documentos
+                    $docTipos = $this->input->post('doc_tipo_documento');
+                    $docNumeros = $this->input->post('doc_numero');
+                    $docOrgaos = $this->input->post('doc_orgao_expedidor');
+                    $docEndIdxs = $this->input->post('DOC_ENDE_IDX');
+                    $docNaturezas = $this->input->post('doc_natureza_contribuinte');
+                    
+                    if (is_array($docTipos) || is_array($docNumeros) || is_array($docOrgaos)) {
+                        $max = max(
+                            is_array($docTipos) ? count($docTipos) : 0,
+                            is_array($docNumeros) ? count($docNumeros) : 0,
+                            is_array($docOrgaos) ? count($docOrgaos) : 0,
+                            is_array($docEndIdxs) ? count($docEndIdxs) : 0,
+                            is_array($docNaturezas) ? count($docNaturezas) : 0
+                        );
+                        
+                        // Buscar IDs dos endereços inseridos/atualizados para vincular documentos
+                        $enderecoIdsMap = [];
+                        if (is_array($enderecoIds)) {
+                            foreach ($enderecoIds as $idx => $endId) {
+                                if ($endId) {
+                                    $enderecoIdsMap[$idx] = $endId;
+                                }
+                            }
+                        }
+                        
+                        for ($i = 0; $i < $max; $i++) {
+                            $tipo = is_array($docTipos) && isset($docTipos[$i]) ? trim((string) $docTipos[$i]) : '';
+                            $numero = is_array($docNumeros) && isset($docNumeros[$i]) ? trim((string) $docNumeros[$i]) : '';
+                            $orgao = is_array($docOrgaos) && isset($docOrgaos[$i]) ? trim((string) $docOrgaos[$i]) : null;
+                            $natureza = is_array($docNaturezas) && isset($docNaturezas[$i]) ? trim((string) $docNaturezas[$i]) : null;
+                            
+                            if ($tipo !== '' && $numero !== '') {
+                                $endeId = null;
+                                if (is_array($docEndIdxs) && isset($docEndIdxs[$i]) && $docEndIdxs[$i] !== '') {
+                                    $idx = (int) $docEndIdxs[$i];
+                                    // Verificar se é um índice de endereço novo ou existente
+                                    if (isset($enderecoIdsMap[$idx])) {
+                                        $endeId = (int) $enderecoIdsMap[$idx];
+                                    } else {
+                                        // Tentar buscar pelo índice se for um endereço existente
+                                        if (isset($enderecoIds[$idx]) && $enderecoIds[$idx]) {
+                                            $endeId = (int) $enderecoIds[$idx];
+                                        }
+                                    }
+                                }
+                                
+                                $this->db->insert('documentos', [
+                                    'ten_id' => $this->session->userdata('ten_id'),
+                                    'pes_id' => $id,
+                                    'doc_tipo_documento' => mb_substr($tipo, 0, 60),
+                                    'end_id' => $endeId,
+                                    'doc_orgao_expedidor' => $orgao !== '' ? mb_substr($orgao, 0, 60) : null,
+                                    'doc_numero' => mb_substr($numero, 0, 60),
+                                    'doc_natureza_contribuinte' => in_array($natureza, ['Contribuinte', 'Não Contribuinte']) ? $natureza : null,
+                                ]);
+                            }
+                        }
+                    }
+                }
 
                 // Salvar dados de Cliente (se marcado)
                 $isCliente = (bool) $this->input->post('CLN_ENABLE');
@@ -631,6 +697,7 @@ class Pessoas extends MY_Controller
                             'cln_bloqueio_financeiro' => $this->input->post('cln_bloqueio_financeiro') ? 1 : 0,
                             'cln_dias_carencia' => $this->input->post('cln_dias_carencia') !== null ? (int) $this->input->post('cln_dias_carencia') : null,
                             'cln_emitir_nfe' => $this->input->post('cln_emitir_nfe') ? 1 : 0,
+                            'cln_cobrar_irrf' => $this->input->post('cln_cobrar_irrf') ? 1 : 0,
                             'cln_objetivo_comercial' => $this->input->post('cln_objetivo_comercial'),
                             'tpc_id' => $this->input->post('tpc_id') ?: null,
                         ];
@@ -847,7 +914,7 @@ class Pessoas extends MY_Controller
             $this->data['vendedor'] = null;
         }
 
-        $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('TIPOS_CLIENTES', 'tpc_id, tpc_nome', '', 0, 0, false, 'object', 'tpc_nome', 'ASC');
+        $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('tipos_clientes', 'tpc_id, tpc_nome', '', 0, 0, false, 'object', 'tpc_nome', 'ASC');
         $this->data['view'] = 'pessoas/editarPessoa';
         return $this->layout();
     }

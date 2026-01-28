@@ -174,6 +174,16 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="control-group">
+                            <label class="control-label">NFCom – Cobrar IRRF</label>
+                            <div class="controls">
+                                <label for="cln_cobrar_irrf" class="btn btn-default">Cobrar IRRF na NFCom
+                                    <input type="checkbox" id="cln_cobrar_irrf" name="cln_cobrar_irrf" class="badgebox" value="1" <?php echo set_value('cln_cobrar_irrf', 0) ? 'checked' : ''; ?>>
+                                    <span class="badge">&check;</span>
+                                </label>
+                                <small style="display: block; color: #666; margin-top: 2px;">Marque se o cliente deve ter IRRF (4,8%) retido na NFCom.</small>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="span6">

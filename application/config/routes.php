@@ -45,6 +45,37 @@ if (! defined('BASEPATH')) {
 $route['default_controller'] = 'mapos';
 $route['404_override'] = '';
 
+// Rota para Configurações Fiscais (garante compatibilidade case-sensitive)
+$route['configuracoesfiscais'] = 'ConfiguracoesFiscais';
+$route['configuracoesfiscais/(:any)'] = 'ConfiguracoesFiscais/$1';
+
+// Rotas para Classificação Fiscal (garante compatibilidade case-sensitive - várias variações)
+$route['classificacaofiscal'] = 'ClassificacaoFiscal';
+$route['classificacaofiscal/(:any)'] = 'ClassificacaoFiscal/$1';
+$route['classificacaofiscal/(:any)/(:any)'] = 'ClassificacaoFiscal/$1/$2';
+$route['classificacaoFiscal'] = 'ClassificacaoFiscal';
+$route['classificacaoFiscal/(:any)'] = 'ClassificacaoFiscal/$1';
+$route['classificacaoFiscal/(:any)/(:any)'] = 'ClassificacaoFiscal/$1/$2';
+$route['classiFicacaofiscal'] = 'ClassificacaoFiscal';
+$route['classiFicacaofiscal/(:any)'] = 'ClassificacaoFiscal/$1';
+$route['classiFicacaofiscal/(:any)/(:any)'] = 'ClassificacaoFiscal/$1/$2';
+
+// Rotas para NFCom (garante compatibilidade case-sensitive)
+$route['nfecom'] = 'Nfecom';
+$route['nfecom/(:any)'] = 'Nfecom/$1';
+$route['nfecom/(:any)/(:any)'] = 'Nfecom/$1/$2';
+$route['nfecom/(:any)/(:any)/(:any)'] = 'Nfecom/$1/$2/$3';
+
+// Rotas para Simulador de Tributação (garante compatibilidade case-sensitive)
+$route['simuladortributacao'] = 'SimuladorTributacao';
+$route['simuladortributacao/(:any)'] = 'SimuladorTributacao/$1';
+$route['simuladortributacao/(:any)/(:any)'] = 'SimuladorTributacao/$1/$2';
+
+// Rotas para API de Cálculo de Tributação (garante compatibilidade case-sensitive)
+$route['calculotributacaoapi'] = 'CalculoTributacaoApi';
+$route['calculotributacaoapi/(:any)'] = 'CalculoTributacaoApi/$1';
+$route['calculotributacaoapi/(:any)/(:any)'] = 'CalculoTributacaoApi/$1/$2';
+
 // Rotas da API
 if (filter_var($_ENV['API_ENABLED'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
     require APPPATH . 'config/routes_api.php';

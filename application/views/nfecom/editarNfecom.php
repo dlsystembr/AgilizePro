@@ -336,7 +336,7 @@
             <?php if ($custom_error != '') {
                 echo '<div class="alert alert-danger">' . $custom_error . '</div>';
             } ?>
-            <form action="<?php echo current_url(); ?>" id="formNfecom" method="post" class="form-horizontal">
+            <form action="<?php echo site_url('nfecom/editar/' . $result->nfc_id); ?>" id="formNfecom" method="post" class="form-horizontal">
                 <input type="hidden" name="idNfecom" value="<?php echo $result->nfc_id; ?>">
                 <div class="widget-content nopadding tab-content">
 

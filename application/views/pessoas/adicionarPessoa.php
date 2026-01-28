@@ -701,6 +701,10 @@
                                                 <input type="checkbox" id="cln_emitir_nfe" name="cln_emitir_nfe"
                                                     value="1" checked /> Emitir NFe
                                             </label>
+                                            <label class="checkbox" style="display:block; margin-bottom: 10px;">
+                                                <input type="checkbox" id="cln_cobrar_irrf" name="cln_cobrar_irrf"
+                                                    value="1" /> Cobrar IRRF na NFCom
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -1467,6 +1471,7 @@
                     $('#cln_dias_carencia').val('0');
                     $('#cln_bloqueio_financeiro').prop('checked', true);
                     $('#cln_emitir_nfe').prop('checked', true);
+                    $('#cln_cobrar_irrf').prop('checked', false);
                     $('#cln_objetivo_comercial').val('Consumo');
                 } else {
                     $('#secao-financeiro').slideUp(300);
@@ -1475,7 +1480,7 @@
                     $('#cln_limite_credito').val('0,00');
                     $('#cln_dias_carencia').val('0');
                     $('#cln_situacao').val('1');
-                    $('#cln_comprar_aprazo, #cln_bloqueio_financeiro, #cln_emitir_nfe').prop('checked', false);
+                    $('#cln_comprar_aprazo, #cln_bloqueio_financeiro, #cln_emitir_nfe, #cln_cobrar_irrf').prop('checked', false);
                     $('#cln_objetivo_comercial').val('');
                     $('#tpc_id').val('');
                     // Limpar vendedores permitidos

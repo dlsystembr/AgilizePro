@@ -94,6 +94,7 @@ class Clientes extends MY_Controller
                 'dataCadastro' => date('Y-m-d'),
                 'fornecedor' => $this->input->post('fornecedor') ? ($this->input->post('fornecedor') == '3' ? 3 : 1) : 0,
                 'objetivo_comercial' => $this->input->post('objetivo_comercial'),
+                'cln_cobrar_irrf' => $this->input->post('cln_cobrar_irrf') ? 1 : 0, // 1=Cobrar IRRF na NFCom, 0=Não cobrar
             ];
 
             if ($this->clientes_model->add('clientes', $data) == true) {
@@ -156,6 +157,7 @@ class Clientes extends MY_Controller
                     'ibge' => $this->input->post('ibge'),
                     'fornecedor' => (set_value('fornecedor') == '3' ? 3 : (set_value('fornecedor') == true ? 1 : 0)),
                     'objetivo_comercial' => $this->input->post('objetivo_comercial'),
+                    'cln_cobrar_irrf' => $this->input->post('cln_cobrar_irrf') ? 1 : 0, // 1=Cobrar IRRF na NFCom, 0=Não cobrar
                 ];
             } else {
                 $data = [
@@ -178,6 +180,7 @@ class Clientes extends MY_Controller
                     'ibge' => $this->input->post('ibge'),
                     'fornecedor' => (set_value('fornecedor') == '3' ? 3 : (set_value('fornecedor') == true ? 1 : 0)),
                     'objetivo_comercial' => $this->input->post('objetivo_comercial'),
+                    'cln_cobrar_irrf' => $this->input->post('cln_cobrar_irrf') ? 1 : 0, // 1=Cobrar IRRF na NFCom, 0=Não cobrar
                 ];
             }
 

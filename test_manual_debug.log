@@ -1,5 +1,6 @@
+*   Trying [64:ff9b::c8e9:4b1]:443...
 *   Trying 200.233.4.177:443...
-* Connected to nfcom-homologacao.svrs.rs.gov.br (200.233.4.177) port 443
+* Connected to nfcom-homologacao.svrs.rs.gov.br (64:ff9b::c8e9:4b1) port 443
 * ALPN: curl offers http/1.1
 * SSL connection using TLSv1.2 / ECDHE-RSA-AES256-GCM-SHA384
 * ALPN: server did not agree on a protocol. Uses default.
@@ -15,7 +16,7 @@ Host: nfcom-homologacao.svrs.rs.gov.br
 Accept: */*
 Content-Type: application/soap+xml; charset=utf-8; action="http://www.portalfiscal.inf.br/nfcom/wsdl/NFComRecepcao/nfcomRecepcao"
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36
-Content-Length: 5225
+Content-Length: 5217
 
 < HTTP/1.1 200 OK
 < Cache-Control: private, max-age=0
@@ -23,7 +24,7 @@ Content-Length: 5225
 < Server: Microsoft-IIS/10.0
 < X-AspNet-Version: 4.0.30319
 < X-Powered-By: ASP.NET
-< Date: Sun, 18 Jan 2026 16:14:06 GMT
+< Date: Tue, 27 Jan 2026 10:55:10 GMT
 < Content-Length: 579
 < 
 * Connection #0 to host nfcom-homologacao.svrs.rs.gov.br left intact

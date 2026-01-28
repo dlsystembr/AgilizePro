@@ -32,6 +32,10 @@ class Tipos_clientes_model extends CI_Model
         }
 
         $query = $this->db->get();
+        if ($query === false) {
+            log_message('error', 'Tipos_clientes_model->get falhou. Tabela: ' . $table . ' | erro: ' . $this->db->error()['message']);
+            return $one ? null : [];
+        }
 
         $result = !$one ? $query->result($array === 'object' || $array === 'array' ? $array : 'object') : $query->row();
 

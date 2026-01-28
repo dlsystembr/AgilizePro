@@ -1,0 +1,146 @@
+================================================================================
+  INSTRUÇÕES - CRIAR USUÁRIO SUPER E CONFIGURAR TENANT
+================================================================================
+
+PROBLEMA: Não consegue cadastrar NFCom porque ten_id está como 0 ou NULL
+
+SOLUÇÃO: Criar usuário super, tenant e atualizar todos os registros
+
+================================================================================
+OPÇÃO 1: SCRIPT AUTOMÁTICO (RECOMENDADO)
+================================================================================
+
+1. Acesse via navegador:
+   http://localhost/mapos/criar_usuario_super_e_tenant.php
+
+   OU execute via linha de comando:
+   php criar_usuario_super_e_tenant.php
+
+2. O script irá:
+   ✓ Criar usuário super (admin@super.com / admin123)
+   ✓ Criar tenant padrão
+   ✓ Atualizar todos os registros sem ten_id
+   ✓ Criar usuário comum padrão (admin@tenant.com / admin)
+
+3. Faça login como super usuário:
+   - Email: admin@super.com
+   - Senha: admin123
+   - Acesse: http://localhost/mapos/index.php/super
+
+4. Ou faça login como usuário comum:
+   - Email: admin@tenant.com
+   - Senha: admin
+   - Acesse: http://localhost/mapos/index.php/mapos
+
+================================================================================
+OPÇÃO 2: ATUALIZAR APENAS TEN_ID (se já tem tenant)
+================================================================================
+
+Se você já tem um tenant criado e só quer atualizar os registros:
+
+1. Acesse via navegador:
+   http://localhost/mapos/atualizar_ten_id_todos_registros.php
+
+   OU execute via linha de comando:
+   php atualizar_ten_id_todos_registros.php
+
+2. O script irá atualizar todos os registros sem ten_id
+
+================================================================================
+OPÇÃO 3: MANUAL VIA SQL
+================================================================================
+
+1. Criar usuário super:
+   INSERT INTO usuarios_super (
+       uss_nome, uss_cpf, uss_email, uss_senha, uss_telefone, 
+       uss_situacao, uss_data_cadastro
+   ) VALUES (
+       'Administrador Super',
+       '000.000.000-00',
+       'admin@super.com',
+       '$2y$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+       '(00) 0000-0000',
+       1,
+       CURDATE()
+   );
+
+2. Criar tenant:
+   INSERT INTO tenants (
+       ten_nome, ten_cnpj, ten_email, ten_telefone, ten_data_cadastro
+   ) VALUES (
+       'Tenant Padrão',
+       '00.000.000/0001-00',
+       'tenant@padrao.com',
+       '(00) 0000-0000',
+       NOW()
+   );
+
+3. Pegar o ID do tenant criado (exemplo: 1)
+
+4. Atualizar registros (substitua 1 pelo ID do tenant):
+   UPDATE usuarios SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE clientes SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE produtos SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE servicos SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE vendas SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE os SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE contratos SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE nfecom_capa SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE nfecom_itens SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE empresas SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE classificacao_fiscal SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE operacao_comercial SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE configuracoes_fiscais SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE certificados SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+   UPDATE permissoes SET ten_id = 1 WHERE ten_id IS NULL OR ten_id = 0;
+
+================================================================================
+VERIFICAÇÃO
+================================================================================
+
+Após executar os scripts, verifique:
+
+1. Faça login no sistema
+2. Verifique se consegue acessar a sessão:
+   - Vá em Configurações > Sistema
+   - O ten_id deve aparecer nos logs
+
+3. Tente cadastrar uma NFCom:
+   - Se ainda der erro, verifique o log em application/logs/
+   - O erro deve mostrar o ten_id sendo usado
+
+================================================================================
+CREDENCIAIS PADRÃO
+================================================================================
+
+Super Usuário:
+  Email: admin@super.com
+  Senha: admin123
+  Acesso: http://localhost/mapos/index.php/super
+
+Usuário Comum (criado automaticamente):
+  Email: admin@tenant.com
+  Senha: admin
+  Acesso: http://localhost/mapos/index.php/mapos
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Problema: "Tabela usuarios_super não existe"
+Solução: Execute a migration primeiro:
+  php index.php tools migrate
+
+Problema: "Tenant ID inválido na sessão"
+Solução: 
+  1. Verifique se o usuário tem ten_id no banco
+  2. Faça logout e login novamente
+  3. Execute o script de atualização
+
+Problema: "Ainda não consegue cadastrar NFCom"
+Solução:
+  1. Verifique o log: application/logs/log-YYYY-MM-DD.php
+  2. Verifique se o ten_id está sendo passado corretamente
+  3. Verifique se todos os produtos/clientes têm ten_id
+
+================================================================================

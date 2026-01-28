@@ -119,6 +119,7 @@ $config['permission'] = [
     'cUsuario' => 'Configurar Usuário',
     'cEmitente' => 'Configurar Emitente',
     'cPermissao' => 'Configurar Permissão',
+    'cSistema' => 'Configurar Sistema',
     'cBackup' => 'Backup',
     'cAuditoria' => 'Auditoria',
     'vOperacaoComercial' => 'Visualizar Operação Comercial',

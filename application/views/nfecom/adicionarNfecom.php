@@ -360,7 +360,7 @@
                 echo '</div>';
             }
             ?>
-            <form action="<?php echo current_url(); ?>" id="formNfecom" method="post" class="form-horizontal">
+            <form action="<?php echo site_url('nfecom/adicionar'); ?>" id="formNfecom" method="post" class="form-horizontal">
                 <!-- Campo hidden para data de emissão (gerada automaticamente) -->
                 <input type="hidden" name="dataEmissao" id="dataEmissao" value="<?php echo date('d/m/Y'); ?>">
                 <div class="widget-content nopadding tab-content">
@@ -1124,7 +1124,8 @@
         }
 
         // Autocomplete para código do contrato
-        $('#codigoContrato').autocomplete({
+        // Compatível com jQuery UI 1.9.2 (sem usar .instance)
+        var autocompleteContrato = $('#codigoContrato').autocomplete({
             source: function(request, response) {
                 $.ajax({
                     url: '<?php echo base_url(); ?>index.php/nfecom/buscarContratoPorCodigo',
@@ -1133,7 +1134,32 @@
                         term: request.term
                     },
                     success: function(data) {
-                        response(data);
+                        // Formatar os dados para exibição no autocomplete
+                        var formattedData = $.map(data, function(item) {
+                            var label = item.ctr_numero || item.label || item.value;
+                            if (item.ctr_data_inicio) {
+                                label += ' - ' + new Date(item.ctr_data_inicio).toLocaleDateString('pt-BR');
+                            }
+                            if (item.pes_nome) {
+                                label += ' (' + item.pes_nome + ')';
+                            }
+                            return {
+                                label: label,
+                                value: item.ctr_numero || item.value,
+                                // Manter todos os dados originais
+                                ctr_id: item.ctr_id,
+                                ctr_numero: item.ctr_numero,
+                                ctr_data_inicio: item.ctr_data_inicio,
+                                ctr_data_fim: item.ctr_data_fim,
+                                ctr_observacao: item.ctr_observacao,
+                                ctr_tipo_assinante: item.ctr_tipo_assinante,
+                                cln_id: item.cln_id,
+                                pes_nome: item.pes_nome,
+                                pes_razao_social: item.pes_razao_social,
+                                pes_cpfcnpj: item.pes_cpfcnpj
+                            };
+                        });
+                        response(formattedData);
                     },
                     error: function() {
                         response([]);
@@ -1196,18 +1222,7 @@
                 event.preventDefault();
                 return false;
             }
-        }).autocomplete("instance")._renderItem = function(ul, item) {
-            var label = item.ctr_numero;
-            if (item.ctr_data_inicio) {
-                label += ' - ' + new Date(item.ctr_data_inicio).toLocaleDateString('pt-BR');
-            }
-            if (item.pes_nome) {
-                label += ' (' + item.pes_nome + ')';
-            }
-            return $("<li>")
-                .append("<div>" + label + "</div>")
-                .appendTo(ul);
-        };
+        });
 
         // Função para buscar serviços do contrato e preencher automaticamente
         function buscarServicosContrato(contratoId) {
@@ -1222,12 +1237,18 @@
                 success: function(servicosContrato) {
                     if (servicosContrato && servicosContrato.length > 0) {
                         // Limpar serviços existentes primeiro
-                        servicos = [];
-                        $('#servicos-container').empty();
+                        $('#servicos-list-body').empty();
+                        servicoIndex = 0; // Resetar o índice
                         
-                        // Adicionar cada serviço do contrato usando a função existente
-                        servicosContrato.forEach(function(servico) {
-                            // Preencher campos do formulário
+                        // Função recursiva para adicionar serviços sequencialmente
+                        function adicionarServicoSequencial(index) {
+                            if (index >= servicosContrato.length) {
+                                console.log('✅ ' + servicosContrato.length + ' serviço(s) do contrato adicionado(s) automaticamente');
+                                atualizarTotais();
+                                return;
+                            }
+                            
+                            var servico = servicosContrato[index];
                             var servicoId = servico.pro_id || servico.idServicos;
                             var servicoNome = servico.nome || servico.pro_descricao || '';
                             var servicoPreco = parseFloat(servico.cti_preco || servico.preco || 0);
@@ -1256,21 +1277,36 @@
                                             $("#cClassServicoNfecom").val(servicoCompleto.cClass || '');
                                             $("#uMedServicoNfecom").val(servicoCompleto.uMed || 'UN');
                                         }
+                                    } else {
+                                        // Valores padrão se não encontrar
+                                        $("#cClassServicoNfecom").val('');
+                                        $("#uMedServicoNfecom").val('UN');
                                     }
                                     
                                     // Adicionar serviço usando a função existente
                                     adicionarServicoNfecom();
+                                    
+                                    // Aguardar um pouco antes de adicionar o próximo para garantir que o DOM foi atualizado
+                                    setTimeout(function() {
+                                        adicionarServicoSequencial(index + 1);
+                                    }, 100);
                                 },
                                 error: function() {
                                     // Se não encontrar, adicionar mesmo assim com valores padrão
                                     $("#cClassServicoNfecom").val('');
                                     $("#uMedServicoNfecom").val('UN');
                                     adicionarServicoNfecom();
+                                    
+                                    // Aguardar um pouco antes de adicionar o próximo
+                                    setTimeout(function() {
+                                        adicionarServicoSequencial(index + 1);
+                                    }, 100);
                                 }
                             });
-                        });
+                        }
                         
-                        console.log('✅ ' + servicosContrato.length + ' serviço(s) do contrato adicionado(s) automaticamente');
+                        // Iniciar adição sequencial
+                        adicionarServicoSequencial(0);
                     } else {
                         console.log('ℹ️ Nenhum serviço encontrado para este contrato');
                     }
@@ -1740,9 +1776,20 @@
                 clfId: clfId
             });
             
+            // Verificar se a linha foi realmente adicionada ao DOM
+            const linhasAposAdicao = $('#servicos-list-body tr').length;
+            console.log('📊 Total de linhas na tabela após adicionar:', linhasAposAdicao);
+            
             servicoIndex++;
             limparServicoFormulario();
             atualizarTotais();
+            
+            // Log adicional para debug
+            console.log('🔍 Verificação final - Campos hidden na tabela:', {
+                totalLinhas: $('#servicos-list-body tr').length,
+                ultimaLinha: $('#servicos-list-body tr:last').find('input[type="hidden"]').length,
+                servicosInputs: $('input[name^="servicos["]').length
+            });
         }
 
         // Debug: Mostrar informações sobre serviços e clientes

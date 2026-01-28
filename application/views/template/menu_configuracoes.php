@@ -46,7 +46,7 @@
 <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vConfigFiscal')) { ?>
     <li <?php if (isset($menuConfigFiscais))
         echo 'class="active"'; ?>>
-        <a href="<?php echo base_url('configuracoesfiscais'); ?>">
+        <a href="<?php echo site_url('configuracoesfiscais'); ?>">
             <i class="fas fa-file-invoice-dollar"></i> Configurações Fiscais
         </a>
     </li>

@@ -1,0 +1,101 @@
+================================================================================
+  SOLUÇÃO: Erro "Field 'ten_id' doesn't have a default value"
+================================================================================
+
+Este erro ocorre quando você tenta inserir um registro sem especificar o ten_id,
+mas o campo é obrigatório (NOT NULL) e não tem valor padrão.
+
+================================================================================
+SOLUÇÃO RÁPIDA (RECOMENDADO)
+================================================================================
+
+1. Execute o script via navegador:
+   http://localhost/mapos/corrigir_erro_ten_id.php
+
+   OU via linha de comando:
+   php corrigir_ten_id_default.php
+
+2. O script irá:
+   ✓ Criar tenant padrão (se não existir)
+   ✓ Atualizar todos os registros sem ten_id
+   ✓ Garantir que todos os registros tenham ten_id válido
+
+3. Faça logout e login novamente
+
+4. Tente cadastrar a NFCom novamente
+
+================================================================================
+SOLUÇÃO VIA SQL (ALTERNATIVA)
+================================================================================
+
+1. Abra o phpMyAdmin
+
+2. Execute o script: corrigir_ten_id_default.sql
+
+3. Isso irá:
+   - Criar tenant padrão
+   - Atualizar todos os registros
+   - Adicionar valor DEFAULT ao campo (opcional)
+
+================================================================================
+VERIFICAÇÃO
+================================================================================
+
+Após executar o script, verifique:
+
+1. Se o tenant foi criado:
+   SELECT * FROM tenants WHERE ten_nome = 'Tenant Padrão';
+
+2. Se os registros foram atualizados:
+   SELECT COUNT(*) FROM nfecom_capa WHERE ten_id IS NULL OR ten_id = 0;
+   (Deve retornar 0)
+
+3. Faça login e verifique a sessão:
+   - O ten_id deve estar na sessão
+   - Verifique nos logs se está sendo passado corretamente
+
+================================================================================
+CAUSA DO PROBLEMA
+================================================================================
+
+O erro ocorre porque:
+1. O campo ten_id é NOT NULL (obrigatório)
+2. O campo não tem valor DEFAULT
+3. O código está tentando inserir sem especificar ten_id
+4. A sessão não tem ten_id configurado
+
+================================================================================
+PREVENÇÃO
+================================================================================
+
+Para evitar este erro no futuro:
+
+1. Sempre faça login com um usuário que tenha ten_id configurado
+2. Execute o script criar_usuario_super_e_tenant.php primeiro
+3. Garanta que todos os usuários tenham ten_id no banco de dados
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Problema: "Ainda dá erro após executar o script"
+Solução:
+  1. Verifique se o tenant foi criado: SELECT * FROM tenants;
+  2. Verifique se o usuário tem ten_id: SELECT idusuarios, email, ten_id FROM usuarios;
+  3. Faça logout e login novamente
+  4. Verifique os logs: application/logs/log-YYYY-MM-DD.php
+
+Problema: "Não consigo fazer login"
+Solução:
+  1. Execute criar_usuario_super_e_tenant.php
+  2. Use as credenciais criadas:
+     - Super: admin@super.com / admin123
+     - Comum: admin@tenant.com / admin
+
+Problema: "O ten_id ainda está como 0"
+Solução:
+  1. Execute atualizar_ten_id_todos_registros.php
+  2. Verifique qual é o ID do tenant: SELECT ten_id FROM tenants LIMIT 1;
+  3. Atualize manualmente se necessário
+
+================================================================================

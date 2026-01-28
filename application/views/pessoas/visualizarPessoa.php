@@ -507,6 +507,9 @@
                                             <label class="checkbox" style="display:block; margin-bottom: 10px;">
                                                 <input type="checkbox" disabled <?php echo $cliente->cln_emitir_nfe ? 'checked' : ''; ?>> Emitir NFe
                                             </label>
+                                            <label class="checkbox" style="display:block; margin-bottom: 10px;">
+                                                <input type="checkbox" disabled <?php echo !empty($cliente->cln_cobrar_irrf) ? 'checked' : ''; ?>> Cobrar IRRF na NFCom
+                                            </label>
                                         </div>
                                     </div>
                                 </div>

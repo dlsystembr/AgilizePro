@@ -232,33 +232,97 @@ class Nfecom extends MY_Controller
                 }
                 }
 
-                // Processar datas de vencimento
-                if ($data['dataVencimento']) {
-                try {
-                    $dataVenc = explode('/', $data['dataVencimento']);
-                    $data['dataVencimento'] = $dataVenc[2] . '-' . $dataVenc[1] . '-' . $dataVenc[0];
-                } catch (Exception $e) {
+                // Processar data de vencimento
+                // O campo HTML type="date" já envia no formato yyyy-mm-dd
+                if (!empty($data['dataVencimento'])) {
+                    // Verificar se já está no formato ISO (yyyy-mm-dd)
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['dataVencimento'])) {
+                        // Já está no formato correto, usar diretamente
+                        $data['dataVencimento'] = $data['dataVencimento'];
+                    } else {
+                        // Tentar converter de formato brasileiro (dd/mm/yyyy)
+                        try {
+                            $dataVenc = explode('/', $data['dataVencimento']);
+                            if (count($dataVenc) == 3) {
+                                $data['dataVencimento'] = $dataVenc[2] . '-' . $dataVenc[1] . '-' . $dataVenc[0];
+                            } else {
+                                // Se não conseguir converter, usar data padrão
+                                $data['dataVencimento'] = date('Y-m-d', strtotime('+30 days'));
+                            }
+                        } catch (Exception $e) {
+                            $data['dataVencimento'] = date('Y-m-d', strtotime('+30 days'));
+                        }
+                    }
+                } else {
+                    // Se não foi informada, usar data padrão (30 dias)
                     $data['dataVencimento'] = date('Y-m-d', strtotime('+30 days'));
                 }
+
+                // Processar período de uso - RESPEITAR O VALOR INFORMADO PELO USUÁRIO
+                if (!empty($data['dataPeriodoIni'])) {
+                    // Verificar se já está no formato ISO (yyyy-mm-dd)
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['dataPeriodoIni'])) {
+                        // Já está no formato correto, usar diretamente
+                        $data['dataPeriodoIni'] = $data['dataPeriodoIni'];
+                    } else {
+                        // Tentar converter de formato brasileiro (dd/mm/yyyy) ou outros formatos
+                        try {
+                            // Tentar formato brasileiro (dd/mm/yyyy)
+                            if (strpos($data['dataPeriodoIni'], '/') !== false) {
+                                $dataPerIni = explode('/', $data['dataPeriodoIni']);
+                                if (count($dataPerIni) == 3) {
+                                    $data['dataPeriodoIni'] = $dataPerIni[2] . '-' . $dataPerIni[1] . '-' . $dataPerIni[0];
+                                } else {
+                                    // Se não conseguir converter, manter o valor original
+                                    log_message('warning', 'Formato de data de período início não reconhecido: ' . $data['dataPeriodoIni']);
+                                }
+                            } else {
+                                // Tentar usar strtotime para outros formatos
+                                $timestamp = strtotime($data['dataPeriodoIni']);
+                                if ($timestamp !== false) {
+                                    $data['dataPeriodoIni'] = date('Y-m-d', $timestamp);
+                                } else {
+                                    log_message('warning', 'Não foi possível converter data de período início: ' . $data['dataPeriodoIni']);
+                                }
+                            }
+                        } catch (Exception $e) {
+                            log_message('error', 'Erro ao processar data de período início: ' . $e->getMessage());
+                            // NÃO usar data padrão - manter o valor original ou lançar erro
+                        }
+                    }
                 }
 
-                // Processar período de uso
-                if ($data['dataPeriodoIni']) {
-                try {
-                    $dataPerIni = explode('/', $data['dataPeriodoIni']);
-                    $data['dataPeriodoIni'] = $dataPerIni[2] . '-' . $dataPerIni[1] . '-' . $dataPerIni[0];
-                } catch (Exception $e) {
-                    $data['dataPeriodoIni'] = date('Y-m-d');
-                }
-                }
-
-                if ($data['dataPeriodoFim']) {
-                try {
-                    $dataPerFim = explode('/', $data['dataPeriodoFim']);
-                    $data['dataPeriodoFim'] = $dataPerFim[2] . '-' . $dataPerFim[1] . '-' . $dataPerFim[0];
-                } catch (Exception $e) {
-                    $data['dataPeriodoFim'] = date('Y-m-d', strtotime('+30 days'));
-                }
+                if (!empty($data['dataPeriodoFim'])) {
+                    // Verificar se já está no formato ISO (yyyy-mm-dd)
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['dataPeriodoFim'])) {
+                        // Já está no formato correto, usar diretamente
+                        $data['dataPeriodoFim'] = $data['dataPeriodoFim'];
+                    } else {
+                        // Tentar converter de formato brasileiro (dd/mm/yyyy) ou outros formatos
+                        try {
+                            // Tentar formato brasileiro (dd/mm/yyyy)
+                            if (strpos($data['dataPeriodoFim'], '/') !== false) {
+                                $dataPerFim = explode('/', $data['dataPeriodoFim']);
+                                if (count($dataPerFim) == 3) {
+                                    $data['dataPeriodoFim'] = $dataPerFim[2] . '-' . $dataPerFim[1] . '-' . $dataPerFim[0];
+                                } else {
+                                    // Se não conseguir converter, manter o valor original
+                                    log_message('warning', 'Formato de data de período fim não reconhecido: ' . $data['dataPeriodoFim']);
+                                }
+                            } else {
+                                // Tentar usar strtotime para outros formatos
+                                $timestamp = strtotime($data['dataPeriodoFim']);
+                                if ($timestamp !== false) {
+                                    $data['dataPeriodoFim'] = date('Y-m-d', $timestamp);
+                                } else {
+                                    log_message('warning', 'Não foi possível converter data de período fim: ' . $data['dataPeriodoFim']);
+                                }
+                            }
+                        } catch (Exception $e) {
+                            log_message('error', 'Erro ao processar data de período fim: ' . $e->getMessage());
+                            // NÃO usar data padrão - manter o valor original ou lançar erro
+                        }
+                    }
                 }
 
                 // Processar data fim de contrato (opcional)
@@ -338,7 +402,7 @@ class Nfecom extends MY_Controller
                 
                 // Buscar dados completos do cliente incluindo endereço selecionado (ANTES do cálculo de tributação)
                 $enderecoId = $data['enderecoClienteSelect'] ?? null;
-                $this->db->select('p.pes_cpfcnpj, p.pes_nome, p.pes_razao_social, p.pes_fisico_juridico, e.end_logradouro as logradouro, e.end_numero as numero, e.end_complemento as complemento, e.end_cep as cep, b.bai_nome as bairro, m.mun_nome as municipio_nome, m.mun_ibge, es.est_uf as estado_uf');
+                $this->db->select('p.pes_cpfcnpj, p.pes_nome, p.pes_razao_social, p.pes_fisico_juridico, e.end_logradouro as logradouro, e.end_numero as numero, e.end_complemento as complemento, e.end_cep as cep, b.bai_nome as bairro, m.mun_nome as municipio_nome, m.mun_ibge, es.est_uf as estado_uf, COALESCE(c.cln_cobrar_irrf, 0) as cobrar_irrf');
                 $this->db->from('clientes c');
                 $this->db->join('pessoas p', 'p.pes_id = c.pes_id');
                 $this->db->join('enderecos e', 'e.pes_id = p.pes_id', 'left');
@@ -382,6 +446,7 @@ class Nfecom extends MY_Controller
                     $data['codMunCliente'] = $cliente->mun_ibge ?? '';
                     $data['cepCliente'] = $cliente->cep ?? '';
                     $data['ufCliente'] = $cliente->estado_uf ?? '';
+                    $data['cobrar_irrf'] = !empty($cliente->cobrar_irrf); // Do cliente: 1=cobrar IRRF na NFCom, 0=não cobrar
                 }
 
                 // Validar dados obrigatórios ANTES de calcular tributação
@@ -390,18 +455,28 @@ class Nfecom extends MY_Controller
                     redirect(site_url('nfecom/adicionar'));
                 }
                 
+                // Validar ten_id antes de calcular tributação
+                $tenId = $this->session->userdata('ten_id');
+                if (empty($tenId) || $tenId == 0) {
+                    $this->session->set_flashdata('error', 'Erro: Tenant ID não encontrado na sessão. Faça login novamente.');
+                    redirect(site_url('nfecom/adicionar'));
+                }
+                
                 // Calcular tributação usando a API - SEMPRE usar a API, sem valores fixos
                 $pis = 0;
                 $cofins = 0;
+                // IRRF: Aplicar 4,8% sobre o valor líquido (valor bruto - comissão agência)
+                // Base de cálculo: valor líquido (valorNF)
                 $irrf = 0.00;
                 $errosTributacao = [];
                 $servicosSemTributacao = [];
                 
-                // Inicializar totais de ICMS, ICMS ST e FCP
+                // Inicializar totais de ICMS, ICMS ST, FCP e IRRF
                 $totalIcms = 0;
                 $totalIcmsSt = 0;
                 $totalFcp = 0;
                 $totalBaseIcms = 0;
+                $totalIrrf = 0; // Total do IRRF será a soma dos IRRF dos itens
                 
                 // Calcular tributação para cada serviço e somar os valores
                 if (!empty($servicos) && $operacaoId && !empty($data['clientes_id'])) {
@@ -482,15 +557,29 @@ class Nfecom extends MY_Controller
                     $mensagemErro .= "- Se existe tributação federal configurada para o NCM\n";
                     $mensagemErro .= "- Se a operação comercial está correta\n";
                     $mensagemErro .= "- Se o cliente possui endereço com UF cadastrada\n";
+                    $mensagemErro .= "- Se o Tenant ID está configurado corretamente (ten_id: " . $tenId . ")\n";
                     $mensagemErro .= "- Verifique o log de erros para mais detalhes";
                     
-                    log_message('error', 'Erros de tributação na NFeCom: ' . implode(' | ', $errosTributacao));
+                    log_message('error', 'Erros de tributação na NFeCom: ' . implode(' | ', $errosTributacao) . ' | ten_id: ' . $tenId);
                     
                     $this->session->set_flashdata('error', $mensagemErro);
                     redirect(site_url('nfecom/adicionar'));
                 }
                 
-                $valorNF = $valorLiquido; // Valor da nota = valor líquido (sem descontar PIS/COFINS)
+                // Calcular IRRF: 4,8% sobre o valor líquido (base de cálculo) — somente se o cliente tiver "Cobrar IRRF" ativo
+                // NOTA: Este valor será substituído pela soma dos IRRF dos itens após salvar
+                $irrf = 0.00;
+                if (!empty($data['cobrar_irrf']) && $valorLiquido > 0) {
+                    $irrf = ($valorLiquido * 4.8) / 100;
+                    $irrf = round($irrf, 2);
+                    log_message('info', 'IRRF calculado (provisório): 4,8% sobre valor líquido de R$ ' . number_format($valorLiquido, 2, ',', '.') . ' = R$ ' . number_format($irrf, 2, ',', '.') . ' (será substituído pela soma dos itens)');
+                } else {
+                    log_message('info', 'IRRF não aplicado: cliente sem cobrança de IRRF ou valor líquido zero.');
+                }
+                
+                // Valor da NF conforme regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
+                $valorNF = $valorLiquido - $irrf;
+                log_message('info', 'Valor da NF calculado: R$ ' . number_format($valorLiquido, 2, ',', '.') . ' - R$ ' . number_format($irrf, 2, ',', '.') . ' (IRRF) = R$ ' . number_format($valorNF, 2, ',', '.'));
 
                 $nomeServico = implode('; ', $nomesServicos);
 
@@ -575,8 +664,12 @@ class Nfecom extends MY_Controller
                 'nfc_v_desc' => 0.00,
                 'nfc_v_outro' => 0.00,
                 'nfc_v_nf' => $valorNF,
-                'nfc_compet_fat' => date('Ym', strtotime($data['dataEmissao'])),
+                // Competência baseada no período fim (formato YYYYMM)
+                // Exemplo: se período fim for 31-12-2025, competência será 202512
+                'nfc_compet_fat' => !empty($data['dataPeriodoFim']) ? date('Ym', strtotime($data['dataPeriodoFim'])) : (!empty($data['dataContratoIni']) ? date('Ym', strtotime($data['dataContratoIni'])) : date('Ym', strtotime($data['dataEmissao']))),
                 'nfc_d_venc_fat' => $data['dataVencimento'],
+                // PERÍODO DE USO: RESPEITAR EXATAMENTE O VALOR INFORMADO PELO USUÁRIO
+                // NÃO recalcular baseado em outras datas - usar exatamente o que o usuário informou
                 'nfc_d_per_uso_ini' => $data['dataPeriodoIni'],
                 'nfc_d_per_uso_fim' => $data['dataPeriodoFim'],
                 'nfc_cod_barras' => '1',
@@ -617,11 +710,25 @@ class Nfecom extends MY_Controller
                 $nfecomData['nfc_ch_nfcom'] = $this->generateChave($nfecomData);
                 
                 // Adicionar ten_id obrigatório para foreign key
-                $nfecomData['ten_id'] = $this->session->userdata('ten_id');
-                if (empty($nfecomData['ten_id'])) {
-                    $this->session->set_flashdata('error', 'Erro: Tenant ID não encontrado na sessão. Faça login novamente.');
-                    redirect(site_url('nfecom/adicionar'));
+                $tenId = $this->session->userdata('ten_id');
+                if (empty($tenId) || $tenId == 0) {
+                    // Tentar buscar o primeiro tenant disponível
+                    $this->db->select('ten_id');
+                    $this->db->from('tenants');
+                    $this->db->limit(1);
+                    $tenant = $this->db->get()->row();
+                    
+                    if ($tenant) {
+                        $tenId = $tenant->ten_id;
+                        // Atualizar sessão com o tenant encontrado
+                        $this->session->set_userdata('ten_id', $tenId);
+                        log_message('info', 'Tenant ID não encontrado na sessão. Usando tenant padrão: ' . $tenId);
+                    } else {
+                        $this->session->set_flashdata('error', 'Erro: Nenhum tenant encontrado no sistema. Execute o script criar_usuario_super_e_tenant.php primeiro.');
+                        redirect(site_url('nfecom/adicionar'));
+                    }
                 }
+                $nfecomData['ten_id'] = (int)$tenId;
 
                 // Salvar NFCom
                 $idNfecom = $this->Nfecom_model->add('nfecom_capa', $nfecomData);
@@ -775,7 +882,19 @@ class Nfecom extends MY_Controller
                             }
                         }
                         
-                        $irrfItem = $irrf * (($valorBruto > 0) ? ($valorProduto / $valorBruto) : 0);
+                        // Calcular IRRF proporcional por item: 4,8% sobre o valor do item — somente se o cliente tiver "Cobrar IRRF" ativo
+                        $irrfItem = (!empty($data['cobrar_irrf'])) ? round(($valorProduto * 4.8) / 100, 2) : 0;
+
+                        // Garantir que CST PIS e COFINS não sejam null (valor padrão '01' conforme estrutura da tabela)
+                        if (empty($cstPis) || $cstPis === null) {
+                            $cstPis = '01'; // Valor padrão conforme estrutura da tabela
+                            log_message('info', "CST PIS estava null, usando valor padrão '01' para item #$itemNumero");
+                        }
+                        
+                        if (empty($cstCofins) || $cstCofins === null) {
+                            $cstCofins = '01'; // Valor padrão conforme estrutura da tabela
+                            log_message('info', "CST COFINS estava null, usando valor padrão '01' para item #$itemNumero");
+                        }
 
                         // Validar e corrigir bases de cálculo antes de salvar
                         // Para CST 01/02 (tributável), a base deve ser o valor do produto
@@ -784,7 +903,7 @@ class Nfecom extends MY_Controller
                             // CST tributável: base deve ser igual ao valor do produto
                             if (abs($basePis - $valorProduto) > ($valorProduto * 0.05)) {
                                 // Diferença maior que 5% - usar valor do produto
-                                log_message('warning', "Base PIS corrigida antes de salvar: $basePis → $valorProduto (CST: $cstPis)");
+                                log_message('info', "Base PIS corrigida antes de salvar: $basePis → $valorProduto (CST: $cstPis)");
                                 $basePis = $valorProduto;
                             }
                         } else {
@@ -796,12 +915,23 @@ class Nfecom extends MY_Controller
                             // CST tributável: base deve ser igual ao valor do produto
                             if (abs($baseCofins - $valorProduto) > ($valorProduto * 0.05)) {
                                 // Diferença maior que 5% - usar valor do produto
-                                log_message('warning', "Base COFINS corrigida antes de salvar: $baseCofins → $valorProduto (CST: $cstCofins)");
+                                log_message('info', "Base COFINS corrigida antes de salvar: $baseCofins → $valorProduto (CST: $cstCofins)");
                                 $baseCofins = $valorProduto;
                             }
                         } else {
                             // CST isento/não tributado: base deve ser 0
                             $baseCofins = 0;
+                        }
+                        
+                        // Validar e corrigir valores de ICMS para CST isento/não tributado
+                        // CST 40, 41, 50, 51, 60: isento/não tributado (sem base/valor/alíquota)
+                        $cstsIsentos = ['40', '41', '50', '51', '60'];
+                        if (in_array($cstIcms, $cstsIsentos)) {
+                            // CST isento/não tributado: zerar base, alíquota e valor
+                            $baseIcms = 0;
+                            $aliqIcms = 0;
+                            $valorIcms = 0;
+                            log_message('info', "CST ICMS $cstIcms detectado - zerando base, alíquota e valor de ICMS para item #$itemNumero");
                         }
                         
                         $itemData = [
@@ -857,8 +987,8 @@ class Nfecom extends MY_Controller
                             'nfi_v_bc_funtel' => 0.00,
                             'nfi_p_funtel' => 0.00,
                             'nfi_v_funtel' => 0.00,
-                            // IRRF
-                            'nfi_v_bc_irrf' => $valorProduto,
+                            // IRRF (base e valor zerados se cliente não cobrar IRRF)
+                            'nfi_v_bc_irrf' => !empty($data['cobrar_irrf']) ? $valorProduto : 0,
                             'nfi_v_irrf' => $irrfItem,
                             'nfi_data_cadastro' => date('Y-m-d H:i:s'),
                             'nfi_data_atualizacao' => date('Y-m-d H:i:s')
@@ -880,21 +1010,21 @@ class Nfecom extends MY_Controller
                         
                         // Adicionar ten_id obrigatório para foreign key (se a tabela tiver esse campo)
                         $tenId = $this->session->userdata('ten_id');
-                        if (!empty($tenId)) {
-                            $fields = $this->db->list_fields('nfecom_itens');
-                            if (in_array('ten_id', $fields)) {
-                                $itemData['ten_id'] = $tenId;
-                            }
+                        $fields = $this->db->list_fields('nfecom_itens');
+                        if (in_array('ten_id', $fields)) {
+                            // Sempre adicionar ten_id, mesmo que seja 0 (será corrigido depois)
+                            $itemData['ten_id'] = !empty($tenId) ? (int)$tenId : 1;
                         }
 
                         $this->Nfecom_model->add('nfecom_itens', $itemData);
                         log_message('info', 'Item NFCom #' . $itemNumero . ' salvo com sucesso. nfi_id: ' . $this->db->insert_id());
                         
-                        // Acumular totais de ICMS, ICMS ST e FCP
+                        // Acumular totais de ICMS, ICMS ST, FCP e IRRF
                         $totalIcms += $valorIcms ?? 0;
                         $totalIcmsSt += $valorIcmsSt ?? 0;
                         $totalFcp += $valorFcp ?? 0;
                         $totalBaseIcms += $baseIcms ?? 0;
+                        $totalIrrf += $irrfItem; // Acumular IRRF de cada item (já arredondado)
                         
                         $itemNumero++;
                     }
@@ -906,6 +1036,21 @@ class Nfecom extends MY_Controller
                     $this->session->set_flashdata('error', 'Não é possível salvar NFeCom sem serviços válidos com tributação calculada.');
                     redirect(site_url('nfecom/adicionar'));
                 }
+
+                // Arredondar o total do IRRF para 2 casas decimais
+                $totalIrrf = round($totalIrrf, 2);
+                
+                // Atualizar o total do IRRF na capa com a soma dos IRRF dos itens
+                // Conforme rejeição 685: Total do IRRF retido deve ser igual ao somatório dos itens
+                $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrf], 'nfc_id', $idNfecom);
+                log_message('info', 'Total do IRRF atualizado na capa: R$ ' . number_format($totalIrrf, 2, ',', '.') . ' (soma dos IRRF dos itens, arredondado)');
+                
+                // Recalcular o vNF usando o total do IRRF atualizado (soma dos itens)
+                // Regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
+                $vNfRecalculado = $valorLiquido - $totalIrrf; // Usar totalIrrf (soma dos itens) em vez de $irrf
+                $vNfRecalculado = round($vNfRecalculado, 2); // Arredondar vNF também
+                $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_nf' => $vNfRecalculado], 'nfc_id', $idNfecom);
+                log_message('info', 'Valor da NF recalculado: R$ ' . number_format($valorLiquido, 2, ',', '.') . ' - R$ ' . number_format($totalIrrf, 2, ',', '.') . ' (IRRF soma itens) = R$ ' . number_format($vNfRecalculado, 2, ',', '.'));
 
                 $this->session->set_flashdata('success', 'NFECom adicionada com sucesso!');
                 redirect(site_url('nfecom'));
@@ -967,12 +1112,28 @@ class Nfecom extends MY_Controller
             $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
 
             // Atualizar dados básicos da NFCom (NÃO alterar o número da NFE)
+            // Processar data de vencimento (campo pode vir como dataVencimento ou nfc_d_venc_fat)
+            $dataVencimento = $this->input->post('dataVencimento') ?: $this->input->post('nfc_d_venc_fat');
+            if (!empty($dataVencimento)) {
+                // Verificar se já está no formato ISO (yyyy-mm-dd)
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dataVencimento)) {
+                    // Tentar converter de formato brasileiro (dd/mm/yyyy)
+                    $dataVenc = explode('/', $dataVencimento);
+                    if (count($dataVenc) == 3) {
+                        $dataVencimento = $dataVenc[2] . '-' . $dataVenc[1] . '-' . $dataVenc[0];
+                    }
+                }
+            }
+            
             $dados = [
                 'nfc_serie' => $this->input->post('nfc_serie'),
                 'nfc_n_contrato' => $this->input->post('nfc_n_contrato'),
                 'nfc_d_contrato_ini' => $this->input->post('nfc_d_contrato_ini'),
-                'nfc_compet_fat' => $this->input->post('nfc_compet_fat'),
-                'nfc_d_venc_fat' => $this->input->post('nfc_d_venc_fat'),
+                // Competência baseada no período fim (formato YYYYMM)
+                // Exemplo: se período fim for 31-12-2025, competência será 202512
+                'nfc_compet_fat' => !empty($this->input->post('nfc_d_per_uso_fim')) ? date('Ym', strtotime($this->input->post('nfc_d_per_uso_fim'))) : (!empty($this->input->post('nfc_d_contrato_ini')) ? date('Ym', strtotime($this->input->post('nfc_d_contrato_ini'))) : ($this->input->post('nfc_compet_fat') ?: date('Ym'))),
+                'nfc_d_venc_fat' => $dataVencimento,
+                // PERÍODO DE USO: RESPEITAR EXATAMENTE O VALOR INFORMADO PELO USUÁRIO
                 'nfc_d_per_uso_ini' => $this->input->post('nfc_d_per_uso_ini'),
                 'nfc_d_per_uso_fim' => $this->input->post('nfc_d_per_uso_fim'),
                 'nfc_inf_cpl' => str_replace(["\r\n", "\r", "\n"], '; ', $this->input->post('nfc_inf_cpl')),
@@ -1019,6 +1180,10 @@ class Nfecom extends MY_Controller
                 // Inserir novos itens
                 foreach ($itens as $item) {
                     if (!empty($item['c_prod']) || !empty($item['x_prod'])) {
+                        // Garantir valores padrão para campos obrigatórios
+                        $cstPis = !empty($item['cst_pis']) ? $item['cst_pis'] : '01';
+                        $cstCofins = !empty($item['cst_cofins']) ? $item['cst_cofins'] : '01';
+                        
                         $itemData = [
                             'nfc_id' => $id,
                             'nfi_n_item' => $item['n_item'] ?? 1,
@@ -1032,10 +1197,26 @@ class Nfecom extends MY_Controller
                             'nfi_v_desc' => str_replace(',', '.', $item['v_desc'] ?? '0.00'),
                             'nfi_v_outro' => str_replace(',', '.', $item['v_outro'] ?? '0.00'),
                             'nfi_cst_icms' => $item['cst_icms'] ?? '',
+                            // Campos obrigatórios PIS e COFINS com valores padrão
+                            'nfi_cst_pis' => $cstPis,
+                            'nfi_v_bc_pis' => str_replace(',', '.', $item['v_bc_pis'] ?? '0.00'),
+                            'nfi_p_pis' => str_replace(',', '.', $item['p_pis'] ?? '0.00'),
+                            'nfi_v_pis' => str_replace(',', '.', $item['v_pis'] ?? '0.00'),
+                            'nfi_cst_cofins' => $cstCofins,
+                            'nfi_v_bc_cofins' => str_replace(',', '.', $item['v_bc_cofins'] ?? '0.00'),
+                            'nfi_p_cofins' => str_replace(',', '.', $item['p_cofins'] ?? '0.00'),
+                            'nfi_v_cofins' => str_replace(',', '.', $item['v_cofins'] ?? '0.00'),
                         ];
 
                         // Calcular valor total
                         $itemData['nfi_v_prod'] = $itemData['nfi_q_faturada'] * $itemData['nfi_v_item'];
+                        
+                        // Adicionar ten_id se o campo existir na tabela
+                        $tenId = $this->session->userdata('ten_id');
+                        $fields = $this->db->list_fields('nfecom_itens');
+                        if (in_array('ten_id', $fields)) {
+                            $itemData['ten_id'] = !empty($tenId) ? (int)$tenId : 1;
+                        }
 
                         $this->db->insert('nfecom_itens', $itemData);
                         if ($this->db->affected_rows() == 0) {
@@ -1081,38 +1262,53 @@ class Nfecom extends MY_Controller
     {
         // Verificar se é uma requisição AJAX
         $isAjax = $this->input->is_ajax_request() || $this->input->post('ajax') === 'true';
-
-        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
-            if ($isAjax) {
-                $response = ['success' => false, 'message' => 'Você não tem permissão para emitir NFECom.'];
-                echo json_encode($response);
-                return;
-            } else {
-                $this->session->set_flashdata('error', 'Você não tem permissão para emitir NFECom.');
-                redirect(base_url());
+        
+        // Para requisições AJAX, definir header JSON desde o início e limpar output
+        if ($isAjax) {
+            // Limpar qualquer output anterior
+            if (ob_get_length()) {
+                ob_clean();
             }
+            header('Content-Type: application/json; charset=utf-8');
         }
 
-        $id = $this->input->post('id') ?? $this->uri->segment(3);
-        $nfecom = $this->Nfecom_model->getById($id);
-
-        if ($nfecom == null) {
-            if ($isAjax) {
-                $response = ['success' => false, 'message' => 'NFECom não encontrada.'];
-                echo json_encode($response);
-                return;
-            } else {
-                $this->session->set_flashdata('error', 'NFECom não encontrada.');
-                redirect(site_url('nfecom'));
+        try {
+            if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
+                if ($isAjax) {
+                    $response = ['success' => false, 'message' => 'Você não tem permissão para emitir NFECom.'];
+                    echo json_encode($response, JSON_UNESCAPED_UNICODE);
+                    return;
+                } else {
+                    $this->session->set_flashdata('error', 'Você não tem permissão para emitir NFECom.');
+                    redirect(base_url());
+                }
             }
-        }
 
-        // Se ainda não foi autorizada, fazer a autorização automática
-        // Inclui reemissões (status 4)
-        if ($nfecom->nfc_status < 3 || $nfecom->nfc_status == 4) {
-            $isReemissao = ($nfecom->nfc_status == 4);
-            log_message('info', 'NFCom ' . ($isReemissao ? 'Reemissão' : 'Emissão') . ' iniciada - ID: ' . $id . ', Status: ' . $nfecom->nfc_status);
-            try {
+            $id = $this->input->post('id') ?? $this->uri->segment(3);
+            
+            if (empty($id)) {
+                throw new Exception('ID da NFCom não informado.');
+            }
+            
+            $nfecom = $this->Nfecom_model->getById($id);
+
+            if ($nfecom == null) {
+                if ($isAjax) {
+                    $response = ['success' => false, 'message' => 'NFECom não encontrada.'];
+                    echo json_encode($response, JSON_UNESCAPED_UNICODE);
+                    return;
+                } else {
+                    $this->session->set_flashdata('error', 'NFECom não encontrada.');
+                    redirect(site_url('nfecom'));
+                }
+            }
+
+            // Se ainda não foi autorizada, fazer a autorização automática
+            // Inclui reemissões (status 4)
+            if ($nfecom->nfc_status < 3 || $nfecom->nfc_status == 4) {
+                $isReemissao = ($nfecom->nfc_status == 4);
+                log_message('info', 'NFCom ' . ($isReemissao ? 'Reemissão' : 'Emissão') . ' iniciada - ID: ' . $id . ', Status: ' . $nfecom->nfc_status);
+                
                 // Atualizar dados fiscais e gerar XML se necessário
                 $configFiscal = $this->getConfiguracaoNfcom();
                 if ($configFiscal) {
@@ -1170,133 +1366,136 @@ class Nfecom extends MY_Controller
                     $nfecom = $this->Nfecom_model->getById($id);
                 }
 
-                // Chamar o método de autorização
-                $this->autorizar($id, false);
+                // Chamar o método de autorização (pode lançar exceções)
+                $resultadoAutorizacao = $this->autorizar($id, false);
+                
+                if ($resultadoAutorizacao === false) {
+                    throw new Exception('Falha na autorização da NFCom. Verifique os logs para mais detalhes.');
+                }
 
                 // Recarregar dados após autorização
                 $nfecom = $this->Nfecom_model->getById($id);
+            }
 
-            } catch (Exception $e) {
-                if ($isAjax) {
-                    $response = ['success' => false, 'message' => 'Erro na autorização automática: ' . $e->getMessage()];
-                    echo json_encode($response);
-                    return;
+            // Preparar dados para o modal
+            // Recarregar dados atualizados após autorização
+            $nfecom = $this->Nfecom_model->getById($id);
+            
+            if (!$nfecom) {
+                throw new Exception('NFECom não encontrada após autorização.');
+            }
+            
+            // Garantir que o status seja um número inteiro
+            $statusAtual = (int) $nfecom->nfc_status;
+            
+            // Determinar status baseado no status atual e cStat da SEFAZ
+            $statusDescricao = $this->getStatusDescricao($statusAtual);
+            
+            // Se foi autorizado (status 3), garantir que mostra "Autorizado"
+            if ($statusAtual == 3) {
+                $statusDescricao = 'Autorizado';
+            } elseif ($statusAtual == 4 && !empty($nfecom->nfc_c_stat)) {
+                // Para notas rejeitadas, incluir o cStat da SEFAZ
+                $statusDescricao = 'Rejeitada (cStat: ' . $nfecom->nfc_c_stat . ')';
+            } elseif ($statusAtual == 7) {
+                $statusDescricao = 'Cancelada';
+            }
+
+            $modalData = [
+                'numero_nfcom' => $nfecom->nfc_nnf ?? '',
+                'chave_nfcom' => $nfecom->nfc_ch_nfcom ?? '',
+                'status' => $statusDescricao,
+                'cstat' => $nfecom->nfc_c_stat ?? '',
+                'motivo' => $nfecom->nfc_x_motivo ?? 'NFCom processada com sucesso',
+                'protocolo' => $nfecom->nfc_n_prot ?? '',
+                'id' => $id
+            ];
+
+            // Se foi autorizado, incluir informações adicionais
+            if ($statusAtual == 3) {
+                $modalData['motivo'] = $nfecom->nfc_x_motivo ?? 'Autorizado o uso da NFCom';
+                // Garantir que o status seja "Autorizado"
+                $modalData['status'] = 'Autorizado';
+                
+                // Montar retorno detalhado em JSON quando autorizado
+                $retornoSefaz = [
+                    'cStat' => $nfecom->nfc_c_stat ?? '100',
+                    'xMotivo' => $nfecom->nfc_x_motivo ?? 'Autorizado o uso da NFCom',
+                    'nProt' => $nfecom->nfc_n_prot ?? '',
+                    'dhRecbto' => $nfecom->nfc_dh_recbto ?? '',
+                    'xml' => $nfecom->nfc_xml ?? ''
+                ];
+                $modalData['retorno'] = json_encode($retornoSefaz, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            } elseif ($statusAtual == 4) {
+                // Para rejeitadas, também montar retorno detalhado
+                $retornoSefaz = [
+                    'cStat' => $nfecom->nfc_c_stat ?? '',
+                    'xMotivo' => $nfecom->nfc_x_motivo ?? 'Rejeitada',
+                    'nProt' => '',
+                    'dhRecbto' => '',
+                    'xml' => ''
+                ];
+                $modalData['retorno'] = json_encode($retornoSefaz, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
+
+            if ($isAjax) {
+                $response = ['success' => true, 'modal' => $modalData];
+                echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            } else {
+                // Se não for AJAX e estiver autorizada, fazer download do XML autorizado
+                if ($statusAtual == 3 && !empty($nfecom->nfc_xml)) {
+                    // Limpar qualquer output anterior
+                    if (ob_get_length()) {
+                        ob_clean();
+                    }
+                    
+                    // Recarregar dados para garantir que temos o XML mais recente
+                    $nfecom = $this->Nfecom_model->getById($id);
+                    
+                    if (empty($nfecom->nfc_xml)) {
+                        log_message('error', 'NFCom: Tentativa de download mas nfc_xml está vazio. ID: ' . $id);
+                        $this->session->set_flashdata('error', 'XML autorizado não encontrado no banco de dados.');
+                        redirect(site_url('nfecom'));
+                        return;
+                    }
+                    
+                    // Configurar headers para download do XML autorizado
+                    $filename = 'NFCom_' . str_pad($nfecom->nfc_nnf, 9, '0', STR_PAD_LEFT) . '_' . date('YmdHis') . '.xml';
+                    
+                    // Limpar qualquer output buffer
+                    while (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    
+                    header('Content-Type: application/xml; charset=utf-8');
+                    header('Content-Disposition: attachment; filename="' . $filename . '"');
+                    header('Content-Length: ' . strlen($nfecom->nfc_xml));
+                    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                    header('Pragma: public');
+                    
+                    // Output do XML autorizado
+                    echo $nfecom->nfc_xml;
+                    exit;
                 } else {
-                    $this->session->set_flashdata('error', 'Erro na autorização automática: ' . $e->getMessage());
+                    // Se não estiver autorizada ou não tiver XML, mostrar modal
+                    $this->session->set_flashdata('nfecom_modal', $modalData);
                     redirect(site_url('nfecom'));
                 }
             }
-        }
-
-        // Preparar dados para o modal
-        // Recarregar dados atualizados após autorização
-        $nfecom = $this->Nfecom_model->getById($id);
-        
-        if (!$nfecom) {
-            if ($isAjax) {
-                $response = ['success' => false, 'message' => 'NFECom não encontrada após autorização.'];
-                echo json_encode($response);
-                return;
-            } else {
-                $this->session->set_flashdata('error', 'NFECom não encontrada após autorização.');
-                redirect(site_url('nfecom'));
-            }
-        }
-        
-        // Garantir que o status seja um número inteiro
-        $statusAtual = (int) $nfecom->nfc_status;
-        
-        // Determinar status baseado no status atual e cStat da SEFAZ
-        $statusDescricao = $this->getStatusDescricao($statusAtual);
-        
-        // Se foi autorizado (status 3), garantir que mostra "Autorizado"
-        if ($statusAtual == 3) {
-            $statusDescricao = 'Autorizado';
-        } elseif ($statusAtual == 4 && !empty($nfecom->nfc_c_stat)) {
-            // Para notas rejeitadas, incluir o cStat da SEFAZ
-            $statusDescricao = 'Rejeitada (cStat: ' . $nfecom->nfc_c_stat . ')';
-        } elseif ($statusAtual == 7) {
-            $statusDescricao = 'Cancelada';
-        }
-
-        $modalData = [
-            'numero_nfcom' => $nfecom->nfc_nnf ?? '',
-            'chave_nfcom' => $nfecom->nfc_ch_nfcom ?? '',
-            'status' => $statusDescricao,
-            'cstat' => $nfecom->nfc_c_stat ?? '',
-            'motivo' => $nfecom->nfc_x_motivo ?? 'NFCom processada com sucesso',
-            'protocolo' => $nfecom->nfc_n_prot ?? '',
-            'id' => $id
-        ];
-
-        // Se foi autorizado, incluir informações adicionais
-        if ($statusAtual == 3) {
-            $modalData['motivo'] = $nfecom->nfc_x_motivo ?? 'Autorizado o uso da NFCom';
-            // Garantir que o status seja "Autorizado"
-            $modalData['status'] = 'Autorizado';
             
-            // Montar retorno detalhado em JSON quando autorizado
-            $retornoSefaz = [
-                'cStat' => $nfecom->nfc_c_stat ?? '100',
-                'xMotivo' => $nfecom->nfc_x_motivo ?? 'Autorizado o uso da NFCom',
-                'nProt' => $nfecom->nfc_n_prot ?? '',
-                'dhRecbto' => $nfecom->nfc_dh_recbto ?? '',
-                'xml' => $nfecom->nfc_xml ?? ''
-            ];
-            $modalData['retorno'] = json_encode($retornoSefaz, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        } elseif ($statusAtual == 4) {
-            // Para rejeitadas, também montar retorno detalhado
-            $retornoSefaz = [
-                'cStat' => $nfecom->nfc_c_stat ?? '',
-                'xMotivo' => $nfecom->nfc_x_motivo ?? 'Rejeitada',
-                'nProt' => '',
-                'dhRecbto' => '',
-                'xml' => ''
-            ];
-            $modalData['retorno'] = json_encode($retornoSefaz, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }
-
-        if ($isAjax) {
-            $response = ['success' => true, 'modal' => $modalData];
-            echo json_encode($response);
-        } else {
-            // Se não for AJAX e estiver autorizada, fazer download do XML autorizado
-            if ($statusAtual == 3 && !empty($nfecom->nfc_xml)) {
+        } catch (Exception $e) {
+            log_message('error', 'Erro em gerarXml NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            
+            if ($isAjax) {
                 // Limpar qualquer output anterior
                 if (ob_get_length()) {
                     ob_clean();
                 }
-                
-                // Recarregar dados para garantir que temos o XML mais recente
-                $nfecom = $this->Nfecom_model->getById($id);
-                
-                if (empty($nfecom->nfc_xml)) {
-                    log_message('error', 'NFCom: Tentativa de download mas nfc_xml está vazio. ID: ' . $id);
-                    $this->session->set_flashdata('error', 'XML autorizado não encontrado no banco de dados.');
-                    redirect(site_url('nfecom'));
-                    return;
-                }
-                
-                // Configurar headers para download do XML autorizado
-                $filename = 'NFCom_' . str_pad($nfecom->nfc_nnf, 9, '0', STR_PAD_LEFT) . '_' . date('YmdHis') . '.xml';
-                
-                // Limpar qualquer output buffer
-                while (ob_get_level()) {
-                    ob_end_clean();
-                }
-                
-                header('Content-Type: application/xml; charset=utf-8');
-                header('Content-Disposition: attachment; filename="' . $filename . '"');
-                header('Content-Length: ' . strlen($nfecom->nfc_xml));
-                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                header('Pragma: public');
-                
-                // Output do XML autorizado
-                echo $nfecom->nfc_xml;
-                exit;
+                header('Content-Type: application/json; charset=utf-8');
+                $response = ['success' => false, 'message' => 'Erro ao processar NFCom: ' . $e->getMessage()];
+                echo json_encode($response, JSON_UNESCAPED_UNICODE);
             } else {
-                // Se não estiver autorizada ou não tiver XML, mostrar modal
-                $this->session->set_flashdata('nfecom_modal', $modalData);
+                $this->session->set_flashdata('error', 'Erro ao processar NFCom: ' . $e->getMessage());
                 redirect(site_url('nfecom'));
             }
         }
@@ -1808,8 +2007,24 @@ class Nfecom extends MY_Controller
         ];
 
         // Preparar dados de faturamento
+        // Competência baseada no período fim (formato YYYYMM)
+        // Exemplo: se período fim for 31-12-2025, competência será 202512
+        $competencia = $nfecom->nfc_compet_fat;
+        if (empty($competencia) && !empty($nfecom->nfc_d_per_uso_fim)) {
+            $competencia = date('Ym', strtotime($nfecom->nfc_d_per_uso_fim));
+        } elseif (empty($competencia) && !empty($nfecom->nfc_d_contrato_ini)) {
+            $competencia = date('Ym', strtotime($nfecom->nfc_d_contrato_ini));
+        } elseif (empty($competencia)) {
+            $competencia = date('Ym');
+        }
+        // Garantir formato YYYYMM (sem hífen)
+        $competencia = str_replace('-', '', $competencia);
+        if (strlen($competencia) == 7 && strpos($competencia, '-') !== false) {
+            $competencia = str_replace('-', '', $competencia);
+        }
+        
         $faturamento = [
-            'competencia' => $nfecom->nfc_compet_fat ?? date('Y-m'),
+            'competencia' => $competencia,
             'periodo_inicio' => date('d/m/Y', strtotime($nfecom->nfc_d_per_uso_ini)),
             'periodo_fim' => date('d/m/Y', strtotime($nfecom->nfc_d_per_uso_fim)),
             'vencimento' => date('d/m/Y', strtotime($nfecom->nfc_d_venc_fat)),
@@ -1969,6 +2184,51 @@ class Nfecom extends MY_Controller
                     ' | Total Base FCP (soma itens): ' . $totalBaseFcp);
 
         // Preparar dados completos
+        // Calcular totais para regra G137 usando os itens do banco
+        $totalVProd = 0.00;
+        $totalVDesc = 0.00;
+        $totalVOutro = 0.00;
+        foreach ($itens as $item) {
+            $totalVProd += floatval($item->nfi_v_prod ?? 0);
+            $totalVDesc += floatval($item->nfi_v_desc ?? 0);
+            $totalVOutro += floatval($item->nfi_v_outro ?? 0);
+        }
+        $vRetPis = floatval($nfecom->nfc_v_ret_pis ?? 0);
+        $vRetCofins = floatval($nfecom->nfc_v_ret_cofins ?? 0);
+        $vRetCsll = floatval($nfecom->nfc_v_ret_csll ?? 0);
+        
+        // Calcular total do IRRF somando os itens (conforme rejeição 685)
+        // SEMPRE usar a soma dos itens, não o valor do banco
+        $totalIrrfItens = 0;
+        foreach ($itens as $item) {
+            $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
+        }
+        
+        // Arredondar para 2 casas decimais para evitar problemas de precisão
+        $totalIrrfItens = round($totalIrrfItens, 2);
+        
+        // SEMPRE atualizar o banco com a soma dos itens
+        $vIrrf = $totalIrrfItens;
+        $irrfBanco = floatval($nfecom->nfc_v_irrf ?? 0);
+        if (abs($totalIrrfItens - $irrfBanco) > 0.001) { // Tolerância menor (0.001 para garantir precisão)
+            // Atualizar total do IRRF no banco com a soma dos itens
+            $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrfItens], 'nfc_id', $id);
+            log_message('info', 'Total do IRRF atualizado em prepararDadosEnvio: R$ ' . number_format($irrfBanco, 2, ',', '.') . ' → R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos itens)');
+            // Recarregar nfecom para ter o valor atualizado
+            $nfecom = $this->Nfecom_model->getById($id);
+        }
+
+        // Regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
+        $vNfCalculado = $totalVProd + $totalVOutro - $totalVDesc - $vRetPis - $vRetCofins - $vRetCsll - $vIrrf;
+
+        // Atualizar vNF no banco se estiver divergente (tolerância de centavos)
+        $vNfBanco = floatval($nfecom->nfc_v_nf ?? 0);
+        if (abs($vNfCalculado - $vNfBanco) > 0.01) {
+            $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_nf' => $vNfCalculado], 'nfc_id', $id);
+            $nfecom->nfc_v_nf = $vNfCalculado;
+            log_message('info', 'vNF ajustado pela regra G137: ' . number_format($vNfBanco, 2, '.', '') . ' → ' . number_format($vNfCalculado, 2, '.', ''));
+        }
+
         $dados = [
             'numero' => $nfecom->nfc_nnf,
             'chave' => $nfecom->nfc_ch_nfcom,
@@ -2244,7 +2504,13 @@ class Nfecom extends MY_Controller
                 'contrato' => $nfecom->nfc_n_contrato ?? ''
             ],
             'faturamento' => [
-                'competencia' => date('m/Y', strtotime($nfecom->nfc_compet_fat)),
+                // Competência baseada no período fim (formato YYYYMM)
+                // Exemplo: se período fim for 31-12-2025, competência será 202512
+                'competencia' => !empty($nfecom->nfc_d_per_uso_fim) && empty($nfecom->nfc_compet_fat) 
+                    ? date('Ym', strtotime($nfecom->nfc_d_per_uso_fim)) 
+                    : (!empty($nfecom->nfc_d_contrato_ini) && empty($nfecom->nfc_compet_fat)
+                        ? date('Ym', strtotime($nfecom->nfc_d_contrato_ini))
+                        : (str_replace('-', '', $nfecom->nfc_compet_fat) ?: date('Ym'))),
                 'vencimento' => date('d/m/Y', strtotime($nfecom->nfc_d_venc_fat)),
                 'periodo_inicio' => date('d/m/Y', strtotime($nfecom->nfc_d_per_uso_ini)),
                 'periodo_fim' => date('d/m/Y', strtotime($nfecom->nfc_d_per_uso_fim)),
@@ -2311,17 +2577,46 @@ class Nfecom extends MY_Controller
         }
 
         try {
+            // Recalcular total do IRRF somando os itens antes de preparar reemissão
+            $itens = $this->Nfecom_model->getItens($id);
+            $totalIrrfItens = 0;
+            foreach ($itens as $item) {
+                $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
+            }
+            $totalIrrfItens = round($totalIrrfItens, 2);
+            
+            // Recalcular vNF também
+            $totalVProd = 0;
+            $totalVDesc = 0;
+            $totalVOutro = 0;
+            foreach ($itens as $item) {
+                $totalVProd += floatval($item->nfi_v_prod ?? 0);
+                $totalVDesc += floatval($item->nfi_v_desc ?? 0);
+                $totalVOutro += floatval($item->nfi_v_outro ?? 0);
+            }
+            $vRetPis = floatval($nfecom->nfc_v_ret_pis ?? 0);
+            $vRetCofins = floatval($nfecom->nfc_v_ret_cofins ?? 0);
+            $vRetCsll = floatval($nfecom->nfc_v_ret_csll ?? 0);
+            // Regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
+            $vNfRecalculado = $totalVProd + $totalVOutro - $totalVDesc - $vRetPis - $vRetCofins - $vRetCsll - $totalIrrfItens;
+            $vNfRecalculado = round($vNfRecalculado, 2);
+            
             // Resetar apenas o status, mantendo a mesma chave de acesso
+            // IMPORTANTE: Atualizar total do IRRF e vNF com valores recalculados
             $dadosAtualizacao = [
                 'nfc_status' => 1, // Voltar para status "Salvo"
                 'nfc_xml' => null, // Limpar XML antigo
                 'nfc_c_stat' => null,
                 'nfc_x_motivo' => null,
                 'nfc_n_prot' => null,
-                'nfc_dh_recbto' => null
+                'nfc_dh_recbto' => null,
+                'nfc_v_irrf' => $totalIrrfItens, // Atualizar com soma dos itens
+                'nfc_v_nf' => $vNfRecalculado // Atualizar vNF recalculado
             ];
 
             $this->Nfecom_model->edit('nfecom_capa', $dadosAtualizacao, 'nfc_id', $id);
+            
+            log_message('info', 'Reemissão NFCom preparada - Total IRRF: R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos itens), vNF: R$ ' . number_format($vNfRecalculado, 2, ',', '.'));
 
             $this->session->set_flashdata('success', 'NFCom preparada para reemissão com a mesma chave: ' . $nfecom->nfc_ch_nfcom);
 
@@ -2451,6 +2746,36 @@ class Nfecom extends MY_Controller
                     $atualizacao['nfc_dh_recbto'] = null;
                     $atualizacao['nfc_xml'] = null;
                     // Não recalcular chave, manter a original
+                    
+                    // IMPORTANTE: Recalcular total do IRRF somando os itens (conforme rejeição 685)
+                    $itens = $this->Nfecom_model->getItens($id);
+                    $totalIrrfItens = 0;
+                    foreach ($itens as $item) {
+                        $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
+                    }
+                    $totalIrrfItens = round($totalIrrfItens, 2);
+                    
+                    // Atualizar total do IRRF na capa com a soma dos itens
+                    $atualizacao['nfc_v_irrf'] = $totalIrrfItens;
+                    log_message('info', 'Reemissão NFCom - Total do IRRF recalculado: R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos IRRF dos itens)');
+                    
+                    // Recalcular vNF também
+                    $totalVProd = 0;
+                    $totalVDesc = 0;
+                    $totalVOutro = 0;
+                    foreach ($itens as $item) {
+                        $totalVProd += floatval($item->nfi_v_prod ?? 0);
+                        $totalVDesc += floatval($item->nfi_v_desc ?? 0);
+                        $totalVOutro += floatval($item->nfi_v_outro ?? 0);
+                    }
+                    $vRetPis = floatval($nfecom->nfc_v_ret_pis ?? 0);
+                    $vRetCofins = floatval($nfecom->nfc_v_ret_cofins ?? 0);
+                    $vRetCsll = floatval($nfecom->nfc_v_ret_csll ?? 0);
+                    // Regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
+                    $vNfRecalculado = $totalVProd + $totalVOutro - $totalVDesc - $vRetPis - $vRetCofins - $vRetCsll - $totalIrrfItens;
+                    $vNfRecalculado = round($vNfRecalculado, 2);
+                    $atualizacao['nfc_v_nf'] = $vNfRecalculado;
+                    log_message('info', 'Reemissão NFCom - Valor da NF recalculado: R$ ' . number_format($vNfRecalculado, 2, ',', '.'));
                 } else {
                     // Para NFCom nova, calcular nova chave
                     $chaveData = [
@@ -2475,6 +2800,24 @@ class Nfecom extends MY_Controller
 
                 $this->Nfecom_model->edit('nfecom_capa', $atualizacao, 'nfc_id', $id);
                 $nfecom = $this->Nfecom_model->getById($id); // Recarregar a NFCom com os dados atualizados
+                
+                // Se for reemissão, garantir que o total do IRRF está correto
+                if ($isReemissao) {
+                    // Recalcular e atualizar total do IRRF uma vez mais para garantir
+                    $itens = $this->Nfecom_model->getItens($id);
+                    $totalIrrfItens = 0;
+                    foreach ($itens as $item) {
+                        $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
+                    }
+                    $totalIrrfItens = round($totalIrrfItens, 2);
+                    
+                    $irrfBanco = floatval($nfecom->nfc_v_irrf ?? 0);
+                    if (abs($totalIrrfItens - $irrfBanco) > 0.001) {
+                        $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrfItens], 'nfc_id', $id);
+                        log_message('info', 'Reemissão NFCom - Total do IRRF corrigido após atualização: R$ ' . number_format($irrfBanco, 2, ',', '.') . ' → R$ ' . number_format($totalIrrfItens, 2, ',', '.'));
+                        $nfecom = $this->Nfecom_model->getById($id);
+                    }
+                }
             }
         }
 
@@ -2641,15 +2984,23 @@ class Nfecom extends MY_Controller
             
             // Se for requisição AJAX, retornar JSON com erro
             if ($isAjax) {
+                // Limpar qualquer output anterior
+                if (ob_get_length()) {
+                    ob_clean();
+                }
+                header('Content-Type: application/json; charset=utf-8');
                 $response = ['success' => false, 'message' => $mensagemErro];
-                echo json_encode($response);
-                return;
+                echo json_encode($response, JSON_UNESCAPED_UNICODE);
+                return false;
             }
 
-            $this->session->set_flashdata('error', $mensagemErro);
-            if ($redirect) {
-                redirect(site_url('nfecom/visualizar/' . $id));
+            // Se não for redirecionamento, apenas retornar false sem gerar output
+            if (!$redirect) {
+                return false;
             }
+            
+            $this->session->set_flashdata('error', $mensagemErro);
+            redirect(site_url('nfecom/visualizar/' . $id));
             return false;
         }
 
@@ -2827,14 +3178,225 @@ class Nfecom extends MY_Controller
         }
     }
 
+    /**
+     * Cancelar NFCom informando apenas a chave de acesso.
+     */
+    public function cancelarPorChave()
+    {
+        $isAjax = $this->input->is_ajax_request() || $this->input->post('ajax') === 'true';
+
+        if ($isAjax) {
+            $this->output->set_content_type('application/json');
+        }
+
+        try {
+            if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
+                throw new Exception('Você não tem permissão para cancelar NFCom.');
+            }
+
+            if ($this->input->method() !== 'post') {
+                // Exibir formulário
+                $this->data['view'] = 'nfecom/cancelar_por_chave';
+                return $this->layout();
+            }
+
+            $chave = trim((string) $this->input->post('chave_nfcom'));
+            $justificativa = trim((string) $this->input->post('justificativa'));
+
+            if ($chave === '') {
+                throw new Exception('Chave de acesso não informada.');
+            }
+
+            if ($justificativa === '') {
+                throw new Exception('Justificativa não informada.');
+            }
+
+            if (mb_strlen($justificativa, 'UTF-8') < 15) {
+                throw new Exception('A justificativa deve ter no mínimo 15 caracteres.');
+            }
+
+            $chaveLimpa = preg_replace('/\D/', '', $chave);
+            if (strlen($chaveLimpa) !== 44) {
+                throw new Exception('A chave de acesso deve conter 44 dígitos.');
+            }
+
+            $configFiscal = $this->getConfiguracaoNfcom();
+            if (!$configFiscal || empty($configFiscal->cer_arquivo) || empty($configFiscal->cer_senha)) {
+                throw new Exception('Nenhum certificado válido configurado para NFCOM.');
+            }
+
+            // Consultar NFCom na SEFAZ para obter o protocolo
+            $this->load->library('NFComService');
+            $ambiente = $configFiscal->cfg_ambiente ?? 2;
+            $nfcomService = new NFComService([
+                'ambiente' => $ambiente,
+                'disable_cert_validation' => true
+            ]);
+            $nfcomService->setCertificate($configFiscal->cer_arquivo, $configFiscal->cer_senha);
+
+            $consulta = $nfcomService->consult($chaveLimpa, $ambiente);
+            if (isset($consulta['error'])) {
+                throw new Exception('Erro ao consultar SEFAZ: ' . $consulta['error']);
+            }
+
+            $cStat = $consulta['cStat'] ?? '999';
+            $xMotivo = $consulta['xMotivo'] ?? 'Erro desconhecido';
+
+            if ($cStat == '101') {
+                // Já cancelada
+                $msg = 'NFCom já está cancelada na SEFAZ. Motivo: ' . $xMotivo;
+                if ($isAjax) {
+                    echo json_encode(['success' => true, 'message' => $msg]);
+                    return;
+                }
+                $this->session->set_flashdata('info', $msg);
+                redirect(site_url('nfecom'));
+                return;
+            }
+
+            if ($cStat != '100') {
+                throw new Exception('NFCom não autorizada para cancelamento. Status: ' . $cStat . ' - ' . $xMotivo);
+            }
+
+            $nProt = $consulta['protocolo']['nProt'] ?? '';
+            if (empty($nProt)) {
+                throw new Exception('Protocolo de autorização não encontrado na consulta.');
+            }
+
+            // Criar objeto mínimo para geração do evento
+            $nfecomStub = new stdClass();
+            $nfecomStub->nfc_ch_nfcom = $chaveLimpa;
+            $nfecomStub->nfc_n_prot = $nProt;
+            $nfecomStub->nfc_cnpj_emit = $this->extrairCnpjDaChave($chaveLimpa);
+            $nfecomStub->nfc_tipo_ambiente = $ambiente;
+
+            if (empty($nfecomStub->nfc_cnpj_emit)) {
+                throw new Exception('Não foi possível identificar o CNPJ do emitente pela chave.');
+            }
+
+            $eventoCancelamento = $this->gerarEventoCancelamento($nfecomStub, $justificativa);
+            $eventoAssinado = $this->assinarEventoNFCom($configFiscal, $eventoCancelamento);
+            $retornoCancelamento = $nfcomService->sendEvent($eventoAssinado, $ambiente);
+
+            if (isset($retornoCancelamento['error'])) {
+                throw new Exception('Erro ao cancelar na SEFAZ: ' . $retornoCancelamento['error']);
+            }
+
+            $cStat = $retornoCancelamento['cStat'] ?? '999';
+            if ($cStat == '135') {
+                $protocoloCancelamento = $retornoCancelamento['nProt'] ?? '';
+                $motivo = $retornoCancelamento['xMotivo'] ?? 'Cancelamento autorizado';
+
+                // Atualizar registro local se existir
+                $registro = $this->db->get_where('nfecom_capa', ['nfc_ch_nfcom' => $chaveLimpa])->row();
+                if ($registro) {
+                    $dadosAtualizacao = [
+                        'nfc_status' => 7,
+                        'nfc_x_motivo' => 'Cancelada: ' . $justificativa,
+                        'nfc_c_stat' => $cStat,
+                        'nfc_n_prot_canc' => $protocoloCancelamento
+                    ];
+                    $this->Nfecom_model->edit('nfecom_capa', $dadosAtualizacao, 'nfc_id', $registro->nfc_id);
+                    $this->registrarProtocolo($registro->nfc_id, $protocoloCancelamento, 'CANCELAMENTO', $motivo);
+                }
+
+                $msg = 'NFCom cancelada com sucesso na SEFAZ. Protocolo: ' . $protocoloCancelamento;
+                if ($isAjax) {
+                    echo json_encode(['success' => true, 'message' => $msg]);
+                    return;
+                }
+                $this->session->set_flashdata('success', $msg);
+                redirect(site_url('nfecom'));
+                return;
+            }
+
+            $motivo = $retornoCancelamento['xMotivo'] ?? 'Erro desconhecido';
+            throw new Exception('Cancelamento rejeitado pela SEFAZ: ' . $cStat . ' - ' . $motivo);
+        } catch (Exception $e) {
+            if ($isAjax) {
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+                return;
+            }
+            $this->session->set_flashdata('error', $e->getMessage());
+            redirect(site_url('nfecom'));
+        }
+    }
+
+    /**
+     * Extrai o CNPJ da chave de acesso (posição padrão NFCom).
+     */
+    private function extrairCnpjDaChave($chave)
+    {
+        $chave = preg_replace('/\D/', '', (string) $chave);
+        if (strlen($chave) !== 44) {
+            return '';
+        }
+        // cUF(2) + AAMM(4) => CNPJ inicia na posição 6 (0-based) e tem 14 dígitos
+        $cnpj = substr($chave, 6, 14);
+        return ctype_digit($cnpj) ? $cnpj : '';
+    }
+
     private function gerarEventoCancelamento($nfecom, $justificativa)
     {
         // Gerar XML do evento de cancelamento conforme schema evCancNFCom_v1.00.xsd
         // O Id deve seguir o padrão: "id" + tpEvento (6 dígitos) + chave NFCom (44 dígitos) + nSeqEvento (3 dígitos)
         $tpEvento = '110111'; // Código do evento de cancelamento
-        $chaveNFCom = preg_replace('/\D/', '', $nfecom->nfc_ch_nfcom); // Remover caracteres não numéricos
+        
+        // Extrair apenas os dígitos numéricos da chave
+        $chaveOriginal = trim($nfecom->nfc_ch_nfcom ?? '');
+        // Remover TODOS os caracteres não numéricos (espaços, hífens, pontos, etc.)
+        $chaveNFCom = preg_replace('/[^0-9]/', '', $chaveOriginal);
+        
+        // Log para debug
+        log_message('info', 'Chave original NFCom: [' . $chaveOriginal . '] (tamanho: ' . strlen($chaveOriginal) . ')');
+        log_message('info', 'Chave após remoção de não numéricos: [' . $chaveNFCom . '] (tamanho: ' . strlen($chaveNFCom) . ')');
+        
+        // Garantir que a chave tenha exatamente 44 dígitos
+        if (strlen($chaveNFCom) > 44) {
+            // Se tiver mais de 44 dígitos, pegar apenas os últimos 44
+            $chaveNFCom = substr($chaveNFCom, -44);
+            log_message('info', 'Chave NFCom truncada para 44 dígitos: ' . $chaveNFCom);
+        } elseif (strlen($chaveNFCom) < 44) {
+            // Se tiver menos, completar com zeros à esquerda
+            $chaveNFCom = str_pad($chaveNFCom, 44, '0', STR_PAD_LEFT);
+            log_message('info', 'Chave NFCom preenchida para 44 dígitos: ' . $chaveNFCom);
+        }
+        
+        // Validar que a chave tem exatamente 44 dígitos antes de gerar o Id
+        if (strlen($chaveNFCom) !== 44) {
+            throw new Exception('Chave NFCom não tem 44 dígitos após normalização. Tamanho: ' . strlen($chaveNFCom) . ', Chave original: ' . $chaveOriginal . ', Chave limpa: ' . $chaveNFCom);
+        }
+        
+        // Validar que a chave contém apenas dígitos
+        if (!ctype_digit($chaveNFCom)) {
+            throw new Exception('Chave NFCom contém caracteres não numéricos após normalização: ' . $chaveNFCom);
+        }
+        
         $nSeqEvento = '001'; // Primeiro evento de cancelamento
-        $idEvento = 'id' . $tpEvento . $chaveNFCom . $nSeqEvento;
+        
+        // Validar tamanhos antes de concatenar
+        if (strlen($tpEvento) !== 6) {
+            throw new Exception('tpEvento deve ter 6 dígitos. Valor: [' . $tpEvento . '], Tamanho: ' . strlen($tpEvento));
+        }
+        if (strlen($chaveNFCom) !== 44) {
+            throw new Exception('Chave NFCom deve ter 44 dígitos. Valor: [' . $chaveNFCom . '], Tamanho: ' . strlen($chaveNFCom));
+        }
+        if (strlen($nSeqEvento) !== 3) {
+            throw new Exception('nSeqEvento deve ter 3 dígitos. Valor: [' . $nSeqEvento . '], Tamanho: ' . strlen($nSeqEvento));
+        }
+        
+        // O padrão do schema é "ID" (maiúsculas) + 53 dígitos = 55 caracteres total
+        // Formato: "ID" + tpEvento (6) + chave NFCom (44) + nSeqEvento (3)
+        $idEvento = 'ID' . $tpEvento . $chaveNFCom . $nSeqEvento;
+        
+        // Validar que o Id tem exatamente 55 caracteres (2 + 6 + 44 + 3)
+        // O padrão do schema é "ID" (maiúsculas) + 53 dígitos = 55 caracteres total
+        $tamanhoEsperado = 2 + 6 + 44 + 3; // 55
+        if (strlen($idEvento) !== $tamanhoEsperado) {
+            throw new Exception('Id do evento não tem ' . $tamanhoEsperado . ' caracteres. Tamanho: ' . strlen($idEvento) . ', Id: [' . $idEvento . '], Componentes: ID(' . strlen('ID') . ') + tpEvento(' . strlen($tpEvento) . ') + chave(' . strlen($chaveNFCom) . ') + nSeq(' . strlen($nSeqEvento) . ')');
+        }
+        
+        log_message('info', 'Id do evento de cancelamento gerado: [' . $idEvento . '] (tamanho: ' . strlen($idEvento) . ')');
         
         // Data/hora do evento em formato TDateTimeUTC (horário de Brasília - UTC-3)
         // Formato esperado: YYYY-MM-DDTHH:MM:SS-03:00 (não pode usar Z, deve ser -03:00 ou +03:00)
@@ -3182,6 +3744,29 @@ class Nfecom extends MY_Controller
             $xml .= '</det>' . "\n";
         }
 
+        // Calcular total do IRRF somando os itens (conforme rejeição 685)
+        // SEMPRE usar a soma dos itens, não o valor do banco
+        $totalIrrfItens = 0;
+        foreach ($itens as $item) {
+            $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
+        }
+        
+        // Arredondar para 2 casas decimais para evitar problemas de precisão
+        $totalIrrfItens = round($totalIrrfItens, 2);
+        
+        // SEMPRE atualizar o banco com a soma dos itens antes de gerar o XML
+        $irrfBanco = floatval($nfecom->nfc_v_irrf ?? 0);
+        if (abs($totalIrrfItens - $irrfBanco) > 0.001) { // Tolerância menor (0.001 para garantir precisão)
+            // Atualizar total do IRRF no banco com a soma dos itens
+            $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrfItens], 'nfc_id', $id);
+            log_message('info', 'Total do IRRF atualizado na geração do XML: R$ ' . number_format($irrfBanco, 2, ',', '.') . ' → R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos itens)');
+            // Recarregar nfecom para ter o valor atualizado
+            $nfecom = $this->Nfecom_model->getById($id);
+        }
+        
+        // SEMPRE usar o valor calculado (soma dos itens) no XML, não o do banco
+        $irrfParaXml = $totalIrrfItens;
+        
         // Totais
         $xml .= '<total>' . "\n";
         $xml .= '<vProd>' . number_format($nfecom->nfc_v_prod, 2, '.', '') . '</vProd>' . "\n";
@@ -3196,16 +3781,33 @@ class Nfecom extends MY_Controller
         $xml .= '<vPIS>' . number_format($nfecom->nfc_v_pis, 2, '.', '') . '</vPIS>' . "\n";
         $xml .= '<vFUNTTEL>' . number_format($nfecom->nfc_v_funtel, 2, '.', '') . '</vFUNTTEL>' . "\n";
         $xml .= '<vFUST>' . number_format($nfecom->nfc_v_fust, 2, '.', '') . '</vFUST>' . "\n";
-        $xml .= '<vRetTribTot><vRetPIS>' . number_format($nfecom->nfc_v_ret_pis, 2, '.', '') . '</vRetPIS><vRetCofins>' . number_format($nfecom->nfc_v_ret_cofins, 2, '.', '') . '</vRetCofins><vRetCSLL>' . number_format($nfecom->nfc_v_ret_csll, 2, '.', '') . '</vRetCSLL><vIRRF>' . number_format($nfecom->nfc_v_irrf, 2, '.', '') . '</vIRRF></vRetTribTot>' . "\n";
+        $xml .= '<vRetTribTot><vRetPIS>' . number_format($nfecom->nfc_v_ret_pis, 2, '.', '') . '</vRetPIS><vRetCofins>' . number_format($nfecom->nfc_v_ret_cofins, 2, '.', '') . '</vRetCofins><vRetCSLL>' . number_format($nfecom->nfc_v_ret_csll, 2, '.', '') . '</vRetCSLL><vIRRF>' . number_format($irrfParaXml, 2, '.', '') . '</vIRRF></vRetTribTot>' . "\n";
         $xml .= '<vDesc>' . number_format($nfecom->nfc_v_desc, 2, '.', '') . '</vDesc>' . "\n";
         $xml .= '<vOutro>' . number_format($nfecom->nfc_v_outro, 2, '.', '') . '</vOutro>' . "\n";
         $xml .= '<vNF>' . number_format($nfecom->nfc_v_nf, 2, '.', '') . '</vNF>' . "\n";
         $xml .= '</total>' . "\n";
 
         // Grupo de Faturamento
+        // Competência baseada no período fim (formato YYYYMM)
+        // Exemplo: se período fim for 31-12-2025, competência será 202512
+        $competencia = $nfecom->nfc_compet_fat;
+        if (empty($competencia) && !empty($nfecom->nfc_d_per_uso_fim)) {
+            $competencia = date('Ym', strtotime($nfecom->nfc_d_per_uso_fim));
+        } elseif (empty($competencia) && !empty($nfecom->nfc_d_contrato_ini)) {
+            $competencia = date('Ym', strtotime($nfecom->nfc_d_contrato_ini));
+        } elseif (empty($competencia)) {
+            $competencia = date('Ym');
+        }
+        // Garantir formato YYYYMM (sem hífen)
+        $competencia = str_replace('-', '', $competencia);
+        if (strlen($competencia) == 7 && strpos($competencia, '-') !== false) {
+            $competencia = str_replace('-', '', $competencia);
+        }
+        
         $xml .= '<gFat>' . "\n";
-        $xml .= '<CompetFat>' . $nfecom->nfc_compet_fat . '</CompetFat>' . "\n";
+        $xml .= '<CompetFat>' . $competencia . '</CompetFat>' . "\n";
         $xml .= '<dVencFat>' . $nfecom->nfc_d_venc_fat . '</dVencFat>' . "\n";
+        // PERÍODO DE USO: Usar exatamente o valor salvo no banco (respeitando o informado pelo usuário)
         $xml .= '<dPerUsoIni>' . $nfecom->nfc_d_per_uso_ini . '</dPerUsoIni>' . "\n";
         $xml .= '<dPerUsoFim>' . $nfecom->nfc_d_per_uso_fim . '</dPerUsoFim>' . "\n";
         $xml .= '<codBarras>' . $nfecom->nfc_cod_barras . '</codBarras>' . "\n";
@@ -3977,9 +4579,10 @@ class Nfecom extends MY_Controller
                     'icms' => [
                         'cst' => $it->nfi_cst_icms,
                         'csosn' => $it->nfi_csosn ?? null, // CSOSN para Simples Nacional
-                        'vBC' => floatval($it->nfi_v_bc_icms ?? 0), // Base de cálculo ICMS - APENAS valor do banco
-                        'pICMS' => floatval($it->nfi_p_icms ?? 0), // Alíquota ICMS - APENAS valor do banco
-                        'vICMS' => floatval($it->nfi_v_icms ?? 0), // Valor ICMS - APENAS valor do banco
+                        // Para CST isento/não tributado (40, 41, 50, 51, 60), zerar base, alíquota e valor
+                        'vBC' => in_array($it->nfi_cst_icms, ['40', '41', '50', '51', '60']) ? 0 : floatval($it->nfi_v_bc_icms ?? 0),
+                        'pICMS' => in_array($it->nfi_cst_icms, ['40', '41', '50', '51', '60']) ? 0 : floatval($it->nfi_p_icms ?? 0),
+                        'vICMS' => in_array($it->nfi_cst_icms, ['40', '41', '50', '51', '60']) ? 0 : floatval($it->nfi_v_icms ?? 0),
                         'vICMSDeson' => floatval($it->nfi_v_icms_deson ?? 0), // Valor ICMS Desonerado
                         'motDesICMS' => $it->nfi_mot_des_icms ?? null // Motivo da Desoneração
                     ],
@@ -4010,10 +4613,68 @@ class Nfecom extends MY_Controller
                         'vBC' => $it->nfi_v_bc_cofins,
                         'pCOFINS' => $it->nfi_p_cofins,
                         'vCOFINS' => $it->nfi_v_cofins
+                    ],
+                    'irrf' => [
+                        'vRetPIS' => 0.00, // PIS retido (geralmente zero)
+                        'vRetCofins' => 0.00, // COFINS retido (geralmente zero)
+                        'vRetCSLL' => 0.00, // CSLL retido (geralmente zero)
+                        'vBCIRRF' => floatval($it->nfi_v_bc_irrf ?? 0), // Base de cálculo do IRRF
+                        'vIRRF' => floatval($it->nfi_v_irrf ?? 0) // Valor do IRRF retido - OBRIGATÓRIO quando há IRRF no total
                     ]
                 ]
             ];
+            
+            // Log para debug: verificar se IRRF está sendo incluído
+            $irrfItem = floatval($it->nfi_v_irrf ?? 0);
+            if ($irrfItem > 0) {
+                log_message('info', 'Item #' . $it->nfi_n_item . ' - IRRF incluído no array: R$ ' . number_format($irrfItem, 2, ',', '.') . ' | Base: R$ ' . number_format(floatval($it->nfi_v_bc_irrf ?? 0), 2, ',', '.'));
+            } else {
+                log_message('warning', 'Item #' . $it->nfi_n_item . ' - IRRF ZERO ou não encontrado no banco! nfi_v_irrf: ' . ($it->nfi_v_irrf ?? 'NULL'));
+            }
         }
+        
+        // Calcular totais somando os valores dos itens
+        $totalVProd = 0.00;
+        $totalVDesc = 0.00;
+        $totalVOutro = 0.00;
+        foreach ($itens as $item) {
+            $totalVProd += floatval($item->nfi_v_prod ?? 0);
+            $totalVDesc += floatval($item->nfi_v_desc ?? 0);
+            $totalVOutro += floatval($item->nfi_v_outro ?? 0);
+        }
+        
+        // Calcular total do IRRF somando os itens (conforme rejeição 685)
+        // SEMPRE usar a soma dos itens, não o valor do banco
+        // CRÍTICO: Isso é especialmente importante em reemissões
+        $totalIrrfItens = 0;
+        foreach ($itens as $item) {
+            $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
+        }
+        
+        // Arredondar para 2 casas decimais para evitar problemas de precisão
+        $totalIrrfItens = round($totalIrrfItens, 2);
+        
+        // Usar valores do banco para retenções
+        $vRetPis = floatval($nfecom->nfc_v_ret_pis ?? 0);
+        $vRetCofins = floatval($nfecom->nfc_v_ret_cofins ?? 0);
+        $vRetCsll = floatval($nfecom->nfc_v_ret_csll ?? 0);
+        $vIrrf = $totalIrrfItens; // SEMPRE usar soma dos itens como total do IRRF
+        
+        // SEMPRE atualizar o banco com a soma dos itens ANTES de gerar XML
+        // Isso é crítico para reemissões onde o valor pode estar desatualizado
+        $irrfBanco = floatval($nfecom->nfc_v_irrf ?? 0);
+        if (abs($totalIrrfItens - $irrfBanco) > 0.001) {
+            // Atualizar total do IRRF no banco com a soma dos itens
+            $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrfItens], 'nfc_id', $id);
+            log_message('info', 'Total do IRRF atualizado em prepararDadosEnvio: R$ ' . number_format($irrfBanco, 2, ',', '.') . ' → R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos itens) - Status: ' . ($nfecom->nfc_status ?? 'N/A'));
+            // Recarregar nfecom para ter o valor atualizado
+            $nfecom = $this->Nfecom_model->getById($id);
+        } else {
+            log_message('debug', 'Total do IRRF OK em prepararDadosEnvio: R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos itens = banco)');
+        }
+        
+        // Regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
+        $vNfCalculado = $totalVProd + $totalVOutro - $totalVDesc - $vRetPis - $vRetCofins - $vRetCsll - $vIrrf;
         
         // Atualizar nfc_inf_cpl com observação + mensagens fiscais se necessário
         // nfc_inf_cpl deve conter: Observação digitada pelo usuário + Mensagens fiscais (sem duplicatas)
@@ -4085,8 +4746,18 @@ class Nfecom extends MY_Controller
             }
         }
 
+        // Garantir que a chave tenha exatamente 44 dígitos numéricos
+        $chaveLimpa = preg_replace('/\D/', '', $nfecom->nfc_ch_nfcom);
+        // Se a chave tiver mais de 44 dígitos, pegar apenas os últimos 44
+        // Se tiver menos, completar com zeros à esquerda
+        if (strlen($chaveLimpa) > 44) {
+            $chaveLimpa = substr($chaveLimpa, -44);
+        } elseif (strlen($chaveLimpa) < 44) {
+            $chaveLimpa = str_pad($chaveLimpa, 44, '0', STR_PAD_LEFT);
+        }
+        
         return [
-            'chave' => preg_replace('/\D/', '', $nfecom->nfc_ch_nfcom),
+            'chave' => $chaveLimpa,
             'ide' => [
                 'cUF' => $cUF,
                 'tpAmb' => $configFiscal->cfg_ambiente,
@@ -4146,7 +4817,7 @@ class Nfecom extends MY_Controller
             ],
             'itens' => $listaItens,
             'totais' => [
-                'vProd' => array_sum(array_column($listaItens, 'valor_total')),
+                'vProd' => $totalVProd,
                 'icms' => [
                     'vBC' => floatval($nfecom->nfc_v_bc_icms ?? 0), // Base de cálculo ICMS - APENAS valor do banco
                     'vICMS' => floatval($nfecom->nfc_v_icms ?? 0), // Valor ICMS - APENAS valor do banco
@@ -4162,17 +4833,24 @@ class Nfecom extends MY_Controller
                 'vFUNTTEL' => 0.00, // Valor FUNTTEL
                 'vFUST' => 0.00,    // Valor FUST
                 'retTribTot' => [
-                    'vRetPIS' => 0.00,
-                    'vRetCofins' => 0.00,
-                    'vRetCSLL' => 0.00,
-                    'vIRRF' => 0.00
+                    'vRetPIS' => $vRetPis,
+                    'vRetCofins' => $vRetCofins,
+                    'vRetCSLL' => $vRetCsll,
+                    'vIRRF' => $vIrrf // IRRF: 4,8% sobre valor líquido
                 ],
-                'vDesc' => array_sum(array_column($listaItens, 'desconto')),
-                'vOutro' => array_sum(array_column($listaItens, 'outros')),
-                'vNF' => array_sum(array_column($listaItens, 'valor_total')) - array_sum(array_column($listaItens, 'desconto')) + array_sum(array_column($listaItens, 'outros'))
+                'vDesc' => $totalVDesc,
+                'vOutro' => $totalVOutro,
+                // vNF conforme regra G137
+                'vNF' => $vNfCalculado
             ],
             'faturamento' => [
-                'competencia' => $nfecom->nfc_compet_fat,
+                // Competência baseada no período fim (formato YYYYMM)
+                // Exemplo: se período fim for 31-12-2025, competência será 202512
+                'competencia' => !empty($nfecom->nfc_d_per_uso_fim) && empty($nfecom->nfc_compet_fat) 
+                    ? date('Ym', strtotime($nfecom->nfc_d_per_uso_fim)) 
+                    : (!empty($nfecom->nfc_d_contrato_ini) && empty($nfecom->nfc_compet_fat)
+                        ? date('Ym', strtotime($nfecom->nfc_d_contrato_ini))
+                        : (str_replace('-', '', $nfecom->nfc_compet_fat) ?: date('Ym'))),
                 'vencimento' => $nfecom->nfc_d_venc_fat,
                 'periodo_inicio' => $nfecom->nfc_d_per_uso_ini,
                 'periodo_fim' => $nfecom->nfc_d_per_uso_fim,
@@ -4265,11 +4943,17 @@ class Nfecom extends MY_Controller
         try {
             $tenId = $this->session->userdata('ten_id');
             
+            // Validar ten_id - não pode ser 0, null ou vazio
+            if (empty($tenId) || $tenId == 0) {
+                log_message('error', 'Tenant ID inválido na sessão ao calcular tributação. ten_id: ' . var_export($tenId, true));
+                return null;
+            }
+            
             // Construir URL da API - usar base_url para evitar redirecionamentos
             $baseUrl = rtrim(base_url(), '/');
             $url = $baseUrl . '/index.php/calculotributacaoapi/calcular';
             $params = [
-                'ten_id' => $tenId,
+                'ten_id' => (int)$tenId,
                 'produto_id' => $produtoId,
                 'cliente_id' => $clienteId,
                 'operacao_id' => $operacaoId,

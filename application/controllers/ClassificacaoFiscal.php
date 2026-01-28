@@ -38,7 +38,7 @@ class ClassificacaoFiscal extends MY_Controller
 
     public function index()
     {
-        $this->data['view'] = 'classificacaofiscal/classificacaofiscal';
+        $this->data['view'] = 'classificacaoFiscal/classificacaofiscal';
         $this->data['results'] = $this->ClassificacaoFiscal_model->get();
 
         // Get tax regime from configuration
@@ -178,7 +178,7 @@ class ClassificacaoFiscal extends MY_Controller
 
         $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
         $this->data['tipos_clientes'] = $this->TiposClientes_model->getAll();
-        $this->data['view'] = 'classificacaofiscal/adicionarClassificacaoFiscal';
+        $this->data['view'] = 'classificacaoFiscal/adicionarClassificacaoFiscal';
         return $this->layout();
     }
 
@@ -311,7 +311,7 @@ class ClassificacaoFiscal extends MY_Controller
         $this->data['result'] = $this->ClassificacaoFiscal_model->getById($id);
         $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
         $this->data['tipos_clientes'] = $this->TiposClientes_model->getAll();
-        $this->data['view'] = 'classificacaofiscal/editarClassificacaoFiscal';
+        $this->data['view'] = 'classificacaoFiscal/editarClassificacaoFiscal';
         return $this->layout();
     }
 
@@ -373,7 +373,7 @@ class ClassificacaoFiscal extends MY_Controller
             'cst' => isset($orig->cst) ? $orig->cst : '',
             'csosn' => isset($orig->csosn) ? $orig->csosn : ''
         ];
-        $this->data['view'] = 'classificacaofiscal/adicionarClassificacaoFiscal';
+        $this->data['view'] = 'classificacaoFiscal/adicionarClassificacaoFiscal';
         return $this->layout();
     }
 
@@ -401,7 +401,7 @@ class ClassificacaoFiscal extends MY_Controller
         $configuracao = $this->Mapos_model->getConfiguracao();
         $this->data['regime_tributario'] = $configuracao['regime_tributario'];
 
-        $this->data['view'] = 'classificacaofiscal/visualizarClassificacaoFiscal';
+        $this->data['view'] = 'classificacaoFiscal/visualizarClassificacaoFiscal';
         return $this->layout();
     }
 }
