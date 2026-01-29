@@ -1119,7 +1119,7 @@ class FaturamentoEntrada extends MY_Controller
                 do {
                     $iCount++;
                     if ($iCount >= $loopLimit) {
-                        log_message('warning', 'Limite de loops atingido ao consultar SEFAZ');
+                        log_message('error', 'Limite de loops atingido ao consultar SEFAZ');
                         break;
                     }
 

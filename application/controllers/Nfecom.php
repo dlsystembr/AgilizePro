@@ -154,13 +154,16 @@ class Nfecom extends MY_Controller
         $this->db->select("c.cln_id as id,
                           CASE
                             WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome
-                            ELSE COALESCE(p.pes_razao_social, p.pes_nome)
+                            ELSE COALESCE(p.pes_nome, p.pes_razao_social)
                           END as text,
-                          p.pes_cpfcnpj as cpf_cnpj");
+                          p.pes_nome as nome_fantasia,
+                          p.pes_razao_social as razao_social,
+                          p.pes_cpfcnpj as cpf_cnpj,
+                          p.pes_codigo as codigo");
         $this->db->from('clientes c');
         $this->db->join('pessoas p', 'p.pes_id = c.pes_id', 'left');
         $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
-        $this->db->order_by("CASE WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome ELSE COALESCE(p.pes_razao_social, p.pes_nome) END ASC"); // Ordem alfabética para melhor UX
+        $this->db->order_by("CASE WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome ELSE COALESCE(p.pes_nome, p.pes_razao_social) END ASC"); // Ordem alfabética para melhor UX
         $this->db->limit(50); // Limitar a 50 para não sobrecarregar
         $query_clientes = $this->db->get();
         $this->data['clientes_iniciais'] = $query_clientes ? $query_clientes->result() : [];
@@ -274,7 +277,7 @@ class Nfecom extends MY_Controller
                                     $data['dataPeriodoIni'] = $dataPerIni[2] . '-' . $dataPerIni[1] . '-' . $dataPerIni[0];
                                 } else {
                                     // Se não conseguir converter, manter o valor original
-                                    log_message('warning', 'Formato de data de período início não reconhecido: ' . $data['dataPeriodoIni']);
+                                    log_message('error', 'Formato de data de período início não reconhecido: ' . $data['dataPeriodoIni']);
                                 }
                             } else {
                                 // Tentar usar strtotime para outros formatos
@@ -282,7 +285,7 @@ class Nfecom extends MY_Controller
                                 if ($timestamp !== false) {
                                     $data['dataPeriodoIni'] = date('Y-m-d', $timestamp);
                                 } else {
-                                    log_message('warning', 'Não foi possível converter data de período início: ' . $data['dataPeriodoIni']);
+                                    log_message('error', 'Não foi possível converter data de período início: ' . $data['dataPeriodoIni']);
                                 }
                             }
                         } catch (Exception $e) {
@@ -307,7 +310,7 @@ class Nfecom extends MY_Controller
                                     $data['dataPeriodoFim'] = $dataPerFim[2] . '-' . $dataPerFim[1] . '-' . $dataPerFim[0];
                                 } else {
                                     // Se não conseguir converter, manter o valor original
-                                    log_message('warning', 'Formato de data de período fim não reconhecido: ' . $data['dataPeriodoFim']);
+                                    log_message('error', 'Formato de data de período fim não reconhecido: ' . $data['dataPeriodoFim']);
                                 }
                             } else {
                                 // Tentar usar strtotime para outros formatos
@@ -315,7 +318,7 @@ class Nfecom extends MY_Controller
                                 if ($timestamp !== false) {
                                     $data['dataPeriodoFim'] = date('Y-m-d', $timestamp);
                                 } else {
-                                    log_message('warning', 'Não foi possível converter data de período fim: ' . $data['dataPeriodoFim']);
+                                    log_message('error', 'Não foi possível converter data de período fim: ' . $data['dataPeriodoFim']);
                                 }
                             }
                         } catch (Exception $e) {
@@ -3976,6 +3979,27 @@ class Nfecom extends MY_Controller
             $cliente = $clienteQuery->row();
             $pesId = $cliente->pes_id;
 
+            // Buscar email (tabela emails, se existir)
+            $email = '';
+            if ($this->db->table_exists('emails')) {
+                $this->db->select('eml_email, eml_tipo');
+                $this->db->from('emails');
+                $this->db->where('pes_id', $pesId);
+                $this->db->order_by("CASE WHEN eml_tipo = 'Geral' THEN 0 ELSE 1 END, eml_id ASC");
+                $emailQuery = $this->db->get();
+                if ($emailQuery->num_rows() > 0) {
+                    $email = $emailQuery->row()->eml_email ?? '';
+                }
+            } else {
+                $this->db->select('pes_email');
+                $this->db->from('pessoas');
+                $this->db->where('pes_id', $pesId);
+                $pessoaQuery = $this->db->get();
+                if ($pessoaQuery->num_rows() > 0) {
+                    $email = $pessoaQuery->row()->pes_email ?? '';
+                }
+            }
+
             // Buscar telefones por tipo
             $this->db->select('tel_tipo, tel_ddd, tel_numero');
             $this->db->from('telefones');
@@ -4005,6 +4029,7 @@ class Nfecom extends MY_Controller
             echo json_encode([
                 'telefone' => $telefone,
                 'celular' => $celular,
+                'email' => $email,
             ]);
         } catch (Exception $e) {
             log_message('error', 'Erro ao buscar telefones do cliente: ' . $e->getMessage());
@@ -4024,9 +4049,12 @@ class Nfecom extends MY_Controller
             $this->db->select("c.cln_id as id,
                               CASE
                                 WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome
-                                ELSE COALESCE(p.pes_razao_social, p.pes_nome)
+                                ELSE COALESCE(p.pes_nome, p.pes_razao_social)
                               END as text,
-                              p.pes_cpfcnpj as cpf_cnpj");
+                              p.pes_nome as nome_fantasia,
+                              p.pes_razao_social as razao_social,
+                              p.pes_cpfcnpj as cpf_cnpj,
+                              p.pes_codigo as codigo");
             $this->db->from('clientes c');
             $this->db->join('pessoas p', 'p.pes_id = c.pes_id', 'left');
             $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
@@ -4035,13 +4063,16 @@ class Nfecom extends MY_Controller
                 $this->db->group_start();
                 $this->db->like("CASE
                                 WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome
-                                ELSE COALESCE(p.pes_razao_social, p.pes_nome)
+                                ELSE COALESCE(p.pes_nome, p.pes_razao_social)
                               END", $termo);
+                $this->db->or_like('p.pes_nome', $termo);
+                $this->db->or_like('p.pes_razao_social', $termo);
                 $this->db->or_like('p.pes_cpfcnpj', $termo);
+                $this->db->or_like('p.pes_codigo', $termo);
                 $this->db->group_end();
             }
 
-            $this->db->order_by("CASE WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome ELSE COALESCE(p.pes_razao_social, p.pes_nome) END ASC");
+            $this->db->order_by("CASE WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome ELSE COALESCE(p.pes_nome, p.pes_razao_social) END ASC");
             $this->db->limit($limit, $offset);
 
             $query = $this->db->get();
@@ -4057,9 +4088,12 @@ class Nfecom extends MY_Controller
                 $this->db->group_start();
                 $this->db->like("CASE
                                 WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome
-                                ELSE COALESCE(p.pes_razao_social, p.pes_nome)
+                                ELSE COALESCE(p.pes_nome, p.pes_razao_social)
                               END", $termo);
+                $this->db->or_like('p.pes_nome', $termo);
+                $this->db->or_like('p.pes_razao_social', $termo);
                 $this->db->or_like('p.pes_cpfcnpj', $termo);
+                $this->db->or_like('p.pes_codigo', $termo);
                 $this->db->group_end();
             }
 
@@ -4080,6 +4114,127 @@ class Nfecom extends MY_Controller
             log_message('error', 'Erro ao buscar clientes: ' . $e->getMessage());
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Erro interno do servidor']);
+        }
+    }
+
+    public function previewTributacaoItem()
+    {
+        try {
+            $produtoId = $this->input->post('produto_id');
+            $clienteId = $this->input->post('cliente_id');
+            $operacaoId = $this->input->post('operacao_id');
+            $enderecoId = $this->input->post('endereco_id');
+            $valorUnitario = str_replace(',', '.', $this->input->post('valor_unitario'));
+            $quantidade = str_replace(',', '.', $this->input->post('quantidade'));
+            $valorDesconto = str_replace(',', '.', $this->input->post('v_desc'));
+            $valorOutros = str_replace(',', '.', $this->input->post('v_outro'));
+
+            $valorUnitario = floatval($valorUnitario);
+            $quantidade = floatval($quantidade);
+            $valorDesconto = floatval($valorDesconto);
+            $valorOutros = floatval($valorOutros);
+
+            if (!$produtoId || !$clienteId || !$operacaoId) {
+                echo json_encode(['success' => false, 'error' => 'Parâmetros obrigatórios ausentes']);
+                return;
+            }
+
+            $valorItem = $valorUnitario * $quantidade;
+            $valorProduto = $valorItem - $valorDesconto + $valorOutros;
+
+            // Verificar se cliente cobra IRRF
+            $cobrarIrrf = false;
+            $this->db->select('cln_cobrar_irrf');
+            $this->db->from('clientes');
+            $this->db->where('cln_id', $clienteId);
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+            $clienteQuery = $this->db->get();
+            if ($clienteQuery->num_rows() > 0) {
+                $cobrarIrrf = !empty($clienteQuery->row()->cln_cobrar_irrf);
+            }
+
+            $tributacao = $this->calcularTributacao(
+                $produtoId,
+                $clienteId,
+                $operacaoId,
+                $valorUnitario,
+                $quantidade,
+                'saida',
+                $enderecoId
+            );
+
+            $pis = [
+                'base' => 0,
+                'aliquota' => 0,
+                'valor' => 0,
+                'cst' => null,
+            ];
+            $cofins = [
+                'base' => 0,
+                'aliquota' => 0,
+                'valor' => 0,
+                'cst' => null,
+            ];
+            $icms = [
+                'base' => 0,
+                'aliquota' => 0,
+                'valor' => 0,
+            ];
+            $icmsSt = [
+                'base' => 0,
+                'aliquota' => 0,
+                'valor' => 0,
+            ];
+
+            if ($tributacao) {
+                $pisApi = $tributacao['impostos_federais']['pis'] ?? [];
+                $cofinsApi = $tributacao['impostos_federais']['cofins'] ?? [];
+
+                $pis['cst'] = $pisApi['cst'] ?? null;
+                $pis['aliquota'] = floatval($pisApi['aliquota'] ?? 0);
+                $pis['valor'] = floatval($pisApi['valor'] ?? 0);
+                $pis['base'] = floatval($pisApi['base_calculo'] ?? 0);
+                $pis['base'] = $this->getBaseCalculoPisCofins($pis['cst'], $pis['base'], $valorProduto);
+
+                $cofins['cst'] = $cofinsApi['cst'] ?? null;
+                $cofins['aliquota'] = floatval($cofinsApi['aliquota'] ?? 0);
+                $cofins['valor'] = floatval($cofinsApi['valor'] ?? 0);
+                $cofins['base'] = floatval($cofinsApi['base_calculo'] ?? 0);
+                $cofins['base'] = $this->getBaseCalculoPisCofins($cofins['cst'], $cofins['base'], $valorProduto);
+
+                $impostosEstaduais = $tributacao['impostos_estaduais'] ?? [];
+                $icmsApi = $impostosEstaduais['icms'] ?? [];
+                $icmsStApi = $impostosEstaduais['icms_st'] ?? [];
+
+                $icms['base'] = floatval($icmsApi['base_calculo'] ?? 0);
+                $icms['aliquota'] = floatval($icmsApi['aliquota'] ?? 0);
+                $icms['valor'] = floatval($icmsApi['valor'] ?? 0);
+
+                $icmsSt['base'] = floatval($icmsStApi['base_calculo'] ?? 0);
+                $icmsSt['aliquota'] = floatval($icmsStApi['aliquota'] ?? 0);
+                $icmsSt['valor'] = floatval($icmsStApi['valor'] ?? 0);
+            }
+
+            $irrfBase = $cobrarIrrf ? $valorProduto : 0;
+            $irrfValor = $cobrarIrrf ? round(($valorProduto * 4.8) / 100, 2) : 0;
+
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'valor_produto' => $valorProduto,
+                    'icms' => $icms,
+                    'icms_st' => $icmsSt,
+                    'pis' => $pis,
+                    'cofins' => $cofins,
+                    'irrf' => [
+                        'base' => $irrfBase,
+                        'valor' => $irrfValor
+                    ],
+                ],
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'Erro ao pré-visualizar tributação: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'Erro interno do servidor']);
         }
     }
 
@@ -4629,7 +4784,7 @@ class Nfecom extends MY_Controller
             if ($irrfItem > 0) {
                 log_message('info', 'Item #' . $it->nfi_n_item . ' - IRRF incluído no array: R$ ' . number_format($irrfItem, 2, ',', '.') . ' | Base: R$ ' . number_format(floatval($it->nfi_v_bc_irrf ?? 0), 2, ',', '.'));
             } else {
-                log_message('warning', 'Item #' . $it->nfi_n_item . ' - IRRF ZERO ou não encontrado no banco! nfi_v_irrf: ' . ($it->nfi_v_irrf ?? 'NULL'));
+                log_message('error', 'Item #' . $it->nfi_n_item . ' - IRRF ZERO ou não encontrado no banco! nfi_v_irrf: ' . ($it->nfi_v_irrf ?? 'NULL'));
             }
         }
         

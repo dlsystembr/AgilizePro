@@ -201,7 +201,7 @@ class NFComService
                 throw new \Exception('Falha ao ler PFX com openssl_pkcs12_read');
             }
         } catch (\Exception $e) {
-            log_message('warning', 'Falha ao converter certificado via PHP: ' . $e->getMessage() . '. Tentando OpenSSL CLI.');
+            log_message('error', 'Falha ao converter certificado via PHP: ' . $e->getMessage() . '. Tentando OpenSSL CLI.');
 
             // Método 2: Tentar usar OpenSSL via linha de comando
             try {
@@ -400,7 +400,7 @@ class NFComService
                 throw new \Exception('Falha ao ler PFX com openssl_pkcs12_read');
             }
         } catch (\Exception $e) {
-            log_message('warning', 'Falha ao converter certificado via PHP: ' . $e->getMessage() . '. Tentando OpenSSL CLI.');
+            log_message('error', 'Falha ao converter certificado via PHP: ' . $e->getMessage() . '. Tentando OpenSSL CLI.');
 
             // Método 2: Tentar usar OpenSSL via linha de comando
             try {
@@ -785,7 +785,7 @@ class NFComService
                 throw new \Exception('Falha ao ler PFX com openssl_pkcs12_read');
             }
         } catch (\Exception $e) {
-            log_message('warning', 'Falha ao converter certificado via PHP: ' . $e->getMessage() . '. Tentando OpenSSL CLI.');
+            log_message('error', 'Falha ao converter certificado via PHP: ' . $e->getMessage() . '. Tentando OpenSSL CLI.');
             try {
                 file_put_contents($certFile, $this->pfxContent);
                 $opensslCheck = @shell_exec('openssl version 2>&1');

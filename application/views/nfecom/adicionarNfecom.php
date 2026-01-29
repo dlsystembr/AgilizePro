@@ -131,6 +131,126 @@
         background: #555;
     }
 
+    /* Select2 - clientes */
+    .cliente-select2 {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        line-height: 1.2;
+    }
+
+    .cliente-select2-title {
+        font-weight: 600;
+        color: #222;
+    }
+
+    .cliente-select2-meta {
+        font-size: 11px;
+        color: #666;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .servico-select2 {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        line-height: 1.2;
+    }
+
+    .servico-select2-title {
+        font-weight: 600;
+        color: #222;
+    }
+
+    .servico-select2-meta {
+        font-size: 11px;
+        color: #666;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .servico-row-tax {
+        background: #fafafa;
+    }
+
+    .servico-row-tax td {
+        width: 100%;
+    }
+
+    .servico-tax-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 4px 8px;
+        font-size: 10px;
+        color: #555;
+        align-items: center;
+        white-space: nowrap;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .servico-tax-grid strong {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .servico-tax-grid .tax-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        min-width: 0;
+        flex: 0 1 auto;
+    }
+
+    .servico-tax-grid .tax-item.tight {
+        gap: 4px;
+    }
+
+    .servico-tax-grid .tax-item .tax-inline {
+        display: inline-block;
+    }
+
+    .servico-row-main td,
+    .servico-row-main input[type="text"] {
+        font-size: 14px;
+    }
+
+    #tblServicosNfecom {
+        table-layout: fixed;
+    }
+
+    #tblServicosNfecom th,
+    #tblServicosNfecom td {
+        overflow: hidden;
+    }
+
+    .servico-row-tax td {
+        overflow: visible;
+    }
+
+    .servico-row-main td:nth-child(2) input {
+        width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .servico-row-main td.col-quantidade,
+    .servico-row-main td.col-preco-unit,
+    .servico-row-main td.col-desc,
+    .servico-row-main td.col-outros,
+    .servico-row-main td.col-total,
+    .servico-row-main th.col-quantidade,
+    .servico-row-main th.col-preco-unit,
+    .servico-row-main th.col-desc,
+    .servico-row-main th.col-outros,
+    .servico-row-main th.col-total {
+        text-align: right;
+    }
+
     /* Estilos para validação */
     .control-group.error input,
     .control-group.error select,
@@ -400,19 +520,21 @@
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="cliente" class="control-label">Cliente<span
                                                         class="required">*</span></label>
-                                                <small style="display: block; color: #666; margin-top: 2px;">
-                                                    <?php echo count($clientes_iniciais); ?> clientes disponíveis. Ordem
-                                                    alfabética.
-                                                </small>
                                                 <div class="controls">
                                                     <select name="clientes_id" id="cliente" required
                                                         style="width: 100%;">
                                                         <option value="">Selecione um cliente ou digite para buscar...
                                                         </option>
                                                         <?php foreach ($clientes_iniciais as $cliente): ?>
-                                                            <option value="<?php echo $cliente->id; ?>" <?php echo (isset($_POST['clientes_id']) && $_POST['clientes_id'] == $cliente->id) ? 'selected' : ''; ?>>
+                                                            <option
+                                                                value="<?php echo $cliente->id; ?>"
+                                                                data-nome-fantasia="<?php echo htmlspecialchars($cliente->nome_fantasia ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-razao-social="<?php echo htmlspecialchars($cliente->razao_social ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-cpf-cnpj="<?php echo htmlspecialchars($cliente->cpf_cnpj ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-codigo="<?php echo htmlspecialchars($cliente->codigo ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                                <?php echo (isset($_POST['clientes_id']) && $_POST['clientes_id'] == $cliente->id) ? 'selected' : ''; ?>
+                                                            >
                                                                 <?php echo $cliente->text; ?>
-                                                                <?php echo !empty($cliente->cpf_cnpj) ? ' (' . $cliente->cpf_cnpj . ')' : ''; ?>
                                                             </option>
                                                         <?php endforeach; ?>
                                                     </select>
@@ -427,8 +549,6 @@
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="enderecoClienteSelect" class="control-label">Endereço<span
                                                         class="required">*</span></label>
-                                                <small style="display: block; color: #666; margin-top: 2px;">Endereço
-                                                    padrão do cliente será selecionado automaticamente.</small>
                                                 <div class="controls">
                                                     <select name="enderecoClienteSelect" id="enderecoClienteSelect"
                                                         disabled required>
@@ -439,50 +559,33 @@
                                         </div>
                                     </div>
 
-                                    <!-- Linha 2.1: Contato do Cliente -->
+                                    <!-- Linha 2.1: Contatos do Cliente -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="contatoCliente" class="control-label">Contato</label>
+                                                <label for="contatoTelefone" class="control-label">Telefone</label>
                                                 <div class="controls">
-                                                    <input type="text" name="contatoCliente" id="contatoCliente"
+                                                    <input type="text" name="contatoTelefone" id="contatoTelefone"
+                                                        readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid" style="margin-bottom: 50px;">
+                                        <div class="span12">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="contatoEmail" class="control-label">Email</label>
+                                                <div class="controls">
+                                                    <input type="text" name="contatoEmail" id="contatoEmail"
                                                         readonly>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Linha 3: Código do Contrato -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span12">
-                                            <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="codigoContrato" class="control-label">Código do Contrato</label>
-                                                <small style="display: block; color: #666; margin-top: 2px;">
-                                                    Digite o código do contrato para preencher automaticamente cliente e serviços.
-                                                </small>
-                                                <div class="controls">
-                                                    <input type="hidden" id="contratoId" name="contratoId" value="">
-                                                    <input type="text" id="codigoContrato" name="codigoContrato" 
-                                                        class="span12" placeholder="Digite o código do contrato..." 
-                                                        autocomplete="off" style="width: 100%;">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <input type="hidden" id="contratoId" name="contratoId" value="">
 
-                                    <!-- Linha 3.1: Número do Contrato -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span12">
-                                            <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="numeroContrato" class="control-label">Número do Contrato<span
-                                                        class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input type="text" name="numeroContrato" id="numeroContrato"
-                                                        value="<?php echo set_value('numeroContrato'); ?>" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
 
 
 
@@ -494,7 +597,7 @@
                                                 <label for="observacoes" class="control-label">Observações<span
                                                         class="required">*</span></label>
                                                 <div class="controls">
-                                                    <textarea name="observacoes" id="observacoes" rows="5"
+                                                    <textarea name="observacoes" id="observacoes" rows="8"
                                                         required><?php echo set_value('observacoes'); ?></textarea>
                                                 </div>
                                             </div>
@@ -513,9 +616,20 @@
                                 </div>
                                 <div class="form-section-content">
 
-                                    <!-- Linha 1: Código Assinante -->
+                                    <!-- Linha 1: Número do Contrato + Código Assinante -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span12">
+                                        <div class="span6">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="numeroContrato" class="control-label">Número do Contrato<span
+                                                        class="required">*</span></label>
+                                                <div class="controls">
+                                                    <input type="text" name="numeroContrato" id="numeroContrato"
+                                                        value="<?php echo set_value('numeroContrato'); ?>"
+                                                        placeholder="Digite o número do contrato..." required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="iCodAssinante" class="control-label">Cód. Assinante</label>
                                                 <div class="controls">
@@ -611,7 +725,7 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="date" name="dataPeriodoIni" id="dataPeriodoIni"
-                                                        value="<?php echo set_value('dataPeriodoIni'); ?>" required
+                                                        value="<?php echo set_value('dataPeriodoIni') ?: date('Y-m-d'); ?>" required
                                                         class="span12">
                                                 </div>
                                             </div>
@@ -622,7 +736,7 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="date" name="dataPeriodoFim" id="dataPeriodoFim"
-                                                        value="<?php echo set_value('dataPeriodoFim'); ?>" required
+                                                        value="<?php echo set_value('dataPeriodoFim') ?: date('Y-m-d', strtotime('+30 days')); ?>" required
                                                         class="span12">
                                                 </div>
                                             </div>
@@ -714,8 +828,9 @@
                                         <input type="hidden" id="idServicoNfecom">
                                         <input type="hidden" id="cClassServicoNfecom">
                                         <input type="hidden" id="uMedServicoNfecom">
-                                        <input type="text" class="span12" id="servicoNfecom" data-pro-id=""
-                                            placeholder="Selecione um cliente primeiro" disabled>
+                                        <select class="span12" id="servicoNfecom" disabled>
+                                            <option value="">Selecione um serviço/produto...</option>
+                                        </select>
                                     </div>
                                     <div class="span2">
                                         <label for="">Preço:<span class="required">*</span></label>
@@ -750,30 +865,28 @@
                                 <div class="widget_content nopadding">
                                     <table width="100%" class="table table-bordered" id="tblServicosNfecom">
                                         <thead>
-                                            <tr>
-                                                <th>Produto/Serviço</th>
-                                                <th width="8%">cClass</th>
-                                                <th width="6%">Unid</th>
-                                                <th width="8%">Quantidade</th>
-                                                <th width="10%">Preço</th>
-                                                <th width="8%">Desconto</th>
-                                                <th width="8%">Outros</th>
-                                                <th width="8%">CST ICMS</th>
-                                                <th width="8%">CFOP</th>
-                                                <th width="6%">Ações</th>
-                                                <th width="12%">Total</th>
+                                            <tr class="servico-row-main">
+                                                <th width="4%">Código</th>
+                                                <th>Descrição</th>
+                                                <th width="3%">Unid</th>
+                                                <th width="5%" class="col-quantidade">Quantidade</th>
+                                                <th width="9%" class="col-preco-unit">Preço Unit.</th>
+                                                <th width="6%" class="col-desc">Desc.</th>
+                                                <th width="6%" class="col-outros">Outros</th>
+                                                <th width="10%" class="col-total">Total</th>
+                                                <th width="5%">Ações</th>
                                             </tr>
                                         </thead>
                                         <tbody id="servicos-list-body"></tbody>
                                         <tfoot>
                                             <tr>
-                                                <td colspan="10" style="text-align: right"><strong>Total:</strong>
-                                                </td>
+                                                <td colspan="7" style="text-align: right"><strong>Total:</strong></td>
                                                 <td>
                                                     <div align="center"><strong>R$
                                                             <span id="total-servicos-table">0,00</span></strong>
                                                     </div>
                                                 </td>
+                                                <td></td>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -906,7 +1019,7 @@
         // Configurar Select2 para busca de clientes (opções iniciais + busca AJAX)
         $('#cliente').select2({
             placeholder: 'Selecione um cliente ou digite para buscar...',
-            minimumInputLength: 2,
+            minimumInputLength: 0,
             allowClear: true,
             ajax: {
                 url: '<?php echo base_url(); ?>index.php/nfecom/buscarClientes',
@@ -914,7 +1027,7 @@
                 delay: 300,
                 data: function (params) {
                     return {
-                        q: params.term,
+                        q: params.term || '',
                         page: params.page || 1
                     };
                 },
@@ -932,14 +1045,36 @@
             },
             templateResult: function (cliente) {
                 if (cliente.loading) return cliente.text;
-                return cliente.text + (cliente.cpf_cnpj ? ' (' + cliente.cpf_cnpj + ')' : '');
+
+                var elData = cliente.element ? $(cliente.element).data() : {};
+                var nomeFantasia = cliente.nome_fantasia || elData.nomeFantasia || '';
+                var razaoSocial = cliente.razao_social || elData.razaoSocial || '';
+                var cpfCnpj = cliente.cpf_cnpj || elData.cpfCnpj || '';
+                var codigo = cliente.codigo || elData.codigo || '';
+                var tituloBase = cliente.text || nomeFantasia || razaoSocial || '';
+                var titulo = codigo ? ( codigo + ' - ' + tituloBase) : tituloBase;
+
+                var metaParts = [];
+                if (razaoSocial && razaoSocial !== titulo) {
+                    metaParts.push('Razão: ' + razaoSocial);
+                }
+                if (cpfCnpj) {
+                    metaParts.push('Doc: ' + cpfCnpj);
+                }
+
+                var meta = metaParts.length ? '<div class="cliente-select2-meta">' + metaParts.join(' • ') + '</div>' : '';
+
+                return '<div class="cliente-select2">' +
+                    '<div class="cliente-select2-title">' + titulo + '</div>' +
+                    meta +
+                '</div>';
             },
             templateSelection: function (cliente) {
                 return cliente.text || cliente.text;
             },
             language: {
                 inputTooShort: function () {
-                    return 'Digite pelo menos 2 caracteres';
+                    return 'Digite para buscar';
                 },
                 noResults: function () {
                     return 'Nenhum cliente encontrado';
@@ -957,27 +1092,230 @@
             $('#enderecoClienteSelect').prop('disabled', true).html('<option value="">Selecione um cliente primeiro</option>');
             $('#dadosClienteSection').slideUp(300);
             // Desabilitar campo de serviço quando cliente for removido
-            $('#servicoNfecom').prop('disabled', true).attr('placeholder', 'Selecione um cliente primeiro');
-            // Limpar código do contrato
-            $('#codigoContrato, #contratoId').val('');
+            $('#servicoNfecom').prop('disabled', true).val(null).trigger('change');
+            // Limpar número/identificador do contrato
+            $('#numeroContrato, #contratoId').val('');
         }).on('select2:open', function () {
             // Garantir que as opções iniciais estejam sempre disponíveis
             console.log('📋 Select2 aberto - opções iniciais disponíveis');
         });
 
+        var unidadesServicoMap = {};
+        var unidadesProdutoMap = {};
+        function carregarUnidadesServicoMap() {
+            $.getJSON('<?php echo base_url(); ?>assets/json/unidades_servico.json', function (data) {
+                if (data && data.unidades_servico) {
+                    data.unidades_servico.forEach(function (unidade) {
+                        if (unidade.valor) {
+                            unidadesServicoMap[unidade.valor] = unidade.descricao;
+                        }
+                        if (unidade.codigo) {
+                            unidadesServicoMap[unidade.codigo] = unidade.descricao;
+                        }
+                    });
+                }
+            });
+        }
+
+        function carregarUnidadesProdutoMap() {
+            $.getJSON('<?php echo base_url(); ?>assets/json/tabela_medidas.json', function (data) {
+                if (data && data.medidas) {
+                    data.medidas.forEach(function (medida) {
+                        if (medida.sigla) {
+                            unidadesProdutoMap[medida.sigla] = medida.descricao;
+                        }
+                    });
+                }
+            });
+        }
+
+        function getUnidadeDescricao(valor) {
+            if (!valor) {
+                return '';
+            }
+            return unidadesServicoMap[valor] || unidadesProdutoMap[valor] || valor;
+        }
+
+        carregarUnidadesServicoMap();
+        carregarUnidadesProdutoMap();
+
+        // Configurar Select2 para busca de serviços/produtos
+        $('#servicoNfecom').select2({
+            placeholder: 'Selecione um serviço/produto...',
+            minimumInputLength: 0,
+            allowClear: true,
+            ajax: {
+                url: '<?php echo base_url(); ?>index.php/nfecom/autoCompleteServico',
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        term: params.term || ''
+                    };
+                },
+                processResults: function (data) {
+                    var results = $.map(data || [], function (item) {
+                        return {
+                            id: item.id,
+                            text: item.label,
+                            preco: item.preco,
+                            cClass: item.cClass,
+                            uMed: item.uMed
+                        };
+                    });
+                    return { results: results };
+                },
+                cache: true
+            },
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            templateResult: function (servico) {
+                if (servico.loading) return servico.text;
+
+                var elData = servico.element ? $(servico.element).data() : {};
+                var preco = servico.preco !== undefined ? servico.preco : elData.preco;
+                var cClass = servico.cClass || elData.cClass || '';
+                var uMed = servico.uMed || elData.uMed || '';
+                var uMedDescricao = getUnidadeDescricao(uMed);
+
+                var metaParts = [];
+                if (preco !== undefined && preco !== null && preco !== '') {
+                    metaParts.push('Preço: ' + formatMoney(preco));
+                }
+                if (cClass) {
+                    metaParts.push('cClass: ' + cClass);
+                }
+                if (uMedDescricao) {
+                    metaParts.push('Unid: ' + uMedDescricao);
+                }
+
+                var meta = metaParts.length ? '<div class="servico-select2-meta">' + metaParts.join(' • ') + '</div>' : '';
+
+                return '<div class="servico-select2">' +
+                    '<div class="servico-select2-title">' + (servico.text || '') + '</div>' +
+                    meta +
+                '</div>';
+            },
+            templateSelection: function (servico) {
+                return servico.text || servico.text;
+            },
+            language: {
+                inputTooShort: function () {
+                    return 'Digite para buscar';
+                },
+                noResults: function () {
+                    return 'Nenhum serviço encontrado';
+                },
+                searching: function () {
+                    return 'Buscando...';
+                },
+                loadingMore: function () {
+                    return 'Carregando mais resultados...';
+                }
+            }
+        }).on('select2:select', function (e) {
+            var servico = e.params.data || {};
+            $('#idServicoNfecom').val(servico.id || '');
+            if (servico.preco !== undefined) {
+                $('#precoServicoNfecom').val(formatMoney(servico.preco));
+            }
+            if (!$('#quantidadeServicoNfecom').val()) {
+                $('#quantidadeServicoNfecom').val('1');
+            }
+            $('#cClassServicoNfecom').val(servico.cClass || '');
+            $('#uMedServicoNfecom').val(servico.uMed || 'UN');
+            $('#precoServicoNfecom').focus().select();
+        }).on('select2:clear', function () {
+            limparServicoFormulario();
+        });
+
+        function formatarPrecoInput(selector) {
+            const valor = $(selector).val();
+            if (!valor) {
+                return;
+            }
+            $(selector).val(formatMoney(valor));
+        }
+
+        $('#precoServicoNfecom')
+            .on('focus', function () {
+                $(this).select();
+            })
+            .on('blur', function () {
+                formatarPrecoInput('#precoServicoNfecom');
+            })
+            .on('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    formatarPrecoInput('#precoServicoNfecom');
+                    if (!$('#quantidadeServicoNfecom').val()) {
+                        $('#quantidadeServicoNfecom').val('1');
+                    }
+                    $('#quantidadeServicoNfecom').focus().select();
+                }
+            });
+
+        $('#descontoServicoNfecom, #outrosServicoNfecom')
+            .on('focus', function () {
+                $(this).select();
+            })
+            .on('blur', function () {
+                formatarPrecoInput('#' + this.id);
+            })
+            .on('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    formatarPrecoInput('#' + this.id);
+                    $('#btnAdicionarServicoNfecom').focus();
+                }
+            });
+
+        $('#quantidadeServicoNfecom')
+            .on('focus', function () {
+                if (!$(this).val()) {
+                    $(this).val('1');
+                }
+                $(this).select();
+            });
+
+        var clienteSelecionadoAnterior = $('#cliente').val() || '';
+        var ignorarMudancaCliente = false;
+        var recalcularTributosPendentes = false;
+
         // Habilitar campo de serviço se já houver cliente selecionado ao carregar a página
         if ($('#cliente').val()) {
-            $('#servicoNfecom').prop('disabled', false).attr('placeholder', 'Digite o nome do serviço');
+            $('#servicoNfecom').prop('disabled', false);
         }
 
         // Função para buscar endereços do cliente
         $('#cliente').change(function () {
+            if (ignorarMudancaCliente) {
+                ignorarMudancaCliente = false;
+                return;
+            }
+
             var clienteId = $(this).val();
+
+            if (clienteId !== clienteSelecionadoAnterior) {
+                var temItens = $('#servicos-list-body .servico-row-main').length > 0;
+                if (temItens) {
+                    var confirmar = confirm('Cliente alterado. Recalcular os dados tributários dos itens?');
+                    if (!confirmar) {
+                        ignorarMudancaCliente = true;
+                        $(this).val(clienteSelecionadoAnterior).trigger('change');
+                        return;
+                    }
+                    recalcularTributosPendentes = true;
+                }
+                clienteSelecionadoAnterior = clienteId;
+            }
+
             if (clienteId) {
                 // Habilitar campo de serviço quando cliente for selecionado
-                $('#servicoNfecom').prop('disabled', false).attr('placeholder', 'Digite o nome do serviço');
+                $('#servicoNfecom').prop('disabled', false);
                 // Limpar campos de contrato
-                $('#codigoContrato, #contratoId').val('');
+                $('#numeroContrato, #contratoId').val('');
                 $('#numeroContrato, #dataContratoIni, #dataContratoFim, #observacoes').val('');
                 $('#tpAssinante').val('3'); // Resetar para padrão
 
@@ -999,7 +1337,7 @@
                             console.log('✅ Apenas 1 contrato encontrado, preenchendo automaticamente...');
                             var contrato = contratos[0];
                             preencherDadosContrato(contrato);
-                            $('#codigoContrato').val(contrato.ctr_numero);
+                            $('#numeroContrato').val(contrato.ctr_numero);
                             $('#contratoId').val(contrato.ctr_id);
                             buscarServicosContrato(contrato.ctr_id);
                         }
@@ -1016,16 +1354,18 @@
                     dataType: 'json',
                     success: function (data) {
                         if (data.error) {
-                            $('#contatoCliente').val('');
+                            $('#contatoTelefone, #contatoEmail').val('');
                             return;
                         }
                         const telefone = data.telefone || '';
                         const celular = data.celular || '';
-                        const contato = telefone && celular ? `${telefone} / ${celular}` : (telefone || celular);
-                        $('#contatoCliente').val(contato);
+                        const email = data.email || '';
+                        const contatoTelefone = telefone && celular ? `${telefone} / ${celular}` : (telefone || celular);
+                        $('#contatoTelefone').val(contatoTelefone);
+                        $('#contatoEmail').val(email);
                     },
                     error: function () {
-                        $('#contatoCliente').val('');
+                        $('#contatoTelefone, #contatoEmail').val('');
                     }
                 });
 
@@ -1076,21 +1416,29 @@
                         } else {
                             console.log('⚠️  Nenhum endereço encontrado para este cliente');
                             $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
+                            if (recalcularTributosPendentes) {
+                                recalcularTributosItens();
+                                recalcularTributosPendentes = false;
+                            }
                         }
                     },
                     error: function () {
                         alert('Erro ao buscar endereços do cliente');
                         $('#enderecoClienteSelect').prop('disabled', true).html('<option value="">Erro ao carregar endereços</option>');
+                        if (recalcularTributosPendentes) {
+                            recalcularTributosItens();
+                            recalcularTributosPendentes = false;
+                        }
                     }
                 });
             } else {
                 // Desabilitar campo de serviço quando nenhum cliente selecionado
-                $('#servicoNfecom').prop('disabled', true).attr('placeholder', 'Selecione um cliente primeiro');
+                $('#servicoNfecom').prop('disabled', true).val(null).trigger('change');
                 // Limpar campos quando nenhum cliente selecionado
                 $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
                 $('#enderecoClienteSelect').prop('disabled', true).html('<option value="">Selecione um cliente primeiro</option>');
-                $('#contatoCliente').val('');
-                $('#codigoContrato, #contratoId').val('');
+                $('#contatoTelefone, #contatoEmail').val('');
+                $('#numeroContrato, #contratoId').val('');
                 $('#numeroContrato, #dataContratoIni, #dataContratoFim, #observacoes').val('');
                 $('#tpAssinante').val('3');
             }
@@ -1123,9 +1471,9 @@
             console.log('✅ Dados do contrato preenchidos com sucesso');
         }
 
-        // Autocomplete para código do contrato
+        // Autocomplete para número do contrato
         // Compatível com jQuery UI 1.9.2 (sem usar .instance)
-        var autocompleteContrato = $('#codigoContrato').autocomplete({
+        var autocompleteContrato = $('#numeroContrato').autocomplete({
             source: function(request, response) {
                 $.ajax({
                     url: '<?php echo base_url(); ?>index.php/nfecom/buscarContratoPorCodigo',
@@ -1171,9 +1519,8 @@
                 event.preventDefault();
                 
                 // Preencher dados do contrato
-                $('#codigoContrato').val(ui.item.ctr_numero);
-                $('#contratoId').val(ui.item.ctr_id);
                 $('#numeroContrato').val(ui.item.ctr_numero);
+                $('#contratoId').val(ui.item.ctr_id);
                 
                 if (ui.item.ctr_data_inicio) {
                     $('#dataContratoIni').val(ui.item.ctr_data_inicio);
@@ -1224,6 +1571,181 @@
             }
         });
 
+        function setServicoSelecionado(servico) {
+            if (!servico || !servico.id) {
+                return;
+            }
+
+            $('#idServicoNfecom').val(servico.id);
+
+            var optionExistente = $('#servicoNfecom option[value="' + servico.id + '"]');
+            if (optionExistente.length === 0) {
+                var newOption = new Option(servico.text || '', servico.id, true, true);
+                $(newOption).data('preco', servico.preco || '');
+                $(newOption).data('cClass', servico.cClass || '');
+                $(newOption).data('uMed', servico.uMed || '');
+                $('#servicoNfecom').append(newOption);
+            }
+
+            $('#servicoNfecom').val(servico.id).trigger('change');
+
+            if (servico.preco !== undefined && servico.preco !== null && servico.preco !== '') {
+                $('#precoServicoNfecom').val(formatMoney(servico.preco));
+            }
+            if (servico.cClass !== undefined) {
+                $('#cClassServicoNfecom').val(servico.cClass || '');
+            }
+            if (servico.uMed !== undefined) {
+                $('#uMedServicoNfecom').val(servico.uMed || 'UN');
+            }
+        }
+
+        function atualizarLinhaTributos($taxRow, dados) {
+            if (!$taxRow || $taxRow.length === 0) {
+                return;
+            }
+            $taxRow.find('.tax-base-icms').text(formatMoney(dados.baseIcms || 0));
+            $taxRow.find('.tax-aliq-icms').text(formatarPercentual(dados.aliqIcms || 0));
+            $taxRow.find('.tax-valor-icms').text(formatMoney(dados.valorIcms || 0));
+            $taxRow.find('.tax-base-icmsst').text(formatMoney(dados.baseIcmsSt || 0));
+            $taxRow.find('.tax-aliq-icmsst').text(formatarPercentual(dados.aliqIcmsSt || 0));
+            $taxRow.find('.tax-valor-icmsst').text(formatMoney(dados.valorIcmsSt || 0));
+            $taxRow.find('.tax-base-irrf').text(formatMoney(dados.baseIrrf || 0));
+            $taxRow.find('.tax-valor-irrf').text(formatMoney(dados.valorIrrf || 0));
+            $taxRow.find('.tax-valor-pis').text(formatMoney(dados.valorPis || 0));
+            $taxRow.find('.tax-valor-cofins').text(formatMoney(dados.valorCofins || 0));
+
+            if (dados.cst !== undefined) {
+                $taxRow.find('.tax-cst-value').text(dados.cst);
+                $taxRow.find('input[name$="[cst_icms]"]').val(dados.cst);
+            }
+            if (dados.cfop !== undefined) {
+                $taxRow.find('.tax-cfop-value').text(dados.cfop);
+                $taxRow.find('input[name$="[cfop]"]').val(dados.cfop);
+            }
+        }
+
+        function editarServicoLinha($row) {
+            const index = $row.data('index');
+            const $taxRow = $row.next('.servico-row-tax[data-index="' + index + '"]');
+
+            const servicoId = $row.find('input[name="servicos[' + index + '][id]"]').val();
+            const servicoNome = $row.find('input[name="servicos[' + index + '][nome]"]').val();
+            const unidade = $row.find('input[name="servicos[' + index + '][u_med]"]').val();
+            const preco = $row.find('input[name="servicos[' + index + '][valorUnitario]"]').val();
+            const quantidade = $row.find('input[name="servicos[' + index + '][quantidade]"]').val();
+            const vDesc = $taxRow.find('input[name="servicos[' + index + '][v_desc]"]').val() || '0';
+            const vOutros = $taxRow.find('input[name="servicos[' + index + '][v_outro]"]').val() || '0';
+            const cClass = $taxRow.find('input[name="servicos[' + index + '][c_class]"]').val() || '';
+
+            setServicoSelecionado({
+                id: servicoId,
+                text: servicoNome
+            });
+
+            $('#cClassServicoNfecom').val(cClass);
+            $('#uMedServicoNfecom').val(unidade);
+            $('#precoServicoNfecom').val(formatMoney(preco));
+            $('#quantidadeServicoNfecom').val(formatarQuantidade(quantidade || 1));
+            $('#descontoServicoNfecom').val(formatMoney(vDesc));
+            $('#outrosServicoNfecom').val(formatMoney(vOutros));
+
+            $taxRow.remove();
+            $row.remove();
+            atualizarTotais();
+
+            $('#precoServicoNfecom').focus().select();
+        }
+
+        function recalcularTributosItens() {
+            const operacaoComercialId = $("#opc_id").val();
+            const clienteId = $("#cliente").val();
+            if (!operacaoComercialId || !clienteId) {
+                return;
+            }
+
+            $('#servicos-list-body .servico-row-main').each(function () {
+                const $row = $(this);
+                const index = $row.data('index');
+                const $taxRow = $row.next('.servico-row-tax[data-index="' + index + '"]');
+
+                const servicoId = $row.find('input[name="servicos[' + index + '][id]"]').val();
+                const valorUnitario = $row.find('input[name="servicos[' + index + '][valorUnitario]"]').val();
+                const quantidade = $row.find('input[name="servicos[' + index + '][quantidade]"]').val();
+                const vDesc = $taxRow.find('input[name="servicos[' + index + '][v_desc]"]').val() || 0;
+                const vOutros = $taxRow.find('input[name="servicos[' + index + '][v_outro]"]').val() || 0;
+
+                let defaultCfop = $taxRow.find('input[name="servicos[' + index + '][cfop]"]').val() || '5303';
+                let defaultCst = $taxRow.find('input[name="servicos[' + index + '][cst_icms]"]').val() || '00';
+
+                $.ajax({
+                    url: '<?php echo base_url(); ?>index.php/nfecom/getClassificacaoFiscal',
+                    type: 'POST',
+                    async: false,
+                    data: {
+                        operacao_comercial_id: operacaoComercialId,
+                        cliente_id: clienteId,
+                        produto_id: servicoId || null
+                    },
+                    success: function (response) {
+                        if (response.success && response.data) {
+                            defaultCfop = response.data.cfop || defaultCfop;
+                            defaultCst = response.data.cst || defaultCst;
+                        }
+                    }
+                });
+
+                let dadosTrib = {
+                    baseIcms: 0,
+                    aliqIcms: 0,
+                    valorIcms: 0,
+                    baseIcmsSt: 0,
+                    aliqIcmsSt: 0,
+                    valorIcmsSt: 0,
+                    valorPis: 0,
+                    valorCofins: 0,
+                    baseIrrf: 0,
+                    valorIrrf: 0,
+                    cst: defaultCst,
+                    cfop: defaultCfop
+                };
+
+                $.ajax({
+                    url: '<?php echo base_url(); ?>index.php/nfecom/previewTributacaoItem',
+                    type: 'POST',
+                    dataType: 'json',
+                    async: false,
+                    data: {
+                        produto_id: servicoId,
+                        cliente_id: clienteId,
+                        operacao_id: operacaoComercialId,
+                        valor_unitario: valorUnitario,
+                        quantidade: quantidade,
+                        v_desc: vDesc,
+                        v_outro: vOutros,
+                        endereco_id: $('#enderecoClienteId').val() || ''
+                    },
+                    success: function (response) {
+                        if (response.success && response.data) {
+                            const dados = response.data;
+                            dadosTrib.baseIcms = parseFloat((dados.icms && dados.icms.base) || 0);
+                            dadosTrib.aliqIcms = parseFloat((dados.icms && dados.icms.aliquota) || 0);
+                            dadosTrib.valorIcms = parseFloat((dados.icms && dados.icms.valor) || 0);
+                            dadosTrib.baseIcmsSt = parseFloat((dados.icms_st && dados.icms_st.base) || 0);
+                            dadosTrib.aliqIcmsSt = parseFloat((dados.icms_st && dados.icms_st.aliquota) || 0);
+                            dadosTrib.valorIcmsSt = parseFloat((dados.icms_st && dados.icms_st.valor) || 0);
+                            dadosTrib.valorPis = parseFloat((dados.pis && dados.pis.valor) || 0);
+                            dadosTrib.valorCofins = parseFloat((dados.cofins && dados.cofins.valor) || 0);
+                            dadosTrib.baseIrrf = parseFloat((dados.irrf && dados.irrf.base) || 0);
+                            dadosTrib.valorIrrf = parseFloat((dados.irrf && dados.irrf.valor) || 0);
+                        }
+                    }
+                });
+
+                atualizarLinhaTributos($taxRow, dadosTrib);
+            });
+        }
+
         // Função para buscar serviços do contrato e preencher automaticamente
         function buscarServicosContrato(contratoId) {
             if (!contratoId) {
@@ -1256,7 +1778,10 @@
                             
                             // Preencher campos do formulário
                             $("#idServicoNfecom").val(servicoId);
-                            $("#servicoNfecom").val(servicoNome);
+                            setServicoSelecionado({
+                                id: servicoId,
+                                text: servicoNome
+                            });
                             $("#precoServicoNfecom").val(formatMoney(servicoPreco));
                             $("#quantidadeServicoNfecom").val(formatarQuantidade(servicoQuantidade));
                             $("#descontoServicoNfecom").val('0,00');
@@ -1352,10 +1877,18 @@
                 $('#ufCliente').val(enderecoData.uf || '');
 
                 console.log('✅ Campos ocultos preenchidos para endereço ID:', enderecoData.id);
+                if (recalcularTributosPendentes) {
+                    recalcularTributosItens();
+                    recalcularTributosPendentes = false;
+                }
             } else {
                 console.log('🧹 Limpando campos - nenhum endereço selecionado');
                 // Limpar campos quando nenhum endereço selecionado
                 $('#enderecoClienteId, #logradouroCliente, #numeroCliente, #bairroCliente, #municipioCliente, #codMunCliente, #cepCliente, #ufCliente').val('');
+                if (recalcularTributosPendentes) {
+                    recalcularTributosItens();
+                    recalcularTributosPendentes = false;
+                }
             }
         });
 
@@ -1447,32 +1980,13 @@
             return numValue.toFixed(4).replace(/\.?0+$/, '').replace('.', ',');
         }
 
+        function formatarPercentual(value) {
+            const numValue = parseFloat(value) || 0;
+            return numValue.toFixed(2).replace('.', ',') + '%';
+        }
+
         $("#quantidadeServicoNfecom").keyup(function () {
             this.value = this.value.replace(/[^0-9.]/g, '');
-        });
-
-        $("#servicoNfecom").autocomplete({
-            source: "<?php echo base_url(); ?>index.php/nfecom/autoCompleteServico",
-            minLength: 2,
-            select: function (event, ui) {
-                $("#idServicoNfecom").val(ui.item.id);
-                // Formatar preço com vírgula quando vier do autocomplete
-                const precoFormatado = formatMoney(ui.item.preco);
-                $("#precoServicoNfecom").val(precoFormatado);
-                $("#cClassServicoNfecom").val(ui.item.cClass);
-                $("#uMedServicoNfecom").val(ui.item.uMed);
-                $("#precoServicoNfecom").focus();
-            }
-        });
-
-        $("#servicoNfecom").on('input', function () {
-            // Se alterar o nome, limpamos o ID para garantir que seja tratado como texto livre ou novo
-            // Mas mantemos os outros dados preenchidos pelo autocomplete caso seja apenas uma correção de nome
-            // Se o usuário apagar tudo, aí limpamos tudo
-            if (!$(this).val()) {
-                $("#idServicoNfecom").val('');
-                limparServicoFormulario();
-            }
         });
 
         // Evitar submit com Enter e navegar entre campos do item
@@ -1495,13 +2009,15 @@
         // Impedir submit do formulário principal via Enter no bloco de serviços
         $('#formNfecom').on('keydown', function (e) {
             if (e.key === 'Enter' && $(e.target).closest('.form-section').length) {
-                e.preventDefault();
+                if (!$(e.target).is('textarea')) {
+                    e.preventDefault();
+                }
             }
         });
 
         function limparServicoFormulario() {
             $("#idServicoNfecom").val('');
-            $("#servicoNfecom").val('');
+            $("#servicoNfecom").val(null).trigger('change');
             $("#precoServicoNfecom").val('');
             $("#quantidadeServicoNfecom").val('');
             $("#descontoServicoNfecom").val('');
@@ -1511,8 +2027,12 @@
         }
 
         function adicionarServicoNfecom() {
-            const servicoId = $("#idServicoNfecom").val();
-            const servicoNome = $("#servicoNfecom").val().trim();
+            const servicoData = $('#servicoNfecom').select2('data')[0] || {};
+            const servicoId = servicoData.id || $("#idServicoNfecom").val();
+            let servicoNome = (servicoData.text || '').trim();
+            if (!servicoNome) {
+                servicoNome = ($('#servicoNfecom option:selected').text() || '').trim();
+            }
             let cClass = $("#cClassServicoNfecom").val();
             const unidade = $("#uMedServicoNfecom").val();
             const precoRaw = $("#precoServicoNfecom").val();
@@ -1584,6 +2104,16 @@
             let defaultCfop = '5303';
             let defaultCst = '00';
             let clfId = null; // ID da classificação fiscal
+            let baseIcms = 0;
+            let aliqIcms = 0;
+            let valorIcms = 0;
+            let baseIcmsSt = 0;
+            let aliqIcmsSt = 0;
+            let valorIcmsSt = 0;
+            let valorPis = 0;
+            let valorCofins = 0;
+            let baseIrrf = 0;
+            let valorIrrf = 0;
             
             // Buscar classificação fiscal se tiver operação comercial e cliente
             const operacaoComercialId = $("#opc_id").val(); // Campo correto é opc_id
@@ -1630,135 +2160,101 @@
                         console.log('❌ Erro ao buscar classificação fiscal:', error);
                     }
                 });
+
+                // Pré-visualizar tributação (mesma base do backend)
+                $.ajax({
+                    url: '<?php echo base_url(); ?>index.php/nfecom/previewTributacaoItem',
+                    type: 'POST',
+                    dataType: 'json',
+                    async: false,
+                    data: {
+                        produto_id: servicoId,
+                        cliente_id: clienteId,
+                        operacao_id: operacaoComercialId,
+                        valor_unitario: preco,
+                        quantidade: quantidade,
+                        v_desc: vDesc,
+                        v_outro: vOutros,
+                        endereco_id: $('#enderecoClienteId').val() || ''
+                    },
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            const dados = response.data;
+                            baseIcms = parseFloat((dados.icms && dados.icms.base) || 0);
+                            aliqIcms = parseFloat((dados.icms && dados.icms.aliquota) || 0);
+                            valorIcms = parseFloat((dados.icms && dados.icms.valor) || 0);
+                            baseIcmsSt = parseFloat((dados.icms_st && dados.icms_st.base) || 0);
+                            aliqIcmsSt = parseFloat((dados.icms_st && dados.icms_st.aliquota) || 0);
+                            valorIcmsSt = parseFloat((dados.icms_st && dados.icms_st.valor) || 0);
+                            valorPis = parseFloat((dados.pis && dados.pis.valor) || 0);
+                            valorCofins = parseFloat((dados.cofins && dados.cofins.valor) || 0);
+                            baseIrrf = parseFloat((dados.irrf && dados.irrf.base) || 0);
+                            valorIrrf = parseFloat((dados.irrf && dados.irrf.valor) || 0);
+                        } else {
+                            console.log('⚠️  Pré-visualização tributária não retornou dados:', response.error || 'Erro desconhecido');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('❌ Erro ao pré-visualizar tributação:', error);
+                    }
+                });
             } else {
                 console.log('⚠️  Operação comercial ou cliente não selecionado. Usando valores padrão.');
             }
 
+            const unidadeDescricao = getUnidadeDescricao(unidade);
             const row = `
-            <tr data-index="${servicoIndex}" data-valor-produto="${valorProduto}">
+            <tr class="servico-row-main" data-index="${servicoIndex}" data-valor-produto="${valorProduto}">
                 <td>
-                    <input type="text" name="servicos[${servicoIndex}][nome]" value="${servicoNome}" class="span12">
+                    <div align="center">${servicoId || ''}</div>
                     <input type="hidden" name="servicos[${servicoIndex}][id]" value="${servicoId}">
                 </td>
                 <td>
-                    ${cClass}
-                    <input type="hidden" name="servicos[${servicoIndex}][c_class]" value="${cClass}">
+                    <input type="text" name="servicos[${servicoIndex}][nome]" value="${servicoNome}" class="span12">
                 </td>
                 <td>
-                    ${unidade}
+                    ${unidadeDescricao || '-'}
                     <input type="hidden" name="servicos[${servicoIndex}][u_med]" value="${unidade}">
                 </td>
-                <td><div align="center">${formatarQuantidade(quantidade)}</div>
+                <td class="col-quantidade"><div>${formatarQuantidade(quantidade)}</div>
                     <input type="hidden" name="servicos[${servicoIndex}][quantidade]" value="${quantidade}">
                 </td>
-                <td><div align="center">R$ ${formatMoney(preco)}</div>
+                <td class="col-preco-unit"><div>R$ ${formatMoney(preco)}</div>
                     <input type="hidden" name="servicos[${servicoIndex}][valorUnitario]" value="${preco}">
                 </td>
+                <td class="col-desc"><div>R$ ${formatMoney(vDesc)}</div></td>
+                <td class="col-outros"><div>R$ ${formatMoney(vOutros)}</div></td>
+                <td class="col-total"><div>R$ ${formatMoney(valorProduto)}</div></td>
                 <td>
-                    R$ ${formatMoney(vDesc)}
-                    <input type="hidden" name="servicos[${servicoIndex}][v_desc]" value="${vDesc}">
-                </td>
-                <td>
-                    R$ ${formatMoney(vOutros)}
-                    <input type="hidden" name="servicos[${servicoIndex}][v_outro]" value="${vOutros}">
-                </td>
-                <td>
-                    <select name="servicos[${servicoIndex}][cst_icms]" class="span12" style="margin:0; width: 100%;">
-                        <option value="00" ${String(defaultCst) === '00' ? 'selected' : ''}>00 - Tribut. Integral</option>
-                        <option value="20" ${String(defaultCst) === '20' ? 'selected' : ''}>20 - Red. Base Calc.</option>
-                        <option value="30" ${String(defaultCst) === '30' ? 'selected' : ''}>30 - Isenta/Não Trib. c/ Cobrança</option>
-                        <option value="40" ${String(defaultCst) === '40' ? 'selected' : ''}>40 - Isenta</option>
-                        <option value="41" ${String(defaultCst) === '41' ? 'selected' : ''}>41 - Não Tributada</option>
-                        <option value="50" ${String(defaultCst) === '50' ? 'selected' : ''}>50 - Suspensão</option>
-                        <option value="51" ${String(defaultCst) === '51' ? 'selected' : ''}>51 - Diferimento</option>
-                        <option value="60" ${String(defaultCst) === '60' ? 'selected' : ''}>60 - ICMS cobrado anteriormente por substituição tributária</option>
-                        <option value="70" ${String(defaultCst) === '70' ? 'selected' : ''}>70 - Com redução de base de cálculo e cobrança do ICMS por substituição tributária</option>
-                        <option value="90" ${String(defaultCst) === '90' ? 'selected' : ''}>90 - Outras</option>
-                    </select>
-                    ${clfId ? '<input type="hidden" name="servicos[' + servicoIndex + '][clf_id]" value="' + clfId + '">' : ''}
-                </td>
-                <td>
-                    <select name="servicos[${servicoIndex}][cfop]" class="span12" style="margin:0; width: 100%;" id="cfop_${servicoIndex}">
-                        <option value="5301" ${String(defaultCfop) === '5301' ? 'selected' : ''}>5301 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituto</option>
-                        <option value="5302" ${String(defaultCfop) === '5302' ? 'selected' : ''}>5302 - Venda de produção do estabelecimento de produto sujeito ao regime de substituição tributária, em operação entre contribuintes substitutos do mesmo produto</option>
-                        <option value="5303" ${String(defaultCfop) === '5303' ? 'selected' : ''}>5303 - Venda de produção do estabelecimento que não deva por ele entrar na apuração</option>
-                        <option value="5304" ${String(defaultCfop) === '5304' ? 'selected' : ''}>5304 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5305" ${String(defaultCfop) === '5305' ? 'selected' : ''}>5305 - Venda de produção do estabelecimento o que não deva por ele entrar na apuração, em operação com produto sujeito ao regime de substituição tributária na condição de contribuinte substituído</option>
-                        <option value="5306" ${String(defaultCfop) === '5306' ? 'selected' : ''}>5306 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5307" ${String(defaultCfop) === '5307' ? 'selected' : ''}>5307 - Venda de produção do estabelecimento, efetuada fora do estabelecimento</option>
-                        <option value="5308" ${String(defaultCfop) === '5308' ? 'selected' : ''}>5308 - Venda de produção do estabelecimento, efetuada fora do estabelecimento, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5309" ${String(defaultCfop) === '5309' ? 'selected' : ''}>5309 - Venda de produção do estabelecimento a outro estabelecimento da mesma empresa</option>
-                        <option value="5310" ${String(defaultCfop) === '5310' ? 'selected' : ''}>5310 - Venda de produção do estabelecimento a empresa industrial em operação com produto sujeito ao regime de substituição tributária</option>
-                        <option value="5311" ${String(defaultCfop) === '5311' ? 'selected' : ''}>5311 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5312" ${String(defaultCfop) === '5312' ? 'selected' : ''}>5312 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5313" ${String(defaultCfop) === '5313' ? 'selected' : ''}>5313 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5314" ${String(defaultCfop) === '5314' ? 'selected' : ''}>5314 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5315" ${String(defaultCfop) === '5315' ? 'selected' : ''}>5315 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5321" ${String(defaultCfop) === '5321' ? 'selected' : ''}>5321 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5322" ${String(defaultCfop) === '5322' ? 'selected' : ''}>5322 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5323" ${String(defaultCfop) === '5323' ? 'selected' : ''}>5323 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5324" ${String(defaultCfop) === '5324' ? 'selected' : ''}>5324 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5325" ${String(defaultCfop) === '5325' ? 'selected' : ''}>5325 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5351" ${String(defaultCfop) === '5351' ? 'selected' : ''}>5351 - Remessa de produção do estabelecimento para armazenamento</option>
-                        <option value="5352" ${String(defaultCfop) === '5352' ? 'selected' : ''}>5352 - Remessa de produção do estabelecimento com destino a outro estabelecimento da mesma empresa</option>
-                        <option value="5353" ${String(defaultCfop) === '5353' ? 'selected' : ''}>5353 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
-                        <option value="5354" ${String(defaultCfop) === '5354' ? 'selected' : ''}>5354 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
-                        <option value="5355" ${String(defaultCfop) === '5355' ? 'selected' : ''}>5355 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
-                        <option value="5356" ${String(defaultCfop) === '5356' ? 'selected' : ''}>5356 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
-                        <option value="5357" ${String(defaultCfop) === '5357' ? 'selected' : ''}>5357 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
-                        <option value="5358" ${String(defaultCfop) === '5358' ? 'selected' : ''}>5358 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
-                        <option value="5359" ${String(defaultCfop) === '5359' ? 'selected' : ''}>5359 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
-                        <option value="5360" ${String(defaultCfop) === '5360' ? 'selected' : ''}>5360 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
-                        <option value="5401" ${String(defaultCfop) === '5401' ? 'selected' : ''}>5401 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituto</option>
-                        <option value="5402" ${String(defaultCfop) === '5402' ? 'selected' : ''}>5402 - Venda de produção do estabelecimento de produto sujeito ao regime de substituição tributária, em operação entre contribuintes substitutos do mesmo produto</option>
-                        <option value="5403" ${String(defaultCfop) === '5403' ? 'selected' : ''}>5403 - Venda de produção do estabelecimento que não deva por ele entrar na apuração</option>
-                        <option value="5405" ${String(defaultCfop) === '5405' ? 'selected' : ''}>5405 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5408" ${String(defaultCfop) === '5408' ? 'selected' : ''}>5408 - Venda de produção do estabelecimento, efetuada fora do estabelecimento</option>
-                        <option value="5409" ${String(defaultCfop) === '5409' ? 'selected' : ''}>5409 - Venda de produção do estabelecimento a outro estabelecimento da mesma empresa</option>
-                        <option value="5410" ${String(defaultCfop) === '5410' ? 'selected' : ''}>5410 - Venda de produção do estabelecimento a empresa industrial em operação com produto sujeito ao regime de substituição tributária</option>
-                        <option value="5411" ${String(defaultCfop) === '5411' ? 'selected' : ''}>5411 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5412" ${String(defaultCfop) === '5412' ? 'selected' : ''}>5412 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5413" ${String(defaultCfop) === '5413' ? 'selected' : ''}>5413 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5414" ${String(defaultCfop) === '5414' ? 'selected' : ''}>5414 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="5415" ${String(defaultCfop) === '5415' ? 'selected' : ''}>5415 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6301" ${String(defaultCfop) === '6301' ? 'selected' : ''}>6301 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituto</option>
-                        <option value="6302" ${String(defaultCfop) === '6302' ? 'selected' : ''}>6302 - Venda de produção do estabelecimento de produto sujeito ao regime de substituição tributária, em operação entre contribuintes substitutos do mesmo produto</option>
-                        <option value="6303" ${String(defaultCfop) === '6303' ? 'selected' : ''}>6303 - Venda de produção do estabelecimento que não deva por ele entrar na apuração</option>
-                        <option value="6304" ${String(defaultCfop) === '6304' ? 'selected' : ''}>6304 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6305" ${String(defaultCfop) === '6305' ? 'selected' : ''}>6305 - Venda de produção do estabelecimento o que não deva por ele entrar na apuração, em operação com produto sujeito ao regime de substituição tributária na condição de contribuinte substituído</option>
-                        <option value="6306" ${String(defaultCfop) === '6306' ? 'selected' : ''}>6306 - Venda de produção do estabelecimento em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6307" ${String(defaultCfop) === '6307' ? 'selected' : ''}>6307 - Venda de produção do estabelecimento, efetuada fora do estabelecimento</option>
-                        <option value="6308" ${String(defaultCfop) === '6308' ? 'selected' : ''}>6308 - Venda de produção do estabelecimento, efetuada fora do estabelecimento, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6309" ${String(defaultCfop) === '6309' ? 'selected' : ''}>6309 - Venda de produção do estabelecimento a outro estabelecimento da mesma empresa</option>
-                        <option value="6310" ${String(defaultCfop) === '6310' ? 'selected' : ''}>6310 - Venda de produção do estabelecimento a empresa industrial em operação com produto sujeito ao regime de substituição tributária</option>
-                        <option value="6311" ${String(defaultCfop) === '6311' ? 'selected' : ''}>6311 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6312" ${String(defaultCfop) === '6312' ? 'selected' : ''}>6312 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6313" ${String(defaultCfop) === '6313' ? 'selected' : ''}>6313 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6314" ${String(defaultCfop) === '6314' ? 'selected' : ''}>6314 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6315" ${String(defaultCfop) === '6315' ? 'selected' : ''}>6315 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6321" ${String(defaultCfop) === '6321' ? 'selected' : ''}>6321 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6322" ${String(defaultCfop) === '6322' ? 'selected' : ''}>6322 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6323" ${String(defaultCfop) === '6323' ? 'selected' : ''}>6323 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6324" ${String(defaultCfop) === '6324' ? 'selected' : ''}>6324 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6325" ${String(defaultCfop) === '6325' ? 'selected' : ''}>6325 - Venda de produção do estabelecimento, de produto já adquirido ou recebido de terceiros, em operação com produto sujeito ao regime de substituição tributária, na condição de contribuinte substituído</option>
-                        <option value="6351" ${String(defaultCfop) === '6351' ? 'selected' : ''}>6351 - Remessa de produção do estabelecimento para armazenamento</option>
-                        <option value="6352" ${String(defaultCfop) === '6352' ? 'selected' : ''}>6352 - Remessa de produção do estabelecimento com destino a outro estabelecimento da mesma empresa</option>
-                        <option value="6353" ${String(defaultCfop) === '6353' ? 'selected' : ''}>6353 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
-                        <option value="6354" ${String(defaultCfop) === '6354' ? 'selected' : ''}>6354 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
-                        <option value="6355" ${String(defaultCfop) === '6355' ? 'selected' : ''}>6355 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
-                        <option value="6356" ${String(defaultCfop) === '6356' ? 'selected' : ''}>6356 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
-                        <option value="6357" ${String(defaultCfop) === '6357' ? 'selected' : ''}>6357 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
-                        <option value="6358" ${String(defaultCfop) === '6358' ? 'selected' : ''}>6358 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
-                        <option value="6359" ${String(defaultCfop) === '6359' ? 'selected' : ''}>6359 - Remessa de produção do estabelecimento para industrialização por encomenda</option>
-                        <option value="6360" ${String(defaultCfop) === '6360' ? 'selected' : ''}>6360 - Remessa de produção do estabelecimento para industrialização sob o regime de drawback</option>
-                    </select>
-                </td>
-                <td>
-                    <div align="center">
+                    <div align="center" style="display:flex; gap:8px; justify-content:center;">
+                        <span class="btn-nwe4 servico-edit" title="Editar Serviço"><i class="bx bx-edit-alt"></i></span>
                         <span class="btn-nwe4 servico-remove" title="Excluir Serviço"><i class="bx bx-trash-alt"></i></span>
                     </div>
                 </td>
-                <td><div align="center">R$: ${formatMoney(valorProduto)}</div></td>
+            </tr>
+            <tr class="servico-row-tax" data-index="${servicoIndex}">
+                <td colspan="9">
+                    <div class="servico-tax-grid">
+                        <span class="tax-item"><strong>cClass:</strong> ${cClass || '-'}</span>
+                        <input type="hidden" name="servicos[${servicoIndex}][v_desc]" value="${vDesc}">
+                        <input type="hidden" name="servicos[${servicoIndex}][v_outro]" value="${vOutros}">
+                        <span class="tax-item"><strong>B ICMS:</strong> <span class="tax-base-icms">${formatMoney(baseIcms)}</span></span>
+                        <span class="tax-item"><strong>% ICMS:</strong> <span class="tax-aliq-icms">${formatarPercentual(aliqIcms)}</span></span>
+                        <span class="tax-item"><strong>V ICMS:</strong> <span class="tax-valor-icms">${formatMoney(valorIcms)}</span></span>
+                        <span class="tax-item"><strong>ST:</strong> <span class="tax-valor-icmsst">${formatMoney(valorIcmsSt)}</span> (<span class="tax-base-icmsst">${formatMoney(baseIcmsSt)}</span>/<span class="tax-aliq-icmsst">${formatarPercentual(aliqIcmsSt)}</span>)</span>
+                        <span class="tax-item"><strong>IRRF:</strong> <span class="tax-valor-irrf">${formatMoney(valorIrrf)}</span> (<span class="tax-base-irrf">${formatMoney(baseIrrf)}</span>)</span>
+                        <span class="tax-item"><strong>PIS:</strong> <span class="tax-valor-pis">${formatMoney(valorPis)}</span></span>
+                        <span class="tax-item"><strong>COF:</strong> <span class="tax-valor-cofins">${formatMoney(valorCofins)}</span></span>
+                        <span class="tax-item"><strong>CST:</strong> <span class="tax-cst-value">${defaultCst}</span>
+                            <input type="hidden" name="servicos[${servicoIndex}][cst_icms]" value="${defaultCst}">
+                            ${clfId ? '<input type="hidden" name="servicos[' + servicoIndex + '][clf_id]" value="' + clfId + '">' : ''}
+                        </span>
+                        <span class="tax-item tight"><strong>CFOP:</strong><span class="tax-cfop-value tax-inline">${defaultCfop}</span>
+                            <input type="hidden" name="servicos[${servicoIndex}][cfop]" value="${defaultCfop}">
+                        </span>
+                        <input type="hidden" name="servicos[${servicoIndex}][c_class]" value="${cClass}">
+                    </div>
+                </td>
             </tr>
         `;
 
@@ -1818,8 +2314,17 @@
 
         // Remover serviço
         $(document).on('click', '.servico-remove', function () {
-            $(this).closest('tr').remove();
+            const $mainRow = $(this).closest('tr');
+            const index = $mainRow.data('index');
+            $mainRow.next('.servico-row-tax[data-index="' + index + '"]').remove();
+            $mainRow.remove();
             atualizarTotais();
+        });
+
+        // Editar serviço
+        $(document).on('click', '.servico-edit', function () {
+            const $mainRow = $(this).closest('tr');
+            editarServicoLinha($mainRow);
         });
 
         // Função para calcular e atualizar totais
@@ -1828,7 +2333,7 @@
             const comissao = parseFloat($('#comissaoAgencia').val()) || 0;
 
             // Calcular total de todos os serviços adicionados
-            $('#servicos-list-body tr').each(function () {
+            $('#servicos-list-body .servico-row-main').each(function () {
                 const valorProduto = parseFloat($(this).data('valor-produto')) || 0;
                 totalServicos += valorProduto;
             });

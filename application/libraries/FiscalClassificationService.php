@@ -130,7 +130,7 @@ class FiscalClassificationService
                     $classificacoes = [$top1];
                     log_message('debug', 'Filtro de natureza não encontrou resultados, usando TOP 1 anterior');
                 } else {
-                    log_message('warning', 'Lista anterior está vazia, não é possível usar fallback');
+                    log_message('error', 'Lista anterior está vazia, não é possível usar fallback');
                 }
             } else {
                 log_message('debug', 'Após filtro de natureza: ' . count($classificacoes) . ' registros');
@@ -158,7 +158,7 @@ class FiscalClassificationService
                     $classificacoes = [$top1];
                     log_message('debug', 'Filtro de objetivo comercial não encontrou resultados, usando TOP 1 anterior');
                 } else {
-                    log_message('warning', 'Lista anterior está vazia, não é possível usar fallback');
+                    log_message('error', 'Lista anterior está vazia, não é possível usar fallback');
                 }
             } else {
                 log_message('debug', 'Após filtro de objetivo comercial: ' . count($classificacoes) . ' registros');
@@ -240,7 +240,7 @@ class FiscalClassificationService
             $empresaQuery = $this->db->get();
             
             if ($empresaQuery->num_rows() == 0) {
-                log_message('warning', 'Empresa não encontrada: ' . $empresaId);
+                log_message('error', 'Empresa não encontrada: ' . $empresaId);
                 return 'Interestadual'; // Default
             }
             
@@ -259,7 +259,7 @@ class FiscalClassificationService
             $clienteQuery = $this->db->get();
             
             if ($clienteQuery->num_rows() == 0) {
-                log_message('warning', 'Cliente ou endereço não encontrado: ' . $clienteId);
+                log_message('error', 'Cliente ou endereço não encontrado: ' . $clienteId);
                 return 'Interestadual'; // Default
             }
             
