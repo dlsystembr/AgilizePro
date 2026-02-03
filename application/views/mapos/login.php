@@ -96,7 +96,7 @@
       <a href="#notification" id="call-modal" role="button" class="btn" data-toggle="modal" style="display: none ">notification</a>
       <div id="notification" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-header">
-          <h4 id="myModalLabel">Map-OS</h4>
+          <h4 id="myModalLabel">AgilizePro</h4>
         </div>
         <div class="modal-body">
           <h5 style="text-align: center" id="message">Os dados de acesso estão incorretos, por favor tente novamente!</h5>

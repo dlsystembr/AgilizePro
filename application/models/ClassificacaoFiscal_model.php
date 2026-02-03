@@ -78,16 +78,14 @@ class ClassificacaoFiscal_model extends CI_Model
     public function add($table, $data)
     {
         if ($table === 'classificacao_fiscal') {
-            if (!isset($insert['ten_id']) && in_array('ten_id', $tableFields, true)) {
-                $insert['ten_id'] = $this->session->userdata('ten_id');
-            }
-            // Mapear chaves lógicas -> colunas reais existentes na tabela
+            // Obter campos da tabela em caixa baixa para comparação
+            $rawFields = $this->db->field_data('classificacao_fiscal');
             $tableFields = array_map(function ($f) {
-                return strtoupper($f->name);
-            }, $this->db->field_data('classificacao_fiscal'));
+                return strtolower($f->name);
+            }, $rawFields);
 
             $map = [
-                'operacao_comercial_id' => ['opc_id', 'opc_id', 'operacao_comercial_id'],
+                'operacao_comercial_id' => ['opc_id', 'operacao_comercial_id'],
                 'tipo_cliente_id' => ['tpc_id', 'tipo_cliente_id'],
                 'cst' => ['clf_cst', 'cst'],
                 'csosn' => ['clf_csosn', 'csosn'],
@@ -109,19 +107,24 @@ class ClassificacaoFiscal_model extends CI_Model
                     continue;
                 }
                 foreach ($candidates as $dbKey) {
-                    if (in_array($dbKey, $tableFields, true)) {
+                    if (in_array(strtolower($dbKey), $tableFields, true)) {
                         $insert[$dbKey] = $data[$logical];
                         break;
                     }
                 }
             }
 
+            // Adicionar ten_id
+            if (in_array('ten_id', $tableFields, true) && !isset($insert['ten_id'])) {
+                $insert['ten_id'] = $this->session->userdata('ten_id');
+            }
+
             // Definir datas se existirem as colunas e não vierem no payload
             if (in_array('clf_data_inclusao', $tableFields, true) && !isset($insert['clf_data_inclusao'])) {
                 $insert['clf_data_inclusao'] = date('Y-m-d H:i:s');
             }
-            if (in_array('created_at', $tableFields, true) && !isset($insert['created_at'])) {
-                $insert['created_at'] = date('Y-m-d H:i:s');
+            if (in_array('clf_data_alteracao', $tableFields, true) && !isset($insert['clf_data_alteracao'])) {
+                $insert['clf_data_alteracao'] = date('Y-m-d H:i:s');
             }
 
             $this->db->insert('classificacao_fiscal', $insert);
@@ -137,12 +140,14 @@ class ClassificacaoFiscal_model extends CI_Model
     public function edit($table, $data, $fieldID, $ID)
     {
         if ($table === 'classificacao_fiscal') {
+            // Obter campos da tabela em caixa baixa para comparação
+            $rawFields = $this->db->field_data('classificacao_fiscal');
             $tableFields = array_map(function ($f) {
-                return strtoupper($f->name);
-            }, $this->db->field_data('classificacao_fiscal'));
+                return strtolower($f->name);
+            }, $rawFields);
 
             $map = [
-                'operacao_comercial_id' => ['opc_id', 'opc_id', 'operacao_comercial_id'],
+                'operacao_comercial_id' => ['opc_id', 'operacao_comercial_id'],
                 'tipo_cliente_id' => ['tpc_id', 'tipo_cliente_id'],
                 'cst' => ['clf_cst', 'cst'],
                 'csosn' => ['clf_csosn', 'csosn'],
@@ -156,22 +161,28 @@ class ClassificacaoFiscal_model extends CI_Model
                 'mensagem_fiscal' => ['clf_mensagem', 'mensagem_fiscal'],
                 'updated_at' => ['clf_data_alteracao', 'updated_at'],
             ];
+
             $update = [];
             foreach ($map as $logical => $candidates) {
                 if (!array_key_exists($logical, $data)) {
                     continue;
                 }
                 foreach ($candidates as $dbKey) {
-                    if (in_array($dbKey, $tableFields, true)) {
+                    if (in_array(strtolower($dbKey), $tableFields, true)) {
                         $update[$dbKey] = $data[$logical];
                         break;
                     }
                 }
             }
+
+            // Atualizar data de alteração se a coluna existir
             if (in_array('clf_data_alteracao', $tableFields, true) && !isset($update['clf_data_alteracao'])) {
                 $update['clf_data_alteracao'] = date('Y-m-d H:i:s');
             }
+
+            // Determinar a chave primária correta
             $pk = in_array('clf_id', $tableFields, true) ? 'clf_id' : $fieldID;
+
             $this->db->where($pk, $ID);
             $this->db->where('ten_id', $this->session->userdata('ten_id'));
             $this->db->update('classificacao_fiscal', $update);
@@ -179,6 +190,8 @@ class ClassificacaoFiscal_model extends CI_Model
             $this->db->where($fieldID, $ID);
             $this->db->update($table, $data);
         }
+
+        // Em CodeIgniter, affected_rows >= 0 indica sucesso (zero se nada mudou)
         if ($this->db->affected_rows() >= 0) {
             return true;
         }
@@ -247,8 +260,8 @@ class ClassificacaoFiscal_model extends CI_Model
                 // Consulta para verificar todas as classificações fiscais desta operação
                 $this->db->select('clf_id, opc_id, clf_natureza_contribuinte, clf_destinacao, clf_objetivo_comercial, clf_cst, clf_cfop');
                 $this->db->from('classificacao_fiscal');
-            $this->db->where('opc_id', $operacao_id);
-            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+                $this->db->where('opc_id', $operacao_id);
+                $this->db->where('ten_id', $this->session->userdata('ten_id'));
                 $check_query = $this->db->get();
 
                 log_message('debug', 'Verificando classificações existentes para operação ' . $operacao_id);
@@ -384,11 +397,11 @@ class ClassificacaoFiscal_model extends CI_Model
                 $this->db->where('clf_tipo_tributacao', $tipo_tributacao);
             }
             if (!empty($tipo_cliente)) {
-                $tipoClienteInt = (int)$tipo_cliente;
+                $tipoClienteInt = (int) $tipo_cliente;
                 $this->db->where('tpc_id', $tipoClienteInt);
             }
             // ativa é obrigatório - garantir que seja inteiro
-            $ativaInt = ($ativa === '0' || $ativa === 0) ? 0 : (($ativa === '1' || $ativa === 1) ? 1 : (int)$ativa);
+            $ativaInt = ($ativa === '0' || $ativa === 0) ? 0 : (($ativa === '1' || $ativa === 1) ? 1 : (int) $ativa);
             $this->db->where('clf_situacao', $ativaInt);
 
             $query = $this->db->get();

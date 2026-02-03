@@ -551,7 +551,13 @@ class Mapos_model extends CI_Model
 
                     if ($legacy) {
                         // Atualiza o registro legado para a nova chave (se couber) e o novo valor
-                        $this->db->where('idConfig', $legacy->idConfig);
+                        $pk = isset($legacy->idConfig) ? $legacy->idConfig : (isset($legacy->idconfig) ? $legacy->idconfig : null);
+                        $pkCol = isset($legacy->idConfig) ? 'idConfig' : (isset($legacy->idconfig) ? 'idconfig' : null);
+                        if ($pk !== null && $pkCol !== null) {
+                            $this->db->where($pkCol, $pk);
+                        } else {
+                            $this->db->where('config', $legacyKey);
+                        }
                         $this->db->update('configuracoes', [
                             'config' => $key,
                             'valor' => $valor
@@ -603,7 +609,7 @@ class Mapos_model extends CI_Model
     public function initConfiguracoes()
     {
         $defaultConfigs = [
-            'app_name' => 'MapOS',
+            'app_name' => 'AgilizePro',
             'per_page' => '10',
             'app_theme' => 'default',
             'os_notification' => 'todos',

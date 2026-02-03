@@ -2,7 +2,7 @@
 <html lang="pt-br">
 
 <head>
-  <title><?= isset($configuration['app_name']) ? $configuration['app_name'] : 'Map-OS' ?></title>
+  <title><?= isset($configuration['app_name']) ? $configuration['app_name'] : 'AgilizePro' ?></title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token-name" content="<?= config_item("csrf_token_name") ?>">
@@ -37,6 +37,7 @@
     rel='stylesheet' type='text/css'>
   <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="<?= base_url(); ?>assets/css/menu-scroll-fix.css" />
   <script type="text/javascript" src="<?= base_url(); ?>assets/js/jquery-1.12.4.min.js"></script>
   <script type="text/javascript" src="<?= base_url(); ?>assets/js/maskmoney.js"></script>
   <script type="text/javascript" src="<?= base_url(); ?>assets/js/shortcut.js"></script>
@@ -141,53 +142,53 @@
                   class='bx bx-log-out-circle'></i> <span class="text">Sair do Sistema</span></a></li>
           </ul>
         </li>
-        <?php 
+        <?php
         // Verificar se o usuário tem pelo menos uma permissão de relatório
         $temPermissaoRelatorio = $this->permission->checkPermission($this->session->userdata('permissao'), 'rCliente') ||
-                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rProduto') ||
-                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rServico') ||
-                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rOs') ||
-                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda') ||
-                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato') ||
-                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro') ||
-                                 $this->permission->checkPermission($this->session->userdata('permissao'), 'rNfe');
+          $this->permission->checkPermission($this->session->userdata('permissao'), 'rProduto') ||
+          $this->permission->checkPermission($this->session->userdata('permissao'), 'rServico') ||
+          $this->permission->checkPermission($this->session->userdata('permissao'), 'rOs') ||
+          $this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda') ||
+          $this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato') ||
+          $this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro') ||
+          $this->permission->checkPermission($this->session->userdata('permissao'), 'rNfe');
         if ($temPermissaoRelatorio) { ?>
-        <li class="dropdown">
-          <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Relatórios"><i
-              class='bx bx-pie-chart-alt-2 iconN'></i><span class="text"></span></a>
-          <ul class="dropdown-menu">
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rCliente')) { ?>
-            <li><a href="<?= site_url('relatorios/clientes') ?>">Clientes</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rProduto')) { ?>
-            <li><a href="<?= site_url('relatorios/produtos') ?>">Produtos</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rServico')) { ?>
-            <li><a href="<?= site_url('relatorios/servicos') ?>">Serviços</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
-            <li><a href="<?= site_url('relatorios/os') ?>">Ordens de Serviço</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda')) { ?>
-            <li><a href="<?= site_url('relatorios/vendas') ?>">Vendas</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato')) { ?>
-            <li><a href="<?= site_url('relatorios/contratos') ?>">Contratos</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
-            <li><a href="<?= site_url('relatorios/financeiro') ?>">Financeiro</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
-            <li><a href="<?= site_url('relatorios/sku') ?>">SKU</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
-            <li><a href="<?= site_url('relatorios/receitasBrutasMei') ?>">Receitas Brutas - MEI</a></li>
-            <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rNfe')) { ?>
-              <li><a href="<?= site_url('relatorios/nfe_emitidas') ?>">Relatório NFe emitidas</a></li>
-            <?php } ?>
-          </ul>
-        </li>
+          <li class="dropdown">
+            <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Relatórios"><i
+                class='bx bx-pie-chart-alt-2 iconN'></i><span class="text"></span></a>
+            <ul class="dropdown-menu">
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rCliente')) { ?>
+                <li><a href="<?= site_url('relatorios/clientes') ?>">Clientes</a></li>
+              <?php } ?>
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rProduto')) { ?>
+                <li><a href="<?= site_url('relatorios/produtos') ?>">Produtos</a></li>
+              <?php } ?>
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rServico')) { ?>
+                <li><a href="<?= site_url('relatorios/servicos') ?>">Serviços</a></li>
+              <?php } ?>
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
+                <li><a href="<?= site_url('relatorios/os') ?>">Ordens de Serviço</a></li>
+              <?php } ?>
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda')) { ?>
+                <li><a href="<?= site_url('relatorios/vendas') ?>">Vendas</a></li>
+              <?php } ?>
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato')) { ?>
+                <li><a href="<?= site_url('relatorios/contratos') ?>">Contratos</a></li>
+              <?php } ?>
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
+                <li><a href="<?= site_url('relatorios/financeiro') ?>">Financeiro</a></li>
+              <?php } ?>
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
+                <li><a href="<?= site_url('relatorios/sku') ?>">SKU</a></li>
+              <?php } ?>
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
+                <li><a href="<?= site_url('relatorios/receitasBrutasMei') ?>">Receitas Brutas - MEI</a></li>
+              <?php } ?>
+              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rNfe')) { ?>
+                <li><a href="<?= site_url('relatorios/nfe_emitidas') ?>">Relatório NFe emitidas</a></li>
+              <?php } ?>
+            </ul>
+          </li>
         <?php } ?>
         <li class="dropdown">
           <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Tributação"><i

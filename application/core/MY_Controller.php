@@ -23,7 +23,7 @@ class MY_Controller extends CI_Controller
             'first_tag_close' => '</li>',
             'last_tag_open' => '<li>',
             'last_tag_close' => '</li>',
-            'app_name' => 'Map-OS',
+            'app_name' => 'AgilizePro',
             'app_theme' => 'white',
             'os_notification' => 'cliente',
             'control_estoque' => '1',
@@ -66,7 +66,7 @@ class MY_Controller extends CI_Controller
         
         // Inicializa o array de configurações com valores padrão
         $defaultConfigs = [
-            'app_name' => 'Map-OS',
+            'app_name' => 'AgilizePro',
             'app_theme' => 'white',
             'control_datatable' => '1',
             'tipo_documento' => 'NFe',

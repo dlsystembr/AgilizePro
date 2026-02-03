@@ -32,7 +32,8 @@
                 <tbody>
                     <?php
                     if (!$results) {
-                        echo '<tr><td colspan="4">Nenhum Tipo de Cliente Cadastrado</td></tr>';
+                        // DataTables exige o mesmo número de <td> que <th>; uma linha com colspan quebra _DT_CellIndex
+                        echo '<tr><td></td><td style="text-align:center">Nenhum Tipo de Cliente Cadastrado</td><td></td><td></td></tr>';
                     }
                     foreach ($results as $r) {
                         echo '<tr>';

@@ -7,7 +7,7 @@ if (!isset($this->data['configuration'])) {
     $this->data['configuration'] = [];
 }
 $this->data['configuration'] = array_merge([
-    'app_name' => 'Map-OS - Super Admin',
+    'app_name' => 'AgilizePro - Super Admin',
     'app_theme' => 'white',
     'per_page' => 20,
 ], $this->data['configuration']);

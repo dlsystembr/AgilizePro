@@ -31,6 +31,54 @@ class Nfecom extends MY_Controller
         $this->gerenciar();
     }
 
+    /**
+     * Tela de teste: Consulta Cadastro de Contribuinte (IE/CNPJ) na SEFAZ.
+     * Usa o Web Service CadConsultaCadastro2 para verificar se a IE está cadastrada na UF (evitar rejeição 428).
+     */
+    public function consultaCadastro()
+    {
+        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
+            $this->session->set_flashdata('error', 'Você não tem permissão para acessar.');
+            redirect(base_url());
+        }
+
+        $this->data['resultado'] = null;
+        $this->data['erro'] = null;
+
+        $this->load->library('CadConsultaCadastro2_lib');
+        $lib = $this->cadconsultacadastro2_lib;
+        $this->data['ufs'] = $lib->getUfsDisponiveis();
+
+        $configFiscal = $this->getConfiguracaoNfcom();
+        if ($configFiscal && !empty($configFiscal->cer_arquivo) && !empty($configFiscal->cer_senha)) {
+            $lib->setCertificate($configFiscal->cer_arquivo, $configFiscal->cer_senha);
+        }
+
+        if ($this->input->method() === 'post') {
+            try {
+                $uf   = $this->input->post('uf');
+                $cnpj = $this->input->post('cnpj');
+                $ie   = $this->input->post('ie');
+
+                $resp = $lib->consultar($uf, $cnpj, $ie);
+
+                if (!empty($resp['success'])) {
+                    $this->data['resultado'] = $resp;
+                } else {
+                    $this->data['erro'] = isset($resp['error']) ? $resp['error'] : 'Erro desconhecido';
+                    $this->data['resultado'] = $resp;
+                }
+            } catch (Exception $e) {
+                log_message('error', 'Nfecom::consultaCadastro: ' . $e->getMessage());
+                $this->data['erro'] = 'Erro ao consultar: ' . $e->getMessage();
+                $this->data['resultado'] = ['success' => false, 'error' => $this->data['erro']];
+            }
+        }
+
+        $this->data['view'] = 'nfecom/consulta_cadastro';
+        return $this->layout();
+    }
+
     public function gerenciar()
     {
         if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
@@ -128,7 +176,7 @@ class Nfecom extends MY_Controller
 
         $this->load->library('form_validation');
         $this->data['custom_error'] = '';
-        
+
         // Limpar flashdata de erro se não for um POST (evitar exibir erro ao carregar página)
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->session->set_flashdata('error', '');
@@ -215,24 +263,24 @@ class Nfecom extends MY_Controller
                 // Processar data de emissão
                 // Processar data de emissão (automática)
                 if (!empty($data['dataEmissao'])) {
-                try {
-                    $dataEmissao = explode('/', $data['dataEmissao']);
-                    $data['dataEmissao'] = $dataEmissao[2] . '-' . $dataEmissao[1] . '-' . $dataEmissao[0];
-                } catch (Exception $e) {
-                    $data['dataEmissao'] = date('Y-m-d');
-                }
+                    try {
+                        $dataEmissao = explode('/', $data['dataEmissao']);
+                        $data['dataEmissao'] = $dataEmissao[2] . '-' . $dataEmissao[1] . '-' . $dataEmissao[0];
+                    } catch (Exception $e) {
+                        $data['dataEmissao'] = date('Y-m-d');
+                    }
                 } else {
                     $data['dataEmissao'] = date('Y-m-d');
                 }
 
                 // Processar datas do contrato
                 if ($data['dataContratoIni']) {
-                try {
-                    $dataContrato = explode('/', $data['dataContratoIni']);
-                    $data['dataContratoIni'] = $dataContrato[2] . '-' . $dataContrato[1] . '-' . $dataContrato[0];
-                } catch (Exception $e) {
-                    $data['dataContratoIni'] = date('Y-m-d');
-                }
+                    try {
+                        $dataContrato = explode('/', $data['dataContratoIni']);
+                        $data['dataContratoIni'] = $dataContrato[2] . '-' . $dataContrato[1] . '-' . $dataContrato[0];
+                    } catch (Exception $e) {
+                        $data['dataContratoIni'] = date('Y-m-d');
+                    }
                 }
 
                 // Processar data de vencimento
@@ -330,18 +378,18 @@ class Nfecom extends MY_Controller
 
                 // Processar data fim de contrato (opcional)
                 if (!empty($data['dataContratoFim']) && strpos($data['dataContratoFim'], '/') !== false) {
-                try {
-                    $dataContFim = explode('/', $data['dataContratoFim']);
-                    $data['dataContratoFim'] = $dataContFim[2] . '-' . $dataContFim[1] . '-' . $dataContFim[0];
-                } catch (Exception $e) {
-                    $data['dataContratoFim'] = null;
-                }
+                    try {
+                        $dataContFim = explode('/', $data['dataContratoFim']);
+                        $data['dataContratoFim'] = $dataContFim[2] . '-' . $dataContFim[1] . '-' . $dataContFim[0];
+                    } catch (Exception $e) {
+                        $data['dataContratoFim'] = null;
+                    }
                 }
 
                 // Processar múltiplos serviços
                 $servicos = isset($data['servicos']) ? $data['servicos'] : [];
                 log_message('debug', 'Serviços recebidos: ' . json_encode($servicos));
-                
+
                 // Validar se os serviços têm dados válidos (se houver serviços)
                 $servicosValidos = 0;
                 if (!empty($servicos) && is_array($servicos)) {
@@ -352,41 +400,41 @@ class Nfecom extends MY_Controller
                         }
                     }
                 }
-                
+
                 log_message('debug', "Total de serviços válidos: $servicosValidos");
-                
+
                 $totalValorBruto = 0;
                 $nomesServicos = [];
 
                 foreach ($servicos as $servico) {
-                if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
-                    // Converter valores recebidos (podem vir como string)
-                    $quantidade = is_numeric($servico['quantidade']) ? floatval($servico['quantidade']) : 0;
-                    $valorUnitario = is_numeric($servico['valorUnitario']) ? floatval($servico['valorUnitario']) : 0;
-                    $valorDesconto = isset($servico['valorDesconto']) && is_numeric($servico['valorDesconto']) ? floatval($servico['valorDesconto']) : (isset($servico['v_desc']) && is_numeric($servico['v_desc']) ? floatval($servico['v_desc']) : 0);
-                    $valorOutros = isset($servico['valorOutros']) && is_numeric($servico['valorOutros']) ? floatval($servico['valorOutros']) : (isset($servico['v_outro']) && is_numeric($servico['v_outro']) ? floatval($servico['v_outro']) : 0);
-                    
-                    log_message('debug', "Serviço processado - Quantidade: $quantidade, Valor Unitário: $valorUnitario, Desconto: $valorDesconto, Outros: $valorOutros");
+                    if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
+                        // Converter valores recebidos (podem vir como string)
+                        $quantidade = is_numeric($servico['quantidade']) ? floatval($servico['quantidade']) : 0;
+                        $valorUnitario = is_numeric($servico['valorUnitario']) ? floatval($servico['valorUnitario']) : 0;
+                        $valorDesconto = isset($servico['valorDesconto']) && is_numeric($servico['valorDesconto']) ? floatval($servico['valorDesconto']) : (isset($servico['v_desc']) && is_numeric($servico['v_desc']) ? floatval($servico['v_desc']) : 0);
+                        $valorOutros = isset($servico['valorOutros']) && is_numeric($servico['valorOutros']) ? floatval($servico['valorOutros']) : (isset($servico['v_outro']) && is_numeric($servico['v_outro']) ? floatval($servico['v_outro']) : 0);
 
-                    // Valor Item = Quantidade × Valor Unitário
-                    $valorItem = $quantidade * $valorUnitario;
+                        log_message('debug', "Serviço processado - Quantidade: $quantidade, Valor Unitário: $valorUnitario, Desconto: $valorDesconto, Outros: $valorOutros");
 
-                    // Valor Produto = Valor Item - Desconto + Outros
-                    $valorProduto = $valorItem - $valorDesconto + $valorOutros;
+                        // Valor Item = Quantidade × Valor Unitário
+                        $valorItem = $quantidade * $valorUnitario;
 
-                    $totalValorBruto += $valorProduto;
+                        // Valor Produto = Valor Item - Desconto + Outros
+                        $valorProduto = $valorItem - $valorDesconto + $valorOutros;
 
-                    // Buscar nome do serviço
-                    $this->db->select('pro_descricao as descricao');
-                    $this->db->from('produtos');
-                    $this->db->where($produtos_primary_key, $servico['id']);
-                    $this->db->where('produtos.ten_id', $this->session->userdata('ten_id'));
-                    $servico_query = $this->db->get();
-                    $servico_info = $servico_query->row();
-                    if ($servico_info) {
-                        $nomesServicos[] = $servico_info->descricao . ' (Qtd: ' . $quantidade . ')';
+                        $totalValorBruto += $valorProduto;
+
+                        // Buscar nome do serviço
+                        $this->db->select('pro_descricao as descricao');
+                        $this->db->from('produtos');
+                        $this->db->where($produtos_primary_key, $servico['id']);
+                        $this->db->where('produtos.ten_id', $this->session->userdata('ten_id'));
+                        $servico_query = $this->db->get();
+                        $servico_info = $servico_query->row();
+                        if ($servico_info) {
+                            $nomesServicos[] = $servico_info->descricao . ' (Qtd: ' . $quantidade . ')';
+                        }
                     }
-                }
                 }
 
                 // Se não há serviços válidos, usar o valor bruto do formulário
@@ -401,11 +449,11 @@ class Nfecom extends MY_Controller
                 $valorLiquido = $valorBruto - $comissaoAgencia;
 
                 // Buscar operação comercial
-                $operacaoId = (int)$this->input->post('opc_id');
-                
+                $operacaoId = (int) $this->input->post('opc_id');
+
                 // Buscar dados completos do cliente incluindo endereço selecionado (ANTES do cálculo de tributação)
-                $enderecoId = $data['enderecoClienteSelect'] ?? null;
-                $this->db->select('p.pes_cpfcnpj, p.pes_nome, p.pes_razao_social, p.pes_fisico_juridico, e.end_logradouro as logradouro, e.end_numero as numero, e.end_complemento as complemento, e.end_cep as cep, b.bai_nome as bairro, m.mun_nome as municipio_nome, m.mun_ibge, es.est_uf as estado_uf, COALESCE(c.cln_cobrar_irrf, 0) as cobrar_irrf');
+                $enderecoId = $data['enderecoClienteSelect'] ?? $data['enderecoClienteId'] ?? null;
+                $this->db->select('p.pes_id, p.pes_cpfcnpj, p.pes_nome, p.pes_razao_social, p.pes_fisico_juridico, e.end_id, e.end_logradouro as logradouro, e.end_numero as numero, e.end_complemento as complemento, e.end_cep as cep, b.bai_nome as bairro, m.mun_nome as municipio_nome, m.mun_ibge, es.est_uf as estado_uf, COALESCE(c.cln_cobrar_irrf, 0) as cobrar_irrf');
                 $this->db->from('clientes c');
                 $this->db->join('pessoas p', 'p.pes_id = c.pes_id');
                 $this->db->join('enderecos e', 'e.pes_id = p.pes_id', 'left');
@@ -457,14 +505,14 @@ class Nfecom extends MY_Controller
                     $this->session->set_flashdata('error', 'É necessário informar pelo menos um serviço válido com quantidade e valor para gerar a NFeCom.');
                     redirect(site_url('nfecom/adicionar'));
                 }
-                
+
                 // Validar ten_id antes de calcular tributação
                 $tenId = $this->session->userdata('ten_id');
                 if (empty($tenId) || $tenId == 0) {
                     $this->session->set_flashdata('error', 'Erro: Tenant ID não encontrado na sessão. Faça login novamente.');
                     redirect(site_url('nfecom/adicionar'));
                 }
-                
+
                 // Calcular tributação usando a API - SEMPRE usar a API, sem valores fixos
                 $pis = 0;
                 $cofins = 0;
@@ -473,14 +521,14 @@ class Nfecom extends MY_Controller
                 $irrf = 0.00;
                 $errosTributacao = [];
                 $servicosSemTributacao = [];
-                
+
                 // Inicializar totais de ICMS, ICMS ST, FCP e IRRF
                 $totalIcms = 0;
                 $totalIcmsSt = 0;
                 $totalFcp = 0;
                 $totalBaseIcms = 0;
                 $totalIrrf = 0; // Total do IRRF será a soma dos IRRF dos itens
-                
+
                 // Calcular tributação para cada serviço e somar os valores
                 if (!empty($servicos) && $operacaoId && !empty($data['clientes_id'])) {
                     foreach ($servicos as $index => $servico) {
@@ -488,7 +536,7 @@ class Nfecom extends MY_Controller
                             $produtoId = $servico['id'];
                             $quantidade = floatval($servico['quantidade']);
                             $valorUnitario = floatval($servico['valorUnitario']);
-                            
+
                             // Verificar se o produto tem NCM (obrigatório para cálculo)
                             $this->db->select('pro_descricao, ncm_id');
                             $this->db->from('produtos');
@@ -496,22 +544,22 @@ class Nfecom extends MY_Controller
                             $this->db->where('ten_id', $this->session->userdata('ten_id'));
                             $produtoQuery = $this->db->get();
                             $produto = $produtoQuery->row();
-                            
+
                             if (!$produto) {
                                 $errosTributacao[] = "Serviço #" . ($index + 1) . ": Produto não encontrado (ID: $produtoId)";
                                 $servicosSemTributacao[] = $index + 1;
                                 continue;
                             }
-                            
+
                             if (empty($produto->ncm_id)) {
                                 $errosTributacao[] = "Serviço #" . ($index + 1) . " ({$produto->pro_descricao}): NCM não configurado no produto";
                                 $servicosSemTributacao[] = $index + 1;
                                 continue;
                             }
-                            
+
                             // Calcular tributação usando a API (com endereço selecionado)
                             log_message('debug', "Calculando tributação para serviço #" . ($index + 1) . " - Produto ID: $produtoId, Cliente ID: {$data['clientes_id']}, Operação: $operacaoId, Endereço: " . ($enderecoId ?? 'padrão'));
-                            
+
                             $tributacao = $this->calcularTributacao(
                                 $produtoId,
                                 $data['clientes_id'],
@@ -521,24 +569,24 @@ class Nfecom extends MY_Controller
                                 'saida',
                                 $enderecoId // Passar endereço selecionado
                             );
-                            
+
                             if (!$tributacao) {
                                 $errosTributacao[] = "Serviço #" . ($index + 1) . " ({$produto->pro_descricao}): Não foi possível calcular a tributação. Verifique as configurações fiscais e o log de erros.";
                                 $servicosSemTributacao[] = $index + 1;
                                 continue;
                             }
-                            
+
                             // Validar se retornou dados de PIS/COFINS
                             if (!isset($tributacao['impostos_federais']['pis']) || !isset($tributacao['impostos_federais']['cofins'])) {
                                 $errosTributacao[] = "Serviço #" . ($index + 1) . " ({$produto->pro_descricao}): Dados de tributação incompletos retornados pela API.";
                                 $servicosSemTributacao[] = $index + 1;
                                 continue;
                             }
-                            
+
                             // Somar valores da API
                             $pis += floatval($tributacao['impostos_federais']['pis']['valor'] ?? 0);
                             $cofins += floatval($tributacao['impostos_federais']['cofins']['valor'] ?? 0);
-                            
+
                             log_message('debug', "Tributação calculada para serviço #" . ($index + 1) . " - PIS: " . ($tributacao['impostos_federais']['pis']['valor'] ?? 0) . ", COFINS: " . ($tributacao['impostos_federais']['cofins']['valor'] ?? 0));
                         }
                     }
@@ -551,7 +599,7 @@ class Nfecom extends MY_Controller
                         $errosTributacao[] = "Cliente não informado.";
                     }
                 }
-                
+
                 // Se houver erros, não permitir salvar
                 if (!empty($errosTributacao)) {
                     $mensagemErro = "Não foi possível calcular a tributação para os seguintes serviços:\n\n" . implode("\n", $errosTributacao);
@@ -562,13 +610,13 @@ class Nfecom extends MY_Controller
                     $mensagemErro .= "- Se o cliente possui endereço com UF cadastrada\n";
                     $mensagemErro .= "- Se o Tenant ID está configurado corretamente (ten_id: " . $tenId . ")\n";
                     $mensagemErro .= "- Verifique o log de erros para mais detalhes";
-                    
+
                     log_message('error', 'Erros de tributação na NFeCom: ' . implode(' | ', $errosTributacao) . ' | ten_id: ' . $tenId);
-                    
+
                     $this->session->set_flashdata('error', $mensagemErro);
                     redirect(site_url('nfecom/adicionar'));
                 }
-                
+
                 // Calcular IRRF: 4,8% sobre o valor líquido (base de cálculo) — somente se o cliente tiver "Cobrar IRRF" ativo
                 // NOTA: Este valor será substituído pela soma dos IRRF dos itens após salvar
                 $irrf = 0.00;
@@ -579,7 +627,7 @@ class Nfecom extends MY_Controller
                 } else {
                     log_message('info', 'IRRF não aplicado: cliente sem cobrança de IRRF ou valor líquido zero.');
                 }
-                
+
                 // Valor da NF conforme regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
                 $valorNF = $valorLiquido - $irrf;
                 log_message('info', 'Valor da NF calculado: R$ ' . number_format($valorLiquido, 2, ',', '.') . ' - R$ ' . number_format($irrf, 2, ',', '.') . ' (IRRF) = R$ ' . number_format($valorNF, 2, ',', '.'));
@@ -602,116 +650,146 @@ class Nfecom extends MY_Controller
                 $configFiscal = $this->getConfiguracaoNfcom();
                 $codigoUf = $this->getCodigoUf($emit['enderEmit']['uf'] ?? '');
                 $nfecomData = [
-                'nfc_cuf' => $codigoUf ?: ($emit['enderEmit']['uf'] ?? ''),
-                'nfc_tipo_ambiente' => $configFiscal ? $configFiscal->cfg_ambiente : $this->data['configuration']['ambiente'],
-                'nfc_mod' => '62',
-                'nfc_serie' => $configFiscal ? $configFiscal->cfg_serie : $data['serie'],
-                'nfc_nnf' => 0,
-                'nfc_cnf' => str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT),
-                'nfc_dhemi' => $data['dataEmissao'] . ' ' . date('H:i:s'),
-                'nfc_tp_emis' => 1,
-                'nfc_n_site_autoriz' => 0,
-                'nfc_c_mun_fg' => $emit['enderEmit']['cMun'],
-                'nfc_fin_nfcom' => 0,
-                'nfc_tp_fat' => 0,
-                'nfc_ver_proc' => '1.0.0',
-                'nfc_cnpj_emit' => $emit['cnpj'],
-                'nfc_ie_emit' => $emit['ie'],
-                'nfc_crt_emit' => $emit['CRT'],
-                'nfc_x_nome_emit' => $emit['xNome'],
-                'nfc_x_fant_emit' => $emit['xNome'], // Assumindo nome fantasia = nome
-                'nfc_x_lgr_emit' => $emit['enderEmit']['xLgr'],
-                'nfc_nro_emit' => $emit['enderEmit']['nro'],
-                'nfc_x_cpl_emit' => $emit['enderEmit']['xCpl'],
-                'nfc_x_bairro_emit' => $emit['enderEmit']['xBairro'],
-                'nfc_c_mun_emit' => $emit['enderEmit']['cMun'],
-                'nfc_x_mun_emit' => $emit['enderEmit']['xMun'],
-                'nfc_cep_emit' => $emit['enderEmit']['cep'],
-                'nfc_uf_emit' => $emit['enderEmit']['uf'],
-                'nfc_fone_emit' => $emit['enderEmit']['fone'],
-                'nfc_x_nome_dest' => $data['nomeCliente'],
-                'nfc_cnpj_dest' => $cnpjSemMascara,
-                'nfc_ind_ie_dest' => 9,
-                'nfc_x_lgr_dest' => $data['logradouroCliente'],
-                'nfc_nro_dest' => $data['numeroCliente'],
-                'nfc_x_bairro_dest' => $data['bairroCliente'],
-                'nfc_c_mun_dest' => $data['codMunCliente'],
-                'nfc_x_mun_dest' => $data['municipioCliente'],
-                'nfc_cep_dest' => $data['cepCliente'],
-                'nfc_uf_dest' => $data['ufCliente'],
-                'nfc_i_cod_assinante' => !empty($data['iCodAssinante']) ? $data['iCodAssinante'] : $cnpjSemMascara,
-                'nfc_tp_assinante' => $data['tpAssinante'],
-                'nfc_tp_serv_util' => $data['tpServUtil'],
-                'nfc_n_contrato' => $data['numeroContrato'],
-                'nfc_d_contrato_ini' => $data['dataContratoIni'],
-                'nfc_d_contrato_fim' => !empty($data['dataContratoFim']) ? $data['dataContratoFim'] : null,
-                'nfc_v_prod' => $valorLiquido,
-                // ICMS e FCP (novos campos)
-                'nfc_v_bc_icms' => $totalBaseIcms,
-                'nfc_v_icms' => $totalIcms,
-                'nfc_v_icms_deson' => 0.00, // Valor do ICMS Desonerado (preencher se necessário)
-                'nfc_v_fcp' => $totalFcp,
-                // PIS e COFINS
-                'nfc_v_cofins' => $cofins,
-                'nfc_v_pis' => $pis,
-                // FUST e FUNTTEL
-                'nfc_v_fust' => 0.00,
-                'nfc_v_funtel' => 0.00,
-                // Retenções
-                'nfc_v_ret_pis' => 0.00,
-                'nfc_v_ret_cofins' => 0.00,
-                'nfc_v_ret_csll' => 0.00,
-                'nfc_v_irrf' => $irrf,
-                'nfc_v_ret_trib_tot' => $irrf,
-                // Descontos e outros
-                'nfc_v_desc' => 0.00,
-                'nfc_v_outro' => 0.00,
-                'nfc_v_nf' => $valorNF,
-                // Competência baseada no período fim (formato YYYYMM)
-                // Exemplo: se período fim for 31-12-2025, competência será 202512
-                'nfc_compet_fat' => !empty($data['dataPeriodoFim']) ? date('Ym', strtotime($data['dataPeriodoFim'])) : (!empty($data['dataContratoIni']) ? date('Ym', strtotime($data['dataContratoIni'])) : date('Ym', strtotime($data['dataEmissao']))),
-                'nfc_d_venc_fat' => $data['dataVencimento'],
-                // PERÍODO DE USO: RESPEITAR EXATAMENTE O VALOR INFORMADO PELO USUÁRIO
-                // NÃO recalcular baseado em outras datas - usar exatamente o que o usuário informou
-                'nfc_d_per_uso_ini' => $data['dataPeriodoIni'],
-                'nfc_d_per_uso_fim' => $data['dataPeriodoFim'],
-                'nfc_cod_barras' => '1',
-                'nfc_status' => 1, // Salvo
-                'cln_id' => $data['clientes_id'],
-                'opc_id' => $this->input->post('opc_id'),
-                'nfc_chave_pix' => $this->input->post('nfc_chave_pix'),
-                'nfc_linha_digitavel' => $this->input->post('nfc_linha_digitavel')
+                    'nfc_cuf' => $codigoUf ?: ($emit['enderEmit']['uf'] ?? ''),
+                    'nfc_tipo_ambiente' => $configFiscal ? $configFiscal->cfg_ambiente : $this->data['configuration']['ambiente'],
+                    'nfc_mod' => '62',
+                    'nfc_serie' => $configFiscal ? $configFiscal->cfg_serie : $data['serie'],
+                    'nfc_nnf' => 0,
+                    'nfc_cnf' => str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT),
+                    'nfc_dhemi' => $data['dataEmissao'] . ' ' . date('H:i:s'),
+                    'nfc_tp_emis' => 1,
+                    'nfc_n_site_autoriz' => 0,
+                    'nfc_c_mun_fg' => $emit['enderEmit']['cMun'],
+                    'nfc_fin_nfcom' => 0,
+                    'nfc_tp_fat' => 0,
+                    'nfc_ver_proc' => '1.0.0',
+                    'nfc_cnpj_emit' => $emit['cnpj'],
+                    'nfc_ie_emit' => $emit['ie'],
+                    'nfc_crt_emit' => $emit['CRT'],
+                    'nfc_x_nome_emit' => $emit['xNome'],
+                    'nfc_x_fant_emit' => $emit['xNome'], // Assumindo nome fantasia = nome
+                    'nfc_x_lgr_emit' => $emit['enderEmit']['xLgr'],
+                    'nfc_nro_emit' => $emit['enderEmit']['nro'],
+                    'nfc_x_cpl_emit' => $emit['enderEmit']['xCpl'],
+                    'nfc_x_bairro_emit' => $emit['enderEmit']['xBairro'],
+                    'nfc_c_mun_emit' => $emit['enderEmit']['cMun'],
+                    'nfc_x_mun_emit' => $emit['enderEmit']['xMun'],
+                    'nfc_cep_emit' => $emit['enderEmit']['cep'],
+                    'nfc_uf_emit' => $emit['enderEmit']['uf'],
+                    'nfc_fone_emit' => $emit['enderEmit']['fone'],
+                    'nfc_x_nome_dest' => $data['nomeCliente'],
+                    'nfc_cnpj_dest' => $cnpjSemMascara,
+                    'nfc_ind_ie_dest' => '9',
+                    'nfc_x_lgr_dest' => $data['logradouroCliente'],
+                    'nfc_nro_dest' => $data['numeroCliente'],
+                    'nfc_x_bairro_dest' => $data['bairroCliente'],
+                    'nfc_c_mun_dest' => $data['codMunCliente'],
+                    'nfc_x_mun_dest' => $data['municipioCliente'],
+                    'nfc_cep_dest' => $data['cepCliente'],
+                    'nfc_uf_dest' => $data['ufCliente'],
+                    'nfc_i_cod_assinante' => !empty($data['iCodAssinante']) ? $data['iCodAssinante'] : $cnpjSemMascara,
+                    'nfc_tp_assinante' => $data['tpAssinante'],
+                    'nfc_tp_serv_util' => $data['tpServUtil'],
+                    'nfc_n_contrato' => $data['numeroContrato'],
+                    'nfc_d_contrato_ini' => $data['dataContratoIni'],
+                    'nfc_d_contrato_fim' => !empty($data['dataContratoFim']) ? $data['dataContratoFim'] : null,
+                    'nfc_v_prod' => $valorLiquido,
+                    // ICMS e FCP (novos campos)
+                    'nfc_v_bc_icms' => $totalBaseIcms,
+                    'nfc_v_icms' => $totalIcms,
+                    'nfc_v_icms_deson' => 0.00, // Valor do ICMS Desonerado (preencher se necessário)
+                    'nfc_v_fcp' => $totalFcp,
+                    // PIS e COFINS
+                    'nfc_v_cofins' => $cofins,
+                    'nfc_v_pis' => $pis,
+                    // FUST e FUNTTEL
+                    'nfc_v_fust' => 0.00,
+                    'nfc_v_funtel' => 0.00,
+                    // Retenções
+                    'nfc_v_ret_pis' => 0.00,
+                    'nfc_v_ret_cofins' => 0.00,
+                    'nfc_v_ret_csll' => 0.00,
+                    'nfc_v_irrf' => $irrf,
+                    'nfc_v_ret_trib_tot' => $irrf,
+                    // Descontos e outros
+                    'nfc_v_desc' => 0.00,
+                    'nfc_v_outro' => 0.00,
+                    'nfc_v_nf' => $valorNF,
+                    // Competência baseada no período fim (formato YYYYMM)
+                    // Exemplo: se período fim for 31-12-2025, competência será 202512
+                    'nfc_compet_fat' => !empty($data['dataPeriodoFim']) ? date('Ym', strtotime($data['dataPeriodoFim'])) : (!empty($data['dataContratoIni']) ? date('Ym', strtotime($data['dataContratoIni'])) : date('Ym', strtotime($data['dataEmissao']))),
+                    'nfc_d_venc_fat' => $data['dataVencimento'],
+                    // PERÍODO DE USO: RESPEITAR EXATAMENTE O VALOR INFORMADO PELO USUÁRIO
+                    // NÃO recalcular baseado em outras datas - usar exatamente o que o usuário informou
+                    'nfc_d_per_uso_ini' => $data['dataPeriodoIni'],
+                    'nfc_d_per_uso_fim' => $data['dataPeriodoFim'],
+                    'nfc_cod_barras' => '1',
+                    'nfc_status' => 1, // Salvo
+                    'cln_id' => $data['clientes_id'],
+                    'pes_id' => !empty($cliente->pes_id) ? (int) $cliente->pes_id : null,
+                    'opc_id' => $this->input->post('opc_id'),
+                    'nfc_chave_pix' => $this->input->post('nfc_chave_pix'),
+                    'nfc_linha_digitavel' => $this->input->post('nfc_linha_digitavel')
                 ];
 
-                // Coletar mensagens fiscais dos itens antes de construir informações complementares
-                $mensagensFiscais = [];
-                foreach ($servicos as $servico) {
-                    if (!empty($servico['clf_id'])) {
-                        // Buscar mensagem fiscal da classificação
-                        $this->db->select('clf_mensagem');
-                        $this->db->from('classificacao_fiscal');
-                        $this->db->where('clf_id', $servico['clf_id']);
-                        $this->db->where('ten_id', $this->session->userdata('ten_id'));
-                        $clfQuery = $this->db->get();
-                        if ($clfQuery->num_rows() > 0) {
-                            $clf = $clfQuery->row();
-                            if (!empty($clf->clf_mensagem)) {
-                                // Evitar duplicatas
-                                if (!in_array($clf->clf_mensagem, $mensagensFiscais)) {
-                                    $mensagensFiscais[] = $clf->clf_mensagem;
-                                }
-                            }
+                // Incluir ID do endereço na capa (end_id) e Inscrição Estadual (nfc_ie_dest / nfc_ind_ie_dest)
+                $endIdCapa = !empty($cliente->end_id) ? (int) $cliente->end_id : (!empty($enderecoId) ? (int) $enderecoId : (int) ($data['enderecoClienteId'] ?? 0));
+                if ($endIdCapa > 0) {
+                    $nfecomData['end_id'] = $endIdCapa;
+                }
+                $ie_dest = null;
+                $ind_ie_dest = '9';
+                if (!empty($cliente->pes_id)) {
+                    $buscar_ie = function ($end_id_filter = true) use ($cliente, $endIdCapa) {
+                        $this->db->select('doc_numero, doc_natureza_contribuinte');
+                        $this->db->from('documentos');
+                        $this->db->where('pes_id', $cliente->pes_id);
+                        if ($end_id_filter && $endIdCapa > 0) {
+                            $this->db->where('end_id', $endIdCapa);
+                        } else {
+                            $this->db->group_start();
+                            $this->db->where('end_id', $endIdCapa);
+                            $this->db->or_where('end_id IS NULL', null, false);
+                            $this->db->group_end();
                         }
+                        $this->db->group_start();
+                        $this->db->where('doc_tipo_documento', 'inscrição estadual');
+                        $this->db->or_where('doc_tipo_documento', 'Inscrição Estadual');
+                        $this->db->group_end();
+                        $this->db->limit(1);
+                        if ($this->db->field_exists('ten_id', 'documentos')) {
+                            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+                        }
+                        return $this->db->get();
+                    };
+                    $ie_query = $endIdCapa > 0 ? $buscar_ie(true) : $buscar_ie(false);
+                    if ($ie_query->num_rows() == 0 && $endIdCapa > 0) {
+                        $ie_query = $buscar_ie(false);
+                    }
+                    if ($ie_query->num_rows() > 0) {
+                        $doc = $ie_query->row();
+                        $ie_dest = isset($doc->doc_numero) ? trim((string) $doc->doc_numero) : null;
+                        $ie_dest = ($ie_dest !== '') ? $ie_dest : null;
+                        // Só marcar como Contribuinte (1) quando houver IE válida; senão SEFAZ rejeita 428
+                        $ind_ie_dest = ($doc->doc_natureza_contribuinte == 'Contribuinte' && $ie_dest !== null) ? '1' : '9';
                     }
                 }
+                $nfecomData['nfc_ie_dest'] = $ie_dest;
+                $nfecomData['nfc_ind_ie_dest'] = $ind_ie_dest;
 
-                // Construir informações complementares com mensagens fiscais
-                $nfecomData['nfc_inf_cpl'] = $this->buildInfoComplementar($data, $valorBruto, $comissaoAgencia, $valorLiquido, $mensagensFiscais);
+                // Preencher campos separados para observações
+                $nfecomData['nfc_observacoes'] = $this->input->post('observacoes');
+                $nfecomData['nfc_dados_bancarios'] = $this->input->post('dados_bancarios');
+                $nfecomData['nfc_info_tributaria'] = $this->calcularInfoTributaria($servicos, $pis, $cofins, $irrf);
+                $nfecomData['nfc_msg_legal'] = $this->buscarMensagemLegal($servicos);
+
+                // Construir campo unificado nfc_inf_cpl para o XML
+                $nfecomData['nfc_inf_cpl'] = $this->montarInfCpl($nfecomData);
 
                 // Calcular CDV e Chave
                 $nfecomData['nfc_cdv'] = $this->calculateDV($nfecomData);
                 $nfecomData['nfc_ch_nfcom'] = $this->generateChave($nfecomData);
-                
+
                 // Adicionar ten_id obrigatório para foreign key
                 $tenId = $this->session->userdata('ten_id');
                 if (empty($tenId) || $tenId == 0) {
@@ -720,7 +798,7 @@ class Nfecom extends MY_Controller
                     $this->db->from('tenants');
                     $this->db->limit(1);
                     $tenant = $this->db->get()->row();
-                    
+
                     if ($tenant) {
                         $tenId = $tenant->ten_id;
                         // Atualizar sessão com o tenant encontrado
@@ -731,336 +809,339 @@ class Nfecom extends MY_Controller
                         redirect(site_url('nfecom/adicionar'));
                     }
                 }
-                $nfecomData['ten_id'] = (int)$tenId;
+                $nfecomData['ten_id'] = (int) $tenId;
 
                 // Salvar NFCom
                 $idNfecom = $this->Nfecom_model->add('nfecom_capa', $nfecomData);
 
-            if ($idNfecom) {
-                // Salvar múltiplos itens (um para cada serviço)
-                $itemNumero = 1;
+                if ($idNfecom) {
+                    // Salvar múltiplos itens (um para cada serviço)
+                    $itemNumero = 1;
 
-                foreach ($servicos as $servico) {
-                    if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
-                        $quantidade = floatval($servico['quantidade']);
-                        $valorUnitario = floatval($servico['valorUnitario']);
-                        $valorDesconto = floatval($servico['v_desc'] ?? 0);
-                        $valorOutros = floatval($servico['v_outro'] ?? 0);
-                        $cfop = $servico['cfop'] ?? '5307';
-                        $unidade = $servico['u_med'] ?? 'UN';
-                        $cClass = $servico['c_class'] ?? '0600402';
-                        $cstIcms = $servico['cst_icms'] ?? '00';
-                        $clfId = $servico['clf_id'] ?? null; // ID da classificação fiscal encontrada
+                    foreach ($servicos as $servico) {
+                        if (!empty($servico['id']) && !empty($servico['quantidade']) && !empty($servico['valorUnitario'])) {
+                            $quantidade = floatval($servico['quantidade']);
+                            $valorUnitario = floatval($servico['valorUnitario']);
+                            $valorDesconto = floatval($servico['v_desc'] ?? 0);
+                            $valorOutros = floatval($servico['v_outro'] ?? 0);
+                            $cfop = $servico['cfop'] ?? '5307';
+                            $unidade = $servico['u_med'] ?? 'UN';
+                            $cClass = $servico['c_class'] ?? '0600402';
+                            $cstIcms = $servico['cst_icms'] ?? '00';
+                            $clfId = $servico['clf_id'] ?? null; // ID da classificação fiscal encontrada
 
-                        // Valor Item = Quantidade × Valor Unitário
-                        $valorItem = $quantidade * $valorUnitario;
+                            // Valor Item = Quantidade × Valor Unitário
+                            $valorItem = $quantidade * $valorUnitario;
 
-                        // Valor Produto = Valor Item - Desconto + Outros
-                        $valorProduto = $valorItem - $valorDesconto + $valorOutros;
+                            // Valor Produto = Valor Item - Desconto + Outros
+                            $valorProduto = $valorItem - $valorDesconto + $valorOutros;
 
-                        // Buscar nome do serviço
-                        if (!empty($servico['nome'])) {
-                            $nomeServicoItem = $servico['nome'];
-                        } else {
-                            $this->db->select('pro_descricao as descricao');
-                            $this->db->from('produtos');
-                            $this->db->where($produtos_primary_key, $servico['id']);
-                            $this->db->where('produtos.ten_id', $this->session->userdata('ten_id'));
-                            $servico_query = $this->db->get();
-                            $servico_info = $servico_query->row();
-                            $nomeServicoItem = $servico_info ? $servico_info->descricao : 'Serviço não encontrado';
-                        }
-
-                        // Calcular tributação específica para este item usando a API
-                        // SEMPRE calcular pela API (sem valores fixos)
-                        $pisItem = 0;
-                        $cofinsItem = 0;
-                        $cstPis = null;
-                        $cstCofins = null;
-                        $aliqPis = 0;
-                        $aliqCofins = 0;
-                        $basePis = 0;
-                        $baseCofins = 0;
-                        
-                        // Inicializar variáveis de ICMS, ICMS ST e FCP
-                        $baseIcms = 0;
-                        $aliqIcms = 0;
-                        $valorIcms = 0;
-                        $baseIcmsSt = 0;
-                        $aliqIcmsSt = 0;
-                        $valorIcmsSt = 0;
-                        $mva = 0;
-                        $percentualReducaoSt = 0;
-                        $baseFcp = 0;
-                        $aliqFcp = 0;
-                        $valorFcp = 0;
-                        $csosn = null;
-                        
-                        if ($operacaoId && !empty($data['clientes_id'])) {
-                            // Calcular tributação usando a API (com endereço selecionado)
-                            $tributacao = $this->calcularTributacao(
-                                $servico['id'],
-                                $data['clientes_id'],
-                                $operacaoId,
-                                $valorUnitario,
-                                $quantidade,
-                                'saida',
-                                $enderecoId // Passar endereço selecionado
-                            );
-                            
-                            if ($tributacao) {
-                                // Usar valores da API - SEM valores fixos como fallback
-                                $pisItem = floatval($tributacao['impostos_federais']['pis']['valor'] ?? 0);
-                                $cofinsItem = floatval($tributacao['impostos_federais']['cofins']['valor'] ?? 0);
-                                $cstPis = $tributacao['impostos_federais']['pis']['cst'] ?? null;
-                                $cstCofins = $tributacao['impostos_federais']['cofins']['cst'] ?? null;
-                                $aliqPis = floatval($tributacao['impostos_federais']['pis']['aliquota'] ?? 0);
-                                $aliqCofins = floatval($tributacao['impostos_federais']['cofins']['aliquota'] ?? 0);
-                                
-                                // Base de cálculo deve ser o valor do produto (valorProduto), não o valor retornado pela API se estiver incorreto
-                                $basePisApi = floatval($tributacao['impostos_federais']['pis']['base_calculo'] ?? 0);
-                                $baseCofinsApi = floatval($tributacao['impostos_federais']['cofins']['base_calculo'] ?? 0);
-                                
-                                // Validar se a base da API está correta (deve ser igual ao valorProduto para CST 01/02)
-                                // Se a base da API for muito diferente do produto, usar o produto
-                                if ($basePisApi > 0 && abs($basePisApi - $valorProduto) > ($valorProduto * 0.1)) {
-                                    // Base da API está muito diferente (mais de 10% de diferença)
-                                    // Usar o valor do produto como base correta
-                                    log_message('debug', "Base PIS corrigida: API retornou $basePisApi, usando valorProduto $valorProduto");
-                                    $basePis = $valorProduto;
-                                } else {
-                                    $basePis = $basePisApi > 0 ? $basePisApi : $valorProduto;
-                                }
-                                
-                                if ($baseCofinsApi > 0 && abs($baseCofinsApi - $valorProduto) > ($valorProduto * 0.1)) {
-                                    // Base da API está muito diferente (mais de 10% de diferença)
-                                    // Usar o valor do produto como base correta
-                                    log_message('debug', "Base COFINS corrigida: API retornou $baseCofinsApi, usando valorProduto $valorProduto");
-                                    $baseCofins = $valorProduto;
-                                } else {
-                                    $baseCofins = $baseCofinsApi > 0 ? $baseCofinsApi : $valorProduto;
-                                }
-                                
-                                // Extrair dados de ICMS, ICMS ST e FCP da API
-                                $impostosEstaduais = $tributacao['impostos_estaduais'] ?? [];
-                                $icms = $impostosEstaduais['icms'] ?? [];
-                                $icmsSt = $impostosEstaduais['icms_st'] ?? [];
-                                $fcp = $impostosEstaduais['fcp'] ?? [];
-                                
-                                // ICMS básico
-                                $baseIcms = floatval($icms['base_calculo'] ?? 0);
-                                $aliqIcms = floatval($icms['aliquota'] ?? 0);
-                                $valorIcms = floatval($icms['valor'] ?? 0);
-                                
-                                // ICMS ST
-                                $baseIcmsSt = floatval($icmsSt['base_calculo'] ?? 0);
-                                $aliqIcmsSt = floatval($icmsSt['aliquota'] ?? 0);
-                                $valorIcmsSt = floatval($icmsSt['valor'] ?? 0);
-                                $mva = floatval($icmsSt['mva'] ?? 0);
-                                $percentualReducaoSt = floatval($icmsSt['percentual_reducao'] ?? 0);
-                                
-                                // FCP
-                                $baseFcp = floatval($fcp['base_calculo'] ?? 0);
-                                $aliqFcp = floatval($fcp['aliquota'] ?? 0);
-                                $valorFcp = floatval($fcp['valor'] ?? 0);
-                                
-                                // CSOSN (se disponível na classificação fiscal)
-                                $csosn = $tributacao['classificacao_fiscal']['csosn'] ?? null;
-                                
-                                log_message('debug', "Item #$itemNumero - Valor Produto: $valorProduto | Base PIS: $basePis | Base COFINS: $baseCofins | ICMS: base=$baseIcms, aliq=$aliqIcms%, valor=$valorIcms | ICMS ST: base=$baseIcmsSt, valor=$valorIcmsSt | FCP: base=$baseFcp, valor=$valorFcp");
+                            // Buscar nome do serviço
+                            if (!empty($servico['nome'])) {
+                                $nomeServicoItem = $servico['nome'];
                             } else {
-                                // Se não houver tributação, inicializar valores com zero
-                                $baseIcms = 0;
-                                $aliqIcms = 0;
-                                $valorIcms = 0;
-                                $baseIcmsSt = 0;
-                                $aliqIcmsSt = 0;
-                                $valorIcmsSt = 0;
-                                $mva = 0;
-                                $percentualReducaoSt = 0;
-                                $baseFcp = 0;
-                                $aliqFcp = 0;
-                                $valorFcp = 0;
-                                $csosn = null;
+                                $this->db->select('pro_descricao as descricao');
+                                $this->db->from('produtos');
+                                $this->db->where($produtos_primary_key, $servico['id']);
+                                $this->db->where('produtos.ten_id', $this->session->userdata('ten_id'));
+                                $servico_query = $this->db->get();
+                                $servico_info = $servico_query->row();
+                                $nomeServicoItem = $servico_info ? $servico_info->descricao : 'Serviço não encontrado';
                             }
-                        }
-                        
-                        // Calcular IRRF proporcional por item: 4,8% sobre o valor do item — somente se o cliente tiver "Cobrar IRRF" ativo
-                        $irrfItem = (!empty($data['cobrar_irrf'])) ? round(($valorProduto * 4.8) / 100, 2) : 0;
 
-                        // Garantir que CST PIS e COFINS não sejam null (valor padrão '01' conforme estrutura da tabela)
-                        if (empty($cstPis) || $cstPis === null) {
-                            $cstPis = '01'; // Valor padrão conforme estrutura da tabela
-                            log_message('info', "CST PIS estava null, usando valor padrão '01' para item #$itemNumero");
-                        }
-                        
-                        if (empty($cstCofins) || $cstCofins === null) {
-                            $cstCofins = '01'; // Valor padrão conforme estrutura da tabela
-                            log_message('info', "CST COFINS estava null, usando valor padrão '01' para item #$itemNumero");
-                        }
-
-                        // Validar e corrigir bases de cálculo antes de salvar
-                        // Para CST 01/02 (tributável), a base deve ser o valor do produto
-                        // Se a base estiver muito diferente, usar o valor do produto
-                        if (in_array($cstPis, ['01', '02'])) {
-                            // CST tributável: base deve ser igual ao valor do produto
-                            if (abs($basePis - $valorProduto) > ($valorProduto * 0.05)) {
-                                // Diferença maior que 5% - usar valor do produto
-                                log_message('info', "Base PIS corrigida antes de salvar: $basePis → $valorProduto (CST: $cstPis)");
-                                $basePis = $valorProduto;
-                            }
-                        } else {
-                            // CST isento/não tributado: base deve ser 0
+                            // Calcular tributação específica para este item usando a API
+                            // SEMPRE calcular pela API (sem valores fixos)
+                            $pisItem = 0;
+                            $cofinsItem = 0;
+                            $cstPis = null;
+                            $cstCofins = null;
+                            $aliqPis = 0;
+                            $aliqCofins = 0;
                             $basePis = 0;
-                        }
-                        
-                        if (in_array($cstCofins, ['01', '02'])) {
-                            // CST tributável: base deve ser igual ao valor do produto
-                            if (abs($baseCofins - $valorProduto) > ($valorProduto * 0.05)) {
-                                // Diferença maior que 5% - usar valor do produto
-                                log_message('info', "Base COFINS corrigida antes de salvar: $baseCofins → $valorProduto (CST: $cstCofins)");
-                                $baseCofins = $valorProduto;
-                            }
-                        } else {
-                            // CST isento/não tributado: base deve ser 0
                             $baseCofins = 0;
-                        }
-                        
-                        // Validar e corrigir valores de ICMS para CST isento/não tributado
-                        // CST 40, 41, 50, 51, 60: isento/não tributado (sem base/valor/alíquota)
-                        $cstsIsentos = ['40', '41', '50', '51', '60'];
-                        if (in_array($cstIcms, $cstsIsentos)) {
-                            // CST isento/não tributado: zerar base, alíquota e valor
+
+                            // Inicializar variáveis de ICMS, ICMS ST e FCP
                             $baseIcms = 0;
                             $aliqIcms = 0;
                             $valorIcms = 0;
-                            log_message('info', "CST ICMS $cstIcms detectado - zerando base, alíquota e valor de ICMS para item #$itemNumero");
-                        }
-                        
-                        $itemData = [
-                            'nfc_id' => $idNfecom,
-                            'nfi_n_item' => $itemNumero,
-                            'nfi_c_prod' => $servico['id'],
-                            'nfi_x_prod' => $nomeServicoItem,
-                            'nfi_c_class' => $cClass,
-                            'nfi_cfop' => $cfop,
-                            'nfi_u_med' => $unidade,
-                            'nfi_q_faturada' => $quantidade,
-                            'nfi_v_item' => $valorItem,
-                            'nfi_v_desc' => $valorDesconto,
-                            'nfi_v_outro' => $valorOutros,
-                            'nfi_v_prod' => $valorProduto,
-                            'nfi_cst_icms' => $cstIcms,
-                            // ICMS básico
-                            'nfi_v_bc_icms' => $baseIcms ?? 0,
-                            'nfi_p_icms' => $aliqIcms ?? 0,
-                            'nfi_v_icms' => $valorIcms ?? 0,
-                            'nfi_v_icms_deson' => 0.00, // Valor do ICMS Desonerado (preencher se necessário)
-                            'nfi_mot_des_icms' => null, // Motivo da Desoneração (preencher se necessário)
-                            // ICMS ST
-                            'nfi_v_bc_icms_st' => $baseIcmsSt ?? 0,
-                            'nfi_p_icms_st' => $aliqIcmsSt ?? 0,
-                            'nfi_v_icms_st' => $valorIcmsSt ?? 0,
-                            'nfi_v_bc_st_ret' => 0.00, // Base de Cálculo do ST Retido (preencher se necessário)
-                            'nfi_v_icms_st_ret' => 0.00, // Valor do ICMS ST Retido (preencher se necessário)
-                            'nfi_p_st' => $percentualReducaoSt > 0 ? $aliqIcmsSt : 0, // Alíquota do ST
-                            'nfi_v_icms_subst' => 0.00, // Valor do ICMS Próprio do Substituto (preencher se necessário)
-                            // FCP
-                            'nfi_v_bc_fcp' => $baseFcp ?? 0,
-                            'nfi_p_fcp' => $aliqFcp ?? 0,
-                            'nfi_v_fcp' => $valorFcp ?? 0,
-                            'nfi_v_fcp_st' => 0.00, // Valor do FCP ST (preencher se necessário)
-                            'nfi_v_fcp_st_ret' => 0.00, // Valor do FCP ST Retido (preencher se necessário)
-                            // CSOSN
-                            'nfi_csosn' => $csosn ?? null,
-                            // PIS
-                            'nfi_cst_pis' => $cstPis,
-                            'nfi_v_bc_pis' => $basePis,
-                            'nfi_p_pis' => $aliqPis,
-                            'nfi_v_pis' => $pisItem,
-                            // COFINS
-                            'nfi_cst_cofins' => $cstCofins,
-                            'nfi_v_bc_cofins' => $baseCofins,
-                            'nfi_p_cofins' => $aliqCofins,
-                            'nfi_v_cofins' => $cofinsItem,
-                            // FUST e FUNTTEL
-                            'nfi_v_bc_fust' => 0.00,
-                            'nfi_p_fust' => 0.00,
-                            'nfi_v_fust' => 0.00,
-                            'nfi_v_bc_funtel' => 0.00,
-                            'nfi_p_funtel' => 0.00,
-                            'nfi_v_funtel' => 0.00,
-                            // IRRF (base e valor zerados se cliente não cobrar IRRF)
-                            'nfi_v_bc_irrf' => !empty($data['cobrar_irrf']) ? $valorProduto : 0,
-                            'nfi_v_irrf' => $irrfItem,
-                            'nfi_data_cadastro' => date('Y-m-d H:i:s'),
-                            'nfi_data_atualizacao' => date('Y-m-d H:i:s')
-                        ];
+                            $baseIcmsSt = 0;
+                            $aliqIcmsSt = 0;
+                            $valorIcmsSt = 0;
+                            $mva = 0;
+                            $percentualReducaoSt = 0;
+                            $baseFcp = 0;
+                            $aliqFcp = 0;
+                            $valorFcp = 0;
+                            $csosn = null;
 
-                        // Adicionar clf_id se existir o campo na tabela e se tiver valor
-                        if ($clfId) {
-                            // Verificar se o campo existe antes de adicionar
-                            $fields = $this->db->list_fields('nfecom_itens');
-                            if (in_array('clf_id', $fields) || in_array('clf_id', $fields)) {
-                                $itemData['clf_id'] = $clfId;
-                                log_message('info', 'Item NFCom #' . $itemNumero . ' - clf_id adicionado: ' . $clfId);
-                            } else {
-                                log_message('info', 'Campo clf_id não existe na tabela nfecom_itens. Não foi possível salvar o ID da classificação fiscal.');
+                            if ($operacaoId && !empty($data['clientes_id'])) {
+                                // Calcular tributação usando a API (com endereço selecionado)
+                                $tributacao = $this->calcularTributacao(
+                                    $servico['id'],
+                                    $data['clientes_id'],
+                                    $operacaoId,
+                                    $valorUnitario,
+                                    $quantidade,
+                                    'saida',
+                                    $enderecoId // Passar endereço selecionado
+                                );
+
+                                if ($tributacao) {
+                                    // Usar valores da API - SEM valores fixos como fallback
+                                    $pisItem = floatval($tributacao['impostos_federais']['pis']['valor'] ?? 0);
+                                    $cofinsItem = floatval($tributacao['impostos_federais']['cofins']['valor'] ?? 0);
+                                    $cstPis = $tributacao['impostos_federais']['pis']['cst'] ?? null;
+                                    $cstCofins = $tributacao['impostos_federais']['cofins']['cst'] ?? null;
+                                    $aliqPis = floatval($tributacao['impostos_federais']['pis']['aliquota'] ?? 0);
+                                    $aliqCofins = floatval($tributacao['impostos_federais']['cofins']['aliquota'] ?? 0);
+
+                                    // Base de cálculo deve ser o valor do produto (valorProduto), não o valor retornado pela API se estiver incorreto
+                                    $basePisApi = floatval($tributacao['impostos_federais']['pis']['base_calculo'] ?? 0);
+                                    $baseCofinsApi = floatval($tributacao['impostos_federais']['cofins']['base_calculo'] ?? 0);
+
+                                    // Validar se a base da API está correta (deve ser igual ao valorProduto para CST 01/02)
+                                    // Se a base da API for muito diferente do produto, usar o produto
+                                    if ($basePisApi > 0 && abs($basePisApi - $valorProduto) > ($valorProduto * 0.1)) {
+                                        // Base da API está muito diferente (mais de 10% de diferença)
+                                        // Usar o valor do produto como base correta
+                                        log_message('debug', "Base PIS corrigida: API retornou $basePisApi, usando valorProduto $valorProduto");
+                                        $basePis = $valorProduto;
+                                    } else {
+                                        $basePis = $basePisApi > 0 ? $basePisApi : $valorProduto;
+                                    }
+
+                                    if ($baseCofinsApi > 0 && abs($baseCofinsApi - $valorProduto) > ($valorProduto * 0.1)) {
+                                        // Base da API está muito diferente (mais de 10% de diferença)
+                                        // Usar o valor do produto como base correta
+                                        log_message('debug', "Base COFINS corrigida: API retornou $baseCofinsApi, usando valorProduto $valorProduto");
+                                        $baseCofins = $valorProduto;
+                                    } else {
+                                        $baseCofins = $baseCofinsApi > 0 ? $baseCofinsApi : $valorProduto;
+                                    }
+
+                                    // Extrair dados de ICMS, ICMS ST e FCP da API
+                                    $impostosEstaduais = $tributacao['impostos_estaduais'] ?? [];
+                                    $icms = $impostosEstaduais['icms'] ?? [];
+                                    $icmsSt = $impostosEstaduais['icms_st'] ?? [];
+                                    $fcp = $impostosEstaduais['fcp'] ?? [];
+
+                                    // ICMS básico
+                                    $baseIcms = floatval($icms['base_calculo'] ?? 0);
+                                    $aliqIcms = floatval($icms['aliquota'] ?? 0);
+                                    $valorIcms = floatval($icms['valor'] ?? 0);
+
+                                    // ICMS ST
+                                    $baseIcmsSt = floatval($icmsSt['base_calculo'] ?? 0);
+                                    $aliqIcmsSt = floatval($icmsSt['aliquota'] ?? 0);
+                                    $valorIcmsSt = floatval($icmsSt['valor'] ?? 0);
+                                    $mva = floatval($icmsSt['mva'] ?? 0);
+                                    $percentualReducaoSt = floatval($icmsSt['percentual_reducao'] ?? 0);
+
+                                    // FCP
+                                    $baseFcp = floatval($fcp['base_calculo'] ?? 0);
+                                    $aliqFcp = floatval($fcp['aliquota'] ?? 0);
+                                    $valorFcp = floatval($fcp['valor'] ?? 0);
+
+                                    // CSOSN (se disponível na classificação fiscal)
+                                    $csosn = $tributacao['classificacao_fiscal']['csosn'] ?? null;
+
+                                    log_message('debug', "Item #$itemNumero - Valor Produto: $valorProduto | Base PIS: $basePis | Base COFINS: $baseCofins | ICMS: base=$baseIcms, aliq=$aliqIcms%, valor=$valorIcms | ICMS ST: base=$baseIcmsSt, valor=$valorIcmsSt | FCP: base=$baseFcp, valor=$valorFcp");
+                                } else {
+                                    // Se não houver tributação, inicializar valores com zero
+                                    $baseIcms = 0;
+                                    $aliqIcms = 0;
+                                    $valorIcms = 0;
+                                    $baseIcmsSt = 0;
+                                    $aliqIcmsSt = 0;
+                                    $valorIcmsSt = 0;
+                                    $mva = 0;
+                                    $percentualReducaoSt = 0;
+                                    $baseFcp = 0;
+                                    $aliqFcp = 0;
+                                    $valorFcp = 0;
+                                    $csosn = null;
+                                }
                             }
-                        } else {
-                            log_message('info', 'Item NFCom #' . $itemNumero . ' - clf_id não fornecido no serviço');
-                        }
-                        
-                        // Adicionar ten_id obrigatório para foreign key (se a tabela tiver esse campo)
-                        $tenId = $this->session->userdata('ten_id');
-                        $fields = $this->db->list_fields('nfecom_itens');
-                        if (in_array('ten_id', $fields)) {
-                            // Sempre adicionar ten_id, mesmo que seja 0 (será corrigido depois)
-                            $itemData['ten_id'] = !empty($tenId) ? (int)$tenId : 1;
-                        }
 
-                        $this->Nfecom_model->add('nfecom_itens', $itemData);
-                        log_message('info', 'Item NFCom #' . $itemNumero . ' salvo com sucesso. nfi_id: ' . $this->db->insert_id());
-                        
-                        // Acumular totais de ICMS, ICMS ST, FCP e IRRF
-                        $totalIcms += $valorIcms ?? 0;
-                        $totalIcmsSt += $valorIcmsSt ?? 0;
-                        $totalFcp += $valorFcp ?? 0;
-                        $totalBaseIcms += $baseIcms ?? 0;
-                        $totalIrrf += $irrfItem; // Acumular IRRF de cada item (já arredondado)
-                        
-                        $itemNumero++;
+                            // Calcular IRRF proporcional por item: 4,8% sobre o valor do item — somente se o cliente tiver "Cobrar IRRF" ativo
+                            $irrfItem = (!empty($data['cobrar_irrf'])) ? round(($valorProduto * 4.8) / 100, 2) : 0;
+
+                            // Garantir que CST PIS e COFINS não sejam null (valor padrão '01' conforme estrutura da tabela)
+                            if (empty($cstPis) || $cstPis === null) {
+                                $cstPis = '01'; // Valor padrão conforme estrutura da tabela
+                                log_message('info', "CST PIS estava null, usando valor padrão '01' para item #$itemNumero");
+                            }
+
+                            if (empty($cstCofins) || $cstCofins === null) {
+                                $cstCofins = '01'; // Valor padrão conforme estrutura da tabela
+                                log_message('info', "CST COFINS estava null, usando valor padrão '01' para item #$itemNumero");
+                            }
+
+                            // Validar e corrigir bases de cálculo antes de salvar
+                            // Para CST 01/02 (tributável), a base deve ser o valor do produto
+                            // Se a base estiver muito diferente, usar o valor do produto
+                            if (in_array($cstPis, ['01', '02'])) {
+                                // CST tributável: base deve ser igual ao valor do produto
+                                if (abs($basePis - $valorProduto) > ($valorProduto * 0.05)) {
+                                    // Diferença maior que 5% - usar valor do produto
+                                    log_message('info', "Base PIS corrigida antes de salvar: $basePis → $valorProduto (CST: $cstPis)");
+                                    $basePis = $valorProduto;
+                                }
+                            } else {
+                                // CST isento/não tributado: base deve ser 0
+                                $basePis = 0;
+                            }
+
+                            if (in_array($cstCofins, ['01', '02'])) {
+                                // CST tributável: base deve ser igual ao valor do produto
+                                if (abs($baseCofins - $valorProduto) > ($valorProduto * 0.05)) {
+                                    // Diferença maior que 5% - usar valor do produto
+                                    log_message('info', "Base COFINS corrigida antes de salvar: $baseCofins → $valorProduto (CST: $cstCofins)");
+                                    $baseCofins = $valorProduto;
+                                }
+                            } else {
+                                // CST isento/não tributado: base deve ser 0
+                                $baseCofins = 0;
+                            }
+
+                            // Validar e corrigir valores de ICMS para CST isento/não tributado
+                            // CST 40, 41, 50, 51, 60: isento/não tributado (sem base/valor/alíquota)
+                            $cstsIsentos = ['40', '41', '50', '51', '60'];
+                            if (in_array($cstIcms, $cstsIsentos)) {
+                                // CST isento/não tributado: zerar base, alíquota e valor
+                                $baseIcms = 0;
+                                $aliqIcms = 0;
+                                $valorIcms = 0;
+                                log_message('info', "CST ICMS $cstIcms detectado - zerando base, alíquota e valor de ICMS para item #$itemNumero");
+                            }
+
+                            $itemData = [
+                                'nfc_id' => $idNfecom,
+                                'nfi_n_item' => $itemNumero,
+                                'nfi_c_prod' => $servico['id'],
+                                'nfi_x_prod' => $nomeServicoItem,
+                                'nfi_c_class' => $cClass,
+                                'nfi_cfop' => $cfop,
+                                'nfi_u_med' => $unidade,
+                                'nfi_q_faturada' => $quantidade,
+                                'nfi_v_item' => $valorItem,
+                                'nfi_v_desc' => $valorDesconto,
+                                'nfi_v_outro' => $valorOutros,
+                                'nfi_v_prod' => $valorProduto,
+                                'nfi_cst_icms' => $cstIcms,
+                                // ICMS básico
+                                'nfi_v_bc_icms' => $baseIcms ?? 0,
+                                'nfi_p_icms' => $aliqIcms ?? 0,
+                                'nfi_v_icms' => $valorIcms ?? 0,
+                                'nfi_v_icms_deson' => 0.00, // Valor do ICMS Desonerado (preencher se necessário)
+                                'nfi_mot_des_icms' => null, // Motivo da Desoneração (preencher se necessário)
+                                // ICMS ST
+                                'nfi_v_bc_icms_st' => $baseIcmsSt ?? 0,
+                                'nfi_p_icms_st' => $aliqIcmsSt ?? 0,
+                                'nfi_v_icms_st' => $valorIcmsSt ?? 0,
+                                'nfi_v_bc_st_ret' => 0.00, // Base de Cálculo do ST Retido (preencher se necessário)
+                                'nfi_v_icms_st_ret' => 0.00, // Valor do ICMS ST Retido (preencher se necessário)
+                                'nfi_p_st' => $percentualReducaoSt > 0 ? $aliqIcmsSt : 0, // Alíquota do ST
+                                'nfi_v_icms_subst' => 0.00, // Valor do ICMS Próprio do Substituto (preencher se necessário)
+                                // FCP
+                                'nfi_v_bc_fcp' => $baseFcp ?? 0,
+                                'nfi_p_fcp' => $aliqFcp ?? 0,
+                                'nfi_v_fcp' => $valorFcp ?? 0,
+                                'nfi_v_fcp_st' => 0.00, // Valor do FCP ST (preencher se necessário)
+                                'nfi_v_fcp_st_ret' => 0.00, // Valor do FCP ST Retido (preencher se necessário)
+                                // CSOSN
+                                'nfi_csosn' => $csosn ?? null,
+                                // PIS
+                                'nfi_cst_pis' => $cstPis,
+                                'nfi_v_bc_pis' => $basePis,
+                                'nfi_p_pis' => $aliqPis,
+                                'nfi_v_pis' => $pisItem,
+                                // COFINS
+                                'nfi_cst_cofins' => $cstCofins,
+                                'nfi_v_bc_cofins' => $baseCofins,
+                                'nfi_p_cofins' => $aliqCofins,
+                                'nfi_v_cofins' => $cofinsItem,
+                                // FUST e FUNTTEL
+                                'nfi_v_bc_fust' => 0.00,
+                                'nfi_p_fust' => 0.00,
+                                'nfi_v_fust' => 0.00,
+                                'nfi_v_bc_funtel' => 0.00,
+                                'nfi_p_funtel' => 0.00,
+                                'nfi_v_funtel' => 0.00,
+                                // IRRF (base e valor zerados se cliente não cobrar IRRF)
+                                'nfi_v_bc_irrf' => !empty($data['cobrar_irrf']) ? $valorProduto : 0,
+                                'nfi_v_irrf' => $irrfItem,
+                                'nfi_data_cadastro' => date('Y-m-d H:i:s'),
+                                'nfi_data_atualizacao' => date('Y-m-d H:i:s')
+                            ];
+
+                            // Adicionar clf_id se existir o campo na tabela e se tiver valor
+                            if ($clfId) {
+                                // Verificar se o campo existe antes de adicionar
+                                $fields = $this->db->list_fields('nfecom_itens');
+                                if (in_array('clf_id', $fields) || in_array('clf_id', $fields)) {
+                                    $itemData['clf_id'] = $clfId;
+                                    log_message('info', 'Item NFCom #' . $itemNumero . ' - clf_id adicionado: ' . $clfId);
+                                } else {
+                                    log_message('info', 'Campo clf_id não existe na tabela nfecom_itens. Não foi possível salvar o ID da classificação fiscal.');
+                                }
+                            } else {
+                                log_message('info', 'Item NFCom #' . $itemNumero . ' - clf_id não fornecido no serviço');
+                            }
+
+                            // Adicionar ten_id obrigatório para foreign key (se a tabela tiver esse campo)
+                            $tenId = $this->session->userdata('ten_id');
+                            $fields = $this->db->list_fields('nfecom_itens');
+                            if (in_array('ten_id', $fields)) {
+                                // Sempre adicionar ten_id, mesmo que seja 0 (será corrigido depois)
+                                $itemData['ten_id'] = !empty($tenId) ? (int) $tenId : 1;
+                            }
+
+                            $this->Nfecom_model->add('nfecom_itens', $itemData);
+                            log_message('info', 'Item NFCom #' . $itemNumero . ' salvo com sucesso. nfi_id: ' . $this->db->insert_id());
+
+                            // Acumular totais de ICMS, ICMS ST, FCP e IRRF
+                            $totalIcms += $valorIcms ?? 0;
+                            $totalIcmsSt += $valorIcmsSt ?? 0;
+                            $totalFcp += $valorFcp ?? 0;
+                            $totalBaseIcms += $baseIcms ?? 0;
+                            $totalIrrf += $irrfItem; // Acumular IRRF de cada item (já arredondado)
+
+                            $itemNumero++;
+                        }
                     }
+
+                    // Se não há serviços válidos, não permitir criar item genérico sem tributação
+                    if ($itemNumero == 1) {
+                        // Não permitir salvar sem serviços válidos
+                        $this->session->set_flashdata('error', 'Não é possível salvar NFeCom sem serviços válidos com tributação calculada.');
+                        redirect(site_url('nfecom/adicionar'));
+                    }
+
+                    // Arredondar o total do IRRF para 2 casas decimais
+                    $totalIrrf = round($totalIrrf, 2);
+
+                    // Atualizar o total do IRRF na capa com a soma dos IRRF dos itens
+                    // Conforme rejeição 685: Total do IRRF retido deve ser igual ao somatório dos itens
+                    $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrf], 'nfc_id', $idNfecom);
+                    log_message('info', 'Total do IRRF atualizado na capa: R$ ' . number_format($totalIrrf, 2, ',', '.') . ' (soma dos IRRF dos itens, arredondado)');
+
+                    // Recalcular o vNF usando o total do IRRF atualizado (soma dos itens)
+                    // Regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
+                    $vNfRecalculado = $valorLiquido - $totalIrrf; // Usar totalIrrf (soma dos itens) em vez de $irrf
+                    $vNfRecalculado = round($vNfRecalculado, 2); // Arredondar vNF também
+                    $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_nf' => $vNfRecalculado], 'nfc_id', $idNfecom);
+                    log_message('info', 'Valor da NF recalculado: R$ ' . number_format($valorLiquido, 2, ',', '.') . ' - R$ ' . number_format($totalIrrf, 2, ',', '.') . ' (IRRF soma itens) = R$ ' . number_format($vNfRecalculado, 2, ',', '.'));
+
+                    $this->session->set_flashdata('success', 'NFECom adicionada com sucesso!');
+                    if ($this->input->post('acao') === 'salvar_e_emitir') {
+                        redirect(site_url('nfecom/autorizar/' . $idNfecom));
+                    }
+                    redirect(site_url('nfecom'));
+                } else {
+                    $this->data['custom_error'] = true;
+                    $this->session->set_flashdata('error', 'Erro ao salvar NFECom!');
                 }
-
-                // Se não há serviços válidos, não permitir criar item genérico sem tributação
-                if ($itemNumero == 1) {
-                    // Não permitir salvar sem serviços válidos
-                    $this->session->set_flashdata('error', 'Não é possível salvar NFeCom sem serviços válidos com tributação calculada.');
-                    redirect(site_url('nfecom/adicionar'));
-                }
-
-                // Arredondar o total do IRRF para 2 casas decimais
-                $totalIrrf = round($totalIrrf, 2);
-                
-                // Atualizar o total do IRRF na capa com a soma dos IRRF dos itens
-                // Conforme rejeição 685: Total do IRRF retido deve ser igual ao somatório dos itens
-                $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrf], 'nfc_id', $idNfecom);
-                log_message('info', 'Total do IRRF atualizado na capa: R$ ' . number_format($totalIrrf, 2, ',', '.') . ' (soma dos IRRF dos itens, arredondado)');
-                
-                // Recalcular o vNF usando o total do IRRF atualizado (soma dos itens)
-                // Regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
-                $vNfRecalculado = $valorLiquido - $totalIrrf; // Usar totalIrrf (soma dos itens) em vez de $irrf
-                $vNfRecalculado = round($vNfRecalculado, 2); // Arredondar vNF também
-                $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_nf' => $vNfRecalculado], 'nfc_id', $idNfecom);
-                log_message('info', 'Valor da NF recalculado: R$ ' . number_format($valorLiquido, 2, ',', '.') . ' - R$ ' . number_format($totalIrrf, 2, ',', '.') . ' (IRRF soma itens) = R$ ' . number_format($vNfRecalculado, 2, ',', '.'));
-
-                $this->session->set_flashdata('success', 'NFECom adicionada com sucesso!');
-                redirect(site_url('nfecom'));
-            } else {
-                $this->data['custom_error'] = true;
-                $this->session->set_flashdata('error', 'Erro ao salvar NFECom!');
-            }
             } // Fechamento do else da validação (linha 199)
         } // Fechamento do if ($_SERVER['REQUEST_METHOD'] === 'POST') (linha 185)
 
@@ -1108,6 +1189,39 @@ class Nfecom extends MY_Controller
             redirect(site_url('nfecom/visualizar/' . $id));
         }
 
+        // GET: carregar formulário de edição (reemissão) — aplicar IE/ind para Simples Nacional e MEI
+        if (!$this->input->post()) {
+            $this->data['operacoes'] = $this->OperacaoComercial_model->getAll();
+            $this->data['result'] = $this->Nfecom_model->getByIdWithOperation($id);
+            $this->data['itens'] = $this->Nfecom_model->getItens($id);
+            $this->data['custom_error'] = '';
+
+            // Carregar clientes iniciais (mesma lógica do adicionar)
+            $this->db->select("c.cln_id as id,
+                CASE WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome ELSE COALESCE(p.pes_nome, p.pes_razao_social) END as text,
+                p.pes_nome as nome_fantasia, p.pes_razao_social as razao_social, p.pes_cpfcnpj as cpf_cnpj, p.pes_codigo as codigo");
+            $this->db->from('clientes c');
+            $this->db->join('pessoas p', 'p.pes_id = c.pes_id', 'left');
+            $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
+            $this->db->order_by("CASE WHEN p.pes_fisico_juridico = 'F' THEN p.pes_nome ELSE COALESCE(p.pes_nome, p.pes_razao_social) END ASC");
+            $this->db->limit(50);
+            $query_clientes = $this->db->get();
+            $this->data['clientes_iniciais'] = $query_clientes ? $query_clientes->result() : [];
+
+            // Simples Nacional e MEI: não levar IE e marcar como não contribuinte na capa/interface
+            $clienteDest = $this->getDestinatarioPorCapa($nfecom);
+            if ($clienteDest && isset($clienteDest->pes_regime_tributario)) {
+                $regime = trim((string) $clienteDest->pes_regime_tributario);
+                if ($regime === 'MEI' || $regime === 'Simples Nacional') {
+                    $this->data['result']->nfc_ie_dest = null;
+                    $this->data['result']->nfc_ind_ie_dest = '9';
+                }
+            }
+
+            $this->data['view'] = 'nfecom/editarNfecom';
+            return $this->layout();
+        }
+
         $this->db->trans_begin();
 
         try {
@@ -1127,7 +1241,9 @@ class Nfecom extends MY_Controller
                     }
                 }
             }
-            
+
+            $itensPost = $this->input->post('itens');
+
             $dados = [
                 'nfc_serie' => $this->input->post('nfc_serie'),
                 'nfc_n_contrato' => $this->input->post('nfc_n_contrato'),
@@ -1139,7 +1255,13 @@ class Nfecom extends MY_Controller
                 // PERÍODO DE USO: RESPEITAR EXATAMENTE O VALOR INFORMADO PELO USUÁRIO
                 'nfc_d_per_uso_ini' => $this->input->post('nfc_d_per_uso_ini'),
                 'nfc_d_per_uso_fim' => $this->input->post('nfc_d_per_uso_fim'),
-                'nfc_inf_cpl' => str_replace(["\r\n", "\r", "\n"], '; ', $this->input->post('nfc_inf_cpl')),
+
+                // Novos campos separados
+                'nfc_observacoes' => $this->input->post('observacoes'),
+                'nfc_dados_bancarios' => $this->input->post('dados_bancarios'),
+                'nfc_info_tributaria' => $this->calcularInfoTributaria($itensPost),
+                'nfc_msg_legal' => $this->buscarMensagemLegal($itensPost),
+
                 'nfc_i_cod_assinante' => $this->input->post('nfc_i_cod_assinante'),
                 'nfc_tp_assinante' => $this->input->post('nfc_tp_assinante'),
                 'nfc_tp_serv_util' => $this->input->post('nfc_tp_serv_util'),
@@ -1148,6 +1270,9 @@ class Nfecom extends MY_Controller
                 'nfc_linha_digitavel' => $this->input->post('nfc_linha_digitavel'),
                 'opc_id' => $this->input->post('opc_id'),
             ];
+
+            // Montar campo unificado nfc_inf_cpl para o XML
+            $dados['nfc_inf_cpl'] = $this->montarInfCpl($dados);
 
             // Atualizar dados do destinatário se fornecidos
             $destinatario = [
@@ -1160,6 +1285,21 @@ class Nfecom extends MY_Controller
                 'nfc_uf_dest' => $this->input->post('nfc_uf_dest'),
                 'nfc_cep_dest' => $this->input->post('nfc_cep_dest'),
             ];
+
+            // Simples Nacional e MEI: não podem levar IE e devem ser não contribuinte (indIEDest=9)
+            $clienteDest = $this->getDestinatarioPorCapa($nfecom);
+            $ehSimplesOuMei = false;
+            if ($clienteDest && isset($clienteDest->pes_regime_tributario)) {
+                $regime = trim((string) $clienteDest->pes_regime_tributario);
+                $ehSimplesOuMei = ($regime === 'MEI' || $regime === 'Simples Nacional');
+            }
+            if ($ehSimplesOuMei) {
+                $dados['nfc_ind_ie_dest'] = '9';
+                $dados['nfc_ie_dest'] = null;
+            } elseif ($this->input->post('dest_nao_contribuinte') === '1') {
+                $dados['nfc_ind_ie_dest'] = '9';
+                $dados['nfc_ie_dest'] = null;
+            }
 
             // Mesclar dados do destinatário apenas se houver valores
             foreach ($destinatario as $key => $value) {
@@ -1186,7 +1326,7 @@ class Nfecom extends MY_Controller
                         // Garantir valores padrão para campos obrigatórios
                         $cstPis = !empty($item['cst_pis']) ? $item['cst_pis'] : '01';
                         $cstCofins = !empty($item['cst_cofins']) ? $item['cst_cofins'] : '01';
-                        
+
                         $itemData = [
                             'nfc_id' => $id,
                             'nfi_n_item' => $item['n_item'] ?? 1,
@@ -1209,16 +1349,18 @@ class Nfecom extends MY_Controller
                             'nfi_v_bc_cofins' => str_replace(',', '.', $item['v_bc_cofins'] ?? '0.00'),
                             'nfi_p_cofins' => str_replace(',', '.', $item['p_cofins'] ?? '0.00'),
                             'nfi_v_cofins' => str_replace(',', '.', $item['v_cofins'] ?? '0.00'),
+                            'nfi_v_bc_irrf' => str_replace(',', '.', $item['v_bc_irrf'] ?? '0.00'),
+                            'nfi_v_irrf' => str_replace(',', '.', $item['v_irrf'] ?? '0.00'),
                         ];
 
                         // Calcular valor total
                         $itemData['nfi_v_prod'] = $itemData['nfi_q_faturada'] * $itemData['nfi_v_item'];
-                        
+
                         // Adicionar ten_id se o campo existir na tabela
                         $tenId = $this->session->userdata('ten_id');
                         $fields = $this->db->list_fields('nfecom_itens');
                         if (in_array('ten_id', $fields)) {
-                            $itemData['ten_id'] = !empty($tenId) ? (int)$tenId : 1;
+                            $itemData['ten_id'] = !empty($tenId) ? (int) $tenId : 1;
                         }
 
                         $this->db->insert('nfecom_itens', $itemData);
@@ -1265,7 +1407,7 @@ class Nfecom extends MY_Controller
     {
         // Verificar se é uma requisição AJAX
         $isAjax = $this->input->is_ajax_request() || $this->input->post('ajax') === 'true';
-        
+
         // Para requisições AJAX, definir header JSON desde o início e limpar output
         if ($isAjax) {
             // Limpar qualquer output anterior
@@ -1288,11 +1430,11 @@ class Nfecom extends MY_Controller
             }
 
             $id = $this->input->post('id') ?? $this->uri->segment(3);
-            
+
             if (empty($id)) {
                 throw new Exception('ID da NFCom não informado.');
             }
-            
+
             $nfecom = $this->Nfecom_model->getById($id);
 
             if ($nfecom == null) {
@@ -1311,7 +1453,7 @@ class Nfecom extends MY_Controller
             if ($nfecom->nfc_status < 3 || $nfecom->nfc_status == 4) {
                 $isReemissao = ($nfecom->nfc_status == 4);
                 log_message('info', 'NFCom ' . ($isReemissao ? 'Reemissão' : 'Emissão') . ' iniciada - ID: ' . $id . ', Status: ' . $nfecom->nfc_status);
-                
+
                 // Atualizar dados fiscais e gerar XML se necessário
                 $configFiscal = $this->getConfiguracaoNfcom();
                 if ($configFiscal) {
@@ -1322,7 +1464,7 @@ class Nfecom extends MY_Controller
                     // Para NFCom novas, apenas pegar número atual (incremento será feito no final do processo)
                     if ($nfecom->nfc_status < 2) {
                         $numeroNota = $configFiscal->cfg_numero_atual;
-                        
+
                         $atualizacao = [
                             'nfc_tipo_ambiente' => $configFiscal->cfg_ambiente,
                             'nfc_serie' => $configFiscal->cfg_serie,
@@ -1371,7 +1513,7 @@ class Nfecom extends MY_Controller
 
                 // Chamar o método de autorização (pode lançar exceções)
                 $resultadoAutorizacao = $this->autorizar($id, false);
-                
+
                 if ($resultadoAutorizacao === false) {
                     throw new Exception('Falha na autorização da NFCom. Verifique os logs para mais detalhes.');
                 }
@@ -1383,17 +1525,17 @@ class Nfecom extends MY_Controller
             // Preparar dados para o modal
             // Recarregar dados atualizados após autorização
             $nfecom = $this->Nfecom_model->getById($id);
-            
+
             if (!$nfecom) {
                 throw new Exception('NFECom não encontrada após autorização.');
             }
-            
+
             // Garantir que o status seja um número inteiro
             $statusAtual = (int) $nfecom->nfc_status;
-            
+
             // Determinar status baseado no status atual e cStat da SEFAZ
             $statusDescricao = $this->getStatusDescricao($statusAtual);
-            
+
             // Se foi autorizado (status 3), garantir que mostra "Autorizado"
             if ($statusAtual == 3) {
                 $statusDescricao = 'Autorizado';
@@ -1419,7 +1561,7 @@ class Nfecom extends MY_Controller
                 $modalData['motivo'] = $nfecom->nfc_x_motivo ?? 'Autorizado o uso da NFCom';
                 // Garantir que o status seja "Autorizado"
                 $modalData['status'] = 'Autorizado';
-                
+
                 // Montar retorno detalhado em JSON quando autorizado
                 $retornoSefaz = [
                     'cStat' => $nfecom->nfc_c_stat ?? '100',
@@ -1451,31 +1593,31 @@ class Nfecom extends MY_Controller
                     if (ob_get_length()) {
                         ob_clean();
                     }
-                    
+
                     // Recarregar dados para garantir que temos o XML mais recente
                     $nfecom = $this->Nfecom_model->getById($id);
-                    
+
                     if (empty($nfecom->nfc_xml)) {
                         log_message('error', 'NFCom: Tentativa de download mas nfc_xml está vazio. ID: ' . $id);
                         $this->session->set_flashdata('error', 'XML autorizado não encontrado no banco de dados.');
                         redirect(site_url('nfecom'));
                         return;
                     }
-                    
+
                     // Configurar headers para download do XML autorizado
                     $filename = 'NFCom_' . str_pad($nfecom->nfc_nnf, 9, '0', STR_PAD_LEFT) . '_' . date('YmdHis') . '.xml';
-                    
+
                     // Limpar qualquer output buffer
                     while (ob_get_level()) {
                         ob_end_clean();
                     }
-                    
+
                     header('Content-Type: application/xml; charset=utf-8');
                     header('Content-Disposition: attachment; filename="' . $filename . '"');
                     header('Content-Length: ' . strlen($nfecom->nfc_xml));
                     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
                     header('Pragma: public');
-                    
+
                     // Output do XML autorizado
                     echo $nfecom->nfc_xml;
                     exit;
@@ -1485,10 +1627,10 @@ class Nfecom extends MY_Controller
                     redirect(site_url('nfecom'));
                 }
             }
-            
+
         } catch (Exception $e) {
             log_message('error', 'Erro em gerarXml NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
-            
+
             if ($isAjax) {
                 // Limpar qualquer output anterior
                 if (ob_get_length()) {
@@ -1540,7 +1682,7 @@ class Nfecom extends MY_Controller
 
             // Configurar headers para download
             $filename = 'NFCom_' . str_pad($numeroNota, 9, '0', STR_PAD_LEFT) . '_' . date('YmdHis') . '.xml';
-            
+
             header('Content-Type: application/xml; charset=utf-8');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
             header('Content-Length: ' . strlen($xml));
@@ -1604,17 +1746,25 @@ class Nfecom extends MY_Controller
     {
         // Garantir que o status seja um número inteiro
         $status = (int) $status;
-        
-        return match($status) {
-            0 => 'Rascunho',
-            1 => 'Salvo',
-            2 => 'Enviado',
-            3 => 'Autorizado',
-            4 => 'Rejeitada',
-            5 => 'Autorizada',
-            7 => 'Cancelada',
-            default => 'Desconhecido'
-        };
+
+        switch ($status) {
+            case 0:
+                return 'Rascunho';
+            case 1:
+                return 'Salvo';
+            case 2:
+                return 'Enviado';
+            case 3:
+                return 'Autorizado';
+            case 4:
+                return 'Rejeitada';
+            case 5:
+                return 'Autorizada';
+            case 7:
+                return 'Cancelada';
+            default:
+                return 'Desconhecido';
+        }
     }
 
     private function montarXmlAutorizado($xmlSigned, $xmlRetorno)
@@ -1624,33 +1774,33 @@ class Nfecom extends MY_Controller
             $domNFCom = new DOMDocument();
             $domNFCom->preserveWhiteSpace = false;
             $domNFCom->formatOutput = true;
-            
+
             // Remover namespaces para facilitar parsing
             $xmlSignedClean = preg_replace('/(<\/?)(\w+):([^>]*>)/', '$1$3', $xmlSigned);
             @$domNFCom->loadXML($xmlSignedClean);
-            
+
             // Extrair o elemento NFCom do XML assinado
             $nfcomNode = $domNFCom->getElementsByTagName('NFCom')->item(0);
             if (!$nfcomNode) {
                 log_message('error', 'NFCom: Elemento NFCom não encontrado no XML assinado');
                 return $xmlSigned;
             }
-            
+
             // Carregar XML de retorno da SEFAZ
             $domRetorno = new DOMDocument();
             $domRetorno->preserveWhiteSpace = false;
             $domRetorno->formatOutput = true;
-            
+
             // Remover namespaces do retorno
             $xmlRetornoClean = preg_replace('/(<\/?)(\w+):([^>]*>)/', '$1$3', $xmlRetorno);
             @$domRetorno->loadXML($xmlRetornoClean);
-            
+
             // Extrair o protocolo de autorização - tentar várias formas
             $protNFCom = null;
-            
+
             // Tentar 1: protNFCom direto
             $protNFCom = $domRetorno->getElementsByTagName('protNFCom')->item(0);
-            
+
             // Tentar 2: infProt dentro de protNFCom
             if (!$protNFCom) {
                 $infProt = $domRetorno->getElementsByTagName('infProt')->item(0);
@@ -1661,7 +1811,7 @@ class Nfecom extends MY_Controller
                     $protNFCom->appendChild($infProtClone);
                 }
             }
-            
+
             // Tentar 3: usar XPath
             if (!$protNFCom) {
                 $xpath = new DOMXPath($domRetorno);
@@ -1678,37 +1828,37 @@ class Nfecom extends MY_Controller
                     }
                 }
             }
-            
+
             if (!$protNFCom) {
                 log_message('error', 'NFCom: Protocolo não encontrado no XML de retorno');
                 return $xmlSigned;
             }
-            
+
             // Criar novo documento para o XML autorizado
             $domAutorizado = new DOMDocument('1.0', 'UTF-8');
             $domAutorizado->preserveWhiteSpace = false;
             $domAutorizado->formatOutput = true;
-            
+
             // Criar elemento raiz nfeProc
             $nfeProc = $domAutorizado->createElement('nfeProc');
             $nfeProc->setAttribute('xmlns', 'http://www.portalfiscal.inf.br/nfcom');
             $nfeProc->setAttribute('versao', '1.00');
             $domAutorizado->appendChild($nfeProc);
-            
+
             // Importar NFCom (com namespaces preservados)
             $nfcomImportado = $domAutorizado->importNode($nfcomNode, true);
             $nfeProc->appendChild($nfcomImportado);
-            
+
             // Importar protocolo
             $protImportado = $domAutorizado->importNode($protNFCom, true);
             $nfeProc->appendChild($protImportado);
-            
+
             $xmlAutorizado = $domAutorizado->saveXML();
-            
+
             log_message('info', 'NFCom: XML autorizado montado com sucesso. Tamanho: ' . strlen($xmlAutorizado) . ' bytes');
-            
+
             return $xmlAutorizado;
-            
+
         } catch (Exception $e) {
             log_message('error', 'Erro ao montar XML autorizado: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             // Em caso de erro, retornar XML assinado original
@@ -2025,7 +2175,7 @@ class Nfecom extends MY_Controller
         if (strlen($competencia) == 7 && strpos($competencia, '-') !== false) {
             $competencia = str_replace('-', '', $competencia);
         }
-        
+
         $faturamento = [
             'competencia' => $competencia,
             'periodo_inicio' => date('d/m/Y', strtotime($nfecom->nfc_d_per_uso_ini)),
@@ -2039,21 +2189,21 @@ class Nfecom extends MY_Controller
         $itensFormatados = [];
         foreach ($itens as $item) {
             // Log para debug - TODOS os valores de ICMS, ICMS ST e FCP
-            log_message('debug', 'DANFE Item Formatado - nfi_id: ' . ($item->nfi_id ?? 'N/A') . 
-                        ' | nfi_v_prod: ' . ($item->nfi_v_prod ?? 0) . 
-                        ' | nfi_v_bc_icms: ' . ($item->nfi_v_bc_icms ?? 0) . 
-                        ' | nfi_p_icms: ' . ($item->nfi_p_icms ?? 0) . 
-                        ' | nfi_v_icms: ' . ($item->nfi_v_icms ?? 0) . 
-                        ' | nfi_v_bc_icms_st: ' . ($item->nfi_v_bc_icms_st ?? 0) . 
-                        ' | nfi_v_icms_st: ' . ($item->nfi_v_icms_st ?? 0) . 
-                        ' | nfi_v_bc_fcp: ' . ($item->nfi_v_bc_fcp ?? 0) . 
-                        ' | nfi_v_fcp: ' . ($item->nfi_v_fcp ?? 0) . 
-                        ' | nfi_v_bc_pis: ' . ($item->nfi_v_bc_pis ?? 0) . 
-                        ' | nfi_v_bc_cofins: ' . ($item->nfi_v_bc_cofins ?? 0) . 
-                        ' | nfi_cst_icms: ' . ($item->nfi_cst_icms ?? 'N/A') . 
-                        ' | nfi_cst_pis: ' . ($item->nfi_cst_pis ?? 'N/A') . 
-                        ' | nfi_cst_cofins: ' . ($item->nfi_cst_cofins ?? 'N/A'));
-            
+            log_message('debug', 'DANFE Item Formatado - nfi_id: ' . ($item->nfi_id ?? 'N/A') .
+                ' | nfi_v_prod: ' . ($item->nfi_v_prod ?? 0) .
+                ' | nfi_v_bc_icms: ' . ($item->nfi_v_bc_icms ?? 0) .
+                ' | nfi_p_icms: ' . ($item->nfi_p_icms ?? 0) .
+                ' | nfi_v_icms: ' . ($item->nfi_v_icms ?? 0) .
+                ' | nfi_v_bc_icms_st: ' . ($item->nfi_v_bc_icms_st ?? 0) .
+                ' | nfi_v_icms_st: ' . ($item->nfi_v_icms_st ?? 0) .
+                ' | nfi_v_bc_fcp: ' . ($item->nfi_v_bc_fcp ?? 0) .
+                ' | nfi_v_fcp: ' . ($item->nfi_v_fcp ?? 0) .
+                ' | nfi_v_bc_pis: ' . ($item->nfi_v_bc_pis ?? 0) .
+                ' | nfi_v_bc_cofins: ' . ($item->nfi_v_bc_cofins ?? 0) .
+                ' | nfi_cst_icms: ' . ($item->nfi_cst_icms ?? 'N/A') .
+                ' | nfi_cst_pis: ' . ($item->nfi_cst_pis ?? 'N/A') .
+                ' | nfi_cst_cofins: ' . ($item->nfi_cst_cofins ?? 'N/A'));
+
             $itensFormatados[] = [
                 'descricao' => $item->nfi_x_prod ?? '',
                 'cclass' => $item->nfi_c_class ?? '',
@@ -2136,7 +2286,7 @@ class Nfecom extends MY_Controller
             $totalBaseIcmsSt += floatval($item->nfi_v_bc_icms_st ?? 0);
             $totalBaseFcp += floatval($item->nfi_v_bc_fcp ?? 0);
         }
-        
+
         // Preparar totais - TODOS os valores vêm da nota (capa)
         $totais = [
             'valor_total' => floatval($nfecom->nfc_v_nf ?? 0),
@@ -2170,21 +2320,21 @@ class Nfecom extends MY_Controller
             'valor_ret_csll' => floatval($nfecom->nfc_v_ret_csll ?? 0),
             'valor_irrf' => floatval($nfecom->nfc_v_irrf ?? 0)
         ];
-        
+
         // Calcular total de ICMS ST somando dos itens (se não houver campo na capa)
         $totalIcmsSt = 0;
         foreach ($itens as $item) {
             $totalIcmsSt += floatval($item->nfi_v_icms_st ?? 0);
         }
         $totais['valor_icms_st'] = floatval($totalIcmsSt);
-        
+
         // Log para debug dos totais
-        log_message('debug', 'DANFE Totais - nfc_v_bc_icms: ' . ($nfecom->nfc_v_bc_icms ?? 0) . 
-                    ' | nfc_v_icms: ' . ($nfecom->nfc_v_icms ?? 0) . 
-                    ' | nfc_v_fcp: ' . ($nfecom->nfc_v_fcp ?? 0) . 
-                    ' | Total Base ICMS (soma itens): ' . $totalBaseIcms . 
-                    ' | Total ICMS ST (soma itens): ' . $totalIcmsSt . 
-                    ' | Total Base FCP (soma itens): ' . $totalBaseFcp);
+        log_message('debug', 'DANFE Totais - nfc_v_bc_icms: ' . ($nfecom->nfc_v_bc_icms ?? 0) .
+            ' | nfc_v_icms: ' . ($nfecom->nfc_v_icms ?? 0) .
+            ' | nfc_v_fcp: ' . ($nfecom->nfc_v_fcp ?? 0) .
+            ' | Total Base ICMS (soma itens): ' . $totalBaseIcms .
+            ' | Total ICMS ST (soma itens): ' . $totalIcmsSt .
+            ' | Total Base FCP (soma itens): ' . $totalBaseFcp);
 
         // Preparar dados completos
         // Calcular totais para regra G137 usando os itens do banco
@@ -2199,17 +2349,17 @@ class Nfecom extends MY_Controller
         $vRetPis = floatval($nfecom->nfc_v_ret_pis ?? 0);
         $vRetCofins = floatval($nfecom->nfc_v_ret_cofins ?? 0);
         $vRetCsll = floatval($nfecom->nfc_v_ret_csll ?? 0);
-        
+
         // Calcular total do IRRF somando os itens (conforme rejeição 685)
         // SEMPRE usar a soma dos itens, não o valor do banco
         $totalIrrfItens = 0;
         foreach ($itens as $item) {
             $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
         }
-        
+
         // Arredondar para 2 casas decimais para evitar problemas de precisão
         $totalIrrfItens = round($totalIrrfItens, 2);
-        
+
         // SEMPRE atualizar o banco com a soma dos itens
         $vIrrf = $totalIrrfItens;
         $irrfBanco = floatval($nfecom->nfc_v_irrf ?? 0);
@@ -2322,9 +2472,9 @@ class Nfecom extends MY_Controller
                 'cnpj' => $emit['cnpj'],
                 'ie' => $emit['ie'],
                 'endereco' => $emit['enderEmit']['xLgr'] . ', ' . $emit['enderEmit']['nro'] .
-                             (!empty($emit['enderEmit']['xCpl']) ? ' - ' . $emit['enderEmit']['xCpl'] : '') .
-                             ' - ' . $emit['enderEmit']['xBairro'] . ' - ' . $emit['enderEmit']['xMun'] .
-                             '/' . $emit['enderEmit']['uf'] . ' - CEP: ' . $emit['enderEmit']['cep'],
+                    (!empty($emit['enderEmit']['xCpl']) ? ' - ' . $emit['enderEmit']['xCpl'] : '') .
+                    ' - ' . $emit['enderEmit']['xBairro'] . ' - ' . $emit['enderEmit']['xMun'] .
+                    '/' . $emit['enderEmit']['uf'] . ' - CEP: ' . $emit['enderEmit']['cep'],
                 'telefone' => $emit['enderEmit']['fone'] ?? '',
                 'email' => '',
                 'logo' => FCPATH . 'assets/uploads/logomarca.png'
@@ -2343,17 +2493,17 @@ class Nfecom extends MY_Controller
         $produtos = [];
         foreach ($itens as $item) {
             // Log para debug
-            log_message('debug', 'DANFE Item - nfi_id: ' . ($item->nfi_id ?? 'N/A') . 
-                        ' | nfi_v_prod: ' . ($item->nfi_v_prod ?? 0) . 
-                        ' | nfi_v_bc_pis: ' . ($item->nfi_v_bc_pis ?? 0) . 
-                        ' | nfi_v_bc_cofins: ' . ($item->nfi_v_bc_cofins ?? 0) . 
-                        ' | nfi_cst_pis: ' . ($item->nfi_cst_pis ?? 'N/A') . 
-                        ' | nfi_cst_cofins: ' . ($item->nfi_cst_cofins ?? 'N/A') . 
-                        ' | nfi_p_pis: ' . ($item->nfi_p_pis ?? 0) . 
-                        ' | nfi_p_cofins: ' . ($item->nfi_p_cofins ?? 0) . 
-                        ' | nfi_v_pis: ' . ($item->nfi_v_pis ?? 0) . 
-                        ' | nfi_v_cofins: ' . ($item->nfi_v_cofins ?? 0));
-            
+            log_message('debug', 'DANFE Item - nfi_id: ' . ($item->nfi_id ?? 'N/A') .
+                ' | nfi_v_prod: ' . ($item->nfi_v_prod ?? 0) .
+                ' | nfi_v_bc_pis: ' . ($item->nfi_v_bc_pis ?? 0) .
+                ' | nfi_v_bc_cofins: ' . ($item->nfi_v_bc_cofins ?? 0) .
+                ' | nfi_cst_pis: ' . ($item->nfi_cst_pis ?? 'N/A') .
+                ' | nfi_cst_cofins: ' . ($item->nfi_cst_cofins ?? 'N/A') .
+                ' | nfi_p_pis: ' . ($item->nfi_p_pis ?? 0) .
+                ' | nfi_p_cofins: ' . ($item->nfi_p_cofins ?? 0) .
+                ' | nfi_v_pis: ' . ($item->nfi_v_pis ?? 0) .
+                ' | nfi_v_cofins: ' . ($item->nfi_v_cofins ?? 0));
+
             $produtos[] = [
                 'codigo' => $item->nfi_c_prod ?? '',
                 'descricao' => $item->nfi_x_prod ?? '',
@@ -2438,7 +2588,7 @@ class Nfecom extends MY_Controller
             $totalBaseIcmsSt += floatval($item->nfi_v_bc_icms_st ?? 0);
             $totalBaseFcp += floatval($item->nfi_v_bc_fcp ?? 0);
         }
-        
+
         // Preparar totais - TODOS os valores vêm da nota (capa)
         $totais = [
             'valor_total' => floatval($nfecom->nfc_v_nf ?? 0),
@@ -2472,21 +2622,21 @@ class Nfecom extends MY_Controller
             'valor_ret_csll' => floatval($nfecom->nfc_v_ret_csll ?? 0),
             'valor_irrf' => floatval($nfecom->nfc_v_irrf ?? 0)
         ];
-        
+
         // Calcular total de ICMS ST somando dos itens (se não houver campo na capa)
         $totalIcmsSt = 0;
         foreach ($itens as $item) {
             $totalIcmsSt += floatval($item->nfi_v_icms_st ?? 0);
         }
         $totais['valor_icms_st'] = floatval($totalIcmsSt);
-        
+
         // Log para debug dos totais
-        log_message('debug', 'DANFE Totais - nfc_v_bc_icms: ' . ($nfecom->nfc_v_bc_icms ?? 0) . 
-                    ' | nfc_v_icms: ' . ($nfecom->nfc_v_icms ?? 0) . 
-                    ' | nfc_v_fcp: ' . ($nfecom->nfc_v_fcp ?? 0) . 
-                    ' | Total Base ICMS (soma itens): ' . $totalBaseIcms . 
-                    ' | Total ICMS ST (soma itens): ' . $totalIcmsSt . 
-                    ' | Total Base FCP (soma itens): ' . $totalBaseFcp);
+        log_message('debug', 'DANFE Totais - nfc_v_bc_icms: ' . ($nfecom->nfc_v_bc_icms ?? 0) .
+            ' | nfc_v_icms: ' . ($nfecom->nfc_v_icms ?? 0) .
+            ' | nfc_v_fcp: ' . ($nfecom->nfc_v_fcp ?? 0) .
+            ' | Total Base ICMS (soma itens): ' . $totalBaseIcms .
+            ' | Total ICMS ST (soma itens): ' . $totalIcmsSt .
+            ' | Total Base FCP (soma itens): ' . $totalBaseFcp);
 
         // Preparar dados completos
         $dados = [
@@ -2496,9 +2646,9 @@ class Nfecom extends MY_Controller
                 'nome' => $nfecom->nfc_x_nome_dest,
                 'cnpj' => $nfecom->nfc_cnpj_dest,
                 'endereco' => $nfecom->NFC_X_LOGRADOURO_DEST . ', ' . $nfecom->NFC_N_DEST .
-                             (!empty($nfecom->NFC_X_COMPLEMENTO_DEST) ? ' - ' . $nfecom->NFC_X_COMPLEMENTO_DEST : '') .
-                             ' - ' . $nfecom->nfc_x_bairro_dest . ' - ' . $nfecom->NFC_X_MUNICIPIO_DEST .
-                             '/' . $nfecom->nfc_uf_dest . ' - CEP: ' . $nfecom->nfc_cep_dest
+                    (!empty($nfecom->NFC_X_COMPLEMENTO_DEST) ? ' - ' . $nfecom->NFC_X_COMPLEMENTO_DEST : '') .
+                    ' - ' . $nfecom->nfc_x_bairro_dest . ' - ' . $nfecom->NFC_X_MUNICIPIO_DEST .
+                    '/' . $nfecom->nfc_uf_dest . ' - CEP: ' . $nfecom->nfc_cep_dest
             ],
             'assinante' => [
                 'codigo' => $nfecom->nfc_cnpj_dest,
@@ -2509,8 +2659,8 @@ class Nfecom extends MY_Controller
             'faturamento' => [
                 // Competência baseada no período fim (formato YYYYMM)
                 // Exemplo: se período fim for 31-12-2025, competência será 202512
-                'competencia' => !empty($nfecom->nfc_d_per_uso_fim) && empty($nfecom->nfc_compet_fat) 
-                    ? date('Ym', strtotime($nfecom->nfc_d_per_uso_fim)) 
+                'competencia' => !empty($nfecom->nfc_d_per_uso_fim) && empty($nfecom->nfc_compet_fat)
+                    ? date('Ym', strtotime($nfecom->nfc_d_per_uso_fim))
                     : (!empty($nfecom->nfc_d_contrato_ini) && empty($nfecom->nfc_compet_fat)
                         ? date('Ym', strtotime($nfecom->nfc_d_contrato_ini))
                         : (str_replace('-', '', $nfecom->nfc_compet_fat) ?: date('Ym'))),
@@ -2587,7 +2737,7 @@ class Nfecom extends MY_Controller
                 $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
             }
             $totalIrrfItens = round($totalIrrfItens, 2);
-            
+
             // Recalcular vNF também
             $totalVProd = 0;
             $totalVDesc = 0;
@@ -2603,7 +2753,7 @@ class Nfecom extends MY_Controller
             // Regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
             $vNfRecalculado = $totalVProd + $totalVOutro - $totalVDesc - $vRetPis - $vRetCofins - $vRetCsll - $totalIrrfItens;
             $vNfRecalculado = round($vNfRecalculado, 2);
-            
+
             // Resetar apenas o status, mantendo a mesma chave de acesso
             // IMPORTANTE: Atualizar total do IRRF e vNF com valores recalculados
             $dadosAtualizacao = [
@@ -2618,7 +2768,7 @@ class Nfecom extends MY_Controller
             ];
 
             $this->Nfecom_model->edit('nfecom_capa', $dadosAtualizacao, 'nfc_id', $id);
-            
+
             log_message('info', 'Reemissão NFCom preparada - Total IRRF: R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos itens), vNF: R$ ' . number_format($vNfRecalculado, 2, ',', '.'));
 
             $this->session->set_flashdata('success', 'NFCom preparada para reemissão com a mesma chave: ' . $nfecom->nfc_ch_nfcom);
@@ -2635,7 +2785,7 @@ class Nfecom extends MY_Controller
     {
         // Verificar se é uma requisição AJAX
         $isAjax = $this->input->is_ajax_request() || $this->input->post('ajax') === 'true';
-        
+
         if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'eNfecom')) {
             if ($isAjax) {
                 $response = ['success' => false, 'message' => 'Você não tem permissão para autorizar NFECom.'];
@@ -2643,7 +2793,8 @@ class Nfecom extends MY_Controller
                 return false;
             }
             $this->session->set_flashdata('error', 'Você não tem permissão para autorizar NFECom.');
-            if ($redirect) redirect(base_url());
+            if ($redirect)
+                redirect(base_url());
             return false;
         }
 
@@ -2673,7 +2824,7 @@ class Nfecom extends MY_Controller
                 // Para NFCom rejeitadas (reemissão), manter o número, chave, série e data originais
                 // Para NFCom novas, apenas pegar número atual (incremento será feito no final do processo)
                 $isReemissao = ($nfecom->nfc_status == 4);
-                
+
                 if ($nfecom->nfc_status < 2) {
                     $numeroNota = $configFiscal->cfg_numero_atual;
                 } else {
@@ -2681,23 +2832,8 @@ class Nfecom extends MY_Controller
                     $numeroNota = $nfecom->nfc_nnf;
                 }
 
-                // Buscar dados atualizados do cliente/destinatário
-                $this->db->select('c.*, p.*, e.end_logradouro, e.end_numero, e.end_complemento, e.end_cep, b.bai_nome, m.mun_nome, m.mun_ibge, es.est_uf, d.doc_numero as PES_IE, d.doc_natureza_contribuinte');
-                $this->db->from('clientes c');
-                $this->db->join('pessoas p', 'p.pes_id = c.pes_id');
-                $this->db->join('enderecos e', 'e.pes_id = p.pes_id AND e.end_padrao = 1', 'left');
-                $this->db->join('bairros b', 'b.bai_id = e.bai_id', 'left');
-                $this->db->join('municipios m', 'm.mun_id = e.mun_id', 'left');
-                $this->db->join('estados es', 'es.est_id = e.est_id', 'left');
-                $this->db->join('documentos d', "d.pes_id = p.pes_id AND d.doc_tipo_documento = 'Inscrição Estadual'", 'left');
-                $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
-                if (!empty($nfecom->cln_id)) {
-                    $this->db->where('c.cln_id', $nfecom->cln_id);
-                } else {
-                    $cnpjLimpo = preg_replace('/\D/', '', $nfecom->nfc_cnpj_dest);
-                    $this->db->where('p.pes_cpfcnpj', $cnpjLimpo);
-                }
-                $cliente = $this->db->get()->row();
+                // Reemissão: buscar dados ATUALIZADOS do cadastro (pessoas, enderecos, documentos) baseado no end_id da capa
+                $cliente = $this->getDestinatarioPorCapa($nfecom);
 
                 $atualizacao = [
                     'nfc_tipo_ambiente' => $configFiscal->cfg_ambiente,
@@ -2717,7 +2853,7 @@ class Nfecom extends MY_Controller
                     'nfc_uf_emit' => $emitente['enderEmit']['uf'],
                     'nfc_fone_emit' => $emitente['enderEmit']['fone'],
                 ];
-                
+
                 // Para reemissão, manter série, número, chave e data originais
                 if (!$isReemissao) {
                     $atualizacao['nfc_serie'] = $configFiscal->cfg_serie;
@@ -2726,11 +2862,30 @@ class Nfecom extends MY_Controller
                 }
                 // Se for reemissão, não atualizar série, número, CUF (mantém originais)
 
-                // Sincronizar dados do destinatário do cadastro de clientes
+                // Sincronizar dados do destinatário do cadastro de clientes (incluir pes_id, IE e end_id para reemissão)
                 if ($cliente) {
-                    $atualizacao['nfc_x_nome_dest'] = $cliente->pes_nome;
+                    if (!empty($cliente->pes_id)) {
+                        $atualizacao['pes_id'] = (int) $cliente->pes_id;
+                    }
+                    $nomeDest = ($cliente->pes_fisico_juridico == 'F') ? $cliente->pes_nome : ($cliente->pes_razao_social ?: $cliente->pes_nome);
+                    $atualizacao['nfc_x_nome_dest'] = $nomeDest;
                     $atualizacao['nfc_cnpj_dest'] = preg_replace('/\D/', '', $cliente->pes_cpfcnpj);
-                    $atualizacao['nfc_ind_ie_dest'] = ($cliente->doc_natureza_contribuinte == 'Contribuinte') ? '1' : '9';
+                    // Simples Nacional e MEI: não levar IE na capa e marcar como não contribuinte (indIEDest=9)
+                    $regimeDest = isset($cliente->pes_regime_tributario) ? trim((string) $cliente->pes_regime_tributario) : '';
+                    if ($regimeDest === 'MEI' || $regimeDest === 'Simples Nacional') {
+                        $atualizacao['nfc_ie_dest'] = null;
+                        $atualizacao['nfc_ind_ie_dest'] = '9';
+                    } else {
+                        $ie_dest_sync = isset($cliente->PES_IE) ? trim((string) $cliente->PES_IE) : '';
+                        $ie_dest_sync = ($ie_dest_sync !== '') ? $ie_dest_sync : null;
+                        if ($ie_dest_sync !== null) {
+                            $atualizacao['nfc_ie_dest'] = $ie_dest_sync;
+                        }
+                        $atualizacao['nfc_ind_ie_dest'] = ($ie_dest_sync !== null && isset($cliente->doc_natureza_contribuinte) && $cliente->doc_natureza_contribuinte == 'Contribuinte') ? '1' : '9';
+                    }
+                    if (!empty($cliente->end_id)) {
+                        $atualizacao['end_id'] = (int) $cliente->end_id;
+                    }
                     $atualizacao['nfc_x_lgr_dest'] = $cliente->end_logradouro;
                     $atualizacao['nfc_nro_dest'] = $cliente->end_numero;
                     $atualizacao['nfc_x_cpl_dest'] = $cliente->end_complemento;
@@ -2739,6 +2894,10 @@ class Nfecom extends MY_Controller
                     $atualizacao['nfc_x_mun_dest'] = $cliente->mun_nome;
                     $atualizacao['nfc_cep_dest'] = preg_replace('/\D/', '', $cliente->end_cep);
                     $atualizacao['nfc_uf_dest'] = $cliente->est_uf;
+                    // Reemissão + Simples/MEI: buscar nova classificação fiscal dos itens (não contribuinte) para CFOP/CST corretos
+                    if ($isReemissao && ($regimeDest === 'MEI' || $regimeDest === 'Simples Nacional') && !empty($cliente->pes_id)) {
+                        $this->atualizarClassificacaoFiscalItensReemissao($id, (int) ($nfecom->opc_id ?? 0), (int) $cliente->pes_id, 'Não Contribuinte');
+                    }
                 }
 
                 // Para reemissão (NFCom rejeitada), limpar o motivo antigo e manter chave original
@@ -2749,7 +2908,7 @@ class Nfecom extends MY_Controller
                     $atualizacao['nfc_dh_recbto'] = null;
                     $atualizacao['nfc_xml'] = null;
                     // Não recalcular chave, manter a original
-                    
+
                     // IMPORTANTE: Recalcular total do IRRF somando os itens (conforme rejeição 685)
                     $itens = $this->Nfecom_model->getItens($id);
                     $totalIrrfItens = 0;
@@ -2757,11 +2916,11 @@ class Nfecom extends MY_Controller
                         $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
                     }
                     $totalIrrfItens = round($totalIrrfItens, 2);
-                    
+
                     // Atualizar total do IRRF na capa com a soma dos itens
                     $atualizacao['nfc_v_irrf'] = $totalIrrfItens;
                     log_message('info', 'Reemissão NFCom - Total do IRRF recalculado: R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos IRRF dos itens)');
-                    
+
                     // Recalcular vNF também
                     $totalVProd = 0;
                     $totalVDesc = 0;
@@ -2803,7 +2962,7 @@ class Nfecom extends MY_Controller
 
                 $this->Nfecom_model->edit('nfecom_capa', $atualizacao, 'nfc_id', $id);
                 $nfecom = $this->Nfecom_model->getById($id); // Recarregar a NFCom com os dados atualizados
-                
+
                 // Se for reemissão, garantir que o total do IRRF está correto
                 if ($isReemissao) {
                     // Recalcular e atualizar total do IRRF uma vez mais para garantir
@@ -2813,7 +2972,7 @@ class Nfecom extends MY_Controller
                         $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
                     }
                     $totalIrrfItens = round($totalIrrfItens, 2);
-                    
+
                     $irrfBanco = floatval($nfecom->nfc_v_irrf ?? 0);
                     if (abs($totalIrrfItens - $irrfBanco) > 0.001) {
                         $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrfItens], 'nfc_id', $id);
@@ -2826,7 +2985,7 @@ class Nfecom extends MY_Controller
 
         // Verificar se é reemissão
         $isReemissao = ($nfecom->nfc_status == 4);
-        
+
         // Validar certificado configurado para NFCOM
         $configFiscal = $this->getConfiguracaoNfcom();
         if (!$configFiscal || empty($configFiscal->cer_arquivo) || empty($configFiscal->cer_senha)) {
@@ -2852,6 +3011,11 @@ class Nfecom extends MY_Controller
                 throw new Exception('Erro ao preparar dados da NFCom: ' . $e->getMessage());
             }
 
+            // Log dos dados do destinatário enviados à SEFAZ (nível error para aparecer com log_threshold=1)
+            $cap = $this->Nfecom_model->getById($id);
+            $dest = $dados['destinatario'] ?? [];
+            log_message('error', '[NFCom DEBUG] Envio SEFAZ | nfc_id=' . $id . ' | nfc_nnf=' . ($cap->nfc_nnf ?? '') . ' | Dest: nome=' . ($dest['nome'] ?? '') . ' | CNPJ=' . ($dest['cnpj'] ?? '') . ' | IE_enviada="' . ($dest['ie'] ?? '') . '" | indIEDest=' . ($dest['indicador_ie'] ?? '') . ' | Capa: nfc_ie_dest="' . ($cap->nfc_ie_dest ?? '') . '" | nfc_ind_ie_dest=' . ($cap->nfc_ind_ie_dest ?? '') . ' | pes_id=' . ($cap->pes_id ?? '') . ' | end_id=' . ($cap->end_id ?? '') . ' | cln_id=' . ($cap->cln_id ?? ''));
+
             // 2. Gerar XML
             try {
                 $nfcomMake = new NFComMake();
@@ -2859,6 +3023,11 @@ class Nfecom extends MY_Controller
             } catch (Exception $e) {
                 log_message('error', 'Erro ao gerar XML NFCom: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
                 throw new Exception('Erro ao gerar XML da NFCom: ' . $e->getMessage());
+            }
+
+            // Log do trecho <dest> do XML gerado (nível error para aparecer com log_threshold=1)
+            if (preg_match('/<dest>.*?<\/dest>/s', $xml, $m)) {
+                log_message('error', '[NFCom DEBUG] XML dest enviado: ' . preg_replace('/\s+/', ' ', $m[0]));
             }
 
             // Debug do XML gerado
@@ -2900,19 +3069,24 @@ class Nfecom extends MY_Controller
             // Determinar status baseado no código de retorno da SEFAZ
             $cStat = $retorno['cStat'] ?? '999';
 
+            if ($cStat != '100') {
+                $destRej = $dados['destinatario'] ?? [];
+                log_message('error', '[NFCom DEBUG] SEFAZ REJEITADA | nfc_id=' . $id . ' | nfc_nnf=' . ($cap->nfc_nnf ?? '') . ' | cStat=' . $cStat . ' | xMotivo=' . ($retorno['xMotivo'] ?? '') . ' | Dest enviado: IE="' . ($destRej['ie'] ?? '') . '" | indIEDest=' . ($destRej['indicador_ie'] ?? '') . ' | CNPJ=' . ($destRej['cnpj'] ?? '') . ' | nome=' . ($destRej['nome'] ?? ''));
+            }
+
             if ($cStat == '100') {
                 // Autorizado
                 $protocolo = $retorno['protocolo']['nProt'];
                 $dhRecbto = $retorno['protocolo']['dhRecbto'];
                 $motivo = $retorno['xMotivo'];
                 $chaveAcesso = $retorno['protocolo']['chNFCom'];
-                
+
                 // Montar XML autorizado (NFCom + protocolo)
                 $xmlAutorizado = $this->montarXmlAutorizado($xmlSigned, $retorno['xml']);
-                
+
                 // Log para debug
                 log_message('info', 'NFCom: XML autorizado montado. Tamanho: ' . strlen($xmlAutorizado) . ' bytes');
-                
+
                 // Verificar se o XML autorizado foi montado corretamente
                 if (empty($xmlAutorizado) || strlen($xmlAutorizado) < 100) {
                     log_message('error', 'NFCom: XML autorizado parece estar vazio ou inválido. Usando XML assinado como fallback.');
@@ -2931,7 +3105,7 @@ class Nfecom extends MY_Controller
                 ];
 
                 $this->Nfecom_model->updateStatus($id, $dadosAtu);
-                
+
                 // Verificar se foi salvo corretamente
                 $nfecomVerificacao = $this->Nfecom_model->getById($id);
                 if (empty($nfecomVerificacao->nfc_xml)) {
@@ -2984,7 +3158,7 @@ class Nfecom extends MY_Controller
             if (strpos($e->getMessage(), 'Resposta vazia') !== false) {
                 $mensagemErro .= '. Verifique: 1) Certificado digital válido e configurado, 2) Conexão com internet, 3) Serviço SEFAZ disponível.';
             }
-            
+
             // Se for requisição AJAX, retornar JSON com erro
             if ($isAjax) {
                 // Limpar qualquer output anterior
@@ -3001,7 +3175,7 @@ class Nfecom extends MY_Controller
             if (!$redirect) {
                 return false;
             }
-            
+
             $this->session->set_flashdata('error', $mensagemErro);
             redirect(site_url('nfecom/visualizar/' . $id));
             return false;
@@ -3022,7 +3196,7 @@ class Nfecom extends MY_Controller
     {
         // Verificar se é uma requisição AJAX
         $isAjax = $this->input->is_ajax_request() || $this->input->post('ajax') === 'true';
-        
+
         // Configurar headers para JSON
         if ($isAjax) {
             $this->output->set_content_type('application/json');
@@ -3042,7 +3216,7 @@ class Nfecom extends MY_Controller
             // Obter dados do POST
             $nfecom_id = $this->input->post('nfecom_id');
             $justificativa = $this->input->post('justificativa');
-            
+
             // Limpar e validar justificativa
             if (is_string($justificativa)) {
                 $justificativa = trim($justificativa);
@@ -3064,7 +3238,7 @@ class Nfecom extends MY_Controller
             if (mb_strlen($justificativaLimpa, 'UTF-8') < 15) {
                 throw new Exception('A justificativa deve ter no mínimo 15 caracteres.');
             }
-            
+
             // Usar justificativa limpa
             $justificativa = $justificativaLimpa;
 
@@ -3112,26 +3286,26 @@ class Nfecom extends MY_Controller
 
             // Gerar evento de cancelamento
             $eventoCancelamento = $this->gerarEventoCancelamento($nfecom, $justificativa);
-            
+
             // Assinar evento usando método específico para eventos (infEvento)
             $eventoAssinado = $this->assinarEventoNFCom($configFiscal, $eventoCancelamento);
-            
+
             // Enviar evento para SEFAZ
             $retornoCancelamento = $nfcomService->sendEvent($eventoAssinado, $nfecom->nfc_tipo_ambiente ?? 2);
-            
+
             // Processar retorno
             if (isset($retornoCancelamento['error'])) {
                 throw new Exception('Erro ao cancelar na SEFAZ: ' . $retornoCancelamento['error']);
             }
-            
+
             // Verificar status do cancelamento (cStat = 135 significa cancelamento autorizado)
             $cStat = $retornoCancelamento['cStat'] ?? '999';
-            
+
             if ($cStat == '135') {
                 // Cancelamento autorizado pela SEFAZ
                 $protocoloCancelamento = $retornoCancelamento['nProt'] ?? '';
                 $motivo = $retornoCancelamento['xMotivo'] ?? 'Cancelamento autorizado';
-                
+
                 // Atualizar status da NFCom
                 $dadosAtualizacao = [
                     'nfc_status' => 7, // Cancelada
@@ -3344,16 +3518,16 @@ class Nfecom extends MY_Controller
         // Gerar XML do evento de cancelamento conforme schema evCancNFCom_v1.00.xsd
         // O Id deve seguir o padrão: "id" + tpEvento (6 dígitos) + chave NFCom (44 dígitos) + nSeqEvento (3 dígitos)
         $tpEvento = '110111'; // Código do evento de cancelamento
-        
+
         // Extrair apenas os dígitos numéricos da chave
         $chaveOriginal = trim($nfecom->nfc_ch_nfcom ?? '');
         // Remover TODOS os caracteres não numéricos (espaços, hífens, pontos, etc.)
         $chaveNFCom = preg_replace('/[^0-9]/', '', $chaveOriginal);
-        
+
         // Log para debug
         log_message('info', 'Chave original NFCom: [' . $chaveOriginal . '] (tamanho: ' . strlen($chaveOriginal) . ')');
         log_message('info', 'Chave após remoção de não numéricos: [' . $chaveNFCom . '] (tamanho: ' . strlen($chaveNFCom) . ')');
-        
+
         // Garantir que a chave tenha exatamente 44 dígitos
         if (strlen($chaveNFCom) > 44) {
             // Se tiver mais de 44 dígitos, pegar apenas os últimos 44
@@ -3364,19 +3538,19 @@ class Nfecom extends MY_Controller
             $chaveNFCom = str_pad($chaveNFCom, 44, '0', STR_PAD_LEFT);
             log_message('info', 'Chave NFCom preenchida para 44 dígitos: ' . $chaveNFCom);
         }
-        
+
         // Validar que a chave tem exatamente 44 dígitos antes de gerar o Id
         if (strlen($chaveNFCom) !== 44) {
             throw new Exception('Chave NFCom não tem 44 dígitos após normalização. Tamanho: ' . strlen($chaveNFCom) . ', Chave original: ' . $chaveOriginal . ', Chave limpa: ' . $chaveNFCom);
         }
-        
+
         // Validar que a chave contém apenas dígitos
         if (!ctype_digit($chaveNFCom)) {
             throw new Exception('Chave NFCom contém caracteres não numéricos após normalização: ' . $chaveNFCom);
         }
-        
+
         $nSeqEvento = '001'; // Primeiro evento de cancelamento
-        
+
         // Validar tamanhos antes de concatenar
         if (strlen($tpEvento) !== 6) {
             throw new Exception('tpEvento deve ter 6 dígitos. Valor: [' . $tpEvento . '], Tamanho: ' . strlen($tpEvento));
@@ -3387,20 +3561,20 @@ class Nfecom extends MY_Controller
         if (strlen($nSeqEvento) !== 3) {
             throw new Exception('nSeqEvento deve ter 3 dígitos. Valor: [' . $nSeqEvento . '], Tamanho: ' . strlen($nSeqEvento));
         }
-        
+
         // O padrão do schema é "ID" (maiúsculas) + 53 dígitos = 55 caracteres total
         // Formato: "ID" + tpEvento (6) + chave NFCom (44) + nSeqEvento (3)
         $idEvento = 'ID' . $tpEvento . $chaveNFCom . $nSeqEvento;
-        
+
         // Validar que o Id tem exatamente 55 caracteres (2 + 6 + 44 + 3)
         // O padrão do schema é "ID" (maiúsculas) + 53 dígitos = 55 caracteres total
         $tamanhoEsperado = 2 + 6 + 44 + 3; // 55
         if (strlen($idEvento) !== $tamanhoEsperado) {
             throw new Exception('Id do evento não tem ' . $tamanhoEsperado . ' caracteres. Tamanho: ' . strlen($idEvento) . ', Id: [' . $idEvento . '], Componentes: ID(' . strlen('ID') . ') + tpEvento(' . strlen($tpEvento) . ') + chave(' . strlen($chaveNFCom) . ') + nSeq(' . strlen($nSeqEvento) . ')');
         }
-        
+
         log_message('info', 'Id do evento de cancelamento gerado: [' . $idEvento . '] (tamanho: ' . strlen($idEvento) . ')');
-        
+
         // Data/hora do evento em formato TDateTimeUTC (horário de Brasília - UTC-3)
         // Formato esperado: YYYY-MM-DDTHH:MM:SS-03:00 (não pode usar Z, deve ser -03:00 ou +03:00)
         // O padrão do schema aceita: -00:00 até -11:00 ou +12:00
@@ -3408,7 +3582,7 @@ class Nfecom extends MY_Controller
         $datetime = new DateTime('now', $timezone);
         // Formato P gera -03:00 ou -02:00 conforme horário de verão do Brasil
         $dhEvento = $datetime->format('Y-m-d\TH:i:sP');
-        
+
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<eventoNFCom xmlns="http://www.portalfiscal.inf.br/nfcom" versao="1.00">' . "\n";
         $xml .= '  <infEvento Id="' . $idEvento . '">' . "\n";
@@ -3422,7 +3596,7 @@ class Nfecom extends MY_Controller
         // Garantir que o protocolo tenha exatamente 16 dígitos (padrão TProt)
         $nProt = preg_replace('/\D/', '', $nfecom->nfc_n_prot); // Remover caracteres não numéricos
         $nProt = str_pad($nProt, 16, '0', STR_PAD_LEFT); // Preencher com zeros à esquerda até 16 dígitos
-        
+
         $xml .= '    <detEvento versaoEvento="1.00">' . "\n";
         $xml .= '      <evCancNFCom xmlns="http://www.portalfiscal.inf.br/nfcom">' . "\n";
         $xml .= '        <descEvento>Cancelamento</descEvento>' . "\n";
@@ -3441,7 +3615,7 @@ class Nfecom extends MY_Controller
         // Assinar evento usando Signer diretamente com a tag correta (infEvento)
         // Usar namespace completo já que use não pode estar dentro de função
         $certificate = \NFePHP\Common\Certificate::readPfx($configFiscal->cer_arquivo, $configFiscal->cer_senha);
-        
+
         // Assinar usando a tag infEvento em vez de infNFCom
         return \NFePHP\Common\Signer::sign(
             $certificate,
@@ -3529,7 +3703,7 @@ class Nfecom extends MY_Controller
                     }
                 }
             }
-            
+
             // Juntar todas as mensagens únicas separadas por ponto e vírgula
             if (!empty($mensagensUnicas)) {
                 $mensagensTexto = implode('; ', $mensagensUnicas);
@@ -3655,7 +3829,83 @@ class Nfecom extends MY_Controller
         $xml .= '<dest>' . "\n";
         $xml .= '<xNome>' . htmlspecialchars($nfecom->nfc_x_nome_dest) . '</xNome>' . "\n";
         $xml .= '<CNPJ>' . $nfecom->nfc_cnpj_dest . '</CNPJ>' . "\n";
-        $xml .= '<indIEDest>' . $nfecom->nfc_ind_ie_dest . '</indIEDest>' . "\n";
+
+        // Buscar IE do destinatário se não estiver salva na capa (evitar rejeição 428)
+        // Ordem: capa nfc_ie_dest → end_id (documentos) → pes_id (documentos) → fallback cln_id (notas antigas)
+        $ie_dest = isset($nfecom->nfc_ie_dest) ? trim((string) $nfecom->nfc_ie_dest) : '';
+        $ie_dest = ($ie_dest !== '') ? $ie_dest : null;
+        if ($ie_dest === null) {
+            if (!empty($nfecom->end_id)) {
+                $this->db->select('doc_numero');
+                $this->db->from('documentos');
+                $this->db->where('end_id', $nfecom->end_id);
+                $this->db->group_start();
+                $this->db->where('doc_tipo_documento', 'inscrição estadual');
+                $this->db->or_where('doc_tipo_documento', 'Inscrição Estadual');
+                $this->db->group_end();
+                if ($this->db->field_exists('ten_id', 'documentos')) {
+                    $this->db->where('ten_id', $this->session->userdata('ten_id'));
+                }
+                $this->db->limit(1);
+                $ie_query = $this->db->get();
+                if ($ie_query->num_rows() > 0) {
+                    $num = trim((string) $ie_query->row()->doc_numero);
+                    $ie_dest = ($num !== '') ? $num : null;
+                }
+            }
+            if ($ie_dest === null && !empty($nfecom->pes_id)) {
+                $this->db->select('doc_numero');
+                $this->db->from('documentos');
+                $this->db->where('pes_id', (int) $nfecom->pes_id);
+                $this->db->group_start();
+                $this->db->where('doc_tipo_documento', 'inscrição estadual');
+                $this->db->or_where('doc_tipo_documento', 'Inscrição Estadual');
+                $this->db->group_end();
+                if ($this->db->field_exists('ten_id', 'documentos')) {
+                    $this->db->where('ten_id', $this->session->userdata('ten_id'));
+                }
+                $this->db->limit(1);
+                $ie_query = $this->db->get();
+                if ($ie_query->num_rows() > 0) {
+                    $num = trim((string) $ie_query->row()->doc_numero);
+                    $ie_dest = ($num !== '') ? $num : null;
+                }
+            }
+            if ($ie_dest === null && !empty($nfecom->cln_id)) {
+                $cli = $this->db->select('pes_id')->from('clientes')->where('cln_id', $nfecom->cln_id)->where('ten_id', $this->session->userdata('ten_id'))->limit(1)->get()->row();
+                if ($cli) {
+                    $this->db->select('doc_numero');
+                    $this->db->from('documentos');
+                    $this->db->where('pes_id', $cli->pes_id);
+                    $this->db->group_start();
+                    $this->db->where('doc_tipo_documento', 'inscrição estadual');
+                    $this->db->or_where('doc_tipo_documento', 'Inscrição Estadual');
+                    $this->db->group_end();
+                    if ($this->db->field_exists('ten_id', 'documentos')) {
+                        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+                    }
+                    $this->db->limit(1);
+                    $ie_query = $this->db->get();
+                    if ($ie_query->num_rows() > 0) {
+                        $num = trim((string) $ie_query->row()->doc_numero);
+                        $ie_dest = ($num !== '') ? $num : null;
+                    }
+                }
+            }
+        }
+        // Usar sempre a IE da capa quando existir; incluir no XML com indIEDest=1 (evitar rejeição 428)
+        $ind_ie_dest_xml = $nfecom->nfc_ind_ie_dest;
+        if ($ie_dest !== null && $ie_dest !== '') {
+            // Temos IE: enviar tag <IE> e marcar como Contribuinte (1)
+            $xml .= '<IE>' . preg_replace('/\s+/', '', $ie_dest) . '</IE>' . "\n";
+            $ind_ie_dest_xml = '1';
+        } else {
+            // Sem IE: nunca enviar indIEDest=1 (SEFAZ rejeita 428)
+            if ($ind_ie_dest_xml == 1 || $ind_ie_dest_xml === '1') {
+                $ind_ie_dest_xml = '9';
+            }
+        }
+        $xml .= '<indIEDest>' . $ind_ie_dest_xml . '</indIEDest>' . "\n";
         $xml .= '<enderDest>' . "\n";
         $xml .= '<xLgr>' . htmlspecialchars($nfecom->nfc_x_lgr_dest) . '</xLgr>' . "\n";
         if ($nfecom->nfc_nro_dest) {
@@ -3694,7 +3944,7 @@ class Nfecom extends MY_Controller
             $xml .= '<vProd>' . number_format($item->nfi_v_prod, 2, '.', '') . '</vProd>' . "\n";
             $xml .= '</prod>' . "\n";
             $xml .= '<imposto>' . "\n";
-            
+
             // ICMS - Estrutura dinâmica baseada no CST e valores do banco
             $cstIcms = $item->nfi_cst_icms ?? '';
             $baseIcms = floatval($item->nfi_v_bc_icms ?? 0);
@@ -3702,7 +3952,7 @@ class Nfecom extends MY_Controller
             $valorIcms = floatval($item->nfi_v_icms ?? 0);
             $valorIcmsDeson = floatval($item->nfi_v_icms_deson ?? 0);
             $motDesIcms = $item->nfi_mot_des_icms ?? null;
-            
+
             // Determinar qual tag ICMS usar baseado no CST
             // CST 00, 10, 20, 30, 70: têm base e valor
             // CST 40, 41, 50, 51, 60: isento/não tributado (sem base/valor)
@@ -3723,21 +3973,21 @@ class Nfecom extends MY_Controller
                 // ICMS isento/não tributado (CST 40, 41, 50, 51, 60 ou sem valores)
                 $xml .= '<ICMS40><CST>' . $cstIcms . '</CST></ICMS40>' . "\n";
             }
-            
+
             // ICMS ST (se houver valores)
             $baseIcmsSt = floatval($item->nfi_v_bc_icms_st ?? 0);
             $valorIcmsSt = floatval($item->nfi_v_icms_st ?? 0);
             if ($baseIcmsSt > 0 || $valorIcmsSt > 0) {
                 $xml .= '<ICMSST><vBCST>' . number_format($baseIcmsSt, 2, '.', '') . '</vBCST><pICMSST>' . number_format(floatval($item->nfi_p_icms_st ?? 0), 2, '.', '') . '</pICMSST><vICMSST>' . number_format($valorIcmsSt, 2, '.', '') . '</vICMSST></ICMSST>' . "\n";
             }
-            
+
             // FCP (se houver valores)
             $baseFcp = floatval($item->nfi_v_bc_fcp ?? 0);
             $valorFcp = floatval($item->nfi_v_fcp ?? 0);
             if ($baseFcp > 0 || $valorFcp > 0) {
                 $xml .= '<FCP><vBCFCP>' . number_format($baseFcp, 2, '.', '') . '</vBCFCP><pFCP>' . number_format(floatval($item->nfi_p_fcp ?? 0), 2, '.', '') . '</pFCP><vFCP>' . number_format($valorFcp, 2, '.', '') . '</vFCP></FCP>' . "\n";
             }
-            
+
             $xml .= '<PIS><CST>' . $item->nfi_cst_pis . '</CST><vBC>' . number_format($item->nfi_v_bc_pis, 2, '.', '') . '</vBC><pPIS>' . number_format($item->nfi_p_pis, 2, '.', '') . '</pPIS><vPIS>' . number_format($item->nfi_v_pis, 2, '.', '') . '</vPIS></PIS>' . "\n";
             $xml .= '<COFINS><CST>' . $item->nfi_cst_cofins . '</CST><vBC>' . number_format($item->nfi_v_bc_cofins, 2, '.', '') . '</vBC><pCOFINS>' . number_format($item->nfi_p_cofins, 2, '.', '') . '</pCOFINS><vCOFINS>' . number_format($item->nfi_v_cofins, 2, '.', '') . '</vCOFINS></COFINS>' . "\n";
             $xml .= '<FUST><vBC>' . number_format($item->nfi_v_bc_fust, 2, '.', '') . '</vBC><pFUST>' . number_format($item->nfi_p_fust, 2, '.', '') . '</pFUST><vFUST>' . number_format($item->nfi_v_fust, 2, '.', '') . '</vFUST></FUST>' . "\n";
@@ -3753,23 +4003,23 @@ class Nfecom extends MY_Controller
         foreach ($itens as $item) {
             $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
         }
-        
+
         // Arredondar para 2 casas decimais para evitar problemas de precisão
         $totalIrrfItens = round($totalIrrfItens, 2);
-        
+
         // SEMPRE atualizar o banco com a soma dos itens antes de gerar o XML
         $irrfBanco = floatval($nfecom->nfc_v_irrf ?? 0);
         if (abs($totalIrrfItens - $irrfBanco) > 0.001) { // Tolerância menor (0.001 para garantir precisão)
             // Atualizar total do IRRF no banco com a soma dos itens
-            $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrfItens], 'nfc_id', $id);
+            $this->Nfecom_model->edit('nfecom_capa', ['nfc_v_irrf' => $totalIrrfItens], 'nfc_id', $nfecom->nfc_id);
             log_message('info', 'Total do IRRF atualizado na geração do XML: R$ ' . number_format($irrfBanco, 2, ',', '.') . ' → R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos itens)');
             // Recarregar nfecom para ter o valor atualizado
-            $nfecom = $this->Nfecom_model->getById($id);
+            $nfecom = $this->Nfecom_model->getById($nfecom->nfc_id);
         }
-        
+
         // SEMPRE usar o valor calculado (soma dos itens) no XML, não o do banco
         $irrfParaXml = $totalIrrfItens;
-        
+
         // Totais
         $xml .= '<total>' . "\n";
         $xml .= '<vProd>' . number_format($nfecom->nfc_v_prod, 2, '.', '') . '</vProd>' . "\n";
@@ -3806,7 +4056,7 @@ class Nfecom extends MY_Controller
         if (strlen($competencia) == 7 && strpos($competencia, '-') !== false) {
             $competencia = str_replace('-', '', $competencia);
         }
-        
+
         $xml .= '<gFat>' . "\n";
         $xml .= '<CompetFat>' . $competencia . '</CompetFat>' . "\n";
         $xml .= '<dVencFat>' . $nfecom->nfc_d_venc_fat . '</dVencFat>' . "\n";
@@ -3849,7 +4099,7 @@ class Nfecom extends MY_Controller
             return;
         }
 
-        $this->db->select('p.*, e.end_logradouro as logradouro, e.end_numero as numero, e.end_complemento as complemento, e.end_cep as cep, m.mun_nome as municipio_nome, m.mun_ibge, es.est_uf as estado_uf');
+        $this->db->select('p.*, e.end_id, e.end_logradouro as logradouro, e.end_numero as numero, e.end_complemento as complemento, e.end_cep as cep, m.mun_nome as municipio_nome, m.mun_ibge, es.est_uf as estado_uf');
         $this->db->from('clientes c');
         $this->db->join('pessoas p', 'p.pes_id = c.pes_id');
         $this->db->join('enderecos e', 'e.pes_id = p.pes_id AND e.end_padrao = 1', 'left'); // Endereço padrão
@@ -3862,9 +4112,26 @@ class Nfecom extends MY_Controller
         if ($query->num_rows() > 0) {
             $cliente = $query->row();
 
+            // Buscar IE do endereço padrão
+            $ie_dest = null;
+            if (!empty($cliente->end_id)) {
+                $ie_query = $this->db->select('doc_numero')
+                    ->from('documentos')
+                    ->where('end_id', $cliente->end_id)
+                    ->where('doc_tipo_documento', 'inscrição estadual')
+                    ->where('ten_id', $this->session->userdata('ten_id'))
+                    ->get();
+
+                if ($ie_query->num_rows() > 0) {
+                    $ie_dest = $ie_query->row()->doc_numero;
+                }
+            }
+
             $response = [
                 'nomeCliente' => $cliente->pes_fisico_juridico == 'F' ? $cliente->pes_nome : ($cliente->pes_razao_social ?: $cliente->pes_nome),
                 'cnpjCliente' => $cliente->pes_cpfcnpj,
+                'ieCliente' => $ie_dest, // Inscrição Estadual
+                'enderecoId' => $cliente->end_id ?? null, // ID do endereço usado
                 'logradouroCliente' => $cliente->logradouro ?? '',
                 'numeroCliente' => $cliente->numero ?? '',
                 'bairroCliente' => '', // Bairro não disponível
@@ -4274,7 +4541,7 @@ class Nfecom extends MY_Controller
 
             if ($query->num_rows() > 0) {
                 $contratos = $query->result_array();
-                
+
                 // Formatar datas para o formato esperado pelo frontend
                 foreach ($contratos as &$contrato) {
                     if ($contrato['ctr_data_inicio']) {
@@ -4305,7 +4572,7 @@ class Nfecom extends MY_Controller
     public function buscarContratoPorCodigo()
     {
         $termo = $this->input->get('term');
-        
+
         if (!$termo || strlen($termo) < 2) {
             header('Content-Type: application/json');
             echo json_encode([]);
@@ -4314,7 +4581,7 @@ class Nfecom extends MY_Controller
 
         try {
             $this->load->model('Contratos_model');
-            
+
             // Buscar contratos por número
             $this->db->select('c.ctr_id, c.ctr_numero, c.ctr_data_inicio, c.ctr_data_fim, c.ctr_tipo_assinante, c.ctr_observacao, c.pes_id, p.pes_nome, p.pes_razao_social, p.pes_cpfcnpj, cl.cln_id');
             $this->db->from('contratos c');
@@ -4325,10 +4592,10 @@ class Nfecom extends MY_Controller
             $this->db->like('c.ctr_numero', $termo);
             $this->db->order_by('c.ctr_data_inicio', 'desc');
             $this->db->limit(20);
-            
+
             $query = $this->db->get();
             $contratos = $query->result();
-            
+
             $resultado = [];
             foreach ($contratos as $contrato) {
                 $label = $contrato->ctr_numero;
@@ -4338,7 +4605,7 @@ class Nfecom extends MY_Controller
                 if ($contrato->pes_nome) {
                     $label .= ' (' . $contrato->pes_nome . ')';
                 }
-                
+
                 $resultado[] = [
                     'id' => $contrato->ctr_id,
                     'label' => $label,
@@ -4356,7 +4623,7 @@ class Nfecom extends MY_Controller
                     'pes_cpfcnpj' => $contrato->pes_cpfcnpj
                 ];
             }
-            
+
             header('Content-Type: application/json');
             echo json_encode($resultado);
         } catch (Exception $e) {
@@ -4382,10 +4649,10 @@ class Nfecom extends MY_Controller
 
         try {
             $this->load->model('Contratos_model');
-            
+
             // Buscar itens do contrato
             $itens = $this->Contratos_model->getItensByContratoId($contratoId);
-            
+
             if (empty($itens)) {
                 header('Content-Type: application/json');
                 echo json_encode([]);
@@ -4458,7 +4725,7 @@ class Nfecom extends MY_Controller
             $this->db->from('clientes');
             $this->db->where('cln_id', $clienteId);
             $clienteQuery = $this->db->get();
-            
+
             if ($clienteQuery->num_rows() == 0) {
                 echo json_encode([
                     'success' => false,
@@ -4466,7 +4733,7 @@ class Nfecom extends MY_Controller
                 ]);
                 return;
             }
-            
+
             $pesId = $clienteQuery->row()->pes_id;
 
             // Buscar emp_id da empresa logada
@@ -4481,12 +4748,29 @@ class Nfecom extends MY_Controller
                 $produtoId = null;
             }
 
-            // Chamar o serviço de classificação fiscal
+            // NFCom: Simples Nacional e MEI devem buscar classificação como não contribuinte (dado enviado ao serviço)
+            $naturezaOverride = null;
+            if ($this->db->field_exists('pes_regime_tributario', 'pessoas')) {
+                $this->db->select('pes_regime_tributario');
+                $this->db->from('pessoas');
+                $this->db->where('pes_id', $pesId);
+                $this->db->limit(1);
+                $regRow = $this->db->get()->row();
+                if ($regRow && isset($regRow->pes_regime_tributario)) {
+                    $regime = trim((string) $regRow->pes_regime_tributario);
+                    if ($regime === 'MEI' || $regime === 'Simples Nacional') {
+                        $naturezaOverride = 'Não Contribuinte';
+                    }
+                }
+            }
+
+            // Chamar o serviço de classificação fiscal (envia natureza override só para NFCom Simples/MEI)
             $resultado = $this->fiscalclassificationservice->findClassification(
                 $operacaoComercialId,
                 $pesId, // pes_id do cliente
                 $produtoId,
-                $empresaId
+                $empresaId,
+                $naturezaOverride
             );
 
             if ($resultado) {
@@ -4497,7 +4781,7 @@ class Nfecom extends MY_Controller
                 $cClassTrib = $resultado['clf_cclasstrib'] ?? null;
                 $tipoIcms = $resultado['clf_tipo_tributacao'] ?? null;
                 $mensagemFiscal = $resultado['clf_mensagem'] ?? null;
-                
+
                 // Log detalhado para identificação
                 log_message('info', '=== CLASSIFICAÇÃO FISCAL ENCONTRADA ===');
                 log_message('info', 'clf_id: ' . ($clfId ?? 'N/A'));
@@ -4513,7 +4797,7 @@ class Nfecom extends MY_Controller
                 log_message('info', 'Tipo ICMS: ' . ($tipoIcms ?? 'N/A'));
                 log_message('info', 'Mensagem Fiscal: ' . (substr($mensagemFiscal ?? '', 0, 100)));
                 log_message('info', '==========================================');
-                
+
                 echo json_encode([
                     'success' => true,
                     'data' => [
@@ -4534,7 +4818,7 @@ class Nfecom extends MY_Controller
                 log_message('info', 'Produto ID: ' . ($produtoId ?? 'N/A'));
                 log_message('info', 'Empresa ID: ' . $empresaId);
                 log_message('info', '==========================================');
-                
+
                 echo json_encode([
                     'success' => false,
                     'error' => 'Nenhuma classificação fiscal encontrada para os parâmetros informados'
@@ -4642,6 +4926,217 @@ class Nfecom extends MY_Controller
         return $ufs[$uf] ?? '43';
     }
 
+    /**
+     * Carrega dados do destinatário pela capa: usa pes_id (pessoas) + end_id (endereço) + documentos (IE).
+     * A capa guarda pes_id para identificar a pessoa; end_id para o endereço usado.
+     * Fallback: se pes_id não existir (notas antigas), usa cln_id para obter a pessoa.
+     */
+    private function getDestinatarioPorCapa($nfecom)
+    {
+        $temEndIdCapa = !empty($nfecom->end_id);
+        $pesId = !empty($nfecom->pes_id) ? (int) $nfecom->pes_id : null;
+
+        if ($pesId !== null) {
+            // Buscar diretamente por pes_id (pessoas + enderecos + documentos)
+            $this->db->select('p.*, e.end_id, e.end_logradouro, e.end_numero, e.end_complemento, e.end_cep, b.bai_nome, m.mun_nome, m.mun_ibge, es.est_uf, d.doc_numero as PES_IE, d.doc_natureza_contribuinte');
+            $this->db->from('pessoas p');
+            if ($temEndIdCapa) {
+                $this->db->join('enderecos e', 'e.pes_id = p.pes_id AND e.end_id = ' . (int) $nfecom->end_id, 'left');
+                $this->db->join('documentos d', "d.pes_id = p.pes_id AND (d.end_id = e.end_id OR d.end_id IS NULL) AND (d.doc_tipo_documento = 'Inscrição Estadual' OR d.doc_tipo_documento = 'inscrição estadual')", 'left');
+            } else {
+                $this->db->join('enderecos e', 'e.pes_id = p.pes_id AND e.end_padrao = 1', 'left');
+                $this->db->join('documentos d', "d.pes_id = p.pes_id AND (d.end_id = e.end_id OR d.end_id IS NULL) AND (d.doc_tipo_documento = 'Inscrição Estadual' OR d.doc_tipo_documento = 'inscrição estadual')", 'left');
+            }
+            $this->db->join('bairros b', 'b.bai_id = e.bai_id', 'left');
+            $this->db->join('municipios m', 'm.mun_id = e.mun_id', 'left');
+            $this->db->join('estados es', 'es.est_id = e.est_id', 'left');
+            $this->db->where('p.pes_id', $pesId);
+            if ($this->db->field_exists('ten_id', 'pessoas')) {
+                $this->db->where('p.ten_id', $this->session->userdata('ten_id'));
+            }
+            $this->db->order_by('(d.end_id = e.end_id)', 'DESC', false);
+            return $this->db->get()->row();
+        }
+
+        // Fallback: notas antigas sem pes_id — buscar por cln_id (clientes + pessoas)
+        $this->db->select('c.*, p.*, e.end_id, e.end_logradouro, e.end_numero, e.end_complemento, e.end_cep, b.bai_nome, m.mun_nome, m.mun_ibge, es.est_uf, d.doc_numero as PES_IE, d.doc_natureza_contribuinte');
+        $this->db->from('clientes c');
+        $this->db->join('pessoas p', 'p.pes_id = c.pes_id');
+        if ($temEndIdCapa) {
+            $this->db->join('enderecos e', 'e.pes_id = p.pes_id AND e.end_id = ' . (int) $nfecom->end_id, 'left');
+            $this->db->join('documentos d', "d.pes_id = p.pes_id AND (d.end_id = e.end_id OR d.end_id IS NULL) AND (d.doc_tipo_documento = 'Inscrição Estadual' OR d.doc_tipo_documento = 'inscrição estadual')", 'left');
+        } else {
+            $this->db->join('enderecos e', 'e.pes_id = p.pes_id AND e.end_padrao = 1', 'left');
+            $this->db->join('documentos d', "d.pes_id = p.pes_id AND (d.end_id = e.end_id OR d.end_id IS NULL) AND (d.doc_tipo_documento = 'Inscrição Estadual' OR d.doc_tipo_documento = 'inscrição estadual')", 'left');
+        }
+        $this->db->join('bairros b', 'b.bai_id = e.bai_id', 'left');
+        $this->db->join('municipios m', 'm.mun_id = e.mun_id', 'left');
+        $this->db->join('estados es', 'es.est_id = e.est_id', 'left');
+        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
+        if (!empty($nfecom->cln_id)) {
+            $this->db->where('c.cln_id', $nfecom->cln_id);
+        } else {
+            $cnpjLimpo = preg_replace('/\D/', '', $nfecom->nfc_cnpj_dest);
+            $this->db->where('p.pes_cpfcnpj', $cnpjLimpo);
+        }
+        $this->db->order_by('(d.end_id = e.end_id)', 'DESC', false);
+        return $this->db->get()->row();
+    }
+
+    /**
+     * Fallback: busca IE em documentos por end_id da capa (quando o join não retornou).
+     * Retorna o número da IE ou null.
+     */
+    private function buscarIEPorEndId($end_id)
+    {
+        if (empty($end_id)) {
+            return null;
+        }
+        $this->db->select('doc_numero');
+        $this->db->from('documentos');
+        $this->db->where('end_id', (int) $end_id);
+        $this->db->group_start();
+        $this->db->where('doc_tipo_documento', 'Inscrição Estadual');
+        $this->db->or_where('doc_tipo_documento', 'inscrição estadual');
+        $this->db->group_end();
+        $this->db->limit(1);
+        if ($this->db->field_exists('ten_id', 'documentos')) {
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        }
+        $row = $this->db->get()->row();
+        return $row && !empty(trim((string) $row->doc_numero)) ? trim((string) $row->doc_numero) : null;
+    }
+
+    /**
+     * Na reemissão com destinatário Simples Nacional ou MEI, atualiza a classificação fiscal dos itens
+     * para "Não Contribuinte" (CFOP/CST/CSOSN corretos para não contribuinte).
+     *
+     * @param int $nfc_id ID da NFCom
+     * @param int $opc_id ID da operação comercial (capa)
+     * @param int $pes_id ID da pessoa (destinatário)
+     * @param string $naturezaOverride Ex.: 'Não Contribuinte'
+     */
+    private function atualizarClassificacaoFiscalItensReemissao($nfc_id, $opc_id, $pes_id, $naturezaOverride)
+    {
+        if (empty($opc_id) || empty($pes_id)) {
+            return;
+        }
+        $this->load->model('Mapos_model');
+        $configuracao = $this->Mapos_model->getConfiguracao();
+        $empresaId = $configuracao['idEmpresa'] ?? 1;
+        $itens = $this->Nfecom_model->getItens($nfc_id);
+        $fields = $this->db->list_fields('nfecom_itens');
+        $temClfId = in_array('clf_id', $fields);
+        foreach ($itens as $item) {
+            $produtoId = isset($item->nfi_c_prod) ? $item->nfi_c_prod : null;
+            if ($produtoId === '' || $produtoId === null) {
+                $produtoId = null;
+            }
+            try {
+                $resultado = $this->fiscalclassificationservice->findClassification(
+                    (int) $opc_id,
+                    (int) $pes_id,
+                    $produtoId,
+                    (int) $empresaId,
+                    $naturezaOverride
+                );
+            } catch (Exception $e) {
+                log_message('error', 'Reemissão NFCom - Erro ao buscar classificação fiscal do item nfi_id=' . ($item->nfi_id ?? '') . ': ' . $e->getMessage());
+                continue;
+            }
+            if (!$resultado) {
+                continue;
+            }
+            $update = [
+                'nfi_cfop' => $resultado['clf_cfop'] ?? $item->nfi_cfop,
+                'nfi_cst_icms' => $resultado['clf_cst'] ?? $item->nfi_cst_icms,
+                'nfi_csosn' => isset($resultado['clf_csosn']) ? $resultado['clf_csosn'] : $item->nfi_csosn,
+            ];
+            if ($temClfId && isset($resultado['clf_id']) && $resultado['clf_id']) {
+                $update['clf_id'] = $resultado['clf_id'];
+            }
+            $this->db->where('nfi_id', $item->nfi_id);
+            $this->db->update('nfecom_itens', $update);
+            if ($this->db->affected_rows() > 0) {
+                log_message('info', 'Reemissão NFCom - Item nfi_id=' . $item->nfi_id . ' atualizado com classificação não contribuinte: CFOP=' . ($update['nfi_cfop'] ?? ''));
+            }
+        }
+    }
+
+    /**
+     * Monta o array destinatario para prepararDadosEnvio/NFComMake.
+     * Usa sempre a IE da CAPA (nfc_ie_dest) quando existir, para evitar rejeição 428 no envio.
+     * Se a capa tiver nfc_ind_ie_dest=9 (não contribuinte), força indIEDest=9 e não envia IE (evita rejeição 428).
+     */
+    private function montarDestinatarioDadosEnvio($nfecom, $cliente)
+    {
+        $indicador_ie = '9';
+        $ie = '';
+
+        // Simples Nacional e MEI: não enviar IE e sempre indIEDest=9 (não contribuinte)
+        if (isset($cliente->pes_regime_tributario)) {
+            $regime = trim((string) $cliente->pes_regime_tributario);
+            if ($regime === 'MEI' || $regime === 'Simples Nacional') {
+                $nomeCliente = ($cliente->pes_fisico_juridico == 'F') ? $cliente->pes_nome : ($cliente->pes_razao_social ?: $cliente->pes_nome);
+                return [
+                    'nome' => $nfecom->nfc_x_nome_dest ?: $nomeCliente,
+                    'cnpj' => preg_replace('/\D/', '', $nfecom->nfc_cnpj_dest ?: $cliente->pes_cpfcnpj),
+                    'indicador_ie' => '9',
+                    'ie' => '',
+                    'endereco' => [
+                        'logradouro' => $nfecom->nfc_x_lgr_dest ?: $cliente->end_logradouro,
+                        'numero' => $nfecom->nfc_nro_dest ?: $cliente->end_numero,
+                        'complemento' => $nfecom->nfc_x_cpl_dest ?? $cliente->end_complemento ?? '',
+                        'bairro' => $nfecom->nfc_x_bairro_dest ?: $cliente->bai_nome,
+                        'codigo_municipio' => $nfecom->nfc_c_mun_dest ?: $cliente->mun_ibge,
+                        'municipio' => $nfecom->nfc_x_mun_dest ?: $cliente->mun_nome,
+                        'cep' => preg_replace('/\D/', '', $nfecom->nfc_cep_dest ?: $cliente->end_cep ?? ''),
+                        'uf' => $nfecom->nfc_uf_dest ?: $cliente->est_uf
+                    ]
+                ];
+            }
+        }
+
+        // Buscar IE do cadastro (capa, cliente, documentos) — sempre preencher quando existir
+        $ie = isset($nfecom->nfc_ie_dest) ? trim((string) $nfecom->nfc_ie_dest) : '';
+        if ($ie === '' && !empty($cliente->PES_IE)) {
+            $ie = trim((string) $cliente->PES_IE);
+        }
+        if ($ie === '' && !empty($nfecom->end_id)) {
+            $ieFallback = $this->buscarIEPorEndId($nfecom->end_id);
+            if ($ieFallback !== null) {
+                $ie = $ieFallback;
+            }
+        }
+        $ie = ($ie !== '') ? $ie : '';
+
+        // Indicador: não contribuinte (9) só quando marcado na capa; senão contribuinte (1) se tiver IE
+        if (!empty($nfecom->nfc_ind_ie_dest) && (string) $nfecom->nfc_ind_ie_dest === '9') {
+            $indicador_ie = '9';
+            // Mantém a IE no envio quando houver inscrição cadastrada (informativo); só não envia IE quando não tiver
+        } else {
+            $indicador_ie = ($ie !== '') ? '1' : '9';
+        }
+
+        $nomeCliente = ($cliente->pes_fisico_juridico == 'F') ? $cliente->pes_nome : ($cliente->pes_razao_social ?: $cliente->pes_nome);
+        return [
+            'nome' => $nfecom->nfc_x_nome_dest ?: $nomeCliente,
+            'cnpj' => preg_replace('/\D/', '', $nfecom->nfc_cnpj_dest ?: $cliente->pes_cpfcnpj),
+            'indicador_ie' => $indicador_ie,
+            'ie' => $ie,
+            'endereco' => [
+                'logradouro' => $nfecom->nfc_x_lgr_dest ?: $cliente->end_logradouro,
+                'numero' => $nfecom->nfc_nro_dest ?: $cliente->end_numero,
+                'complemento' => $nfecom->nfc_x_cpl_dest ?? $cliente->end_complemento ?? '',
+                'bairro' => $nfecom->nfc_x_bairro_dest ?: $cliente->bai_nome,
+                'codigo_municipio' => $nfecom->nfc_c_mun_dest ?: $cliente->mun_ibge,
+                'municipio' => $nfecom->nfc_x_mun_dest ?: $cliente->mun_nome,
+                'cep' => preg_replace('/\D/', '', $nfecom->nfc_cep_dest ?: $cliente->end_cep ?? ''),
+                'uf' => $nfecom->nfc_uf_dest ?: $cliente->est_uf
+            ]
+        ];
+    }
+
     private function prepararDadosEnvio($id)
     {
         $nfecom = $this->Nfecom_model->getById($id);
@@ -4651,30 +5146,19 @@ class Nfecom extends MY_Controller
         $configFiscal = $this->getConfiguracaoNfcom();
         $emitente = $this->Nfe_model->getEmit();
 
-        // Buscar cliente/destinatário completo com endereço e documentos (IE)
-        $this->db->select('c.*, p.*, e.end_logradouro, e.end_numero, e.end_complemento, e.end_cep, b.bai_nome, m.mun_nome, m.mun_ibge, es.est_uf, d.doc_numero as PES_IE, d.doc_natureza_contribuinte');
-        $this->db->from('clientes c');
-        $this->db->join('pessoas p', 'p.pes_id = c.pes_id');
-        $this->db->join('enderecos e', 'e.pes_id = p.pes_id AND e.end_padrao = 1', 'left');
-        $this->db->join('bairros b', 'b.bai_id = e.bai_id', 'left');
-        $this->db->join('municipios m', 'm.mun_id = e.mun_id', 'left');
-        $this->db->join('estados es', 'es.est_id = e.est_id', 'left');
-        $this->db->join('documentos d', "d.pes_id = p.pes_id AND d.doc_tipo_documento = 'Inscrição Estadual'", 'left');
-        $this->db->where('c.ten_id', $this->session->userdata('ten_id'));
-
-        // Se cln_id estiver disponível, usar ele (mais preciso)
-        if (!empty($nfecom->cln_id)) {
-            $this->db->where('c.cln_id', $nfecom->cln_id);
-        } else {
-            // Fallback por CNPJ/CPF se for uma nota antiga sem cln_id
-            $cnpjLimpo = preg_replace('/\D/', '', $nfecom->nfc_cnpj_dest);
-            $this->db->where('p.pes_cpfcnpj', $cnpjLimpo);
-        }
-
-        $cliente = $this->db->get()->row();
+        // Buscar destinatário: reemissão usa end_id da capa (pessoas + enderecos + documentos)
+        $cliente = $this->getDestinatarioPorCapa($nfecom);
 
         if (!$cliente)
             throw new Exception("Cliente não encontrado.");
+
+        // Fallback IE: se o join não trouxe PES_IE mas a capa tem end_id, buscar IE direto em documentos
+        if ((empty($cliente->PES_IE) || trim((string) $cliente->PES_IE) === '') && !empty($nfecom->end_id)) {
+            $ieFallback = $this->buscarIEPorEndId($nfecom->end_id);
+            if ($ieFallback !== null) {
+                $cliente->PES_IE = $ieFallback;
+            }
+        }
 
         // Usar a UF do emitente para gerar o cUF correto
         $ufEmit = $emitente['enderEmit']['uf'] ?? $nfecom->nfc_uf_emit ?? 'GO';
@@ -4688,15 +5172,15 @@ class Nfecom extends MY_Controller
         $listaItens = [];
         $itens = $this->Nfecom_model->getItens($id);
         log_message('info', 'PrepararDadosEnvio - Total de itens encontrados para NFCom ID ' . $id . ': ' . count($itens));
-        
+
         // Coletar mensagens fiscais dos itens salvos
         $mensagensFiscais = [];
         $fields = $this->db->list_fields('nfecom_itens');
         $temClfId = in_array('clf_id', $fields) || in_array('clf_id', $fields);
-        
+
         foreach ($itens as $it) {
             log_message('info', 'Item NFCom - nfi_n_item: ' . $it->nfi_n_item . ', nfi_c_prod: ' . $it->nfi_c_prod . ', nfi_x_prod: ' . $it->nfi_x_prod);
-            
+
             // Buscar mensagem fiscal se o item tiver clf_id
             if ($temClfId) {
                 $clfId = isset($it->clf_id) ? $it->clf_id : (isset($it->clf_id) ? $it->clf_id : null);
@@ -4717,7 +5201,7 @@ class Nfecom extends MY_Controller
                     }
                 }
             }
-            
+
             $listaItens[] = [
                 'nItem' => $it->nfi_n_item,
                 'codigo' => $it->nfi_c_prod,
@@ -4778,7 +5262,7 @@ class Nfecom extends MY_Controller
                     ]
                 ]
             ];
-            
+
             // Log para debug: verificar se IRRF está sendo incluído
             $irrfItem = floatval($it->nfi_v_irrf ?? 0);
             if ($irrfItem > 0) {
@@ -4787,7 +5271,7 @@ class Nfecom extends MY_Controller
                 log_message('error', 'Item #' . $it->nfi_n_item . ' - IRRF ZERO ou não encontrado no banco! nfi_v_irrf: ' . ($it->nfi_v_irrf ?? 'NULL'));
             }
         }
-        
+
         // Calcular totais somando os valores dos itens
         $totalVProd = 0.00;
         $totalVDesc = 0.00;
@@ -4797,7 +5281,7 @@ class Nfecom extends MY_Controller
             $totalVDesc += floatval($item->nfi_v_desc ?? 0);
             $totalVOutro += floatval($item->nfi_v_outro ?? 0);
         }
-        
+
         // Calcular total do IRRF somando os itens (conforme rejeição 685)
         // SEMPRE usar a soma dos itens, não o valor do banco
         // CRÍTICO: Isso é especialmente importante em reemissões
@@ -4805,16 +5289,16 @@ class Nfecom extends MY_Controller
         foreach ($itens as $item) {
             $totalIrrfItens += floatval($item->nfi_v_irrf ?? 0);
         }
-        
+
         // Arredondar para 2 casas decimais para evitar problemas de precisão
         $totalIrrfItens = round($totalIrrfItens, 2);
-        
+
         // Usar valores do banco para retenções
         $vRetPis = floatval($nfecom->nfc_v_ret_pis ?? 0);
         $vRetCofins = floatval($nfecom->nfc_v_ret_cofins ?? 0);
         $vRetCsll = floatval($nfecom->nfc_v_ret_csll ?? 0);
         $vIrrf = $totalIrrfItens; // SEMPRE usar soma dos itens como total do IRRF
-        
+
         // SEMPRE atualizar o banco com a soma dos itens ANTES de gerar XML
         // Isso é crítico para reemissões onde o valor pode estar desatualizado
         $irrfBanco = floatval($nfecom->nfc_v_irrf ?? 0);
@@ -4827,18 +5311,18 @@ class Nfecom extends MY_Controller
         } else {
             log_message('debug', 'Total do IRRF OK em prepararDadosEnvio: R$ ' . number_format($totalIrrfItens, 2, ',', '.') . ' (soma dos itens = banco)');
         }
-        
+
         // Regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
         $vNfCalculado = $totalVProd + $totalVOutro - $totalVDesc - $vRetPis - $vRetCofins - $vRetCsll - $vIrrf;
-        
+
         // Atualizar nfc_inf_cpl com observação + mensagens fiscais se necessário
         // nfc_inf_cpl deve conter: Observação digitada pelo usuário + Mensagens fiscais (sem duplicatas)
         $infCplAtual = trim($nfecom->nfc_inf_cpl ?? '');
-        
+
         // Buscar observação original da nota (se houver campo separado ou se estiver no infCpl)
         // Como a observação já deve estar no nfc_inf_cpl quando a nota foi salva,
         // vamos verificar se precisa atualizar apenas as mensagens fiscais
-        
+
         // Se há mensagens fiscais, construir o infCpl completo
         if (!empty($mensagensFiscais)) {
             $mensagensUnicas = [];
@@ -4851,18 +5335,18 @@ class Nfecom extends MY_Controller
                     }
                 }
             }
-            
+
             // Extrair observação do infCpl atual (tudo antes das mensagens fiscais)
             $observacaoOriginal = '';
             $mensagensNoInfCpl = [];
-            
+
             // Se o infCpl atual contém mensagens fiscais conhecidas, separar observação
             foreach ($mensagensUnicas as $msg) {
                 if (strpos($infCplAtual, $msg) !== false) {
                     $mensagensNoInfCpl[] = $msg;
                 }
             }
-            
+
             // Se encontrou mensagens no infCpl, extrair a observação (parte antes das mensagens)
             // A observação termina antes da primeira mensagem fiscal (separada por ponto e vírgula)
             if (!empty($mensagensNoInfCpl)) {
@@ -4877,13 +5361,13 @@ class Nfecom extends MY_Controller
                 // Se não encontrou mensagens, todo o infCpl atual é a observação
                 $observacaoOriginal = $infCplAtual;
             }
-            
+
             // Construir infCpl: Observação + Mensagens fiscais (separadas por ponto e vírgula)
             $infCplNovo = '';
             if (!empty($observacaoOriginal)) {
                 $infCplNovo = $observacaoOriginal;
             }
-            
+
             if (!empty($mensagensUnicas)) {
                 $mensagensTexto = implode('; ', $mensagensUnicas);
                 if (!empty($infCplNovo)) {
@@ -4892,7 +5376,7 @@ class Nfecom extends MY_Controller
                     $infCplNovo = $mensagensTexto;
                 }
             }
-            
+
             // Atualizar no banco apenas se for diferente do atual
             if (trim($infCplNovo) !== $infCplAtual) {
                 $this->Nfecom_model->edit('nfecom_capa', ['nfc_inf_cpl' => $infCplNovo], 'nfc_id', $id);
@@ -4910,7 +5394,7 @@ class Nfecom extends MY_Controller
         } elseif (strlen($chaveLimpa) < 44) {
             $chaveLimpa = str_pad($chaveLimpa, 44, '0', STR_PAD_LEFT);
         }
-        
+
         return [
             'chave' => $chaveLimpa,
             'ide' => [
@@ -4946,22 +5430,7 @@ class Nfecom extends MY_Controller
                 ],
                 'telefone' => $emitente['enderEmit']['fone']
             ],
-            'destinatario' => [
-                'nome' => $cliente->pes_nome,
-                'cnpj' => preg_replace('/\D/', '', $cliente->pes_cpfcnpj),
-                'indicador_ie' => ($cliente->doc_natureza_contribuinte == 'Contribuinte') ? '1' : '9',
-                'ie' => $cliente->PES_IE,
-                'endereco' => [
-                    'logradouro' => $cliente->end_logradouro,
-                    'numero' => $cliente->end_numero,
-                    'complemento' => $cliente->end_complemento ?? '',
-                    'bairro' => $cliente->bai_nome,
-                    'codigo_municipio' => $cliente->mun_ibge,
-                    'municipio' => $cliente->mun_nome,
-                    'cep' => preg_replace('/\D/', '', $cliente->end_cep),
-                    'uf' => $cliente->est_uf
-                ]
-            ],
+            'destinatario' => $this->montarDestinatarioDadosEnvio($nfecom, $cliente),
             'assinante' => [
                 'codigo' => $nfecom->nfc_i_cod_assinante ?: preg_replace('/\D/', '', $cliente->pes_cpfcnpj),
                 'tipo' => $nfecom->nfc_tp_assinante ?: 3,
@@ -5001,8 +5470,8 @@ class Nfecom extends MY_Controller
             'faturamento' => [
                 // Competência baseada no período fim (formato YYYYMM)
                 // Exemplo: se período fim for 31-12-2025, competência será 202512
-                'competencia' => !empty($nfecom->nfc_d_per_uso_fim) && empty($nfecom->nfc_compet_fat) 
-                    ? date('Ym', strtotime($nfecom->nfc_d_per_uso_fim)) 
+                'competencia' => !empty($nfecom->nfc_d_per_uso_fim) && empty($nfecom->nfc_compet_fat)
+                    ? date('Ym', strtotime($nfecom->nfc_d_per_uso_fim))
                     : (!empty($nfecom->nfc_d_contrato_ini) && empty($nfecom->nfc_compet_fat)
                         ? date('Ym', strtotime($nfecom->nfc_d_contrato_ini))
                         : (str_replace('-', '', $nfecom->nfc_compet_fat) ?: date('Ym'))),
@@ -5046,37 +5515,37 @@ class Nfecom extends MY_Controller
         // CSTs que NÃO calculam PIS/COFINS: 03-09, 49, 50-99 (isento, não tributado, suspenso, etc.)
         // CSTs que CALCULAM: 01, 02
         $cstsQueNaoCalculam = ['03', '04', '05', '06', '07', '08', '09', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79', '80', '81', '82', '83', '84', '85', '86', '87', '88', '89', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99'];
-        
+
         if (in_array($cst, $cstsQueNaoCalculam)) {
             // CST isento/não tributado - base de cálculo deve ser 0
             return 0;
         }
-        
+
         // Para CST 01 e 02 (tributável)
         $baseSalva = floatval($baseSalva);
         $valorProduto = $valorProduto !== null ? floatval($valorProduto) : null;
-        
+
         // Se não temos valor do produto, usar a base salva (ou 0 se não houver)
         if ($valorProduto === null || $valorProduto == 0) {
             return $baseSalva > 0 ? $baseSalva : 0;
         }
-        
+
         // Validar se a base salva está correta
         // A base de cálculo PIS/COFINS geralmente é igual ao valor do produto (ou valor do produto - desconto + outros)
         // Se a base salva for muito diferente do produto, provavelmente está errada
-        
+
         // Se a base salva for mais de 50% maior que o produto, está claramente errada
         if ($baseSalva > $valorProduto * 1.5) {
             // Usar o valor do produto como base correta
             log_message('debug', "Base de cálculo PIS/COFINS corrigida: base salva ($baseSalva) muito maior que produto ($valorProduto). Usando produto como base.");
             return $valorProduto;
         }
-        
+
         // Se a base salva for 0 ou muito pequena, usar o valor do produto
         if ($baseSalva == 0 || $baseSalva < 0.01) {
             return $valorProduto;
         }
-        
+
         // Se a base salva estiver dentro de uma faixa razoável (até 50% maior que o produto), usar a base salva
         // Isso permite casos onde há acréscimos legais na base
         return $baseSalva;
@@ -5097,18 +5566,18 @@ class Nfecom extends MY_Controller
     {
         try {
             $tenId = $this->session->userdata('ten_id');
-            
+
             // Validar ten_id - não pode ser 0, null ou vazio
             if (empty($tenId) || $tenId == 0) {
                 log_message('error', 'Tenant ID inválido na sessão ao calcular tributação. ten_id: ' . var_export($tenId, true));
                 return null;
             }
-            
+
             // Construir URL da API - usar base_url para evitar redirecionamentos
             $baseUrl = rtrim(base_url(), '/');
             $url = $baseUrl . '/index.php/calculotributacaoapi/calcular';
             $params = [
-                'ten_id' => (int)$tenId,
+                'ten_id' => (int) $tenId,
                 'produto_id' => $produtoId,
                 'cliente_id' => $clienteId,
                 'operacao_id' => $operacaoId,
@@ -5116,16 +5585,16 @@ class Nfecom extends MY_Controller
                 'quantidade' => $quantidade,
                 'tipo_operacao' => $tipoOperacao
             ];
-            
+
             // Adicionar endereco_id se fornecido
             if (!empty($enderecoId)) {
-                $params['endereco_id'] = (int)$enderecoId;
+                $params['endereco_id'] = (int) $enderecoId;
             }
-            
+
             $url .= '?' . http_build_query($params);
-            
+
             log_message('debug', 'Chamando API de tributação: ' . $url);
-            
+
             // Fazer requisição HTTP
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -5135,64 +5604,191 @@ class Nfecom extends MY_Controller
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            
+
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $curlError = curl_error($ch);
             curl_close($ch);
-            
+
             if ($curlError) {
                 log_message('error', 'Erro cURL ao calcular tributação: ' . $curlError . ' | URL: ' . $url);
                 return null;
             }
-            
+
             if ($httpCode !== 200 || !$response) {
                 log_message('error', 'Erro ao calcular tributação - HTTP Code: ' . $httpCode . ' | URL: ' . $url . ' | Response: ' . substr($response, 0, 1000));
                 return null;
             }
-            
+
             // Verificar se a resposta é HTML (erro do CodeIgniter)
             if (strpos($response, '<!DOCTYPE') !== false || strpos($response, '<html') !== false) {
                 log_message('error', 'API retornou HTML ao invés de JSON - URL: ' . $url . ' | Response: ' . substr($response, 0, 1000));
                 return null;
             }
-            
+
             $result = json_decode($response, true);
             $jsonError = json_last_error();
-            
+
             if ($jsonError !== JSON_ERROR_NONE) {
                 log_message('error', 'Erro ao decodificar JSON da API - JSON Error: ' . $jsonError . ' | URL: ' . $url . ' | Response: ' . substr($response, 0, 1000));
                 return null;
             }
-            
+
             if (!$result) {
                 log_message('error', 'Resposta JSON vazia ou inválida - URL: ' . $url . ' | Response: ' . substr($response, 0, 500));
                 return null;
             }
-            
+
             if (!isset($result['sucesso'])) {
                 log_message('error', 'Resposta da API sem campo "sucesso" - URL: ' . $url . ' | Response: ' . json_encode($result));
                 return null;
             }
-            
+
             if (!$result['sucesso']) {
                 $mensagem = $result['mensagem'] ?? 'Erro desconhecido na API';
                 log_message('error', 'API retornou erro: ' . $mensagem . ' | URL: ' . $url . ' | Response completa: ' . json_encode($result));
                 return null;
             }
-            
+
             if (!isset($result['dados'])) {
                 log_message('error', 'API retornou sucesso mas sem campo "dados" - URL: ' . $url . ' | Response: ' . json_encode($result));
                 return null;
             }
-            
+
             log_message('debug', 'Tributação calculada com sucesso para Produto ID: ' . $produtoId . ' | Cliente ID: ' . $clienteId);
-            
+
             return $result['dados'];
-            
+
         } catch (Exception $e) {
             log_message('error', 'Exceção ao calcular tributação: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Monta o campo nfc_inf_cpl concatenando todas as partes
+     * 
+     * @param array $data Array com os campos: nfc_observacoes, nfc_dados_bancarios, nfc_info_tributaria, nfc_msg_legal
+     * @return string Campo nfc_inf_cpl montado
+     */
+    private function montarInfCpl($data)
+    {
+        $partes = [];
+
+        // Função auxiliar para limpar quebras de linha internas e garantir ponto e vírgula no final
+        $limpar = function ($texto) {
+            $t = str_replace(["\r\n", "\r", "\n"], '; ', trim($texto));
+            if (empty($t)) {
+                return '';
+            }
+            // Se já não terminar com ponto e vírgula, adicionar
+            return rtrim($t, '; ') . ';';
+        };
+
+        // Observações do usuário
+        $obs = $limpar($data['nfc_observacoes'] ?? '');
+        if (!empty($obs)) {
+            $partes[] = $obs;
+        }
+
+        // Dados bancários
+        $db = $limpar($data['nfc_dados_bancarios'] ?? '');
+        if (!empty($db)) {
+            $partes[] = "DADOS BANCÁRIOS: " . $db;
+        }
+
+        // Informações tributárias
+        $it = $limpar($data['nfc_info_tributaria'] ?? '');
+        if (!empty($it)) {
+            $partes[] = "INFORMAÇÕES TRIBUTÁRIAS: " . $it;
+        }
+
+        // Mensagem legal
+        $ml = $limpar($data['nfc_msg_legal'] ?? '');
+        if (!empty($ml)) {
+            $partes[] = $ml;
+        }
+
+        return implode(' ', $partes);
+    }
+
+    /**
+     * Calcula informações tributárias a partir dos itens da NFCom
+     * 
+     * @param array $servicos Array de serviços/itens da NFCom
+     * @return string Texto com informações tributárias (IRRF, etc)
+     */
+    private function calcularInfoTributaria($servicos, $pTotalPis = 0, $pTotalCofins = 0, $pTotalIrrf = 0)
+    {
+        $totalIrrf = floatval($pTotalIrrf);
+        $totalPis = floatval($pTotalPis);
+        $totalCofins = floatval($pTotalCofins);
+
+        // Se não foram passados totais globais, tenta somar dos itens
+        if ($totalPis == 0 && $totalCofins == 0 && $totalIrrf == 0) {
+            if (!empty($servicos) && is_array($servicos)) {
+                foreach ($servicos as $servico) {
+                    // Somar valores de IRRF, PIS e COFINS se existirem nas chaves do item
+                    if (isset($servico['v_irrf'])) {
+                        $totalIrrf += floatval($servico['v_irrf']);
+                    }
+                    if (isset($servico['v_pis'])) {
+                        $totalPis += floatval($servico['v_pis']);
+                    }
+                    if (isset($servico['v_cofins'])) {
+                        $totalCofins += floatval($servico['v_cofins']);
+                    }
+                    // Tentar também chaves nfi_ (formato do banco/itensPost em alguns casos)
+                    if (isset($servico['nfi_v_pis'])) {
+                        $totalPis += floatval($servico['nfi_v_pis']);
+                    }
+                    if (isset($servico['nfi_v_cofins'])) {
+                        $totalCofins += floatval($servico['nfi_v_cofins']);
+                    }
+                    if (isset($servico['nfi_v_irrf'])) {
+                        $totalIrrf += floatval($servico['nfi_v_irrf']);
+                    }
+                }
+            }
+        }
+
+
+
+        $info = [];
+        if ($totalIrrf > 0) {
+            $info[] = sprintf("IRRF: R$ %s", number_format($totalIrrf, 2, ',', '.'));
+        }
+
+        return !empty($info) ? implode("; ", $info) : '';
+    }
+
+    /**
+     * Busca mensagem legal da classificação fiscal dos produtos
+     * 
+     * @param array $servicos Array de serviços/itens da NFCom
+     * @return string Mensagem legal concatenada
+     */
+    private function buscarMensagemLegal($servicos)
+    {
+        $mensagens = [];
+
+        if (!empty($servicos) && is_array($servicos)) {
+            foreach ($servicos as $servico) {
+                // Se o serviço tem clf_id (classificação fiscal), buscar a mensagem legal
+                if (!empty($servico['clf_id'])) {
+                    $this->load->model('ClassificacaoFiscal_model');
+                    $clf = $this->ClassificacaoFiscal_model->getById($servico['clf_id']);
+
+                    if ($clf && !empty($clf->mensagem_fiscal)) {
+                        // Adicionar apenas se ainda não foi adicionada (evitar duplicatas)
+                        if (!in_array($clf->mensagem_fiscal, $mensagens)) {
+                            $mensagens[] = $clf->mensagem_fiscal;
+                        }
+                    }
+                }
+            }
+        }
+
+        return !empty($mensagens) ? implode("; ", $mensagens) : '';
     }
 }

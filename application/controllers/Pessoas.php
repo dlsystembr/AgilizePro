@@ -75,6 +75,43 @@ class Pessoas extends MY_Controller
         }
     }
 
+    /**
+     * Proxy para busca de CNPJ na API pública (publica.cnpj.ws).
+     * Evita CORS e timeout no navegador: a requisição é feita pelo servidor.
+     * Uso: GET index.php/pessoas/buscarCnpjApi/24982773000189 ou ?cnpj=24982773000189
+     */
+    public function buscarCnpjApi()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $cnpj = $this->input->get('cnpj') ?: $this->uri->segment(3);
+        $cnpj = preg_replace('/\D/', '', (string) $cnpj);
+        if (strlen($cnpj) !== 14) {
+            echo json_encode(['erro' => 'CNPJ inválido. Informe 14 dígitos.']);
+            return;
+        }
+        $url = 'https://publica.cnpj.ws/cnpj/' . $cnpj;
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTPHEADER => ['Accept: application/json'],
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+        curl_close($ch);
+        if ($err) {
+            echo json_encode(['erro' => 'Erro ao conectar na API: ' . $err]);
+            return;
+        }
+        if ($httpCode !== 200) {
+            echo json_encode(['erro' => 'API retornou status ' . $httpCode, 'razao_social' => null]);
+            return;
+        }
+        echo $response ?: json_encode(['erro' => 'Resposta vazia da API']);
+    }
+
     public function listarVendedores()
     {
         // Buscar todas as pessoas que são vendedores ativos
@@ -104,6 +141,7 @@ class Pessoas extends MY_Controller
         $this->form_validation->set_rules('pes_nome', 'Nome', 'required|trim');
         $this->form_validation->set_rules('pes_codigo', 'Código', 'trim');
         $this->form_validation->set_rules('pes_fisico_juridico', 'Tipo (F/J)', 'required|in_list[F,J]');
+        $this->form_validation->set_rules('pes_regime_tributario', 'Regime Tributário', 'trim|callback_check_regime_tributario_cnpj');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
@@ -123,6 +161,7 @@ class Pessoas extends MY_Controller
                 'pes_razao_social' => set_value('pes_razao_social'),
                 'pes_codigo' => $codigo,
                 'pes_fisico_juridico' => set_value('pes_fisico_juridico'),
+                'pes_regime_tributario' => $this->normalizarRegimeTributario($this->input->post('pes_regime_tributario')),
                 'pes_nascimento_abertura' => set_value('pes_nascimento_abertura') ?: null,
                 'pes_nacionalidades' => set_value('pes_nacionalidades'),
                 'pes_rg' => set_value('pes_rg'),
@@ -135,8 +174,33 @@ class Pessoas extends MY_Controller
                 'pes_situacao' => $this->input->post('pes_situacao') !== null ? (int) $this->input->post('pes_situacao') : 1,
             ];
 
-            if ($this->Pessoas_model->add('pessoas', $data)) {
-                $pessoaId = $this->db->insert_id();
+            // Validar: Inscrição Estadual exige endereço vinculado
+            $docTiposPre = $this->input->post('doc_tipo_documento');
+            $docEndIdxsPre = $this->input->post('DOC_ENDE_IDX');
+            if (is_array($docTiposPre)) {
+                foreach ($docTiposPre as $i => $tipoPre) {
+                    $tipoPre = trim((string) $tipoPre);
+                    if ($tipoPre !== '' && stripos($tipoPre, 'Inscrição Estadual') !== false) {
+                        $idxPre = isset($docEndIdxsPre[$i]) ? trim((string) $docEndIdxsPre[$i]) : '';
+                        if ($idxPre === '') {
+                            $this->data['custom_error'] = '<div class="form_error"><p>Para documento tipo Inscrição Estadual é obrigatório vincular ao endereço.</p></div>';
+                            break;
+                        }
+                    }
+                }
+            }
+            // Validar: é obrigatório um endereço padrão quando houver endereços
+            $logradourosPre = $this->input->post('end_logradouro');
+            $temEnderecosPre = is_array($logradourosPre) && count(array_filter(array_map('trim', $logradourosPre))) > 0;
+            $enderecoPadraoPre = trim((string) $this->input->post('endereco_padrao'));
+            if (empty($this->data['custom_error']) && $temEnderecosPre && $enderecoPadraoPre === '') {
+                $this->data['custom_error'] = '<div class="form_error"><p>É obrigatório definir um endereço padrão.</p></div>';
+            }
+
+            if (empty($this->data['custom_error'])) {
+                $insertOk = $this->Pessoas_model->add('pessoas', $data);
+                if ($insertOk) {
+                    $pessoaId = is_numeric($insertOk) ? (int) $insertOk : (int) $this->db->insert_id();
 
                 // Salvar telefones, se houver
                 $tipos = $this->input->post('tel_tipo');
@@ -267,6 +331,26 @@ class Pessoas extends MY_Controller
                             $insertedEnderecoIds[$i] = null;
                         }
                     }
+                    // Definir endereço padrão (obrigatório pelo menos um)
+                    $enderecoPadrao = $this->input->post('endereco_padrao');
+                    $endIdPadrao = null;
+                    if (!empty($enderecoPadrao)) {
+                        if (strpos($enderecoPadrao, 'novo_') === 0) {
+                            $idx = (int) str_replace('novo_', '', $enderecoPadrao);
+                            if (isset($insertedEnderecoIds[$idx]) && $insertedEnderecoIds[$idx]) {
+                                $endIdPadrao = (int) $insertedEnderecoIds[$idx];
+                            }
+                        }
+                    }
+                    if (!$endIdPadrao && !empty($insertedEnderecoIds)) {
+                        $endIdPadrao = (int) reset($insertedEnderecoIds);
+                    }
+                    if ($endIdPadrao) {
+                        $this->db->where('pes_id', $pessoaId);
+                        $this->db->update('enderecos', ['end_padrao' => 0]);
+                        $this->db->where('end_id', $endIdPadrao)->where('pes_id', $pessoaId);
+                        $this->db->update('enderecos', ['end_padrao' => 1]);
+                    }
                 }
 
                 // Salvar documentos, se houver
@@ -390,7 +474,18 @@ class Pessoas extends MY_Controller
                 log_info('Adicionou uma pessoa.');
                 redirect(base_url('index.php/pessoas/visualizar/' . $pessoaId));
             } else {
-                $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro.</p></div>';
+                $dbError = $this->db->error();
+                log_message('error', 'Pessoas::adicionar insert pessoas falhou: ' . json_encode($dbError));
+                $msg = 'Ocorreu um erro ao salvar a pessoa.';
+                if (!empty($dbError['message'])) {
+                    if (defined('ENVIRONMENT') && ENVIRONMENT !== 'production') {
+                        $msg .= ' Detalhe: ' . $dbError['message'];
+                    } elseif (strpos($dbError['message'], 'Unknown column') !== false) {
+                        $msg .= ' Pode ser coluna faltando no banco (ex.: pes_regime_tributario). Execute o script sql/add_pes_regime_tributario.sql se ainda não executou.';
+                    }
+                }
+                $this->data['custom_error'] = '<div class="form_error"><p>' . htmlspecialchars($msg) . '</p></div>';
+            }
             }
         }
 
@@ -448,6 +543,7 @@ class Pessoas extends MY_Controller
         $this->form_validation->set_rules('pes_nome', 'Nome', 'required|trim');
         $this->form_validation->set_rules('pes_codigo', 'Código', 'required|trim');
         $this->form_validation->set_rules('pes_fisico_juridico', 'Tipo (F/J)', 'required|in_list[F,J]');
+        $this->form_validation->set_rules('pes_regime_tributario', 'Regime Tributário', 'trim|callback_check_regime_tributario_cnpj');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
@@ -459,6 +555,7 @@ class Pessoas extends MY_Controller
                 'pes_razao_social' => $this->input->post('pes_razao_social'),
                 'pes_codigo' => $this->input->post('pes_codigo'),
                 'pes_fisico_juridico' => $this->input->post('pes_fisico_juridico'),
+                'pes_regime_tributario' => $this->normalizarRegimeTributario($this->input->post('pes_regime_tributario')),
                 'pes_nascimento_abertura' => $this->input->post('pes_nascimento_abertura') ?: null,
                 'pes_nacionalidades' => $this->input->post('pes_nacionalidades'),
                 'pes_rg' => $this->input->post('pes_rg'),
@@ -475,23 +572,28 @@ class Pessoas extends MY_Controller
 
                 // Processar endereços se houver
                 if ($this->db->table_exists('enderecos')) {
-                    // Primeiro, desmarcar todos os endereços como não padrão
-                    $this->db->where('pes_id', $id);
-                    $this->db->update('enderecos', ['end_padrao' => 0]);
-
-                    // Processar endereços existentes
                     $enderecoIds = $this->input->post('end_id') ?: [];
                     $tiposEnd = $this->input->post('END_TIPO') ?: [];
-                    $ceps = $this->input->post('end_cep') ?: [];
                     $logradouros = $this->input->post('end_logradouro') ?: [];
-                    $numerosEnd = $this->input->post('end_numero') ?: [];
-                    $complementos = $this->input->post('end_complemento') ?: [];
-                    $bairrosTexto = $this->input->post('END_BAIRRO') ?: [];
-                    $cidadesTexto = $this->input->post('END_CIDADE') ?: [];
-                    $ufs = $this->input->post('END_UF') ?: [];
-                    $enderecoPadrao = $this->input->post('endereco_padrao');
+                    $enderecoPadrao = trim((string) $this->input->post('endereco_padrao'));
+                    $temEnderecos = is_array($tiposEnd) && count($tiposEnd) > 0 && is_array($logradouros) && count(array_filter($logradouros)) > 0;
+                    if ($temEnderecos && $enderecoPadrao === '') {
+                        $this->data['custom_error'] = '<div class="form_error"><p>É obrigatório definir um endereço padrão.</p></div>';
+                    }
+                    if (empty($this->data['custom_error'])) {
+                        // Primeiro, desmarcar todos os endereços como não padrão
+                        $this->db->where('pes_id', $id);
+                        $this->db->update('enderecos', ['end_padrao' => 0]);
 
-                    if (is_array($tiposEnd) && count($tiposEnd) > 0) {
+                        $ceps = $this->input->post('end_cep') ?: [];
+                        $numerosEnd = $this->input->post('end_numero') ?: [];
+                        $complementos = $this->input->post('end_complemento') ?: [];
+                        $bairrosTexto = $this->input->post('END_BAIRRO') ?: [];
+                        $cidadesTexto = $this->input->post('END_CIDADE') ?: [];
+                        $ufs = $this->input->post('END_UF') ?: [];
+
+                        $enderecoIdsByIndex = [];
+                        if (is_array($tiposEnd) && count($tiposEnd) > 0) {
                         foreach ($tiposEnd as $i => $tipoEnd) {
                             if (!empty($logradouros[$i])) {
                                 // Verificar se é um endereço existente ou novo
@@ -591,29 +693,26 @@ class Pessoas extends MY_Controller
                                     $this->db->insert('enderecos', $enderecoData);
                                     $enderecoId = $this->db->insert_id();
                                 }
+                                $enderecoIdsByIndex[$i] = $enderecoId;
                             }
                         }
 
                         // Marcar endereço padrão
                         if (!empty($enderecoPadrao)) {
-                            // Se é um endereço novo (valor começa com 'novo_'), usar o ID gerado
                             if (strpos($enderecoPadrao, 'novo_') === 0) {
-                                // Encontrar o último endereço inserido
-                                $this->db->where('pes_id', $id);
-                                $this->db->order_by('end_id', 'desc');
-                                $this->db->limit(1);
-                                $ultimoEndereco = $this->db->get('enderecos')->row();
-                                if ($ultimoEndereco) {
-                                    $this->db->where('end_id', $ultimoEndereco->end_id);
+                                $idxNovo = (int) str_replace('novo_', '', $enderecoPadrao);
+                                if (isset($enderecoIdsByIndex[$idxNovo]) && $enderecoIdsByIndex[$idxNovo]) {
+                                    $this->db->where('end_id', $enderecoIdsByIndex[$idxNovo]);
+                                    $this->db->where('pes_id', $id);
                                     $this->db->update('enderecos', ['end_padrao' => 1]);
                                 }
                             } else {
-                                // É um endereço existente
                                 $this->db->where('end_id', $enderecoPadrao);
-                                $this->db->where('pes_id', $id); // Segurança extra
+                                $this->db->where('pes_id', $id);
                                 $this->db->update('enderecos', ['end_padrao' => 1]);
                             }
                         }
+                    }
                     }
                 }
 
@@ -669,7 +768,10 @@ class Pessoas extends MY_Controller
                                         }
                                     }
                                 }
-                                
+                                if (stripos($tipo, 'Inscrição Estadual') !== false && !$endeId) {
+                                    $this->data['custom_error'] = '<div class="form_error"><p>Para documento tipo Inscrição Estadual é obrigatório vincular ao endereço.</p></div>';
+                                    break;
+                                }
                                 $this->db->insert('documentos', [
                                     'ten_id' => $this->session->userdata('ten_id'),
                                     'pes_id' => $id,
@@ -787,13 +889,15 @@ class Pessoas extends MY_Controller
                     }
                 }
 
-                if ($this->input->is_ajax_request()) {
-                    echo json_encode(['result' => true, 'message' => 'Pessoa editada com sucesso!', 'redirect' => base_url('index.php/pessoas/visualizar/' . $id)]);
-                    return;
+                if (empty($this->data['custom_error'])) {
+                    if ($this->input->is_ajax_request()) {
+                        echo json_encode(['result' => true, 'message' => 'Pessoa editada com sucesso!', 'redirect' => base_url('index.php/pessoas/visualizar/' . $id)]);
+                        return;
+                    }
+                    $this->session->set_flashdata('success', 'Pessoa editada com sucesso!');
+                    log_info('Alterou uma pessoa. ID ' . $id);
+                    redirect(base_url('index.php/pessoas/visualizar/' . $id));
                 }
-                $this->session->set_flashdata('success', 'Pessoa editada com sucesso!');
-                log_info('Alterou uma pessoa. ID ' . $id);
-                redirect(base_url('index.php/pessoas/visualizar/' . $id));
             } else {
                 $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro</p></div>';
             }
@@ -1081,6 +1185,45 @@ class Pessoas extends MY_Controller
         }
 
         return true;
+    }
+
+    /**
+     * Regime Tributário: obrigatório quando for CNPJ (14 dígitos), opcional para CPF.
+     * Valores aceitos: MEI, Simples Nacional, Regime Normal.
+     */
+    public function check_regime_tributario_cnpj($regime)
+    {
+        $cpfcnpj = preg_replace('/\D/', '', (string) $this->input->post('pes_cpfcnpj'));
+        if (strlen($cpfcnpj) === 11) {
+            return true;
+        }
+        if (strlen($cpfcnpj) === 14) {
+            $regime = trim((string) $regime);
+            if ($regime === '') {
+                $this->form_validation->set_message('check_regime_tributario_cnpj', 'Para CNPJ, o Regime Tributário é obrigatório.');
+                return false;
+            }
+            $aceitos = ['MEI', 'Simples Nacional', 'Regime Normal'];
+            if (!in_array($regime, $aceitos, true)) {
+                $this->form_validation->set_message('check_regime_tributario_cnpj', 'Regime Tributário deve ser MEI, Simples Nacional ou Regime Normal.');
+                return false;
+            }
+            return true;
+        }
+        return true;
+    }
+
+    /**
+     * Retorna o valor a gravar em pes_regime_tributario (NULL se vazio ou inválido).
+     */
+    private function normalizarRegimeTributario($valor)
+    {
+        $v = trim((string) $valor);
+        if ($v === '') {
+            return null;
+        }
+        $aceitos = ['MEI', 'Simples Nacional', 'Regime Normal'];
+        return in_array($v, $aceitos, true) ? $v : null;
     }
 
     public function excluir()

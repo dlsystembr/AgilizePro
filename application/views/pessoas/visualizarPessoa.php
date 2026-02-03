@@ -30,14 +30,27 @@
 
     /* Alinhamento dos campos exatamente como na edição */
     .form-section .control-label {
-        width: 90px !important;
+        min-width: 115px !important;
+        width: auto !important;
         text-align: right;
+        white-space: nowrap;
         font-weight: bold;
     }
 
     .form-section .controls {
-        margin-left: 110px !important;
+        margin-left: 125px !important;
     }
+
+    /* Campo Código – espaço para exibir */
+    .form-section-content .linha-1-dados .span4:first-child .controls input {
+        min-width: 90px;
+        max-width: 180px;
+        width: 100%;
+    }
+
+    /* Reduzir espaço entre Abertura e Situação na 1ª linha */
+    .linha-1-dados .span4:nth-child(2) { padding-right: 4px; }
+    .linha-1-dados .span4:nth-child(3) { padding-left: 4px; }
 
     .row-flex {
         display: flex;
@@ -45,22 +58,90 @@
         gap: 0;
     }
 
+    /* Interruptor Ativo/Inativo – compacto, sutil, texto centralizado (somente leitura) */
+    .switch-interruptor {
+        position: relative;
+        display: inline-block;
+        width: 68px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+    .switch-interruptor input[type="checkbox"] {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .switch-interruptor .slider {
+        position: absolute;
+        cursor: default;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #c45c5c;
+        border-radius: 24px;
+        transition: .22s ease;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.08);
+    }
+    .switch-interruptor .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #fff;
+        border-radius: 50%;
+        transition: .22s ease;
+        box-shadow: 0 1px 2px rgba(0,0,0,.18);
+    }
+    .switch-interruptor .slider .switch-label {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 600;
+        color: #fff;
+        text-shadow: 0 1px 1px rgba(0,0,0,.12);
+        pointer-events: none;
+        letter-spacing: .02em;
+    }
+    .switch-interruptor .slider .switch-label { left: 24px; right: 3px; }
+    .switch-interruptor input:checked + .slider .switch-label { left: 3px; right: 24px; }
+    .switch-interruptor input:checked + .slider {
+        background-color: #5a9f5a;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.08);
+    }
+    .switch-interruptor input:checked + .slider:before {
+        transform: translateX(44px);
+    }
+    .switch-interruptor-disabled .slider {
+        cursor: default;
+        opacity: .95;
+    }
+
     .row-flex>[class*="span"] {
         display: flex;
         flex-direction: column;
         padding: 0 !important;
         margin: 0 !important;
-        width: auto !important; /* Forçar preenchimento flexível */
-    }
-
-    .row-flex>.span7 {
-        flex: 7;
         width: auto !important;
     }
 
-    .row-flex>.span5 {
-        flex: 5;
+    /* Proporções iguais ao editar/adicionar: Dados gerais (8) | Tipos de Pessoa (4) */
+    .row-flex>.span8 {
+        flex: 8;
         width: auto !important;
+        margin-left: 0 !important;
+    }
+
+    .row-flex>.span4 {
+        flex: 4;
+        width: auto !important;
+        margin-left: 0 !important;
     }
 
     .row-flex>.span6 {
@@ -68,35 +149,65 @@
         width: auto !important;
     }
 
-    /* Regras para unir seções lado a lado */
     .row-flex .form-section {
         flex: 1;
         display: flex;
         flex-direction: column;
         border-radius: 0;
         margin: 0;
+        height: 100%;
     }
 
-    /* Primeira seção da dupla (Esquerda) */
-    .row-flex>[class*="span"]:first-child .form-section {
+    /* Primeira seção (Dados gerais) – igual ao editar */
+    .row-flex>.span8 .form-section {
         border-right: none;
         border-top-left-radius: 4px;
         border-bottom-left-radius: 4px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
-    /* Segunda seção da dupla (Direita) */
-    .row-flex>[class*="span"]:last-child .form-section {
-        border-top-right-radius: 4px;
-        border-bottom-right-radius: 4px;
-    }
-
-    /* Ajuste para o conteúdo do cabeçalho da seção unida */
-    .row-flex>[class*="span"]:first-child .form-section-header {
+    .row-flex>.span8 .form-section-header {
+        border-top-left-radius: 4px;
         border-top-right-radius: 0;
     }
 
-    .row-flex>[class*="span"]:last-child .form-section-header {
+    /* Segunda seção (Tipos de Pessoa) – igual ao editar */
+    .row-flex>.span4 .form-section {
+        border-left: 1px solid #e0e0e0;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
         border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        margin-left: 0;
+    }
+
+    .row-flex>.span4 .form-section-header {
+        border-top-right-radius: 4px;
+        border-top-left-radius: 0;
+        border-left: 1px solid #e0e0e0;
+    }
+
+    /* Tipos de Pessoa: evitar corte dos labels (ex.: Funcionário) */
+    .row-flex>.span4 .form-section-content {
+        overflow: visible;
+        padding: 15px 20px;
+    }
+
+    .row-flex>.span4 .form-section-content label.checkbox {
+        overflow: visible;
+        white-space: nowrap;
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        width: auto;
+        min-width: 0;
+    }
+
+    .row-flex>.span4 .form-section-content label.checkbox input {
+        flex-shrink: 0;
+        margin-right: 8px;
     }
 
     /* Ajustes para inputs no estilo do formulário */
@@ -143,14 +254,15 @@
         padding: 0 !important;
     }
 
-    /* Forçar labels e controles para não terem espaços extras */
-    .form-horizontal .control-label {
+    /* Labels na seção Dados gerais (igual ao editar): não sobrescrever por form-horizontal */
+    .form-section .control-label {
         padding-top: 5px !important;
-        width: 90px !important;
+        min-width: 115px !important;
+        width: auto !important;
     }
 
-    .form-horizontal .controls {
-        margin-left: 110px !important;
+    .form-section .controls {
+        margin-left: 125px !important;
     }
 </style>
 
@@ -167,41 +279,50 @@
             <div class="widget-content nopadding tab-content form-horizontal">
                 <!-- Seções lado a lado: Dados Gerais e Tipos de Pessoa -->
                 <div class="row-fluid row-flex" style="margin: 20px 0 0 0; padding: 0;">
-                    <div class="span7">
+                    <div class="span8">
                         <div class="form-section">
                             <div class="form-section-header">
                                 <i class="fas fa-edit"></i>
                                 <span>Dados gerais</span>
                             </div>
                             <div class="form-section-content">
-                                <!-- Linha 1: Código e Situação -->
-                                <div class="row-fluid" style="margin-bottom: 15px;">
-                                    <div class="span6">
+                                <!-- 1ª Linha: Código (mais espaço) | Abertura (menos) | Situação (menos espaço entre) -->
+                                <div class="row-fluid linha-1-dados" style="margin-bottom: 15px;">
+                                    <div class="span4">
                                         <div class="control-group" style="margin-bottom: 0;">
                                             <label class="control-label">Código</label>
                                             <div class="controls">
                                                 <input type="text" value="<?php echo $result->pes_codigo; ?>" readonly
-                                                    style="width: 150px;" />
+                                                    class="span12" />
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="span6">
+                                    <div class="span4">
+                                        <div class="control-group" style="margin-bottom: 0;">
+                                            <label class="control-label"><?php echo $result->pes_fisico_juridico == 'F' ? 'Nascimento' : 'Abertura'; ?></label>
+                                            <div class="controls">
+                                                <input type="date"
+                                                    value="<?php echo $result->pes_nascimento_abertura; ?>" readonly
+                                                    class="span12" style="min-width: 120px;" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="span4">
                                         <div class="control-group" style="margin-bottom: 0;">
                                             <label class="control-label">Situação</label>
                                             <div class="controls">
-                                                <select disabled class="span12">
-                                                    <option selected>
-                                                        <?php echo $result->pes_situacao == '1' ? 'Ativo' : 'Inativo'; ?>
-                                                    </option>
-                                                </select>
+                                                <label class="switch-interruptor switch-interruptor-disabled">
+                                                    <input type="checkbox" disabled <?php echo $result->pes_situacao == '1' ? 'checked' : ''; ?> />
+                                                    <span class="slider"><span class="switch-label"><?php echo $result->pes_situacao == '1' ? 'Ativo' : 'Inativo'; ?></span></span>
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Linha 2: CPF/CNPJ e Nascimento/Abertura -->
+                                <!-- 2ª Linha: CPF/CNPJ | Regime Tributário (50/50) -->
                                 <div class="row-fluid" style="margin-bottom: 15px;">
-                                    <div class="span7">
+                                    <div class="span6">
                                         <div class="control-group" style="margin-bottom: 0;">
                                             <label class="control-label">CPF/CNPJ</label>
                                             <div class="controls">
@@ -210,20 +331,17 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="span5">
+                                    <div class="span6">
                                         <div class="control-group" style="margin-bottom: 0;">
-                                            <label
-                                                class="control-label"><?php echo $result->pes_fisico_juridico == 'F' ? 'Nascimento' : 'Abertura'; ?></label>
+                                            <label class="control-label">Regime Tributário</label>
                                             <div class="controls">
-                                                <input type="date"
-                                                    value="<?php echo $result->pes_nascimento_abertura; ?>" readonly
-                                                    class="span12" />
+                                                <input type="text" value="<?php echo isset($result->pes_regime_tributario) && $result->pes_regime_tributario !== '' && $result->pes_regime_tributario !== null ? htmlspecialchars($result->pes_regime_tributario) : '-'; ?>" readonly class="span12" style="width: 100%;" />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Linha 3: Nome -->
+                                <!-- 3ª Linha: Nome -->
                                 <div class="row-fluid" style="margin-bottom: 15px;">
                                     <div class="span12">
                                         <div class="control-group" style="margin-bottom: 0;">
@@ -236,7 +354,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Linha 4: Razão Social -->
+                                <!-- 4ª Linha: Razão Social -->
                                 <div class="row-fluid">
                                     <div class="span12">
                                         <div class="control-group" style="margin-bottom: 0;">
@@ -252,7 +370,7 @@
                         </div>
                     </div>
 
-                    <div class="span5">
+                    <div class="span4">
                         <div class="form-section">
                             <div class="form-section-header">
                                 <i class="fas fa-users"></i>
@@ -370,9 +488,10 @@
                                         <select disabled style="width: 150px; flex-shrink: 0;">
                                             <option selected><?php echo $end->end_tipo_endenreco ?: 'Geral'; ?></option>
                                         </select>
-                                        <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
+                                        <span style="white-space: nowrap; margin-right: 6px;">End. padrão</span>
+                                        <label class="switch-interruptor switch-interruptor-disabled" style="margin: 0;">
                                             <input type="checkbox" disabled <?php echo (isset($end->end_padrao) && $end->end_padrao) ? 'checked' : ''; ?> />
-                                            <strong>Endereço Padrão</strong>
+                                            <span class="slider"><span class="switch-label"><?php echo (isset($end->end_padrao) && $end->end_padrao) ? 'Sim' : 'Não'; ?></span></span>
                                         </label>
                                     </div>
                                 </div>
@@ -390,10 +509,21 @@
                                 <span>Documentos</span>
                             </div>
                             <div class="form-section-content">
-                                <?php if (empty($documentos)): ?>
+                                <?php
+                                $doc_tipo_ie = 'Inscrição Estadual';
+                                $mostrar_ie = (isset($result->pes_regime_tributario) && $result->pes_regime_tributario === 'Regime Normal');
+                                $documentos_visiveis = array_filter($documentos, function ($doc) use ($doc_tipo_ie, $mostrar_ie) {
+                                    $e_ie = (isset($doc->doc_tipo_documento) && trim($doc->doc_tipo_documento) === $doc_tipo_ie);
+                                    if ($e_ie) {
+                                        return $mostrar_ie;
+                                    }
+                                    return true;
+                                });
+                                ?>
+                                <?php if (empty($documentos_visiveis)): ?>
                                     <p class="text-muted" style="padding: 10px;">Nenhum documento cadastrado.</p>
                                 <?php else: ?>
-                                    <?php foreach ($documentos as $doc): ?>
+                                    <?php foreach ($documentos_visiveis as $doc): ?>
                                         <div class="documento-entry" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #eee;">
                                             <div class="row-fluid" style="display: flex; gap: 5px; margin-bottom: <?php echo $doc->DOC_ENDE_IDX !== null ? '5px' : '0'; ?>;">
                                                 <select disabled style="width: 150px; flex-shrink: 0;">

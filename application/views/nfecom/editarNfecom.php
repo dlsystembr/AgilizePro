@@ -3,23 +3,24 @@
     .form-section {
         border: 1px solid #e0e0e0;
         border-radius: 4px;
-        margin-bottom: 20px;
+        margin-bottom: 6px;
         background: #fff;
     }
 
     .form-section-header {
         background: #f8f9fa;
         border-bottom: 1px solid #e0e0e0;
-        padding: 12px 15px;
+        padding: 6px 10px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         font-weight: 600;
         color: #333;
+        font-size: 13px;
     }
 
     .form-section-content {
-        padding: 15px;
+        padding: 8px 10px;
     }
 
     /* Alinhamento dos campos */
@@ -27,6 +28,8 @@
         width: 120px;
         text-align: right;
         margin-right: 10px;
+        font-size: 13px;
+        line-height: 1.3;
     }
 
     .form-section .controls {
@@ -42,10 +45,10 @@
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
-        height: 30px;
-        padding: 4px 8px;
-        line-height: 20px;
-        font-size: 14px;
+        height: 28px;
+        padding: 3px 6px;
+        line-height: 18px;
+        font-size: 13px;
     }
 
     .form-section textarea {
@@ -327,21 +330,22 @@
 <div class="row-fluid" style="margin-top:0">
     <div class="span12">
         <div class="widget-box">
-            <div class="widget-title" style="margin: -20px 0 0">
+            <div class="widget-title" style="margin: -20px 0 0; padding: 8px 15px;">
                 <span class="icon">
                     <i class="fas fa-file-invoice"></i>
                 </span>
-                <h5>Editar NFECom</h5>
+                <h5 style="margin: 0; line-height: 1.2;">Editar NFECom</h5>
             </div>
             <?php if ($custom_error != '') {
                 echo '<div class="alert alert-danger">' . $custom_error . '</div>';
             } ?>
-            <form action="<?php echo site_url('nfecom/editar/' . $result->nfc_id); ?>" id="formNfecom" method="post" class="form-horizontal">
+            <form action="<?php echo site_url('nfecom/editar/' . $result->nfc_id); ?>" id="formNfecom" method="post"
+                class="form-horizontal">
                 <input type="hidden" name="idNfecom" value="<?php echo $result->nfc_id; ?>">
                 <div class="widget-content nopadding tab-content">
 
                     <!-- Seções lado a lado -->
-                    <div class="row-fluid row-flex" style="margin: 20px 0 0 0; padding: 0;">
+                    <div class="row-fluid row-flex" style="margin: 8px 0 0 0; padding: 0;">
                         <!-- Dados Principais (Esquerda) -->
                         <div class="span6">
                             <div class="form-section" style="height: 100%;">
@@ -351,7 +355,7 @@
                                 </div>
                                 <div class="form-section-content">
                                     <!-- Linha 0: Operação Comercial -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="opc_id" class="control-label">Operação Comercial<span
@@ -370,7 +374,7 @@
                                         </div>
                                     </div>
                                     <!-- Linha 1: Cliente -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="cliente" class="control-label">Cliente<span
@@ -391,7 +395,7 @@
                                     </div>
 
                                     <!-- Linha 2: Endereço do Cliente -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="enderecoClienteSelect" class="control-label">Endereço<span
@@ -411,7 +415,7 @@
                                     </div>
 
                                     <!-- Linha 2.1: Contato do Cliente -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="contatoCliente" class="control-label">Contato</label>
@@ -423,9 +427,22 @@
                                         </div>
                                     </div>
 
+                                    <!-- Destinatário não contribuinte ICMS (evita rejeição 428) -->
+                                    <div class="row-fluid" style="margin-bottom: 8px;">
+                                        <div class="span12">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <div class="controls">
+                                                    <label class="checkbox" style="font-weight: normal;">
+                                                        <input type="checkbox" name="dest_nao_contribuinte" id="dest_nao_contribuinte" value="1" <?php echo (isset($result->nfc_ind_ie_dest) && (string)$result->nfc_ind_ie_dest === '9') ? 'checked' : ''; ?>>
+                                                        Destinatário não contribuinte ICMS (indIEDest=9) — use se receber rejeição 428 “IE não cadastrada”
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <!-- Linha 3: Número do Contrato -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="numeroContrato" class="control-label">Contrato<span
@@ -439,9 +456,7 @@
                                         </div>
                                     </div>
 
-
-
-                                    <!-- Linha 5: Observações -->
+                                    <!-- Linha 5: Observações (Editável) -->
                                     <div class="row-fluid">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
@@ -449,7 +464,33 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <textarea name="observacoes" id="observacoes" rows="5"
-                                                        required><?php echo set_value('observacoes', $result->nfc_inf_cpl); ?></textarea>
+                                                        style="width: 100%;"
+                                                        required><?php echo set_value('observacoes', $result->nfc_observacoes ?: $result->nfc_inf_cpl); ?></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Linha 6: Info Tributária e Mensagem Legal (Automáticos / Readonly) -->
+                                    <div class="row-fluid">
+                                        <div class="span6">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label class="control-label">Informações Tributárias
+                                                    (Automático)</label>
+                                                <div class="controls">
+                                                    <textarea readonly rows="2"
+                                                        style="width: 100%; background-color: #f9f9f9; color: #666; font-style: italic;"
+                                                        placeholder="Será calculado automaticamente (IRRF, etc)"><?php echo $result->nfc_info_tributaria; ?></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span6">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label class="control-label">Mensagens Legais (Automático)</label>
+                                                <div class="controls">
+                                                    <textarea readonly rows="2"
+                                                        style="width: 100%; background-color: #f9f9f9; color: #666; font-style: italic;"
+                                                        placeholder="Será preenchido pela classificação fiscal"><?php echo $result->nfc_msg_legal; ?></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -468,7 +509,7 @@
                                 <div class="form-section-content">
 
                                     <!-- Linha 1: Código Assinante -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="iCodAssinante" class="control-label">Cód. Assinante</label>
@@ -482,7 +523,7 @@
                                     </div>
 
                                     <!-- Linha 2: Tipo Assinante e Tipo Serviço -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="tpAssinante" class="control-label">Tipo Assinante<span
@@ -522,7 +563,7 @@
                                     </div>
 
                                     <!-- Linha 3: Datas Contrato -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataContratoIni" class="control-label">Início Contrato<span
@@ -547,7 +588,7 @@
 
 
                                     <!-- Linha 5: Período Uso -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataPeriodoIni" class="control-label">Período Início<span
@@ -573,13 +614,13 @@
                                     </div>
 
                                     <div class="form-section-header"
-                                        style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; margin-left: -15px; margin-right: -15px; padding-left: 15px;">
+                                        style="margin-top: 6px; border-top: 1px solid #eee; padding-top: 4px; margin-left: -10px; margin-right: -10px; padding-left: 10px;">
                                         <i class="fas fa-credit-card"></i>
                                         <span>Forma de Pagamento</span>
                                     </div>
 
                                     <!-- Linha 6: Vencimento -->
-                                    <div class="row-fluid" style="margin-bottom: 15px; margin-top: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px; margin-top: 6px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataVencimento" class="control-label">Vencimento<span
@@ -594,7 +635,7 @@
                                     </div>
 
                                     <!-- Linha 6: Boleto -->
-                                    <div class="row-fluid" style="margin-bottom: 10px; margin-top: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px; margin-top: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="nfc_linha_digitavel" class="control-label">Boleto (Linha
@@ -610,7 +651,7 @@
                                     </div>
 
                                     <!-- Linha 7: Pix -->
-                                    <div class="row-fluid" style="margin-bottom: 10px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="nfc_chave_pix" class="control-label">Pix (Chave Pix)</label>
@@ -620,203 +661,357 @@
                                                         placeholder="Chave Pix para o QR Code">
                                                 </div>
                                             </div>
+                                            <!-- Linha 5: Dados Bancários -->
+                                            <div class="row-fluid">
+                                                <div class="span12">
+                                                    <div class="control-group" style="margin-bottom: 0;">
+                                                        <label for="dados_bancarios" class="control-label">Dados
+                                                            Bancários</label>
+                                                        <div class="controls">
+                                                            <textarea name="dados_bancarios" id="dados_bancarios"
+                                                                rows="2" style="width: 100%;"
+                                                                placeholder="Ex: Banco 001, Agência 1234, C/C 56789-0"><?php echo set_value('dados_bancarios', $result->nfc_dados_bancarios); ?></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Seção Serviços -->
+                            <div class="form-section" style="margin-top: 30px;">
+                                <div class="form-section-header">
+                                    <div>
+                                        <i class="fas fa-tools"></i>
+                                        <span>Serviços<span class="required">*</span></span>
+                                    </div>
+                                </div>
+                                <div class="form-section-content">
+                                    <div class="span12 well" style="padding: 1%; margin-left: 0">
+                                        <div class="row-fluid">
+                                            <div class="span6">
+                                                <input type="hidden" id="idServicoNfecom" />
+                                                <label for="">Serviço *</label>
+                                                <input type="text" class="span12" id="servicoNfecom"
+                                                    placeholder="Digite o nome do serviço" />
+                                            </div>
+                                            <div class="span2">
+                                                <label for="">Preço *</label>
+                                                <input type="text" placeholder="Preço" id="precoServicoNfecom"
+                                                    class="span12 money" data-affixes-stay="true" data-thousands=""
+                                                    data-decimal="." />
+                                            </div>
+                                            <div class="span2">
+                                                <label for="">Quantidade *</label>
+                                                <input type="text" placeholder="Quantidade" id="quantidadeServicoNfecom"
+                                                    class="span12" />
+                                            </div>
+                                            <div class="span2">
+                                                <label for="">&nbsp;</label>
+                                                <button type="button" id="btnAdicionarServicoNfecom"
+                                                    class="button btn btn-success">
+                                                    <span class="button__icon"><i
+                                                            class='bx bx-plus-circle'></i></span><span
+                                                        class="button__text2">Adicionar</span></button>
+                                            </div>
                                         </div>
                                     </div>
 
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Seção Serviços -->
-                    <div class="form-section" style="margin-top: 30px;">
-                        <div class="form-section-header">
-                            <div>
-                                <i class="fas fa-tools"></i>
-                                <span>Serviços<span class="required">*</span></span>
-                            </div>
-                        </div>
-                        <div class="form-section-content">
-                            <div class="span12 well" style="padding: 1%; margin-left: 0">
-                                <div class="row-fluid">
-                                    <div class="span6">
-                                        <input type="hidden" id="idServicoNfecom" />
-                                        <label for="">Serviço *</label>
-                                        <input type="text" class="span12" id="servicoNfecom"
-                                            placeholder="Digite o nome do serviço" />
-                                    </div>
-                                    <div class="span2">
-                                        <label for="">Preço *</label>
-                                        <input type="text" placeholder="Preço" id="precoServicoNfecom"
-                                            class="span12 money" data-affixes-stay="true" data-thousands=""
-                                            data-decimal="." />
-                                    </div>
-                                    <div class="span2">
-                                        <label for="">Quantidade *</label>
-                                        <input type="text" placeholder="Quantidade" id="quantidadeServicoNfecom"
-                                            class="span12" />
-                                    </div>
-                                    <div class="span2">
-                                        <label for="">&nbsp;</label>
-                                        <button type="button" id="btnAdicionarServicoNfecom"
-                                            class="button btn btn-success">
-                                            <span class="button__icon"><i class='bx bx-plus-circle'></i></span><span
-                                                class="button__text2">Adicionar</span></button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="widget-box" id="servicos-container">
-                                <div class="widget_content nopadding">
-                                    <table width="100%" class="table table-bordered" id="tblServicosNfecom">
-                                        <thead>
-                                            <tr>
-                                                <th>Serviço</th>
-                                                <th width="8%">Quantidade</th>
-                                                <th width="10%">Preço</th>
-                                                <th width="6%">Ações</th>
-                                                <th width="10%">Sub-totals</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="servicos-list-body">
-                                            <?php
-                                            $servicoIndex = 0;
-                                            if (!empty($itens)) {
-                                                foreach ($itens as $item) {
-                                                    $valorProduto = $item->nfi_v_prod;
-                                                    $valorUnitario = $item->nfi_v_item / $item->nfi_q_faturada;
+                                    <div class="widget-box" id="servicos-container">
+                                        <div class="widget_content nopadding">
+                                            <table width="100%" class="table table-bordered" id="tblServicosNfecom">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Serviço</th>
+                                                        <th width="8%">Quantidade</th>
+                                                        <th width="10%">Preço</th>
+                                                        <th width="6%">Ações</th>
+                                                        <th width="10%">Sub-totals</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="servicos-list-body">
+                                                    <?php
+                                                    $servicoIndex = 0;
+                                                    if (!empty($itens)) {
+                                                        foreach ($itens as $item) {
+                                                            $valorProduto = $item->nfi_v_prod;
+                                                            $valorUnitario = $item->nfi_v_item / $item->nfi_q_faturada;
+                                                            ?>
+                                                            <tr data-index="<?php echo $servicoIndex; ?>"
+                                                                data-valor-produto="<?php echo $valorProduto; ?>">
+                                                                <td>
+                                                                    <?php echo $item->nfi_x_prod; ?>
+                                                                </td>
+                                                                <td>
+                                                                    <div align="center">
+                                                                        <?php echo $item->nfi_q_faturada; ?>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div align="center">R$
+                                                                        <?php echo number_format($valorUnitario, 2, ',', '.'); ?>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div align="center">
+                                                                        <span class="btn-nwe4 servico-remove"
+                                                                            title="Excluir Serviço"><i
+                                                                                class="bx bx-trash-alt"></i></span>
+                                                                    </div>
+                                                                    <input type="hidden"
+                                                                        name="servicos[<?php echo $servicoIndex; ?>][id]"
+                                                                        value="<?php echo $item->nfi_c_prod; ?>">
+                                                                    <input type="hidden"
+                                                                        name="servicos[<?php echo $servicoIndex; ?>][quantidade]"
+                                                                        value="<?php echo $item->nfi_q_faturada; ?>">
+                                                                    <input type="hidden"
+                                                                        name="servicos[<?php echo $servicoIndex; ?>][valorUnitario]"
+                                                                        value="<?php echo $valorUnitario; ?>">
+                                                                    <input type="hidden"
+                                                                        name="servicos[<?php echo $servicoIndex; ?>][valorDesconto]"
+                                                                        value="<?php echo $item->nfi_v_desc; ?>">
+                                                                    <input type="hidden"
+                                                                        name="servicos[<?php echo $servicoIndex; ?>][valorOutros]"
+                                                                        value="<?php echo $item->nfi_v_outro; ?>">
+                                                                    <input type="hidden"
+                                                                        name="servicos[<?php echo $servicoIndex; ?>][cfop]"
+                                                                        value="<?php echo $item->nfi_cfop; ?>">
+                                                                    <input type="hidden"
+                                                                        name="servicos[<?php echo $servicoIndex; ?>][unidade]"
+                                                                        value="<?php echo $item->nfi_u_med; ?>">
+                                                                </td>
+                                                                <td>
+                                                                    <div align="center">R$:
+                                                                        <?php echo number_format($valorProduto, 2, ',', '.'); ?>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <?php
+                                                            $servicoIndex++;
+                                                        }
+                                                    }
                                                     ?>
-                                                    <tr data-index="<?php echo $servicoIndex; ?>"
-                                                        data-valor-produto="<?php echo $valorProduto; ?>">
-                                                        <td>
-                                                            <?php echo $item->nfi_x_prod; ?>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="4" style="text-align: right">
+                                                            <strong>Total:</strong>
                                                         </td>
                                                         <td>
-                                                            <div align="center">
-                                                                <?php echo $item->nfi_q_faturada; ?>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div align="center">R$
-                                                                <?php echo number_format($valorUnitario, 2, ',', '.'); ?>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div align="center">
-                                                                <span class="btn-nwe4 servico-remove" title="Excluir Serviço"><i
-                                                                        class="bx bx-trash-alt"></i></span>
-                                                            </div>
-                                                            <input type="hidden"
-                                                                name="servicos[<?php echo $servicoIndex; ?>][id]"
-                                                                value="<?php echo $item->nfi_c_prod; ?>">
-                                                            <input type="hidden"
-                                                                name="servicos[<?php echo $servicoIndex; ?>][quantidade]"
-                                                                value="<?php echo $item->nfi_q_faturada; ?>">
-                                                            <input type="hidden"
-                                                                name="servicos[<?php echo $servicoIndex; ?>][valorUnitario]"
-                                                                value="<?php echo $valorUnitario; ?>">
-                                                            <input type="hidden"
-                                                                name="servicos[<?php echo $servicoIndex; ?>][valorDesconto]"
-                                                                value="<?php echo $item->nfi_v_desc; ?>">
-                                                            <input type="hidden"
-                                                                name="servicos[<?php echo $servicoIndex; ?>][valorOutros]"
-                                                                value="<?php echo $item->nfi_v_outro; ?>">
-                                                            <input type="hidden"
-                                                                name="servicos[<?php echo $servicoIndex; ?>][cfop]"
-                                                                value="<?php echo $item->nfi_cfop; ?>">
-                                                            <input type="hidden"
-                                                                name="servicos[<?php echo $servicoIndex; ?>][unidade]"
-                                                                value="<?php echo $item->nfi_u_med; ?>">
-                                                        </td>
-                                                        <td>
-                                                            <div align="center">R$:
-                                                                <?php echo number_format($valorProduto, 2, ',', '.'); ?>
+                                                            <div align="center"><strong>R$
+                                                                    <span id="total-servicos-table">0,00</span></strong>
                                                             </div>
                                                         </td>
                                                     </tr>
-                                                    <?php
-                                                    $servicoIndex++;
-                                                }
-                                            }
-                                            ?>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="4" style="text-align: right"><strong>Total:</strong>
-                                                </td>
-                                                <td>
-                                                    <div align="center"><strong>R$
-                                                            <span id="total-servicos-table">0,00</span></strong>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Resumo dos valores calculados -->
+                                    <!-- Resumo dos valores calculados - Minimalista MapOS -->
+                                    <div id="servicos-resumo" class="resumo-minimal" style="display: none;">
+                                        <div class="row-fluid">
+                                            <div class="span4">
+                                                <div class="resumo-block">
+                                                    <span class="resumo-title">SUBTOTAL</span>
+                                                    <div class="resumo-line">
+                                                        <span>Faturamento Bruto:</span>
+                                                        <strong class="color-bruto">R$ <span
+                                                                id="total-servicos">0,00</span></strong>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
+                                                    <div class="resumo-line">
+                                                        <span>(-) Comissão Agência:</span>
+                                                        <div class="input-mini-wrapper">
+                                                            R$ <input type="number" name="comissaoAgencia"
+                                                                id="comissaoAgencia" step="0.01" value="0">
+                                                        </div>
+                                                    </div>
+                                                    <div class="resumo-line highlight-total">
+                                                        <span>Valor Líquido:</span>
+                                                        <strong>R$ <span id="valor-liquido">0,00</span></strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="span4">
+                                                <div class="resumo-block">
+                                                    <span class="resumo-title">IMPOSTOS E RETENÇÕES</span>
+                                                    <div class="resumo-line">
+                                                        <span>PIS:</span>
+                                                        <span>R$ <span id="total-pis">0,00</span></span>
+                                                    </div>
+                                                    <div class="resumo-line">
+                                                        <span>COFINS:</span>
+                                                        <span>R$ <span id="total-cofins">0,00</span></span>
+                                                    </div>
+                                                    <div class="resumo-line tax-irrf">
+                                                        <span>IRRF:</span>
+                                                        <strong>R$ <span id="total-irrf">0,00</span></strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="span4">
+                                                <div class="resumo-block total-final">
+                                                    <span class="resumo-title">TOTAL DA NOTA FISCAL</span>
+                                                    <div class="total-big">
+                                                        <small>R$</small> <span id="valor-nf">0,00</span>
+                                                    </div>
+                                                    <div class="total-note">
+                                                        Fórmula: Valor Líquido - IRRF
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <style>
+                                        .resumo-minimal {
+                                            margin-top: 25px;
+                                            padding: 20px;
+                                            background: #fff;
+                                            border: 1px solid #ddd;
+                                            border-radius: 4px;
+                                            box-sizing: border-box;
+                                        }
+
+                                        .resumo-minimal *,
+                                        .resumo-minimal *:before,
+                                        .resumo-minimal *:after {
+                                            box-sizing: border-box;
+                                        }
+
+                                        .resumo-block {
+                                            padding: 0 15px;
+                                            border-right: 1px solid #eee;
+                                            min-height: 100px;
+                                        }
+
+                                        .span4:last-child .resumo-block {
+                                            border-right: none;
+                                            padding-right: 0;
+                                        }
+
+                                        .resumo-title {
+                                            display: block;
+                                            font-size: 11px;
+                                            font-weight: bold;
+                                            color: #999;
+                                            margin-bottom: 12px;
+                                            letter-spacing: 1px;
+                                            text-transform: uppercase;
+                                        }
+
+                                        .resumo-line {
+                                            display: flex;
+                                            justify-content: space-between;
+                                            align-items: center;
+                                            font-size: 13px;
+                                            margin-bottom: 8px;
+                                            color: #555;
+                                        }
+
+                                        .color-bruto {
+                                            color: #468847;
+                                        }
+
+                                        /* Verde AgilizePro */
+
+                                        .highlight-total {
+                                            color: #2b6893;
+                                            border-top: 1px solid #f5f5f5;
+                                            padding-top: 10px;
+                                            margin-top: 10px;
+                                        }
+
+                                        .tax-irrf {
+                                            color: #b94a48;
+                                            border-top: 1px solid #f5f5f5;
+                                            padding-top: 10px;
+                                            margin-top: 10px;
+                                        }
+
+                                        .total-final {
+                                            text-align: right;
+                                            padding-left: 15px;
+                                        }
+
+                                        .total-big {
+                                            font-size: 38px;
+                                            font-weight: bold;
+                                            color: #333;
+                                            line-height: 1.2;
+                                            margin: 5px 0;
+                                        }
+
+                                        .total-big small {
+                                            font-size: 18px;
+                                            font-weight: normal;
+                                            color: #999;
+                                        }
+
+                                        .total-note {
+                                            font-size: 11px;
+                                            color: #bbb;
+                                            font-style: italic;
+                                        }
+
+                                        .input-mini-wrapper input {
+                                            margin: 0 !important;
+                                            font-size: 12px !important;
+                                            font-weight: bold !important;
+                                            text-align: right !important;
+                                        }
+                                    </style>
+
+                                    <!-- Campo oculto para valor bruto (calculado automaticamente) -->
+                                    <input type="hidden" name="valorBruto" id="valorBruto" value="0">
+                                    <div id="servicos-error"
+                                        style="display: none; margin-top: 10px; padding: 10px; background-color: #f2dede; border: 1px solid #ebccd1; border-radius: 4px; color: #a94442;">
+                                        <i class="fas fa-exclamation-triangle"></i> Adicione pelo menos um serviço
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Resumo dos valores calculados -->
-                            <div id="servicos-resumo"
-                                style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; display: none;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <strong>Total dos Serviços:</strong> R$ <span id="total-servicos">0,00</span>
-                                    </div>
-                                    <div style="display: flex; gap: 10px; align-items: center;">
-                                        <label for="comissaoAgencia" style="margin: 0;">Comissão:</label>
-                                        <input type="number" name="comissaoAgencia" id="comissaoAgencia" step="0.01"
-                                            value="0" placeholder="0,00" style="width: 80px; text-align: right;">
-                                    </div>
-                                </div>
-                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #dee2e6;">
-                                    <strong>Valor Líquido:</strong> R$ <span id="valor-liquido">0,00</span>
-                                </div>
-                            </div>
+                            <!-- Campos ocultos necessários para processamento -->
+                            <input type="hidden" name="enderecoClienteId" id="enderecoClienteId"
+                                value="<?php echo set_value('enderecoClienteId'); ?>">
+                            <input type="hidden" name="logradouroCliente" id="logradouroCliente"
+                                value="<?php echo set_value('logradouroCliente', $result->nfc_x_lgr_dest); ?>">
+                            <input type="hidden" name="numeroCliente" id="numeroCliente"
+                                value="<?php echo set_value('numeroCliente', $result->nfc_nro_dest); ?>">
+                            <input type="hidden" name="bairroCliente" id="bairroCliente"
+                                value="<?php echo set_value('bairroCliente', $result->nfc_x_bairro_dest); ?>">
+                            <input type="hidden" name="municipioCliente" id="municipioCliente"
+                                value="<?php echo set_value('municipioCliente', $result->nfc_x_mun_dest); ?>">
+                            <input type="hidden" name="codMunCliente" id="codMunCliente"
+                                value="<?php echo set_value('codMunCliente', $result->nfc_c_mun_dest); ?>">
+                            <input type="hidden" name="cepCliente" id="cepCliente"
+                                value="<?php echo set_value('cepCliente', $result->nfc_cep_dest); ?>">
+                            <input type="hidden" name="ufCliente" id="ufCliente"
+                                value="<?php echo set_value('ufCliente', $result->nfc_uf_dest); ?>">
 
-                            <!-- Campo oculto para valor bruto (calculado automaticamente) -->
-                            <input type="hidden" name="valorBruto" id="valorBruto" value="0">
-                            <div id="servicos-error"
-                                style="display: none; margin-top: 10px; padding: 10px; background-color: #f2dede; border: 1px solid #ebccd1; border-radius: 4px; color: #a94442;">
-                                <i class="fas fa-exclamation-triangle"></i> Adicione pelo menos um serviço
+                            <!-- Botões de ação -->
+                            <div class="form-actions">
+                                <div class="span12">
+                                    <div class="span6 offset3" style="display: flex;justify-content: center">
+                                        <button type="submit" class="button btn btn-mini btn-success"
+                                            style="max-width: 160px">
+                                            <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
+                                            <span class="button__text2">Salvar Alterações</span>
+                                        </button>
+                                        <a href="<?php echo base_url() ?>index.php/nfecom" id=""
+                                            class="button btn btn-mini btn-warning">
+                                            <span class="button__icon"><i class="bx bx-undo"></i></span>
+                                            <span class="button__text2">Voltar</span>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Campos ocultos necessários para processamento -->
-                    <input type="hidden" name="enderecoClienteId" id="enderecoClienteId"
-                        value="<?php echo set_value('enderecoClienteId'); ?>">
-                    <input type="hidden" name="logradouroCliente" id="logradouroCliente"
-                        value="<?php echo set_value('logradouroCliente', $result->nfc_x_lgr_dest); ?>">
-                    <input type="hidden" name="numeroCliente" id="numeroCliente"
-                        value="<?php echo set_value('numeroCliente', $result->nfc_nro_dest); ?>">
-                    <input type="hidden" name="bairroCliente" id="bairroCliente"
-                        value="<?php echo set_value('bairroCliente', $result->nfc_x_bairro_dest); ?>">
-                    <input type="hidden" name="municipioCliente" id="municipioCliente"
-                        value="<?php echo set_value('municipioCliente', $result->nfc_x_mun_dest); ?>">
-                    <input type="hidden" name="codMunCliente" id="codMunCliente"
-                        value="<?php echo set_value('codMunCliente', $result->nfc_c_mun_dest); ?>">
-                    <input type="hidden" name="cepCliente" id="cepCliente"
-                        value="<?php echo set_value('cepCliente', $result->nfc_cep_dest); ?>">
-                    <input type="hidden" name="ufCliente" id="ufCliente"
-                        value="<?php echo set_value('ufCliente', $result->nfc_uf_dest); ?>">
-
-                    <!-- Botões de ação -->
-                    <div class="form-actions">
-                        <div class="span12">
-                            <div class="span6 offset3" style="display: flex;justify-content: center">
-                                <button type="submit" class="button btn btn-mini btn-success" style="max-width: 160px">
-                                    <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
-                                    <span class="button__text2">Salvar Alterações</span>
-                                </button>
-                                <a href="<?php echo base_url() ?>index.php/nfecom" id=""
-                                    class="button btn btn-mini btn-warning">
-                                    <span class="button__icon"><i class="bx bx-undo"></i></span>
-                                    <span class="button__text2">Voltar</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </form>
         </div>
     </div>
@@ -890,12 +1085,30 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
 
+                const servicoVal = $('#idServicoNfecom').val();
+
+                // Se o serviço não estiver selecionado e tentar dar Enter no campo de serviço, não avançar
+                if (!servicoVal && e.target.id === 'servicoNfecom') {
+                    return;
+                }
+
                 const fields = ['#servicoNfecom', '#precoServicoNfecom', '#quantidadeServicoNfecom', '#btnAdicionarServicoNfecom'];
                 const currentIndex = fields.indexOf('#' + e.target.id);
                 const nextIndex = Math.min(currentIndex + 1, fields.length - 1);
 
-                if (nextIndex === fields.length - 1) {
-                    $('#btnAdicionarServicoNfecom').focus();
+                if (nextIndex === fields.length - 1 && e.target.id !== 'btnAdicionarServicoNfecom') {
+                    // Só foca/clica se tiver um serviço selecionado
+                    if (servicoVal) {
+                        $('#btnAdicionarServicoNfecom').focus();
+                    } else {
+                        $('#servicoNfecom').focus();
+                    }
+                } else if (e.target.id === 'btnAdicionarServicoNfecom') {
+                    if (servicoVal) {
+                        adicionarServicoNfecom();
+                    } else {
+                        $('#servicoNfecom').focus();
+                    }
                 } else {
                     $(fields[nextIndex]).focus();
                 }
@@ -973,13 +1186,6 @@
             adicionarServicoNfecom();
         });
 
-        // Enter no botão adiciona o item sem submit
-        $('#btnAdicionarServicoNfecom').on('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                adicionarServicoNfecom();
-            }
-        });
 
         // Remover serviço
         $(document).on('click', '.servico-remove', function () {
@@ -991,20 +1197,45 @@
         // Função para calcular e atualizar totais
         function atualizarTotais() {
             let totalServicos = 0;
+            let totalPis = 0;
+            let totalCofins = 0;
+            let totalIrrf = 0;
             const comissao = parseFloat($('#comissaoAgencia').val()) || 0;
 
-            // Calcular total de todos os serviços adicionados
+            // Calcular total de todos os serviços adicionados E somar os impostos dos itens
             $('#servicos-list-body tr').each(function () {
                 const valorProduto = parseFloat($(this).data('valor-produto')) || 0;
                 totalServicos += valorProduto;
+
+                // Buscar a linha de impostos correspondente (próxima linha com classe servico-row-tax)
+                const taxRow = $(this).next('.servico-row-tax');
+                if (taxRow.length > 0) {
+                    // Extrair valores dos impostos exibidos na linha de tributação
+                    const pisTxt = taxRow.find('.tax-valor-pis').text().replace(/[^\d,.-]/g, '').replace(',', '.');
+                    const cofinsTxt = taxRow.find('.tax-valor-cofins').text().replace(/[^\d,.-]/g, '').replace(',', '.');
+                    const irrfTxt = taxRow.find('.tax-valor-irrf').text().replace(/[^\d,.-]/g, '').replace(',', '.');
+
+                    totalPis += parseFloat(pisTxt) || 0;
+                    totalCofins += parseFloat(cofinsTxt) || 0;
+                    totalIrrf += parseFloat(irrfTxt) || 0;
+                }
             });
 
+            // Valor Líquido = Total - Comissão
             const valorLiquido = totalServicos - comissao;
+
+            // Valor da NF = Valor Líquido - IRRF (somado dos itens)
+            // Conforme regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
+            const valorNF = valorLiquido - totalIrrf;
 
             // Atualizar interface
             $('#total-servicos').text(formatMoney(totalServicos));
             $('#total-servicos-table').text(formatMoney(totalServicos));
             $('#valor-liquido').text(formatMoney(valorLiquido));
+            $('#total-pis').text(formatMoney(totalPis));
+            $('#total-cofins').text(formatMoney(totalCofins));
+            $('#total-irrf').text(formatMoney(totalIrrf));
+            $('#valor-nf').text(formatMoney(valorNF));
             $('#valorBruto').val(totalServicos.toFixed(2));
 
             // Mostrar/esconder resumo

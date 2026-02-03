@@ -1,6 +1,6 @@
 <?php
 // Script de debug para verificar configurações
-echo "<h1>Debug de Configuração Map-OS</h1>";
+echo "<h1>Debug de Configuração AgilizePro</h1>";
 echo "<h2>Variáveis do Servidor:</h2>";
 echo "HTTP_HOST: " . ($_SERVER['HTTP_HOST'] ?? 'N/A') . "<br>";
 echo "HTTPS: " . ($_SERVER['HTTPS'] ?? 'N/A') . "<br>";

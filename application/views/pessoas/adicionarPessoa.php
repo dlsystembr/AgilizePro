@@ -62,6 +62,72 @@
         display: inline-block;
     }
 
+    /* Interruptor Ativo/Inativo – compacto, sutil, texto centralizado na área visível */
+    .switch-interruptor {
+        position: relative;
+        display: inline-block;
+        width: 68px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+    .switch-interruptor input[type="checkbox"] {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .switch-interruptor .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #c45c5c;
+        border-radius: 24px;
+        transition: .22s ease;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.08);
+    }
+    .switch-interruptor .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #fff;
+        border-radius: 50%;
+        transition: .22s ease;
+        box-shadow: 0 1px 2px rgba(0,0,0,.18);
+    }
+    .switch-interruptor .slider .switch-label {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 600;
+        color: #fff;
+        text-shadow: 0 1px 1px rgba(0,0,0,.12);
+        pointer-events: none;
+        letter-spacing: .02em;
+    }
+    /* Inativo: texto centralizado na área à direita do botão */
+    .switch-interruptor .slider .switch-label { left: 24px; right: 3px; }
+    /* Ativo: texto centralizado na área à esquerda do botão */
+    .switch-interruptor input:checked + .slider .switch-label { left: 3px; right: 24px; }
+    .switch-interruptor input:checked + .slider {
+        background-color: #5a9f5a;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.08);
+    }
+    .switch-interruptor input:checked + .slider:before {
+        transform: translateX(44px);
+    }
+    .switch-interruptor input:focus + .slider {
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.06), 0 0 0 2px rgba(90,159,90,.3);
+    }
+
     /* Seções organizadas */
     .form-section {
         border: 1px solid #e0e0e0;
@@ -108,10 +174,33 @@
         font-size: 14px;
     }
 
-    /* Ajuste específico para o campo código que tem largura fixa */
+    /* Ajuste específico para o campo código – espaço para exibir */
     .form-section input#pes_codigo {
-        width: 150px;
-        max-width: 150px;
+        min-width: 90px;
+        width: 100%;
+        max-width: 180px;
+    }
+
+    /* Reduzir espaço entre Abertura e Situação na 1ª linha */
+    .linha-1-dados .span4:nth-child(2) { padding-right: 4px; }
+    .linha-1-dados .span4:nth-child(3) { padding-left: 4px; }
+
+    /* 2ª linha no cadastro: CPF/CNPJ + botão busca – botão fixo, input flexível */
+    .linha-2-cadastro .controls > div {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        min-width: 0;
+    }
+    .linha-2-cadastro .controls input#pes_cpfcnpj {
+        flex: 1;
+        min-width: 0;
+    }
+    .linha-2-cadastro .controls #btnBuscarCNPJ {
+        flex-shrink: 0;
+        width: 36px;
+        min-width: 36px;
+        padding: 4px 8px;
     }
 
     /* Flexbox para igualar alturas das seções lado a lado */
@@ -127,13 +216,13 @@
         padding: 0 !important;
     }
 
-    .row-flex>.span7 {
-        flex: 7;
+    .row-flex>.span8 {
+        flex: 8;
         width: auto !important;
         margin-left: 0 !important;
     }
 
-    .row-flex>.span5 {
+    .row-flex>.span4 {
         flex: 5;
         width: auto !important;
         margin-left: 0 !important;
@@ -149,7 +238,7 @@
     }
 
     /* Primeira seção (Dados gerais) */
-    .row-flex>.span7 .form-section {
+    .row-flex>.span8 .form-section {
         border-right: none;
         border-top-left-radius: 4px;
         border-bottom-left-radius: 4px;
@@ -157,13 +246,13 @@
         border-bottom-right-radius: 0;
     }
 
-    .row-flex>.span7 .form-section-header {
+    .row-flex>.span8 .form-section-header {
         border-top-left-radius: 4px;
         border-top-right-radius: 0;
     }
 
     /* Segunda seção (Tipos de Pessoa) */
-    .row-flex>.span5 .form-section {
+    .row-flex>.span4 .form-section {
         border-left: 1px solid #e0e0e0;
         border-top-right-radius: 4px;
         border-bottom-right-radius: 4px;
@@ -172,7 +261,7 @@
         margin-left: 0;
     }
 
-    .row-flex>.span5 .form-section-header {
+    .row-flex>.span4 .form-section-header {
         border-top-left-radius: 0;
         border-top-right-radius: 4px;
         border-left: 1px solid #e0e0e0;
@@ -201,12 +290,13 @@
         background: #555;
     }
 
-    /* Tipos de pessoa */
+    /* Tipos de pessoa – labels inteiros, sem cortar */
     #tipos-pessoa-container {
         display: flex;
         flex-direction: column;
         gap: 0;
         align-items: flex-start;
+        overflow: visible;
     }
 
     #tipos-pessoa-container label.checkbox {
@@ -214,6 +304,8 @@
         margin: 0 0 12px 0 !important;
         width: 100%;
         font-size: 14px;
+        overflow: visible;
+        white-space: nowrap;
     }
 
     /* Responsivo */
@@ -365,43 +457,55 @@
                                     <input type="hidden" id="pes_fisico_juridico" name="pes_fisico_juridico"
                                         value="<?php echo set_value('pes_fisico_juridico'); ?>">
 
-                                    <!-- Linha 1: Código e Situação -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span6">
+                                    <!-- 1ª Linha: Código (mais espaço) | Abertura (menos) | Situação (menos espaço entre) -->
+                                    <div class="row-fluid linha-1-dados" style="margin-bottom: 15px;">
+                                        <div class="span4">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="pes_codigo" class="control-label">Código</label>
                                                 <div class="controls">
                                                     <input id="pes_codigo" type="text" name="pes_codigo"
                                                         value="<?php echo set_value('pes_codigo'); ?>"
                                                         placeholder="Em branco = gerar" readonly
-                                                        style="width: 150px;" />
+                                                        style="width: 100%;" />
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="span6">
+                                        <div class="span4">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="pes_situacao" class="control-label">Situação</label>
+                                                <label for="pes_nascimento_abertura" id="labelNascimentoAbertura"
+                                                    class="control-label">Abertura</label>
                                                 <div class="controls">
-                                                    <select id="pes_situacao" name="pes_situacao">
-                                                        <option value="1" <?php echo set_value('pes_situacao', '1') == '1' ? 'selected' : ''; ?>>Ativo</option>
-                                                        <option value="0" <?php echo set_value('pes_situacao') == '0' ? 'selected' : ''; ?>>Inativo</option>
-                                                    </select>
+                                                    <input id="pes_nascimento_abertura" type="date"
+                                                        name="pes_nascimento_abertura"
+                                                        value="<?php echo set_value('pes_nascimento_abertura'); ?>" style="width: 100%; min-width: 120px;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span4">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="pes_situacao_toggle" class="control-label">Situação</label>
+                                                <div class="controls">
+                                                    <input type="hidden" name="pes_situacao" id="pes_situacao" value="<?php echo set_value('pes_situacao', '1'); ?>" />
+                                                    <label class="switch-interruptor">
+                                                        <input type="checkbox" id="pes_situacao_toggle" <?php echo set_value('pes_situacao', '1') == '1' ? 'checked' : ''; ?> />
+                                                        <span class="slider"><span class="switch-label" id="pes_situacao_texto"><?php echo set_value('pes_situacao', '1') == '1' ? 'Ativo' : 'Inativo'; ?></span></span>
+                                                    </label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Linha 2: CPF/CNPJ e Nascimento/Abertura -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <!-- 2ª Linha (cadastro): CPF/CNPJ + botão busca | Regime – 50/50, botão compacto -->
+                                    <div class="row-fluid linha-2-cadastro" style="margin-bottom: 15px;">
                                         <div class="span7">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="pes_cpfcnpj" class="control-label">CPF/CNPJ<span
                                                         class="required">*</span></label>
                                                 <div class="controls">
-                                                    <div style="display: flex; gap: 5px;">
+                                                    <div>
                                                         <input id="pes_cpfcnpj" type="text" name="pes_cpfcnpj"
                                                             value="<?php echo set_value('pes_cpfcnpj'); ?>"
-                                                            inputmode="numeric" autocomplete="off" style="flex: 1;" />
+                                                            inputmode="numeric" autocomplete="off" />
                                                         <button type="button" id="btnBuscarCNPJ" class="btn btn-info"
                                                             style="display:none;">
                                                             <i class="fas fa-search"></i>
@@ -412,18 +516,20 @@
                                         </div>
                                         <div class="span5">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="pes_nascimento_abertura" id="labelNascimentoAbertura"
-                                                    class="control-label">Abertura</label>
+                                                <label for="pes_regime_tributario" class="control-label">Regime Tributário <span id="regime_asterisco" class="required" style="display: none;">*</span></label>
                                                 <div class="controls">
-                                                    <input id="pes_nascimento_abertura" type="date"
-                                                        name="pes_nascimento_abertura"
-                                                        value="<?php echo set_value('pes_nascimento_abertura'); ?>" />
+                                                    <select id="pes_regime_tributario" name="pes_regime_tributario" style="width: 100%;" title="Obrigatório para CNPJ">
+                                                        <option value="">Selecione</option>
+                                                        <option value="MEI" <?php echo set_select('pes_regime_tributario', 'MEI'); ?>>MEI</option>
+                                                        <option value="Simples Nacional" <?php echo set_select('pes_regime_tributario', 'Simples Nacional'); ?>>Simples Nacional</option>
+                                                        <option value="Regime Normal" <?php echo set_select('pes_regime_tributario', 'Regime Normal'); ?>>Regime Normal</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Linha 3: Nome (largura total) -->
+                                    <!-- 3ª Linha: Nome -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
@@ -437,7 +543,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Linha 4: Razão Social (largura total) -->
+                                    <!-- 4ª Linha: Razão Social -->
                                     <div class="row-fluid">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
@@ -456,7 +562,7 @@
 
 
                         <!-- Tipos de Pessoa (Direita) -->
-                        <div class="span5">
+                        <div class="span4">
                             <div class="form-section" style="height: 100%;">
                                 <div class="form-section-header">
                                     <i class="fas fa-users"></i>
@@ -473,8 +579,20 @@
                                                     tipo de pessoa
                                                 </div>
                                                 <?php
-                                                // Buscar tipos de pessoa do banco de dados
-                                                $this->db->where('ativo', 1);
+                                                // Buscar tipos de pessoa: do tenant atual, globais (NULL/0) e do tenant matriz (1)
+                                                if ($this->db->field_exists('ten_id', 'tipos_pessoa')) {
+                                                    $tenId = $this->session->userdata('ten_id');
+                                                    $tenId = $tenId ? (int) $tenId : 1;
+                                                    $this->db->group_start();
+                                                    $this->db->where('ten_id', $tenId);
+                                                    $this->db->or_where('ten_id IS NULL', null, false);
+                                                    $this->db->or_where('ten_id', 0);
+                                                    $this->db->or_where('ten_id', 1); // matriz: tipos padrão da migration
+                                                    $this->db->group_end();
+                                                }
+                                                if ($this->db->field_exists('ativo', 'tipos_pessoa')) {
+                                                    $this->db->where('ativo', 1);
+                                                }
                                                 $this->db->order_by('nome', 'ASC');
                                                 $tipos_pessoa = $this->db->get('tipos_pessoa')->result();
 
@@ -557,6 +675,7 @@
                             </button>
                         </div>
                         <div class="form-section-content">
+                            <input type="hidden" name="endereco_padrao" id="endereco_padrao_hidden" value="" />
                             <div id="enderecos-container"></div>
                         </div>
                     </div>
@@ -869,6 +988,13 @@
         let documentoIndex = 0;
         let enderecoIndex = 0;
 
+        // Interruptor Situação (Ativo/Inativo) – texto dentro da faixa
+        $('#pes_situacao_toggle').on('change', function () {
+            var val = $(this).is(':checked') ? '1' : '0';
+            $('#pes_situacao').val(val);
+            $('#pes_situacao_texto').text(val === '1' ? 'Ativo' : 'Inativo');
+        });
+
         // Função para atualizar tipos de documento baseado em PF/PJ
         function atualizarTiposDocumento(tipo) {
             $('.doc-tipo').each(function () {
@@ -915,6 +1041,17 @@
             }
         }
 
+        // Regime Tributário: obrigatório para CNPJ (14 dígitos), opcional para CPF
+        function atualizarRegimeTributarioObrigatorio() {
+            var digits = $('#pes_cpfcnpj').val().replace(/\D/g, '');
+            if (digits.length === 14) {
+                $('#regime_asterisco').show();
+                $('#pes_regime_tributario').prop('required', true);
+            } else {
+                $('#regime_asterisco').hide();
+                $('#pes_regime_tributario').prop('required', false);
+            }
+        }
 
         var cpfCnpjOptions = {
             onKeyPress: function (val, e, field, options) {
@@ -939,6 +1076,7 @@
                         }, 100);
                     }
                 }
+                atualizarRegimeTributarioObrigatorio();
 
                 field.mask(cpfCnpjMascara.apply({}, arguments), options);
             }
@@ -990,7 +1128,10 @@
         // Foco inicial no campo CPF/CNPJ após um pequeno delay
         setTimeout(function () {
             $('#pes_cpfcnpj').focus();
+            atualizarRegimeTributarioObrigatorio();
         }, 100);
+
+        $('#pes_cpfcnpj').on('blur change', atualizarRegimeTributarioObrigatorio);
 
         // Verificar se CPF/CNPJ já existe quando sair do campo
         $('#pes_cpfcnpj').on('blur', function () {
@@ -1250,12 +1391,17 @@
 
         function realizarBuscaExterna(cnpj, btn) {
             $.ajax({
-                url: `https://publica.cnpj.ws/cnpj/${cnpj}`,
+                url: '<?php echo site_url("pessoas/buscarCnpjApi/"); ?>' + cnpj,
                 method: 'GET',
                 dataType: 'json',
-                timeout: 10000,
+                timeout: 35000,
                 success: function (data) {
-                    if (data.razao_social) {
+                    if (data && data.erro) {
+                        alert(data.erro);
+                        btn.prop('disabled', false).html('<i class="fas fa-search"></i>');
+                        return;
+                    }
+                    if (data && data.razao_social) {
                         // Os dados estão em data.estabelecimento
                         const estab = data.estabelecimento;
 
@@ -1270,6 +1416,20 @@
                         // Preencher data de abertura
                         if (estab.data_inicio_atividade) {
                             $('#pes_nascimento_abertura').val(estab.data_inicio_atividade);
+                        }
+
+                        // Regime Tributário (API retorna data.simples com mei e simples = "Sim" ou "Não")
+                        // Se mei = Sim → MEI; se simples = Sim → Simples Nacional; se os dois Não → Regime Normal
+                        const sn = data.simples_nacional || data.simples || {};
+                        const ehSim = function (v) { return v === 'S' || v === true || String(v || '').toLowerCase().trim() === 'sim'; };
+                        const meiSim = ehSim(sn.mei);
+                        const simplesSim = ehSim(sn.simples);
+                        if (meiSim) {
+                            $('#pes_regime_tributario').val('MEI');
+                        } else if (simplesSim) {
+                            $('#pes_regime_tributario').val('Simples Nacional');
+                        } else {
+                            $('#pes_regime_tributario').val('Regime Normal');
                         }
 
                         // Adicionar telefone se disponível (ddd1 e telefone1)
@@ -1339,9 +1499,10 @@
                                         <option value="Entrega">Entrega</option>
                                         <option value="Outros">Outros</option>
                                     </select>
-                                    <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
-                                        <input type="radio" name="endereco_padrao" value="novo_${enderecoIndex}" ${checkedAttr} />
-                                        <strong>Endereço Padrão</strong>
+                                    <span style="white-space: nowrap; margin-right: 6px;">End. padrão</span>
+                                    <label class="switch-interruptor endereco-padrao-wrap" style="margin: 0;">
+                                        <input type="checkbox" class="endereco-padrao-toggle" data-endereco-value="novo_${enderecoIndex}" ${checkedAttr} />
+                                        <span class="slider"><span class="switch-label endereco-padrao-label">${isPrimeiro ? 'Sim' : 'Não'}</span></span>
                                     </label>
                                     <div style="flex: 1;"></div>
                                     <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -1352,6 +1513,7 @@
                         `;
                             $('#enderecos-container').append(enderecoRow);
                             enderecoIndex++;
+                            if (isPrimeiro) $('#endereco_padrao_hidden').val('novo_0');
                             atualizarOpcoesEndereco();
 
                             // Aplicar máscara de CEP
@@ -1370,16 +1532,20 @@
                         // Aguardar um pouco para garantir que o endereço foi adicionado
                         setTimeout(function () {
                             $.ajax({
-                                url: `https://publica.cnpj.ws/cnpj/${cnpj}`,
+                                url: '<?php echo site_url("pessoas/buscarCnpjApi/"); ?>' + cnpj,
                                 method: 'GET',
                                 dataType: 'json',
                                 success: function (dataCNPJWS) {
                                     // Remover indicador de carregamento
                                     $('#loading-documentos').remove();
+                                    if (dataCNPJWS && dataCNPJWS.erro) {
+                                        console.log('Busca IE:', dataCNPJWS.erro);
+                                        return;
+                                    }
                                     console.log('Dados CNPJ.WS:', dataCNPJWS);
 
                                     // Verificar se tem inscrições estaduais no estabelecimento
-                                    if (dataCNPJWS.estabelecimento &&
+                                    if (dataCNPJWS && dataCNPJWS.estabelecimento &&
                                         dataCNPJWS.estabelecimento.inscricoes_estaduais &&
                                         dataCNPJWS.estabelecimento.inscricoes_estaduais.length > 0) {
 
@@ -1710,17 +1876,16 @@
                     <input type="text" name="doc_numero[]" value="${numero}" placeholder="Número" class="form-control" style="flex: 1;" />
                     <input type="text" name="doc_orgao_expedidor[]" value="${orgao}" placeholder="Órgão Expedidor" class="form-control" style="flex: 1;" />
                     <select name="doc_natureza_contribuinte[]" class="form-control" style="width: 150px;">
-                        <option value="">Natureza</option>
                         <option value="Contribuinte" ${natureza === 'Contribuinte' ? 'selected' : ''}>Contribuinte</option>
-                        <option value="Não Contribuinte">Não Contribuinte</option>
+                        <option value="Não Contribuinte" ${(natureza && (natureza.indexOf('Não') !== -1 || natureza.indexOf('não') !== -1 || natureza.indexOf('Nao') !== -1 || natureza.indexOf('nao') !== -1)) ? 'selected' : ''}>Não Contribuinte</option>
                     </select>
                     <button type="button" class="btn btn-mini btn-danger remove-documento" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-trash"></i>
                     </button>
     </div>
                 <div class="endereco-vinculo" style="display: ${showEndereco ? 'flex' : 'none'}; gap: 10px; align-items: center;">
-                    <label style="margin: 0; white-space: nowrap;">Vincular ao endereço:</label>
-                    <select name="DOC_ENDE_IDX[]" class="form-control" style="flex: 1;">
+                    <label style="margin: 0; white-space: nowrap;">Vincular ao endereço${tipo === 'Inscrição Estadual' ? ' <span class="required">*</span>' : ''}:</label>
+                    <select name="DOC_ENDE_IDX[]" class="form-control doc-endereco-vinculo" style="flex: 1;">
                         <option value="">Selecione um endereço</option>
                     </select>
                 </div>
@@ -1738,16 +1903,23 @@
             $(this).closest('.documento-row').remove();
         });
 
-        // Controle do campo endereço nos documentos
+        // Controle do campo endereço nos documentos (Inscrição Estadual obrigatório vincular)
         $(document).on('change', '.doc-tipo', function () {
             const row = $(this).closest('.documento-row');
             const tipo = $(this).val();
             const enderecoVinculo = row.find('.endereco-vinculo');
+            const labelVinculo = enderecoVinculo.find('label');
 
             if (tipo === 'Inscrição Estadual' || tipo === 'Inscrição Municipal') {
                 enderecoVinculo.show();
+                if (tipo === 'Inscrição Estadual' && !labelVinculo.find('.required').length) {
+                    labelVinculo.html('Vincular ao endereço <span class="required">*</span>:');
+                } else if (tipo === 'Inscrição Municipal') {
+                    labelVinculo.html('Vincular ao endereço:');
+                }
             } else {
                 enderecoVinculo.hide();
+                labelVinculo.html('Vincular ao endereço:');
             }
         });
 
@@ -1777,9 +1949,10 @@
                         <option value="Entrega">Entrega</option>
                         <option value="Outros">Outros</option>
                     </select>
-                    <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
-                        <input type="radio" name="endereco_padrao" value="novo_${enderecoIndex}" ${checkedAttr} />
-                        <strong>Endereço Padrão</strong>
+                    <span style="white-space: nowrap; margin-right: 6px;">End. padrão</span>
+                    <label class="switch-interruptor endereco-padrao-wrap" style="margin: 0;">
+                        <input type="checkbox" class="endereco-padrao-toggle" data-endereco-value="novo_${enderecoIndex}" ${checkedAttr} />
+                        <span class="slider"><span class="switch-label endereco-padrao-label">${isPrimeiro ? 'Sim' : 'Não'}</span></span>
                     </label>
                     <div style="flex: 1;"></div>
                     <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -1790,6 +1963,7 @@
         `;
             $('#enderecos-container').append(enderecoRow);
             enderecoIndex++;
+            if (isPrimeiro) $('#endereco_padrao_hidden').val('novo_' + (enderecoIndex - 1));
             atualizarOpcoesEndereco();
 
             // Aplicar máscara de CEP no novo campo
@@ -1817,24 +1991,45 @@
             });
         }
 
-        // Controlar endereço padrão (apenas um pode ser marcado)
-        $(document).on('change', 'input[name="endereco_padrao"]', function () {
-            if ($(this).is(':checked')) {
-                // Desmarcar todos os outros
-                $('input[name="endereco_padrao"]').not(this).prop('checked', false);
+        // Endereço padrão: toggle Sim/Não (apenas um pode ser Sim; obrigatório um padrão)
+        $(document).on('change', '.endereco-padrao-toggle', function () {
+            var toggle = $(this);
+            var valor = toggle.data('endereco-value');
+            if (toggle.is(':checked')) {
+                $('#endereco_padrao_hidden').val(valor);
+                $('.endereco-padrao-toggle').not(this).prop('checked', false);
+                $('.endereco-padrao-label').text('Não');
+                toggle.closest('.endereco-padrao-wrap').find('.endereco-padrao-label').text('Sim');
+            } else {
+                var outro = $('#enderecos-container .endereco-row .endereco-padrao-toggle').not(this).first();
+                if (outro.length) {
+                    outro.prop('checked', true);
+                    $('#endereco_padrao_hidden').val(outro.data('endereco-value'));
+                    $('.endereco-padrao-label').text('Não');
+                    outro.closest('.endereco-padrao-wrap').find('.endereco-padrao-label').text('Sim');
+                } else {
+                    $('#endereco_padrao_hidden').val('');
+                }
             }
         });
 
         // Remover endereço
         $(document).on('click', '.remove-endereco', function () {
-            var eraPadrao = $(this).closest('.endereco-row').find('input[name="endereco_padrao"]').is(':checked');
-            $(this).closest('.endereco-row').remove();
+            var row = $(this).closest('.endereco-row');
+            var eraPadrao = row.find('.endereco-padrao-toggle').is(':checked');
+            row.remove();
 
-            // Se removeu o padrão, marcar o primeiro disponível
             if (eraPadrao) {
-                $('input[name="endereco_padrao"]').first().prop('checked', true);
+                var primeiro = $('#enderecos-container .endereco-row .endereco-padrao-toggle').first();
+                if (primeiro.length) {
+                    primeiro.prop('checked', true);
+                    $('#endereco_padrao_hidden').val(primeiro.data('endereco-value'));
+                    $('.endereco-padrao-label').text('Não');
+                    primeiro.closest('.endereco-padrao-wrap').find('.endereco-padrao-label').text('Sim');
+                } else {
+                    $('#endereco_padrao_hidden').val('');
+                }
             }
-
             atualizarOpcoesEndereco();
         });
 
@@ -1974,6 +2169,34 @@
                 $('.alert-error').show();
             },
             submitHandler: function (form) {
+                // Obrigatório pelo menos um tipo de pessoa
+                var tiposSelecionados = $('input[name="TIPOS_PESSOA[]"]:checked').length;
+                if (tiposSelecionados === 0) {
+                    $('#tipos-pessoa-error').css('display', 'block');
+                    $('#tipos-pessoa-container').css('border', '2px solid #a94442');
+                    $('html, body').animate({ scrollTop: $('#tipos-pessoa-container').offset().top - 100 }, 500);
+                    Swal.fire({ icon: 'error', title: 'Atenção', text: 'Selecione pelo menos um tipo de pessoa (Cliente, Fornecedor, etc.).' });
+                    return;
+                }
+                $('#tipos-pessoa-error').css('display', 'none');
+                $('#tipos-pessoa-container').css('border', '1px solid #ddd');
+
+                // Inscrição Estadual: obrigatório vincular ao endereço
+                var docRows = $('#documentos-container .documento-row');
+                var docOk = true;
+                docRows.each(function () {
+                    var tipo = $(this).find('select[name="doc_tipo_documento[]"]').val();
+                    var endIdx = $(this).find('select[name="DOC_ENDE_IDX[]"]').val();
+                    if (tipo === 'Inscrição Estadual' && (!endIdx || String(endIdx).trim() === '')) {
+                        docOk = false;
+                        return false;
+                    }
+                });
+                if (!docOk) {
+                    Swal.fire({ icon: 'error', title: 'Atenção', text: 'Para documento tipo Inscrição Estadual é obrigatório vincular ao endereço.' });
+                    return;
+                }
+
                 var btn = $(form).find('button[type=submit]');
                 var originalBtnText = btn.html();
 
@@ -1991,14 +2214,15 @@
                     dataType: 'json',
                     success: function (response) {
                         if (response.result) {
-                            // Success
+                            // Success: redireciona para visualizar após o alert fechar (usar .then() para timer)
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Sucesso',
                                 text: response.message,
                                 timer: 1500,
-                                showConfirmButton: false,
-                                willClose: () => {
+                                showConfirmButton: false
+                            }).then(function () {
+                                if (response.redirect) {
                                     window.location.href = response.redirect;
                                 }
                             });

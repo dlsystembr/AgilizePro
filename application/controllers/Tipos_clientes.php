@@ -26,11 +26,11 @@ class Tipos_clientes extends MY_Controller
         $this->load->library('pagination');
 
         $this->data['configuration']['base_url'] = base_url() . 'index.php/tipos_clientes/gerenciar/';
-        $this->data['configuration']['total_rows'] = $this->Tipos_clientes_model->count('TIPOS_CLIENTES');
+        $this->data['configuration']['total_rows'] = $this->Tipos_clientes_model->count('tipos_clientes');
 
         $this->pagination->initialize($this->data['configuration']);
 
-        $this->data['results'] = $this->Tipos_clientes_model->get('TIPOS_CLIENTES', '*', '', $this->data['configuration']['per_page'], $this->uri->segment(3));
+        $this->data['results'] = $this->Tipos_clientes_model->get('tipos_clientes', '*', '', $this->data['configuration']['per_page'], $this->uri->segment(3));
 
         $this->data['view'] = 'tipos_clientes/gerenciarTiposClientes';
         $this->layout();
@@ -55,7 +55,7 @@ class Tipos_clientes extends MY_Controller
                 'tpc_data_cadastro' => date('Y-m-d H:i:s'),
             ];
 
-            if ($this->Tipos_clientes_model->add('TIPOS_CLIENTES', $data) == true) {
+            if ($this->Tipos_clientes_model->add('tipos_clientes', $data) == true) {
                 $this->session->set_flashdata('success', 'Tipo de Cliente adicionado com sucesso!');
                 log_info('Adicionou um tipo de cliente.');
                 redirect(base_url() . 'index.php/tipos_clientes/gerenciar');
@@ -113,7 +113,7 @@ class Tipos_clientes extends MY_Controller
             redirect(base_url() . 'index.php/tipos_clientes/gerenciar');
         }
 
-        $this->Tipos_clientes_model->delete('TIPOS_CLIENTES', 'tpc_id', $id);
+        $this->Tipos_clientes_model->delete('tipos_clientes', 'tpc_id', $id);
 
         $this->session->set_flashdata('success', 'Tipo de Cliente excluído com sucesso!');
         log_info('Excluiu um tipo de cliente. ID: ' . $id);

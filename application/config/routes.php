@@ -1,6 +1,6 @@
 <?php
 
-if (! defined('BASEPATH')) {
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 /*
@@ -44,10 +44,12 @@ if (! defined('BASEPATH')) {
 
 $route['default_controller'] = 'mapos';
 $route['404_override'] = '';
+$route['mapos/configuracoes'] = 'mapos/configurar';
 
 // Rota para Configurações Fiscais (garante compatibilidade case-sensitive)
 $route['configuracoesfiscais'] = 'ConfiguracoesFiscais';
 $route['configuracoesfiscais/(:any)'] = 'ConfiguracoesFiscais/$1';
+$route['configuracoesfiscais/(:any)/(:any)'] = 'ConfiguracoesFiscais/$1/$2';
 
 // Rotas para Classificação Fiscal (garante compatibilidade case-sensitive - várias variações)
 $route['classificacaofiscal'] = 'ClassificacaoFiscal';

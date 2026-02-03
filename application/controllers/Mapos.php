@@ -1,5 +1,8 @@
-<?php if (!defined('BASEPATH')) { exit('No direct script access allowed'); }
-class Mapos extends MY_Controller {
+<?php if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
+class Mapos extends MY_Controller
+{
     public function __construct()
     {
         parent::__construct();
@@ -27,7 +30,7 @@ class Mapos extends MY_Controller {
         $this->data['financeiro_mes'] = $this->mapos_model->getEstatisticasFinanceiroMes($this->input->get('year'));
         $this->data['financeiro_mesinadipl'] = $this->mapos_model->getEstatisticasFinanceiroMesInadimplencia($this->input->get('year'));
         $this->data['nfcom_dia'] = $this->mapos_model->getNfcomDia();
-        
+
         // Estatísticas do sistema filtradas por ten_id
         $this->load->model('clientes_model');
         $this->load->model('produtos_model');
@@ -35,7 +38,7 @@ class Mapos extends MY_Controller {
         $this->load->model('garantias_model');
         $this->load->model('vendas_model');
         $this->load->model('nfecom_model');
-        
+
         $this->data['total_clientes'] = $this->clientes_model->count('clientes');
         $this->data['total_produtos'] = $this->produtos_model->count('produtos');
         $this->data['total_servicos'] = $this->servicos_model->count('servicos');
@@ -43,12 +46,12 @@ class Mapos extends MY_Controller {
         $this->data['total_os'] = $this->os_model->count('os');
         $this->data['total_garantias'] = $this->garantias_model->count('garantias');
         $this->data['total_vendas'] = $this->vendas_model->count('vendas');
-        
+
         // Contar NFCom autorizadas (status 3 ou 5) filtradas por ten_id
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
         $this->db->where_in('nfc_status', [3, 5]);
         $this->data['total_nfcom_autorizadas'] = $this->db->count_all_results('nfecom_capa');
-        
+
         $this->data['menuPainel'] = 'Painel';
         $this->data['view'] = 'mapos/painel';
 
@@ -426,6 +429,16 @@ class Mapos extends MY_Controller {
 
     public function configurar()
     {
+        // Super admin tem acesso total
+        if ($this->session->userdata('is_super')) {
+            $this->data['menuConfiguracoes'] = 'Sistema';
+            $this->data['configuration'] = $this->mapos_model->getConfiguracao();
+            $this->data['custom_error'] = '';
+            $this->data['view'] = 'mapos/configurar';
+
+            return $this->layout();
+        }
+
         if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'cSistema')) {
             $this->session->set_flashdata('error', 'Você não tem permissão para configurar o sistema');
             redirect(base_url());
@@ -523,8 +536,10 @@ class Mapos extends MY_Controller {
 
     public function calendario()
     {
-        if (!$this->permission->checkPermission($this->session->userdata('permissao'), 'vOs') && 
-            !$this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) {
+        if (
+            !$this->permission->checkPermission($this->session->userdata('permissao'), 'vOs') &&
+            !$this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')
+        ) {
             $this->session->set_flashdata('error', 'Você não tem permissão para visualizar a agenda.');
             redirect(base_url());
         }
@@ -541,7 +556,7 @@ class Mapos extends MY_Controller {
                 $status
             );
         }
-        
+
         $events = array_map(function ($os) {
             switch ($os->orv_status) {
                 case 'Aberto':
@@ -578,12 +593,12 @@ class Mapos extends MY_Controller {
 
             $produtos = $this->os_model->getProdutos($os->orv_id);
             $totalProdutos = array_reduce($produtos, function ($acc, $p) {
-                return $acc + (isset($p->pro_os_subtotal) ? (float)$p->pro_os_subtotal : (float)(($p->pro_os_preco ?? 0) * ($p->pro_os_quantidade ?? 0)));
+                return $acc + (isset($p->pro_os_subtotal) ? (float) $p->pro_os_subtotal : (float) (($p->pro_os_preco ?? 0) * ($p->pro_os_quantidade ?? 0)));
             }, 0);
 
             $servicos = $this->os_model->getServicos($os->orv_id);
             $totalServicos = array_reduce($servicos, function ($acc, $s) {
-                return $acc + (isset($s->sos_subtotal) ? (float)$s->sos_subtotal : (float)(($s->sos_preco ?? 0) * ($s->sos_quantidade ?? 0)));
+                return $acc + (isset($s->sos_subtotal) ? (float) $s->sos_subtotal : (float) (($s->sos_preco ?? 0) * ($s->sos_quantidade ?? 0)));
             }, 0);
 
             $subtotalGeral = $totalProdutos + $totalServicos;
@@ -625,13 +640,27 @@ class Mapos extends MY_Controller {
                 // Mapear status de NFCom para texto
                 $statusText = 'Desconhecido';
                 switch ($nfcom->nfc_status) {
-                    case 0: $statusText = 'Rascunho'; break;
-                    case 1: $statusText = 'Pendente'; break;
-                    case 2: $statusText = 'Enviada'; break;
-                    case 3: $statusText = 'Autorizada'; break;
-                    case 4: $statusText = 'Rejeitada'; break;
-                    case 5: $statusText = 'Autorizada'; break;
-                    case 7: $statusText = 'Cancelada'; break;
+                    case 0:
+                        $statusText = 'Rascunho';
+                        break;
+                    case 1:
+                        $statusText = 'Pendente';
+                        break;
+                    case 2:
+                        $statusText = 'Enviada';
+                        break;
+                    case 3:
+                        $statusText = 'Autorizada';
+                        break;
+                    case 4:
+                        $statusText = 'Rejeitada';
+                        break;
+                    case 5:
+                        $statusText = 'Autorizada';
+                        break;
+                    case 7:
+                        $statusText = 'Cancelada';
+                        break;
                 }
 
                 $events[] = [
@@ -684,11 +713,11 @@ class Mapos extends MY_Controller {
     {
         $emitente = $this->mapos_model->getEmitente();
         $regime_tributario = 'normal'; // valor padrão
-        
+
         if ($emitente && isset($emitente->regime_tributario)) {
             $regime_tributario = $emitente->regime_tributario;
         }
-        
+
         $this->output
             ->set_content_type('application/json')
             ->set_output(json_encode([
@@ -699,7 +728,7 @@ class Mapos extends MY_Controller {
     public function getEstadoEmitente()
     {
         $emitente = $this->mapos_model->getEmitente();
-        
+
         if (!$emitente) {
             $this->output->set_status_header(404);
             echo json_encode(['error' => 'Dados do emitente não encontrados.']);

@@ -47,6 +47,70 @@
         white-space: nowrap;
     }
 
+    /* Interruptor Ativo/Inativo – compacto, sutil, texto centralizado na área visível */
+    .switch-interruptor {
+        position: relative;
+        display: inline-block;
+        width: 68px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+    .switch-interruptor input[type="checkbox"] {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .switch-interruptor .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #c45c5c;
+        border-radius: 24px;
+        transition: .22s ease;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.08);
+    }
+    .switch-interruptor .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #fff;
+        border-radius: 50%;
+        transition: .22s ease;
+        box-shadow: 0 1px 2px rgba(0,0,0,.18);
+    }
+    .switch-interruptor .slider .switch-label {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 600;
+        color: #fff;
+        text-shadow: 0 1px 1px rgba(0,0,0,.12);
+        pointer-events: none;
+        letter-spacing: .02em;
+    }
+    .switch-interruptor .slider .switch-label { left: 24px; right: 3px; }
+    .switch-interruptor input:checked + .slider .switch-label { left: 3px; right: 24px; }
+    .switch-interruptor input:checked + .slider {
+        background-color: #5a9f5a;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.08);
+    }
+    .switch-interruptor input:checked + .slider:before {
+        transform: translateX(44px);
+    }
+    .switch-interruptor input:focus + .slider {
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.06), 0 0 0 2px rgba(90,159,90,.3);
+    }
+
     .control-group.success input,
     .control-group.success select {
         border-color: #468847;
@@ -86,14 +150,16 @@
         padding: 15px;
     }
 
-    /* Alinhamento dos campos */
+    /* Alinhamento dos campos – label com espaço para "Regime Tributário" em uma linha */
     .form-section .control-label {
-        width: 90px;
+        min-width: 115px;
+        width: auto;
         text-align: right;
+        white-space: nowrap;
     }
 
     .form-section .controls {
-        margin-left: 110px;
+        margin-left: 125px;
     }
 
 
@@ -152,11 +218,16 @@
         font-size: 14px;
     }
 
-    /* Ajuste específico para o campo código */
+    /* Ajuste específico para o campo código – espaço para exibir */
     .form-section input#pes_codigo {
-        width: 150px;
-        max-width: 150px;
+        min-width: 90px;
+        width: 100%;
+        max-width: 180px;
     }
+
+    /* Reduzir espaço entre Abertura e Situação na 1ª linha */
+    .linha-1-dados .span4:nth-child(2) { padding-right: 4px; }
+    .linha-1-dados .span4:nth-child(3) { padding-left: 4px; }
 
     /* Flexbox para igualar alturas das seções lado a lado */
     .row-flex {
@@ -171,13 +242,13 @@
         padding: 0 !important;
     }
 
-    .row-flex>.span7 {
-        flex: 7;
+    .row-flex>.span8 {
+        flex: 8;
         width: auto !important;
         margin-left: 0 !important;
     }
 
-    .row-flex>.span5 {
+    .row-flex>.span4 {
         flex: 5;
         width: auto !important;
         margin-left: 0 !important;
@@ -193,7 +264,7 @@
     }
 
     /* Primeira seção (Dados gerais) */
-    .row-flex>.span7 .form-section {
+    .row-flex>.span8 .form-section {
         border-right: none;
         border-top-left-radius: 4px;
         border-bottom-left-radius: 4px;
@@ -201,13 +272,13 @@
         border-bottom-right-radius: 0;
     }
 
-    .row-flex>.span7 .form-section-header {
+    .row-flex>.span8 .form-section-header {
         border-top-left-radius: 4px;
         border-top-right-radius: 0;
     }
 
     /* Segunda seção (Tipos de Pessoa) */
-    .row-flex>.span5 .form-section {
+    .row-flex>.span4 .form-section {
         border-left: 1px solid #e0e0e0;
         border-top-right-radius: 4px;
         border-bottom-right-radius: 4px;
@@ -216,7 +287,7 @@
         margin-left: 0;
     }
 
-    .row-flex>.span5 .form-section-header {
+    .row-flex>.span4 .form-section-header {
         border-top-left-radius: 0;
         border-top-right-radius: 4px;
         border-left: 1px solid #e0e0e0;
@@ -361,9 +432,9 @@
                 <?php echo form_hidden('pes_id', $result->pes_id) ?>
                 <div class="widget-content nopadding tab-content">
 
-                    <!-- Seções lado a lado -->
+                    <!-- Seções lado a lado: mais espaço para Dados gerais, Tipos sem cortar -->
                     <div class="row-fluid row-flex" style="margin: 20px 0 0 0; padding: 0;">
-                        <div class="span7">
+                        <div class="span8">
                             <div class="form-section" style="height: 100%;">
                                 <div class="form-section-header">
                                     <i class="fas fa-edit"></i>
@@ -374,58 +445,77 @@
                                     <input type="hidden" id="pes_fisico_juridico" name="pes_fisico_juridico"
                                         value="<?php echo $result->pes_fisico_juridico; ?>">
 
-                                    <!-- Linha 1: Código e Situação -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span6">
+                                    <!-- 1ª Linha: Código (mais espaço) | Abertura (menos) | Situação (menos espaço entre) -->
+                                    <div class="row-fluid linha-1-dados" style="margin-bottom: 15px;">
+                                        <div class="span4">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="pes_codigo" class="control-label">Código</label>
                                                 <div class="controls">
                                                     <input id="pes_codigo" type="text" name="pes_codigo"
                                                         value="<?php echo $result->pes_codigo; ?>" readonly
-                                                        style="width: 150px;" />
+                                                        style="width: 100%;" />
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="span6">
-                                            <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="pes_situacao" class="control-label">Situação</label>
-                                                <div class="controls">
-                                                    <select id="pes_situacao" name="pes_situacao">
-                                                        <option value="1" <?php echo $result->pes_situacao == '1' ? 'selected' : ''; ?>>Ativo</option>
-                                                        <option value="0" <?php echo $result->pes_situacao == '0' ? 'selected' : ''; ?>>Inativo</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Linha 2: CPF/CNPJ e Nascimento/Abertura -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
-                                        <div class="span7">
-                                            <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="pes_cpfcnpj" class="control-label">CPF/CNPJ<span
-                                                        class="required">*</span></label>
-                                                <div class="controls">
-                                                    <input id="pes_cpfcnpj" type="text" name="pes_cpfcnpj"
-                                                        value="<?php echo $result->pes_cpfcnpj; ?>" inputmode="numeric"
-                                                        autocomplete="off" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="span5">
+                                        <div class="span4">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="pes_nascimento_abertura" id="labelNascimentoAbertura"
                                                     class="control-label">Abertura</label>
                                                 <div class="controls">
                                                     <input id="pes_nascimento_abertura" type="date"
                                                         name="pes_nascimento_abertura"
-                                                        value="<?php echo $result->pes_nascimento_abertura; ?>" />
+                                                        value="<?php echo $result->pes_nascimento_abertura; ?>" style="width: 100%; min-width: 120px;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span4">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="pes_situacao_toggle" class="control-label">Situação</label>
+                                                <div class="controls">
+                                                    <input type="hidden" name="pes_situacao" id="pes_situacao" value="<?php echo $result->pes_situacao == '1' ? '1' : '0'; ?>" />
+                                                    <label class="switch-interruptor">
+                                                        <input type="checkbox" id="pes_situacao_toggle" <?php echo $result->pes_situacao == '1' ? 'checked' : ''; ?> />
+                                                        <span class="slider"><span class="switch-label" id="pes_situacao_texto"><?php echo $result->pes_situacao == '1' ? 'Ativo' : 'Inativo'; ?></span></span>
+                                                    </label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Linha 3: Nome (largura total) -->
+                                    <!-- 2ª Linha: CPF/CNPJ | Regime Tributário (50/50, Simples Nacional inteiro) -->
+                                    <div class="row-fluid linha-2-editar" style="margin-bottom: 15px;">
+                                        <div class="span6">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="pes_cpfcnpj" class="control-label">CPF/CNPJ<span
+                                                        class="required">*</span></label>
+                                                <div class="controls">
+                                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                                        <input id="pes_cpfcnpj" type="text" name="pes_cpfcnpj"
+                                                            value="<?php echo $result->pes_cpfcnpj; ?>" inputmode="numeric"
+                                                            autocomplete="off" style="flex: 1; min-width: 0;" />
+                                                        <button type="button" id="btnBuscarCNPJ" class="btn btn-info" style="display: none; flex-shrink: 0; width: 36px; padding: 6px;" title="Buscar dados do CNPJ">
+                                                            <i class="fas fa-search"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span6">
+                                            <div class="control-group" style="margin-bottom: 0;">
+                                                <label for="pes_regime_tributario" class="control-label">Regime Tributário <span id="regime_asterisco" class="required" style="display: none;">*</span></label>
+                                                <div class="controls">
+                                                    <select id="pes_regime_tributario" name="pes_regime_tributario" style="width: 100%;" title="Obrigatório para CNPJ">
+                                                        <option value="">Selecione</option>
+                                                        <option value="MEI" <?php echo (isset($result->pes_regime_tributario) && $result->pes_regime_tributario === 'MEI') ? 'selected' : ''; ?>>MEI</option>
+                                                        <option value="Simples Nacional" <?php echo (isset($result->pes_regime_tributario) && $result->pes_regime_tributario === 'Simples Nacional') ? 'selected' : ''; ?>>Simples Nacional</option>
+                                                        <option value="Regime Normal" <?php echo (isset($result->pes_regime_tributario) && $result->pes_regime_tributario === 'Regime Normal') ? 'selected' : ''; ?>>Regime Normal</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 3ª Linha: Nome -->
                                     <div class="row-fluid" style="margin-bottom: 15px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
@@ -439,7 +529,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Linha 4: Razão Social (largura total) -->
+                                    <!-- 4ª Linha: Razão Social -->
                                     <div class="row-fluid">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
@@ -458,7 +548,7 @@
 
 
                         <!-- Tipos de Pessoa (Direita) -->
-                        <div class="span5">
+                        <div class="span4">
                             <div class="form-section" style="height: 100%;">
                                 <div class="form-section-header">
                                     <i class="fas fa-users"></i>
@@ -475,11 +565,20 @@
                                                     tipo de pessoa
                                                 </div>
                                                 <?php
-                                                // Debug
-                                                error_log('Tipos vinculados na view: ' . print_r($tipos_vinculados, true));
-
-                                                // Buscar tipos de pessoa do banco de dados
-                                                $this->db->where('ativo', 1);
+                                                // Buscar tipos de pessoa: do tenant atual, globais (NULL/0) e do tenant matriz (1)
+                                                if ($this->db->field_exists('ten_id', 'tipos_pessoa')) {
+                                                    $tenId = $this->session->userdata('ten_id');
+                                                    $tenId = $tenId ? (int) $tenId : 1;
+                                                    $this->db->group_start();
+                                                    $this->db->where('ten_id', $tenId);
+                                                    $this->db->or_where('ten_id IS NULL', null, false);
+                                                    $this->db->or_where('ten_id', 0);
+                                                    $this->db->or_where('ten_id', 1); // matriz: tipos padrão da migration
+                                                    $this->db->group_end();
+                                                }
+                                                if ($this->db->field_exists('ativo', 'tipos_pessoa')) {
+                                                    $this->db->where('ativo', 1);
+                                                }
                                                 $this->db->order_by('nome', 'ASC');
                                                 $tipos_pessoa = $this->db->get('tipos_pessoa')->result();
 
@@ -490,8 +589,6 @@
                                                         $tipos_vinculados_ids[] = $vinculo->TPP_ID;
                                                     }
                                                 }
-
-                                                error_log('IDs extraídos: ' . print_r($tipos_vinculados_ids, true));
 
                                                 foreach ($tipos_pessoa as $tipo):
                                                     $checked = in_array($tipo->id, $tipos_vinculados_ids) ? 'checked' : '';
@@ -584,7 +681,9 @@
                             </button>
                         </div>
                         <div class="form-section-content">
-                            <div id="enderecos-container"></div>
+                            <div id="enderecos-container">
+                                <input type="hidden" name="endereco_padrao" id="endereco_padrao_hidden" value="" />
+                            </div>
                         </div>
                     </div>
 
@@ -834,6 +933,52 @@
                     </div>
                 </div>
             </form>
+
+            <!-- Modal: Quais blocos atualizar na busca CNPJ (edição) -->
+            <div id="modalBuscaCnpjBlocos" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modalBuscaCnpjBlocosLabel" aria-hidden="true" style="display: none;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h3 id="modalBuscaCnpjBlocosLabel">Buscar dados do CNPJ</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Quais blocos deseja atualizar com os dados da Receita Federal?</p>
+                    <p class="text-warning" style="margin-bottom: 12px;"><small>Os dados atuais dos blocos selecionados serão substituídos.</small></p>
+                    <div class="control-group">
+                        <label class="checkbox">
+                            <input type="checkbox" name="bloco_busca_cnpj" value="dados_gerais" id="bloco_dados_gerais" />
+                            Dados gerais (Nome, Razão Social, Abertura, Regime Tributário)
+                        </label>
+                    </div>
+                    <div class="control-group">
+                        <label class="checkbox">
+                            <input type="checkbox" name="bloco_busca_cnpj" value="telefones" id="bloco_telefones" />
+                            Telefones
+                        </label>
+                    </div>
+                    <div class="control-group">
+                        <label class="checkbox">
+                            <input type="checkbox" name="bloco_busca_cnpj" value="emails" id="bloco_emails" />
+                            E-mails
+                        </label>
+                    </div>
+                    <div class="control-group">
+                        <label class="checkbox">
+                            <input type="checkbox" name="bloco_busca_cnpj" value="enderecos" id="bloco_enderecos" />
+                            Endereços
+                        </label>
+                    </div>
+                    <div class="control-group">
+                        <label class="checkbox">
+                            <input type="checkbox" name="bloco_busca_cnpj" value="documentos" id="bloco_documentos" />
+                            Documentos (Inscrições Estaduais)
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmarBuscaCnpj">Buscar e atualizar</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -842,11 +987,13 @@
 <script src="<?php echo base_url(); ?>assets/js/jquery.validate.js"></script>
 
 <script>
-    $(document).ready(function () {
+        $(document).ready(function () {
         let telefoneIndex = 0;
         let emailIndex = 0;
         let documentoIndex = 0;
         let enderecoIndex = 0;
+        let cnpjBuscaPendente = null;
+        let btnBuscaPendente = null;
 
         // Função para atualizar tipos de documento baseado em PF/PJ
         function atualizarTiposDocumento(tipo) {
@@ -890,6 +1037,24 @@
             }
         }
 
+        // Interruptor Situação (Ativo/Inativo)
+        $('#pes_situacao_toggle').on('change', function () {
+            var val = $(this).is(':checked') ? '1' : '0';
+            $('#pes_situacao').val(val);
+            $('#pes_situacao_texto').text(val === '1' ? 'Ativo' : 'Inativo');
+        });
+
+        // Regime Tributário: obrigatório para CNPJ (14 dígitos), opcional para CPF
+        function atualizarRegimeTributarioObrigatorio() {
+            var digits = $('#pes_cpfcnpj').val().replace(/\D/g, '');
+            if (digits.length === 14) {
+                $('#regime_asterisco').show();
+                $('#pes_regime_tributario').prop('required', true);
+            } else {
+                $('#regime_asterisco').hide();
+                $('#pes_regime_tributario').prop('required', false);
+            }
+        }
 
         // Máscara dinâmica para CPF/CNPJ (igual ao cadastro de clientes)
         var cpfCnpjMascara = function (val) {
@@ -919,6 +1084,7 @@
                         }, 100);
                     }
                 }
+                atualizarRegimeTributarioObrigatorio();
 
                 field.mask(cpfCnpjMascara.apply({}, arguments), options);
             }
@@ -959,6 +1125,7 @@
                 atualizarTiposDocumento('F');
                 atualizarLabelData('F');
             }
+            atualizarRegimeTributarioObrigatorio();
 
             // Reaplicar máscara dinâmica após um delay
             setTimeout(function () {
@@ -966,6 +1133,8 @@
                 campo.mask(cpfCnpjMascara, cpfCnpjOptions);
             }, 100);
         });
+
+        $('#pes_cpfcnpj').on('blur change', atualizarRegimeTributarioObrigatorio);
 
         // Na edição, não focar automaticamente em nenhum campo
         // Na edição, não verificar CPF/CNPJ duplicado (é o próprio registro)
@@ -1071,7 +1240,7 @@
             cnpj.focus();
         });
 
-        // Busca CNPJ
+        // Busca CNPJ (edição): abre modal para escolher blocos a atualizar
         $('#btnBuscarCNPJ').on('click', function () {
             const cnpj = $('#pes_cpfcnpj').val().replace(/[^\d]/g, '');
             const btn = $(this);
@@ -1080,222 +1249,164 @@
                 alert('CNPJ deve ter 14 dígitos');
                 return;
             }
-
             if (!validarCPFCNPJ(cnpj)) {
                 alert('CNPJ inválido');
                 return;
             }
 
-            // Feedback visual
+            cnpjBuscaPendente = cnpj;
+            btnBuscaPendente = btn;
+            $('input[name="bloco_busca_cnpj"]').prop('checked', false);
+            $('#modalBuscaCnpjBlocos').modal('show');
+        });
+
+        // Confirmar busca e atualizar apenas os blocos selecionados
+        $('#btnConfirmarBuscaCnpj').on('click', function () {
+            const blocos = $('input[name="bloco_busca_cnpj"]:checked').map(function () { return $(this).val(); }).get();
+            if (blocos.length === 0) {
+                alert('Selecione pelo menos um bloco para atualizar.');
+                return;
+            }
+            if (!confirm('Os dados anteriores dos blocos selecionados serão substituídos. Tem certeza?')) {
+                return;
+            }
+
+            $('#modalBuscaCnpjBlocos').modal('hide');
+            const cnpj = cnpjBuscaPendente;
+            const btn = btnBuscaPendente;
+            if (!cnpj || !btn || !btn.length) return;
+
             btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
 
             $.ajax({
-                url: `https://publica.cnpj.ws/cnpj/${cnpj}`,
+                url: 'https://publica.cnpj.ws/cnpj/' + cnpj,
                 method: 'GET',
                 dataType: 'json',
-                timeout: 10000,
+                timeout: 30000,
                 success: function (data) {
-                    if (data.razao_social) {
-                        // Os dados estão em data.estabelecimento
-                        const estab = data.estabelecimento;
-
-                        // Preencher nome fantasia
-                        if (estab.nome_fantasia) {
-                            $('#pes_nome').val(estab.nome_fantasia);
-                        } else {
-                            $('#pes_nome').val(data.razao_social);
-                        }
-                        $('#pes_razao_social').val(data.razao_social);
-
-                        // Preencher data de abertura
-                        if (estab.data_inicio_atividade) {
-                            $('#pes_nascimento_abertura').val(estab.data_inicio_atividade);
-                        }
-
-                        // Adicionar telefone se disponível (ddd1 e telefone1)
-                        if (estab.ddd1 && estab.telefone1) {
-                            const telefoneRow = `
-                            <div class="telefone-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">
-                                <select name="tel_tipo[]" class="form-control" style="width: 120px;">
-                                    <option value="Comercial" selected>Comercial</option>
-                                    <option value="Residencial">Residencial</option>
-                                    <option value="Celular">Celular</option>
-                                    <option value="WhatsApp">WhatsApp</option>
-                                </select>
-                                <input type="text" name="tel_ddd[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" value="${estab.ddd1}" />
-                                <input type="text" name="tel_numero[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" value="${estab.telefone1}" />
-                                <input type="text" name="tel_observacao[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />
-                                <button type="button" class="btn btn-mini btn-danger remove-telefone" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `;
-                            $('#telefones-container').append(telefoneRow);
-                        }
-
-                        // Adicionar email se disponível
-                        if (estab.email) {
-                            const emailRow = `
-                            <div class="email-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">
-                                <select name="EMAIL_TIPO[]" class="form-control" style="width: 120px;">
-                                    <option value="Comercial" selected>Comercial</option>
-                                    <option value="Pessoal">Pessoal</option>
-                                    <option value="Outros">Outros</option>
-                                </select>
-                                <input type="text" name="EMAIL_NOME[]" placeholder="Nome" class="form-control" style="flex: 1;" value="Principal" />
-                                <input type="email" name="EMAIL_ENDERECO[]" placeholder="Email" class="form-control" style="flex: 1.5;" value="${estab.email.toLowerCase()}" />
-                                <button type="button" class="btn btn-mini btn-danger remove-email" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `;
-                            $('#emails-container').append(emailRow);
-                            emailIndex++;
-                        }
-
-                        // Adicionar endereço principal inline
-                        if (estab.logradouro) {
-                            const isPrimeiro = $('#enderecos-container .endereco-row').length === 0;
-                            const checkedAttr = isPrimeiro ? 'checked' : '';
-
-                            const enderecoRow = `
-                            <div class="endereco-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
-                                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                                    <input type="text" name="end_logradouro[]" placeholder="Logradouro" class="form-control" style="flex: 3;" value="${estab.logradouro || ''}" />
-                                    <input type="text" name="end_numero[]" placeholder="Número" class="form-control" style="width: 80px;" value="${estab.numero || ''}" />
-                                    <input type="text" name="end_complemento[]" placeholder="Complemento" class="form-control" style="flex: 2;" value="${estab.complemento || ''}" />
-                                </div>
-                                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                                    <input type="text" name="end_cep[]" placeholder="cep" class="form-control cep-mask" style="width: 110px;" value="${estab.cep || ''}" />
-                                    <input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="${estab.bairro || ''}" />
-                                    <input type="text" name="END_CIDADE[]" placeholder="Cidade" class="form-control" style="flex: 1;" value="${estab.cidade ? estab.cidade.nome : ''}" />
-                                    <input type="text" name="END_UF[]" placeholder="uf" class="form-control" style="width: 50px;" maxlength="2" value="${estab.estado ? estab.estado.sigla : ''}" />
-                                </div>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <select name="END_TIPO[]" class="form-control" style="width: 150px;">
-                                        <option value="Comercial" selected>Comercial</option>
-                                        <option value="Residencial">Residencial</option>
-                                        <option value="Cobrança">Cobrança</option>
-                                        <option value="Entrega">Entrega</option>
-                                        <option value="Outros">Outros</option>
-                                    </select>
-                                    <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
-                                        <input type="radio" name="endereco_padrao" value="novo_${enderecoIndex}" ${checkedAttr} />
-                                        <strong>Endereço Padrão</strong>
-                                    </label>
-                                    <div style="flex: 1;"></div>
-                                    <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                            $('#enderecos-container').append(enderecoRow);
-                            enderecoIndex++;
-                            atualizarOpcoesEndereco();
-
-                            // Aplicar máscara de CEP
-                            $('.cep-mask').mask('00000-000');
-                        }
-
-                        // Mostrar indicador de carregamento nos documentos
-                        const loadingDoc = `
-                        <div id="loading-documentos" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f0f8ff; text-align: center;">
-                            <i class="fas fa-spinner fa-spin"></i> Buscando Inscrições Estaduais...
-                        </div>
-                    `;
-                        $('#documentos-container').append(loadingDoc);
-
-                        // Buscar Inscrição Estadual da API CNPJ.WS (tem dados completos)
-                        // Aguardar um pouco para garantir que o endereço foi adicionado
-                        setTimeout(function () {
-                            $.ajax({
-                                url: `https://publica.cnpj.ws/cnpj/${cnpj}`,
-                                method: 'GET',
-                                dataType: 'json',
-                                success: function (dataCNPJWS) {
-                                    // Remover indicador de carregamento
-                                    $('#loading-documentos').remove();
-                                    console.log('Dados CNPJ.WS:', dataCNPJWS);
-
-                                    // Verificar se tem inscrições estaduais no estabelecimento
-                                    if (dataCNPJWS.estabelecimento &&
-                                        dataCNPJWS.estabelecimento.inscricoes_estaduais &&
-                                        dataCNPJWS.estabelecimento.inscricoes_estaduais.length > 0) {
-
-                                        // Adicionar cada IE encontrada
-                                        dataCNPJWS.estabelecimento.inscricoes_estaduais.forEach(function (ie) {
-                                            if (ie.inscricao_estadual && ie.inscricao_estadual.trim() !== '') {
-                                                var estadoUF = ie.estado ? ie.estado.sigla || ie.estado : (estab.estado ? estab.estado.sigla : '');
-                                                adicionarDocumento({
-                                                    tipo: 'Inscrição Estadual',
-                                                    numero: ie.inscricao_estadual,
-                                                    orgao: `SEFAZ ${estadoUF}`,
-                                                    natureza: ie.ativo ? 'Contribuinte' : 'Não Contribuinte'
-                                                });
-                                                console.log('IE adicionada:', ie.inscricao_estadual, 'Estado:', estadoUF);
-
-                                                // Vincular ao primeiro endereço automaticamente
-                                                setTimeout(function () {
-                                                    var primeiroEndereco = $('#enderecos-container .endereco-row').first();
-                                                    if (primeiroEndereco.length > 0) {
-                                                        var ultimoDocumento = $('#documentos-container .documento-row').last();
-                                                        var selectEndereco = ultimoDocumento.find('select[name="DOC_ENDE_IDX[]"]');
-                                                        if (selectEndereco.length > 0) {
-                                                            selectEndereco.val('0'); // Primeiro endereço tem índice 0
-                                                            console.log('IE vinculada ao primeiro endereço');
-                                                        }
-                                                    }
-                                                }, 50);
-                                            }
-                                        });
-                                    } else {
-                                        console.log('Nenhuma Inscrição Estadual encontrada para este CNPJ');
-                                    }
-                                },
-                                error: function (xhr, status, error) {
-                                    // Remover indicador de carregamento
-                                    $('#loading-documentos').remove();
-                                    console.log('Não foi possível buscar IE da CNPJ.WS:', error);
-                                    console.log('Resposta:', xhr.responseText);
-                                }
-                            });
-                        }, 100);
+                    if (data && data.erro) {
+                        alert(data.erro);
+                        return;
+                    }
+                    if (data && data.razao_social) {
+                        aplicarDadosBuscaCnpj(data, blocos);
                     } else {
                         alert('CNPJ não encontrado na base de dados');
                     }
                 },
                 error: function (xhr, status, error) {
-                    // Log detalhado para debug
-                    console.error('Erro na busca de CNPJ:');
-                    console.error('Status:', status);
-                    console.error('Error:', error);
-                    console.error('XHR Status:', xhr.status);
-                    console.error('Response:', xhr.responseText || 'Sem resposta');
-
-                    // Mensagens de erro mais específicas
-                    if (xhr.status === 0) {
-                        alert('Erro de conexão. Verifique sua internet e tente novamente.');
-                    } else if (xhr.status === 404) {
-                        alert('CNPJ não encontrado na base de dados.');
-                    } else if (xhr.status === 429) {
-                        alert('Limite de requisições excedido. Aguarde alguns segundos e tente novamente.');
-                    } else if (xhr.status === 500) {
-                        alert('Erro no servidor da API. Tente novamente em alguns instantes.');
-                    } else if (status === 'timeout') {
-                        alert('Tempo de espera esgotado. Verifique sua conexão e tente novamente.');
-                    } else if (status === 'parsererror') {
-                        alert('Erro ao processar resposta da API. Tente novamente.');
-                    } else {
-                        alert('Erro ao buscar dados do CNPJ. Tente novamente em alguns instantes.');
-                    }
+                    console.error('Erro na busca de CNPJ:', status, error);
+                    if (xhr.status === 0) alert('Erro de conexão. Verifique sua internet e tente novamente.');
+                    else if (xhr.status === 404) alert('CNPJ não encontrado na base de dados.');
+                    else if (xhr.status === 429) alert('Limite de requisições excedido. Aguarde alguns segundos e tente novamente.');
+                    else if (xhr.status === 500) alert('Erro no servidor da API. Tente novamente em alguns instantes.');
+                    else if (status === 'timeout') alert('Tempo de espera esgotado. Verifique sua conexão e tente novamente.');
+                    else alert('Erro ao buscar dados do CNPJ. Tente novamente em alguns instantes.');
                 },
                 complete: function () {
-                    // Restaurar botão
                     btn.prop('disabled', false).html('<i class="fas fa-search"></i>');
                 }
             });
         });
+
+        // Aplica dados da API apenas nos blocos selecionados (e limpa o bloco antes)
+        function aplicarDadosBuscaCnpj(data, blocos) {
+            const estab = data.estabelecimento;
+            const sn = data.simples_nacional || data.simples || {};
+            const ehSim = function (v) { return v === 'S' || v === true || String(v || '').toLowerCase().trim() === 'sim'; };
+            const meiSim = ehSim(sn.mei);
+            const simplesSim = ehSim(sn.simples);
+
+            if (blocos.indexOf('dados_gerais') !== -1) {
+                if (estab.nome_fantasia) $('#pes_nome').val(estab.nome_fantasia);
+                else $('#pes_nome').val(data.razao_social);
+                $('#pes_razao_social').val(data.razao_social);
+                if (estab.data_inicio_atividade) $('#pes_nascimento_abertura').val(estab.data_inicio_atividade);
+                if (meiSim) $('#pes_regime_tributario').val('MEI');
+                else if (simplesSim) $('#pes_regime_tributario').val('Simples Nacional');
+                else $('#pes_regime_tributario').val('Regime Normal');
+            }
+
+            if (blocos.indexOf('telefones') !== -1) {
+                $('#telefones-container .telefone-row').remove();
+                if (estab.ddd1 && estab.telefone1) {
+                    const telefoneRow = '<div class="telefone-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">' +
+                        '<select name="tel_tipo[]" class="form-control" style="width: 120px;"><option value="Comercial" selected>Comercial</option><option value="Residencial">Residencial</option><option value="Celular">Celular</option><option value="WhatsApp">WhatsApp</option></select>' +
+                        '<input type="text" name="tel_ddd[]" maxlength="2" placeholder="DDD" class="form-control tel-ddd" style="width: 60px;" value="' + (estab.ddd1 || '') + '" />' +
+                        '<input type="text" name="tel_numero[]" placeholder="Número" class="form-control tel-numero" style="flex: 1;" value="' + (estab.telefone1 || '') + '" />' +
+                        '<input type="text" name="tel_observacao[]" placeholder="Observação (opcional)" class="form-control" style="flex: 1;" />' +
+                        '<button type="button" class="btn btn-mini btn-danger remove-telefone" style="width: 30px; height: 30px; padding: 0;"><i class="fas fa-trash"></i></button></div>';
+                    $('#telefones-container').append(telefoneRow);
+                }
+            }
+
+            if (blocos.indexOf('emails') !== -1) {
+                $('#emails-container .email-row').remove();
+                if (estab.email) {
+                    const emailRow = '<div class="email-row" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px;">' +
+                        '<select name="EMAIL_TIPO[]" class="form-control" style="width: 120px;"><option value="Comercial" selected>Comercial</option><option value="Pessoal">Pessoal</option><option value="Outros">Outros</option></select>' +
+                        '<input type="text" name="EMAIL_NOME[]" placeholder="Nome" class="form-control" style="flex: 1;" value="Principal" />' +
+                        '<input type="email" name="EMAIL_ENDERECO[]" placeholder="Email" class="form-control" style="flex: 1.5;" value="' + (estab.email || '').toLowerCase() + '" />' +
+                        '<button type="button" class="btn btn-mini btn-danger remove-email" style="width: 30px; height: 30px; padding: 0;"><i class="fas fa-trash"></i></button></div>';
+                    $('#emails-container').append(emailRow);
+                    emailIndex++;
+                }
+            }
+
+            if (blocos.indexOf('enderecos') !== -1) {
+                $('#enderecos-container .endereco-row').remove();
+                if (estab.logradouro) {
+                    const isPrimeiro = true;
+                    const checkedAttr = 'checked';
+                    const enderecoRow = '<div class="endereco-row" style="margin-bottom: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">' +
+                        '<div style="display: flex; gap: 10px; margin-bottom: 10px;">' +
+                        '<input type="text" name="end_logradouro[]" placeholder="Logradouro" class="form-control" style="flex: 3;" value="' + (estab.logradouro || '') + '" />' +
+                        '<input type="text" name="end_numero[]" placeholder="Número" class="form-control" style="width: 80px;" value="' + (estab.numero || '') + '" />' +
+                        '<input type="text" name="end_complemento[]" placeholder="Complemento" class="form-control" style="flex: 2;" value="' + (estab.complemento || '') + '" />' +
+                        '</div><div style="display: flex; gap: 10px; margin-bottom: 10px;">' +
+                        '<input type="text" name="end_cep[]" placeholder="cep" class="form-control cep-mask" style="width: 110px;" value="' + (estab.cep || '') + '" />' +
+                        '<input type="text" name="END_BAIRRO[]" placeholder="Bairro" class="form-control" style="flex: 1;" value="' + (estab.bairro || '') + '" />' +
+                        '<input type="text" name="END_CIDADE[]" placeholder="Cidade" class="form-control" style="flex: 1;" value="' + (estab.cidade ? estab.cidade.nome : '') + '" />' +
+                        '<input type="text" name="END_UF[]" placeholder="uf" class="form-control" style="width: 50px;" maxlength="2" value="' + (estab.estado ? estab.estado.sigla : '') + '" />' +
+                        '</div><div style="display: flex; gap: 10px; align-items: center;">' +
+                        '<select name="END_TIPO[]" class="form-control" style="width: 150px;"><option value="Comercial" selected>Comercial</option><option value="Residencial">Residencial</option><option value="Cobrança">Cobrança</option><option value="Entrega">Entrega</option><option value="Outros">Outros</option></select>' +
+                        '<label class="checkbox" style="margin: 0;"><input type="radio" name="endereco_padrao" value="novo_' + enderecoIndex + '" ' + checkedAttr + ' /> <strong>Endereço Padrão</strong></label>' +
+                        '<div style="flex: 1;"></div>' +
+                        '<button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0;"><i class="fas fa-trash"></i></button></div></div>';
+                    $('#enderecos-container').append(enderecoRow);
+                    enderecoIndex++;
+                    atualizarOpcoesEndereco();
+                    $('.cep-mask').mask('00000-000');
+                }
+            }
+
+            if (blocos.indexOf('documentos') !== -1) {
+                $('#documentos-container .documento-row').filter(function () {
+                    return $(this).find('select[name="doc_tipo_documento[]"]').val() === 'Inscrição Estadual';
+                }).remove();
+                if (estab.inscricoes_estaduais && estab.inscricoes_estaduais.length > 0) {
+                    estab.inscricoes_estaduais.forEach(function (ie) {
+                        if (ie.inscricao_estadual && ie.inscricao_estadual.trim() !== '') {
+                            var estadoUF = ie.estado ? (ie.estado.sigla || ie.estado) : (estab.estado ? estab.estado.sigla : '');
+                            adicionarDocumento({
+                                tipo: 'Inscrição Estadual',
+                                numero: ie.inscricao_estadual,
+                                orgao: 'SEFAZ ' + estadoUF,
+                                natureza: ie.ativo ? 'Contribuinte' : 'Não Contribuinte'
+                            });
+                            setTimeout(function () {
+                                var primeiroEndereco = $('#enderecos-container .endereco-row').first();
+                                if (primeiroEndereco.length > 0) {
+                                    var ultimoDocumento = $('#documentos-container .documento-row').last();
+                                    var selectEndereco = ultimoDocumento.find('select[name="DOC_ENDE_IDX[]"]');
+                                    if (selectEndereco.length > 0) selectEndereco.val('0');
+                                }
+                            }, 50);
+                        }
+                    });
+                }
+            }
+        }
 
         // Controle das seções de tipos de pessoa
         $(document).on('change', 'input[name="TIPOS_PESSOA[]"]', function () {
@@ -1518,6 +1629,7 @@
             const numero = dados.numero || '';
             const orgao = dados.orgao || '';
             const natureza = dados.natureza || '';
+            const enderecoIndex = dados.endereco_index;
 
             const showEndereco = tipo === 'Inscrição Estadual' || tipo === 'Inscrição Municipal';
             const tipoPessoa = $('#pes_fisico_juridico').val() || 'F';
@@ -1547,20 +1659,19 @@
                     <select name="doc_tipo_documento[]" class="form-control doc-tipo" style="width: 150px;">
                         ${opcoesDocumento}
                     </select>
-                    <input type="text" name="doc_numero[]" value="${numero}" placeholder="Número" class="form-control" style="flex: 1;" />
-                    <input type="text" name="doc_orgao_expedidor[]" value="${orgao}" placeholder="Órgão Expedidor" class="form-control" style="flex: 1;" />
+                    <input type="text" name="doc_numero[]" value="${numero.replace(/\\/g, '\\\\').replace(/"/g, '&quot;')}" placeholder="Número" class="form-control" style="flex: 1;" />
+                    <input type="text" name="doc_orgao_expedidor[]" value="${orgao.replace(/\\/g, '\\\\').replace(/"/g, '&quot;')}" placeholder="Órgão Expedidor" class="form-control" style="flex: 1;" />
                     <select name="doc_natureza_contribuinte[]" class="form-control" style="width: 150px;">
-                        <option value="">Natureza</option>
                         <option value="Contribuinte" ${natureza === 'Contribuinte' ? 'selected' : ''}>Contribuinte</option>
-                        <option value="Não Contribuinte">Não Contribuinte</option>
+                        <option value="Não Contribuinte" ${(natureza && (natureza.indexOf('Não') !== -1 || natureza.indexOf('não') !== -1 || natureza.indexOf('Nao') !== -1 || natureza.indexOf('nao') !== -1)) ? 'selected' : ''}>Não Contribuinte</option>
                     </select>
                     <button type="button" class="btn btn-mini btn-danger remove-documento" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
                 <div class="endereco-vinculo" style="display: ${showEndereco ? 'flex' : 'none'}; gap: 10px; align-items: center;">
-                    <label style="margin: 0; white-space: nowrap;">Vincular ao endereço:</label>
-                    <select name="DOC_ENDE_IDX[]" class="form-control" style="flex: 1;">
+                    <label style="margin: 0; white-space: nowrap;">Vincular ao endereço${tipo === 'Inscrição Estadual' ? ' <span class="required">*</span>' : ''}:</label>
+                    <select name="DOC_ENDE_IDX[]" class="form-control doc-endereco-vinculo" style="flex: 1;">
                         <option value="">Selecione um endereço</option>
                     </select>
                 </div>
@@ -1571,6 +1682,15 @@
 
             // Atualizar opções de endereço
             atualizarOpcoesEndereco();
+
+            // Pré-selecionar endereço vinculado ao editar (documentos carregados do servidor)
+            if (enderecoIndex !== undefined && enderecoIndex !== null && enderecoIndex !== '') {
+                const ultimaRow = $('#documentos-container .documento-row').last();
+                const selectEnd = ultimaRow.find('select[name="DOC_ENDE_IDX[]"]');
+                if (selectEnd.length && selectEnd.find('option[value="' + enderecoIndex + '"]').length) {
+                    selectEnd.val(String(enderecoIndex));
+                }
+            }
         }
 
         // Remover documento
@@ -1578,16 +1698,23 @@
             $(this).closest('.documento-row').remove();
         });
 
-        // Controle do campo endereço nos documentos
+        // Controle do campo endereço nos documentos (Inscrição Estadual obrigatório vincular)
         $(document).on('change', '.doc-tipo', function () {
             const row = $(this).closest('.documento-row');
             const tipo = $(this).val();
             const enderecoVinculo = row.find('.endereco-vinculo');
+            const labelVinculo = enderecoVinculo.find('label');
 
             if (tipo === 'Inscrição Estadual' || tipo === 'Inscrição Municipal') {
                 enderecoVinculo.show();
+                if (tipo === 'Inscrição Estadual' && !labelVinculo.find('.required').length) {
+                    labelVinculo.html('Vincular ao endereço <span class="required">*</span>:');
+                } else if (tipo === 'Inscrição Municipal') {
+                    labelVinculo.html('Vincular ao endereço:');
+                }
             } else {
                 enderecoVinculo.hide();
+                labelVinculo.html('Vincular ao endereço:');
             }
         });
 
@@ -1617,9 +1744,10 @@
                         <option value="Entrega">Entrega</option>
                         <option value="Outros">Outros</option>
                     </select>
-                    <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
-                        <input type="radio" name="endereco_padrao" value="novo_${enderecoIndex}" ${checkedAttr} style="margin-right: 5px;" />
-                        <strong>Endereço Padrão</strong>
+                    <span style="white-space: nowrap; margin-right: 6px;">End. padrão</span>
+                    <label class="switch-interruptor endereco-padrao-wrap" style="margin: 0;">
+                        <input type="checkbox" class="endereco-padrao-toggle" data-endereco-value="novo_${enderecoIndex}" ${checkedAttr} />
+                        <span class="slider"><span class="switch-label endereco-padrao-label">${isPrimeiro ? 'Sim' : 'Não'}</span></span>
                     </label>
                     <div style="flex: 1;"></div>
                     <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -1657,24 +1785,46 @@
             });
         }
 
-        // Controlar endereço padrão (apenas um pode ser marcado)
-        $(document).on('change', 'input[name="endereco_padrao"]', function () {
-            if ($(this).is(':checked')) {
-                // Desmarcar todos os outros
-                $('input[name="endereco_padrao"]').not(this).prop('checked', false);
+        // Endereço padrão: toggle Sim/Não (apenas um pode ser Sim; obrigatório um padrão)
+        $(document).on('change', '.endereco-padrao-toggle', function () {
+            var toggle = $(this);
+            var valor = toggle.data('endereco-value');
+            if (toggle.is(':checked')) {
+                $('#endereco_padrao_hidden').val(valor);
+                $('.endereco-padrao-toggle').not(this).prop('checked', false);
+                $('.endereco-padrao-label').text('Não');
+                toggle.closest('.endereco-padrao-wrap').find('.endereco-padrao-label').text('Sim');
+            } else {
+                // Desmarcou: obrigatório ter um padrão — marcar o primeiro outro
+                var outro = $('#enderecos-container .endereco-row .endereco-padrao-toggle').not(this).first();
+                if (outro.length) {
+                    outro.prop('checked', true);
+                    $('#endereco_padrao_hidden').val(outro.data('endereco-value'));
+                    $('.endereco-padrao-label').text('Não');
+                    outro.closest('.endereco-padrao-wrap').find('.endereco-padrao-label').text('Sim');
+                } else {
+                    $('#endereco_padrao_hidden').val('');
+                }
             }
         });
 
         // Remover endereço
         $(document).on('click', '.remove-endereco', function () {
-            var eraPadrao = $(this).closest('.endereco-row').find('input[name="endereco_padrao"]').is(':checked');
-            $(this).closest('.endereco-row').remove();
+            var row = $(this).closest('.endereco-row');
+            var eraPadrao = row.find('.endereco-padrao-toggle').is(':checked');
+            row.remove();
 
-            // Se removeu o padrão, marcar o primeiro disponível
             if (eraPadrao) {
-                $('input[name="endereco_padrao"]').first().prop('checked', true);
+                var primeiro = $('#enderecos-container .endereco-row .endereco-padrao-toggle').first();
+                if (primeiro.length) {
+                    primeiro.prop('checked', true);
+                    $('#endereco_padrao_hidden').val(primeiro.data('endereco-value'));
+                    $('.endereco-padrao-label').text('Não');
+                    primeiro.closest('.endereco-padrao-wrap').find('.endereco-padrao-label').text('Sim');
+                } else {
+                    $('#endereco_padrao_hidden').val('');
+                }
             }
-
             atualizarOpcoesEndereco();
         });
 
@@ -1829,6 +1979,42 @@
 
             if (!$(this).valid()) return;
 
+            // Obrigatório pelo menos um tipo de pessoa
+            var tiposSelecionados = $('input[name="TIPOS_PESSOA[]"]:checked').length;
+            if (tiposSelecionados === 0) {
+                $('#tipos-pessoa-error').css('display', 'block');
+                $('#tipos-pessoa-container').css('border', '2px solid #a94442');
+                $('html, body').animate({ scrollTop: $('#tipos-pessoa-container').offset().top - 100 }, 500);
+                Swal.fire({ icon: 'error', title: 'Atenção', text: 'Selecione pelo menos um tipo de pessoa (Cliente, Fornecedor, etc.).' });
+                return;
+            }
+            $('#tipos-pessoa-error').css('display', 'none');
+            $('#tipos-pessoa-container').css('border', '1px solid #ddd');
+
+            // Endereço padrão obrigatório quando houver endereços
+            var numEnd = $('#enderecos-container .endereco-row').length;
+            var valPadrao = $('#endereco_padrao_hidden').val();
+            if (numEnd > 0 && (!valPadrao || String(valPadrao).trim() === '')) {
+                Swal.fire({ icon: 'error', title: 'Atenção', text: 'É obrigatório definir um endereço padrão.' });
+                return;
+            }
+
+            // Inscrição Estadual: obrigatório vincular ao endereço
+            var docRows = $('#documentos-container .documento-row');
+            var docOk = true;
+            docRows.each(function () {
+                var tipo = $(this).find('select[name="doc_tipo_documento[]"]').val();
+                var endIdx = $(this).find('select[name="DOC_ENDE_IDX[]"]').val();
+                if (tipo === 'Inscrição Estadual' && (!endIdx || String(endIdx).trim() === '')) {
+                    docOk = false;
+                    return false;
+                }
+            });
+            if (!docOk) {
+                Swal.fire({ icon: 'error', title: 'Atenção', text: 'Para documento tipo Inscrição Estadual é obrigatório vincular ao endereço.' });
+                return;
+            }
+
             var form = $(this);
             var btn = form.find('button[type=submit]');
             var originalBtnText = btn.html();
@@ -1847,14 +2033,15 @@
                 dataType: 'json',
                 success: function (response) {
                     if (response.result) {
-                        // Success
+                        // Success: redireciona para visualizar após o alert fechar (usar .then() para timer)
                         Swal.fire({
                             icon: 'success',
                             title: 'Sucesso',
                             text: response.message,
                             timer: 1500,
-                            showConfirmButton: false,
-                            willClose: () => {
+                            showConfirmButton: false
+                        }).then(function () {
+                            if (response.redirect) {
                                 window.location.href = response.redirect;
                             }
                         });
@@ -1935,6 +2122,15 @@
         // Carregar endereços
         console.log('Endereços recebidos:', <?php echo json_encode(isset($enderecos) ? count($enderecos) : 0); ?>);
         <?php if (isset($enderecos) && !empty($enderecos)): ?>
+            <?php
+            $end_id_padrao = null;
+            foreach ($enderecos as $e) {
+                if (isset($e->end_padrao) && (int)$e->end_padrao === 1) {
+                    $end_id_padrao = (int)$e->end_id;
+                    break;
+                }
+            }
+            ?>
             console.log('Carregando endereços...');
             <?php foreach ($enderecos as $end): ?>
                 console.log('Endereço ID:', <?php echo $end->end_id; ?>);
@@ -1960,9 +2156,10 @@
                             <option value="Entrega" <?php echo $end->end_tipo_endenreco == 'Entrega' ? 'selected' : ''; ?>>Entrega</option>
                             <option value="Outros" <?php echo $end->end_tipo_endenreco == 'Outros' ? 'selected' : ''; ?>>Outros</option>
                         </select>
-                        <label class="checkbox" style="margin: 0; display: flex; align-items: center; gap: 5px;">
-                            <input type="radio" name="endereco_padrao" value="<?php echo $end->end_id; ?>" <?php echo ($end->end_padrao == 1) ? 'checked' : ''; ?> />
-                            <strong>Endereço Padrão</strong>
+                        <span style="white-space: nowrap; margin-right: 6px;">End. padrão</span>
+                        <label class="switch-interruptor endereco-padrao-wrap" style="margin: 0;">
+                            <input type="checkbox" class="endereco-padrao-toggle" data-endereco-value="<?php echo $end->end_id; ?>" <?php echo ($end->end_padrao == 1) ? 'checked' : ''; ?> />
+                            <span class="slider"><span class="switch-label endereco-padrao-label"><?php echo ($end->end_padrao == 1) ? 'Sim' : 'Não'; ?></span></span>
                         </label>
                         <div style="flex: 1;"></div>
                         <button type="button" class="btn btn-mini btn-danger remove-endereco" style="width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -1980,16 +2177,32 @@
 
             // Atualizar opções de endereço após carregar todos
             atualizarOpcoesEndereco();
+            $('#endereco_padrao_hidden').val('<?php echo isset($end_id_padrao) && $end_id_padrao ? (int)$end_id_padrao : ''; ?>');
         <?php endif; ?>
 
-        // Carregar documentos
+        // Carregar documentos (com endereço vinculado)
         <?php if (isset($documentos) && !empty($documentos)): ?>
-            <?php foreach ($documentos as $doc): ?>
+            <?php
+            $enderecos_list = isset($enderecos) ? array_values($enderecos) : [];
+            foreach ($documentos as $doc):
+                $end_id_doc = isset($doc->end_id) ? $doc->end_id : (isset($doc->ENDEID) ? $doc->ENDEID : null);
+                $endereco_index = '';
+                if ($end_id_doc !== null && $end_id_doc !== '' && !empty($enderecos_list)) {
+                    foreach ($enderecos_list as $idx => $e) {
+                        $eid = isset($e->end_id) ? $e->end_id : (isset($e->ENDEID) ? $e->ENDEID : null);
+                        if ($eid != null && (string)$eid === (string)$end_id_doc) {
+                            $endereco_index = $idx;
+                            break;
+                        }
+                    }
+                }
+            ?>
                 adicionarDocumento({
-                    tipo: '<?php echo $doc->doc_tipo_documento; ?>',
-                    numero: '<?php echo $doc->doc_numero; ?>',
-                    orgao: '<?php echo $doc->doc_orgao_expedidor; ?>',
-                    natureza: '<?php echo $doc->doc_natureza_contribuinte; ?>'
+                    tipo: '<?php echo addslashes(isset($doc->doc_tipo_documento) ? $doc->doc_tipo_documento : (isset($doc->DOC_TIPO_DOCUMENTO) ? $doc->DOC_TIPO_DOCUMENTO : '')); ?>',
+                    numero: '<?php echo addslashes(isset($doc->doc_numero) ? $doc->doc_numero : (isset($doc->DOC_NUMERO) ? $doc->DOC_NUMERO : '')); ?>',
+                    orgao: '<?php echo addslashes(isset($doc->doc_orgao_expedidor) ? $doc->doc_orgao_expedidor : (isset($doc->DOC_ORGAO_EXPEDIDOR) ? $doc->DOC_ORGAO_EXPEDIDOR : '')); ?>',
+                    natureza: '<?php echo addslashes(isset($doc->doc_natureza_contribuinte) ? $doc->doc_natureza_contribuinte : (isset($doc->DOC_NATUREZA_CONTRIBUINTE) ? $doc->DOC_NATUREZA_CONTRIBUINTE : '')); ?>',
+                    endereco_index: <?php echo $endereco_index !== '' ? (int)$endereco_index : 'null'; ?>
                 });
             <?php endforeach; ?>
         <?php endif; ?>
@@ -2069,5 +2282,7 @@
         <?php if (isset($result) && $result->pes_fisico_juridico == 'J'): ?>
             $('#btnBuscarCNPJ').show();
         <?php endif; ?>
+
+        atualizarRegimeTributarioObrigatorio();
     });
 </script>

@@ -1,0 +1,44 @@
+/* Fix: Adicionar scroll ao menu lateral quando há muitos itens */
+#sidebar,
+.sidebar,
+#sidebar-left,
+.sidebar-nav,
+.nav-list {
+    max-height: calc(100vh - 60px); /* Altura máxima = altura da tela - altura do header */
+    overflow-y: auto; /* Scroll vertical */
+    overflow-x: hidden; /* Sem scroll horizontal */
+}
+
+/* Estilizar a scrollbar do menu */
+#sidebar::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar,
+#sidebar-left::-webkit-scrollbar,
+.sidebar-nav::-webkit-scrollbar,
+.nav-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#sidebar::-webkit-scrollbar-track,
+.sidebar::-webkit-scrollbar-track,
+#sidebar-left::-webkit-scrollbar-track,
+.sidebar-nav::-webkit-scrollbar-track,
+.nav-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+#sidebar::-webkit-scrollbar-thumb,
+.sidebar::-webkit-scrollbar-thumb,
+#sidebar-left::-webkit-scrollbar-thumb,
+.sidebar-nav::-webkit-scrollbar-thumb,
+.nav-list::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover,
+.sidebar::-webkit-scrollbar-thumb:hover,
+#sidebar-left::-webkit-scrollbar-thumb:hover,
+.sidebar-nav::-webkit-scrollbar-thumb:hover,
+.nav-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}

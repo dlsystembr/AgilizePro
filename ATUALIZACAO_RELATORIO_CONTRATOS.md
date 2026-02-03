@@ -42,7 +42,7 @@ Antes de qualquer atualização, faça backup completo:
 
 ### 2. Preparação
 1. Conecte-se ao servidor via FTP (FileZilla, WinSCP, etc.)
-2. Navegue até a raiz do projeto MapOS
+2. Navegue até a raiz do projeto AgilizePro
 
 ### 3. Upload dos Arquivos
 

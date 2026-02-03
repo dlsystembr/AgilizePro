@@ -9,12 +9,12 @@ class Super extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        
+
         // Verificar se é super usuário
         if (!$this->session->userdata('is_super')) {
             redirect('login');
         }
-        
+
         $this->load->model('Usuarios_super_model');
         $this->load->model('Usuarios_model');
         $this->load->model('permissoes_model');
@@ -26,12 +26,12 @@ class Super extends CI_Controller
         $this->data['total_tenants'] = $this->db->count_all('tenants');
         $this->data['total_usuarios'] = $this->db->count_all('usuarios');
         $this->data['total_super_usuarios'] = $this->db->count_all('usuarios_super');
-        
+
         // Listar últimos tenants
         $this->db->order_by('ten_data_cadastro', 'DESC');
         $this->db->limit(10);
         $this->data['ultimos_tenants'] = $this->db->get('tenants')->result();
-        
+
         $this->data['view'] = 'super/dashboard';
         $this->load->view('super/layout', $this->data);
     }
@@ -40,7 +40,7 @@ class Super extends CI_Controller
     public function tenants()
     {
         $this->load->library('pagination');
-        
+
         $pesquisa = $this->input->get('pesquisa');
         $per_page = 20;
         $page = $this->input->get('page') ?: 1;
@@ -66,7 +66,7 @@ class Super extends CI_Controller
         }
         $this->db->order_by('ten_data_cadastro', 'DESC');
         $this->db->limit($per_page, $start);
-        
+
         $this->data['results'] = $this->db->get()->result();
         $this->data['search'] = $pesquisa;
         $this->data['view'] = 'super/tenants';
@@ -96,7 +96,7 @@ class Super extends CI_Controller
 
             if ($this->db->insert('tenants', $data)) {
                 $ten_id = $this->db->insert_id();
-                
+
                 // Criar permissão padrão para o tenant
                 $permissoes_padrao = [
                     'vCliente' => 1,
@@ -132,7 +132,7 @@ class Super extends CI_Controller
                     'cPermissao' => 1,
                     'cSistema' => 1,
                 ];
-                
+
                 $permissao_data = [
                     'nome' => 'Permissão Padrão - ' . $data['ten_nome'],
                     'data' => date('Y-m-d'),
@@ -140,10 +140,10 @@ class Super extends CI_Controller
                     'situacao' => 1,
                     'ten_id' => $ten_id,
                 ];
-                
+
                 $this->db->insert('permissoes', $permissao_data);
                 $permissao_id = $this->db->insert_id();
-                
+
                 // Habilitar todas as permissões padrão para o tenant em tenant_permissoes_menu
                 foreach ($permissoes_padrao as $codigo_perm => $valor) {
                     if ($valor == 1) {
@@ -157,12 +157,12 @@ class Super extends CI_Controller
                         $this->db->insert('tenant_permissoes_menu', $perm_menu_data);
                     }
                 }
-                
+
                 // Criar usuário se os campos foram preenchidos
                 $usuario_nome = $this->input->post('usuario_nome');
                 $usuario_email = $this->input->post('usuario_email');
                 $usuario_senha = $this->input->post('usuario_senha');
-                
+
                 if (!empty($usuario_nome) && !empty($usuario_email) && !empty($usuario_senha)) {
                     $usuario_data = [
                         'nome' => $usuario_nome,
@@ -177,7 +177,7 @@ class Super extends CI_Controller
                         'permissoes_id' => $permissao_id, // Usar a permissão padrão criada
                         'ten_id' => $ten_id,
                     ];
-                    
+
                     if ($this->db->insert('usuarios', $usuario_data)) {
                         $this->session->set_flashdata('success', 'Tenant adicionado com sucesso! Permissão padrão e usuário administrador criados.');
                         log_info('Super usuário adicionou um tenant com usuário. Tenant ID: ' . $ten_id . ', Usuário: ' . $usuario_email);
@@ -189,7 +189,7 @@ class Super extends CI_Controller
                     $this->session->set_flashdata('success', 'Tenant adicionado com sucesso! Permissão padrão criada.');
                     log_info('Super usuário adicionou um tenant. ID: ' . $ten_id);
                 }
-                
+
                 redirect(base_url('index.php/super/tenants'));
             } else {
                 $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro.</p></div>';
@@ -287,7 +287,7 @@ class Super extends CI_Controller
         }
 
         $this->load->library('pagination');
-        
+
         $pesquisa = $this->input->get('pesquisa');
         $per_page = 20;
         $page = $this->input->get('page') ?: 1;
@@ -315,7 +315,7 @@ class Super extends CI_Controller
         }
         $this->db->order_by('usuarios.nome', 'ASC');
         $this->db->limit($per_page, $start);
-        
+
         $this->data['results'] = $this->db->get()->result();
         $this->data['tenant'] = $tenant;
         $this->data['search'] = $pesquisa;
@@ -469,14 +469,17 @@ class Super extends CI_Controller
         // Carregar todas as permissões do sistema
         $this->load->config('permission');
         $all_permissions = $this->config->item('permission');
-        
+
         // Agrupar permissões por módulo
         $menus_agrupados = [];
         foreach ($all_permissions as $codigo => $nome) {
             // Extrair o módulo (ex: 'Cliente' de 'vCliente', 'FaturamentoEntrada' de 'vFaturamentoEntrada')
             // Remove prefixos: v, a, e, d, c, r
             $modulo = preg_replace('/^[vaedcr]/', '', $codigo);
-            
+            if ($modulo == 'Sistema') {
+                $modulo = 'Configuracao';
+            }
+
             // Se não removeu nada, pode ser que não tenha prefixo (caso raro)
             if ($modulo == $codigo && strlen($codigo) > 0) {
                 // Tentar identificar módulo de outra forma (ex: ClassificacaoFiscal)
@@ -488,36 +491,36 @@ class Super extends CI_Controller
                     $modulo = $codigo;
                 }
             }
-            
+
             // Garantir que o módulo começa com maiúscula (para consistência)
             if (strlen($modulo) > 0) {
                 $modulo = ucfirst($modulo);
             }
-            
+
             if (!isset($menus_agrupados[$modulo])) {
                 $menus_agrupados[$modulo] = [];
             }
             $menus_agrupados[$modulo][$codigo] = $nome;
         }
-        
+
         // Usar TODAS as permissões do config como disponíveis
         // O super admin pode habilitar qualquer permissão definida no config
         $permissoes_sistema = array_keys($all_permissions);
-        
+
         // Opcional: também verificar quais permissões já foram usadas em algum perfil
         // Isso ajuda a identificar permissões que realmente existem no sistema
         $this->db->select('permissoes');
         $this->db->from('permissoes');
         $this->db->where('situacao', 1);
         $permissoes_db = $this->db->get()->result();
-        
+
         $permissoes_usadas = [];
         foreach ($permissoes_db as $perm) {
             $perm_array = @unserialize($perm->permissoes);
             if ($perm_array === false) {
                 $perm_array = json_decode($perm->permissoes, true);
             }
-            
+
             if (is_array($perm_array)) {
                 foreach ($perm_array as $key => $value) {
                     if ($value == 1 && !in_array($key, $permissoes_usadas)) {
@@ -526,7 +529,7 @@ class Super extends CI_Controller
                 }
             }
         }
-        
+
         // Se encontrou permissões usadas, adicionar às disponíveis (para garantir que todas estejam)
         if (!empty($permissoes_usadas)) {
             $permissoes_sistema = array_unique(array_merge($permissoes_sistema, $permissoes_usadas));
@@ -536,14 +539,14 @@ class Super extends CI_Controller
         $this->db->where('tpm_ten_id', $tenant_id);
         $this->db->where('tpm_ativo', 1);
         $permissoes_configuradas = $this->db->get('tenant_permissoes_menu')->result();
-        
+
         // Verificar quais módulos estão habilitados (se pelo menos uma permissão do módulo estiver ativa)
         $modulos_habilitados = [];
         foreach ($permissoes_configuradas as $perm) {
             $codigo = $perm->tpm_permissao;
             // Extrair módulo da mesma forma que foi feito no agrupamento
             $modulo = preg_replace('/^[vaedcr]/', '', $codigo);
-            
+
             if ($modulo == $codigo && strlen($codigo) > 0) {
                 if (preg_match('/^[a-z]+([A-Z][a-zA-Z]+)$/', $codigo, $matches)) {
                     $modulo = $matches[1];
@@ -551,7 +554,7 @@ class Super extends CI_Controller
                     $modulo = $codigo;
                 }
             }
-            
+
             // Garantir que o módulo começa com maiúscula (para consistência)
             if (strlen($modulo) > 0) {
                 $modulo = ucfirst($modulo);
@@ -568,13 +571,13 @@ class Super extends CI_Controller
             $this->db->delete('tenant_permissoes_menu');
 
             $modulos_post = $this->input->post('modulos');
-            
+
             log_message('debug', 'Módulos recebidos: ' . print_r($modulos_post, true));
-            
+
             $permissoes_salvas = 0;
             $modulos_salvos = 0;
             $erros = [];
-            
+
             if (is_array($modulos_post) && !empty($modulos_post)) {
                 foreach ($modulos_post as $modulo => $habilitado) {
                     // Verificar se o módulo está habilitado (valor = 1)
@@ -591,9 +594,9 @@ class Super extends CI_Controller
                                         'tpm_ativo' => 1,
                                         'tpm_data_cadastro' => date('Y-m-d H:i:s'),
                                     ];
-                                    
+
                                     $insert_result = $this->db->insert('tenant_permissoes_menu', $data);
-                                    
+
                                     if ($insert_result) {
                                         $permissoes_salvas++;
                                     } else {
@@ -620,9 +623,9 @@ class Super extends CI_Controller
             } else {
                 log_message('debug', 'Nenhum módulo foi enviado ou array vazio');
             }
-            
+
             log_message('debug', "Total de módulos salvos: {$modulos_salvos}, Total de permissões salvas: {$permissoes_salvas}");
-            
+
             if (!empty($erros)) {
                 $this->session->set_flashdata('error', 'Algumas permissões não puderam ser salvas. Verifique os logs.');
             } else {
@@ -646,7 +649,7 @@ class Super extends CI_Controller
     public function superUsuarios()
     {
         $this->load->library('pagination');
-        
+
         $pesquisa = $this->input->get('pesquisa');
         $per_page = 20;
         $page = $this->input->get('page') ?: 1;

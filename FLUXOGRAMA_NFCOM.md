@@ -621,4 +621,4 @@ CST 03-09, 49, 50-99 - Isento, não tributado, suspenso, etc.
 
 **Versão:** 1.0  
 **Data:** 23/01/2026  
-**Sistema:** Map-OS - NFCom
+**Sistema:** AgilizePro - NFCom

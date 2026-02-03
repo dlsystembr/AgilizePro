@@ -92,6 +92,12 @@ class Tipos_clientes_model extends CI_Model
     public function count($table)
     {
         $this->db->where('ten_id', $this->session->userdata('ten_id'));
-        return $this->db->count_all_results($table);
+        $result = $this->db->count_all_results($table);
+        // count_all_results pode retornar false se a query falhar (ex: tabela/coluna inexistente)
+        if ($result === false) {
+            log_message('error', 'Tipos_clientes_model->count falhou. Tabela: ' . $table . ' | erro: ' . ($this->db->error()['message'] ?? 'desconhecido'));
+            return 0;
+        }
+        return $result;
     }
 }

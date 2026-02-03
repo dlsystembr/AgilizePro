@@ -45,7 +45,7 @@ class Pessoas_model extends CI_Model
         }
         $this->db->insert($table, $data);
         if ($this->db->affected_rows() == 1) {
-            return $this->db->insert_id($table);
+            return $this->db->insert_id();
         }
         return false;
     }

@@ -3,23 +3,24 @@
     .form-section {
         border: 1px solid #e0e0e0;
         border-radius: 4px;
-        margin-bottom: 20px;
+        margin-bottom: 6px;
         background: #fff;
     }
 
     .form-section-header {
         background: #f8f9fa;
         border-bottom: 1px solid #e0e0e0;
-        padding: 12px 15px;
+        padding: 6px 10px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         font-weight: 600;
         color: #333;
+        font-size: 13px;
     }
 
     .form-section-content {
-        padding: 15px;
+        padding: 8px 10px;
     }
 
     /* Alinhamento dos campos */
@@ -27,6 +28,8 @@
         width: 120px;
         text-align: right;
         margin-right: 10px;
+        font-size: 13px;
+        line-height: 1.3;
     }
 
     .form-section .controls {
@@ -42,10 +45,10 @@
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
-        height: 30px;
-        padding: 4px 8px;
-        line-height: 20px;
-        font-size: 14px;
+        height: 28px;
+        padding: 3px 6px;
+        line-height: 18px;
+        font-size: 13px;
     }
 
     .form-section textarea {
@@ -447,17 +450,17 @@
 <div class="row-fluid" style="margin-top:0">
     <div class="span12">
         <div class="widget-box">
-            <div class="widget-title" style="margin: -20px 0 0">
+            <div class="widget-title" style="margin: -20px 0 0; padding: 8px 15px;">
                 <span class="icon">
                     <i class="fas fa-file-invoice"></i>
                 </span>
-                <h5>Nova NFECom</h5>
+                <h5 style="margin: 0; line-height: 1.2;">Nova NFECom</h5>
             </div>
-            <?php 
+            <?php
             // Só exibir erro se realmente houver um erro (não apenas no carregamento inicial)
             $error_message = '';
             $success_message = '';
-            
+
             if ($this->session->flashdata('error')) {
                 $error_message = $this->session->flashdata('error');
             } elseif ($custom_error !== '' && $custom_error !== false && $custom_error !== true) {
@@ -467,12 +470,12 @@
                     $error_message = is_bool($custom_error) ? 'Ocorreu um erro ao processar o formulário. Verifique os campos obrigatórios.' : $custom_error;
                 }
             }
-            
+
             // Verificar mensagem de sucesso
             if ($this->session->flashdata('success')) {
                 $success_message = $this->session->flashdata('success');
             }
-            
+
             if ($error_message) {
                 echo '<div class="alert alert-danger" style="margin-bottom: 20px;">';
                 echo '<i class="fas fa-exclamation-triangle"></i> ';
@@ -480,13 +483,14 @@
                 echo '</div>';
             }
             ?>
-            <form action="<?php echo site_url('nfecom/adicionar'); ?>" id="formNfecom" method="post" class="form-horizontal">
+            <form action="<?php echo site_url('nfecom/adicionar'); ?>" id="formNfecom" method="post"
+                class="form-horizontal">
                 <!-- Campo hidden para data de emissão (gerada automaticamente) -->
                 <input type="hidden" name="dataEmissao" id="dataEmissao" value="<?php echo date('d/m/Y'); ?>">
                 <div class="widget-content nopadding tab-content">
 
                     <!-- Seções lado a lado -->
-                    <div class="row-fluid row-flex" style="margin: 20px 0 0 0; padding: 0;">
+                    <div class="row-fluid row-flex" style="margin: 8px 0 0 0; padding: 0;">
                         <!-- Dados Principais (Esquerda) -->
                         <div class="span6">
                             <div class="form-section" style="height: 100%;">
@@ -496,10 +500,10 @@
                                 </div>
                                 <div class="form-section-content">
                                     <!-- Linha 0: Operação Comercial -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="opc_id" class="control-label">Operação Comercial<span
+                                                <label for="opc_id" class="control-label">Op. Comercial<span
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <select name="opc_id" id="opc_id" required style="width: 100%;">
@@ -515,7 +519,7 @@
                                         </div>
                                     </div>
                                     <!-- Linha 1: Cliente -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="cliente" class="control-label">Cliente<span
@@ -526,14 +530,12 @@
                                                         <option value="">Selecione um cliente ou digite para buscar...
                                                         </option>
                                                         <?php foreach ($clientes_iniciais as $cliente): ?>
-                                                            <option
-                                                                value="<?php echo $cliente->id; ?>"
+                                                            <option value="<?php echo $cliente->id; ?>"
                                                                 data-nome-fantasia="<?php echo htmlspecialchars($cliente->nome_fantasia ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-razao-social="<?php echo htmlspecialchars($cliente->razao_social ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-cpf-cnpj="<?php echo htmlspecialchars($cliente->cpf_cnpj ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                                 data-codigo="<?php echo htmlspecialchars($cliente->codigo ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                                                <?php echo (isset($_POST['clientes_id']) && $_POST['clientes_id'] == $cliente->id) ? 'selected' : ''; ?>
-                                                            >
+                                                                <?php echo (isset($_POST['clientes_id']) && $_POST['clientes_id'] == $cliente->id) ? 'selected' : ''; ?>>
                                                                 <?php echo $cliente->text; ?>
                                                             </option>
                                                         <?php endforeach; ?>
@@ -544,7 +546,7 @@
                                     </div>
 
                                     <!-- Linha 2: Endereço do Cliente -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="enderecoClienteSelect" class="control-label">Endereço<span
@@ -560,7 +562,7 @@
                                     </div>
 
                                     <!-- Linha 2.1: Contatos do Cliente -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="contatoTelefone" class="control-label">Telefone</label>
@@ -571,25 +573,17 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row-fluid" style="margin-bottom: 50px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="contatoEmail" class="control-label">Email</label>
                                                 <div class="controls">
-                                                    <input type="text" name="contatoEmail" id="contatoEmail"
-                                                        readonly>
+                                                    <input type="text" name="contatoEmail" id="contatoEmail" readonly>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
                                     <input type="hidden" id="contratoId" name="contratoId" value="">
-
-                                    
-
-
-
-
                                     <!-- Linha 5: Observações -->
                                     <div class="row-fluid">
                                         <div class="span12">
@@ -617,11 +611,11 @@
                                 <div class="form-section-content">
 
                                     <!-- Linha 1: Número do Contrato + Código Assinante -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="numeroContrato" class="control-label">Número do Contrato<span
-                                                        class="required">*</span></label>
+                                                <label for="numeroContrato" class="control-label">Nº do
+                                                    Contrato<span class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="text" name="numeroContrato" id="numeroContrato"
                                                         value="<?php echo set_value('numeroContrato'); ?>"
@@ -642,7 +636,7 @@
                                     </div>
 
                                     <!-- Linha 2: Tipo Assinante e Tipo Serviço -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="tpAssinante" class="control-label">Tipo Assinante<span
@@ -695,7 +689,7 @@
                                     </div>
 
                                     <!-- Linha 3: Data s Contrato -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataContratoIni" class="control-label">Início Contrato<span
@@ -718,15 +712,15 @@
                                     </div>
 
                                     <!-- Linha 5: Período Uso -->
-                                    <div class="row-fluid" style="margin-bottom: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span6">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataPeriodoIni" class="control-label">Período Início<span
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="date" name="dataPeriodoIni" id="dataPeriodoIni"
-                                                        value="<?php echo set_value('dataPeriodoIni') ?: date('Y-m-d'); ?>" required
-                                                        class="span12">
+                                                        value="<?php echo set_value('dataPeriodoIni') ?: date('Y-m-d'); ?>"
+                                                        required class="span12">
                                                 </div>
                                             </div>
                                         </div>
@@ -736,21 +730,21 @@
                                                         class="required">*</span></label>
                                                 <div class="controls">
                                                     <input type="date" name="dataPeriodoFim" id="dataPeriodoFim"
-                                                        value="<?php echo set_value('dataPeriodoFim') ?: date('Y-m-d', strtotime('+30 days')); ?>" required
-                                                        class="span12">
+                                                        value="<?php echo set_value('dataPeriodoFim') ?: date('Y-m-d', strtotime('+30 days')); ?>"
+                                                        required class="span12">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="form-section-header"
-                                        style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; margin-left: -15px; margin-right: -15px; padding-left: 15px;">
+                                        style="margin-top: 6px; border-top: 1px solid #eee; padding-top: 4px; margin-left: -10px; margin-right: -10px; padding-left: 10px;">
                                         <i class="fas fa-credit-card"></i>
                                         <span>Forma de Pagamento</span>
                                     </div>
 
                                     <!-- Linha 6: Vencimento -->
-                                    <div class="row-fluid" style="margin-bottom: 15px; margin-top: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px; margin-top: 6px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="dataVencimento" class="control-label">Vencimento<span
@@ -765,10 +759,10 @@
                                     </div>
 
                                     <!-- Linha 6: Boleto -->
-                                    <div class="row-fluid" style="margin-bottom: 10px; margin-top: 15px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px; margin-top: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="nfc_linha_digitavel" class="control-label">Boleto (Linha
+                                                <label for="nfc_linha_digitavel" class="control-label">Bol. (Linha
                                                     Digitável)</label>
                                                 <div class="controls">
                                                     <input type="text" name="nfc_linha_digitavel"
@@ -781,7 +775,7 @@
                                     </div>
 
                                     <!-- Linha 7: Pix -->
-                                    <div class="row-fluid" style="margin-bottom: 10px;">
+                                    <div class="row-fluid" style="margin-bottom: 4px;">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
                                                 <label for="nfc_chave_pix" class="control-label">Pix (Chave Pix)</label>
@@ -798,11 +792,11 @@
                                     <div class="row-fluid">
                                         <div class="span12">
                                             <div class="control-group" style="margin-bottom: 0;">
-                                                <label for="dadosBancarios" class="control-label">Dados
+                                                <label for="dados_bancarios" class="control-label">Dados
                                                     Bancários</label>
                                                 <div class="controls">
-                                                    <textarea name="dadosBancarios" id="dadosBancarios"
-                                                        rows="2"><?php echo set_value('dadosBancarios'); ?></textarea>
+                                                    <textarea name="dados_bancarios" id="dados_bancarios" rows="2"
+                                                        placeholder="Ex: Banco 001, Agência 1234, C/C 56789-0"><?php echo set_value('dados_bancarios'); ?></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -823,7 +817,7 @@
                         <div class="form-section-content">
                             <div class="span12 well" style="padding: 1%; margin-left: 0">
                                 <div class="span12" style="margin-left: 0">
-                                    <div class="span4">
+                                    <div class="span3">
                                         <label for="">Serviço/Produto:<span class="required">*</span></label>
                                         <input type="hidden" id="idServicoNfecom">
                                         <input type="hidden" id="cClassServicoNfecom">
@@ -838,12 +832,12 @@
                                             class="span12 money">
                                     </div>
                                     <div class="span2">
-                                        <label for="">Quantidade:<span class="required">*</span></label>
-                                        <input type="text" placeholder="Quantidade" id="quantidadeServicoNfecom"
+                                        <label for="">Qtd:<span class="required">*</span></label>
+                                        <input type="text" placeholder="Qtd" id="quantidadeServicoNfecom"
                                             class="span12">
                                     </div>
                                     <div class="span2">
-                                        <label for="">Desconto:</label>
+                                        <label for="">Desc:</label>
                                         <input type="text" placeholder="0,00" id="descontoServicoNfecom"
                                             class="span12 money">
                                     </div>
@@ -852,11 +846,20 @@
                                         <input type="text" placeholder="0,00" id="outrosServicoNfecom"
                                             class="span12 money">
                                     </div>
-                                    <div class="span12"
-                                        style="margin-left: 0; margin-top: 10px; display: flex; justify-content: flex-end;">
-                                        <button type="button" class="btn btn-success" id="btnAdicionarServicoNfecom">
-                                            <span class="button__icon"><i class='bx bx-plus-circle'></i></span><span
-                                                class="button__text2">Adicionar</span></button>
+                                    <div class="span1">
+                                        <label for="">&nbsp;</label>
+                                        <div style="display: flex; gap: 4px;">
+                                            <button type="button" class="btn btn-success"
+                                                style="width: 50%; padding: 4px 0;" id="btnAdicionarServicoNfecom"
+                                                title="Adicionar Item">
+                                                <i class='bx bx-plus-circle'></i>
+                                            </button>
+                                            <button type="button" class="btn btn-warning"
+                                                style="width: 50%; padding: 4px 0;" id="btnLimparServicoNfecom"
+                                                title="Limpar Campos">
+                                                <i class='bx bx-brush'></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -893,23 +896,175 @@
                                 </div>
                             </div>
 
-                            <!-- Resumo dos valores calculados -->
-                            <div id="servicos-resumo"
-                                style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; display: none;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <strong>Total dos Serviços:</strong> R$ <span id="total-servicos">0,00</span>
+                            <!-- Resumo dos valores calculados - Minimalista MapOS -->
+                            <div id="servicos-resumo" class="resumo-minimal" style="display: none;">
+                                <div class="row-fluid">
+                                    <div class="span4">
+                                        <div class="resumo-block">
+                                            <span class="resumo-title">SUBTOTAL</span>
+                                            <div class="resumo-line">
+                                                <span>Faturamento Bruto:</span>
+                                                <strong class="color-bruto">R$ <span
+                                                        id="total-servicos">0,00</span></strong>
+                                            </div>
+                                            <div class="resumo-line">
+                                                <span>(-) Comissão Agência:</span>
+                                                <div class="input-mini-wrapper">
+                                                    R$ <input type="number" name="comissaoAgencia" id="comissaoAgencia"
+                                                        step="0.01" value="0">
+                                                </div>
+                                            </div>
+                                            <div class="resumo-line highlight-total">
+                                                <span>Valor Líquido:</span>
+                                                <strong>R$ <span id="valor-liquido">0,00</span></strong>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div style="display: flex; gap: 10px; align-items: center;">
-                                        <label for="comissaoAgencia" style="margin: 0;">Comissão:</label>
-                                        <input type="number" name="comissaoAgencia" id="comissaoAgencia" step="0.01"
-                                            value="0" placeholder="0,00" style="width: 80px; text-align: right;">
+
+                                    <div class="span4">
+                                        <div class="resumo-block">
+                                            <span class="resumo-title">IMPOSTOS E RETENÇÕES</span>
+                                            <div class="resumo-line">
+                                                <span>PIS:</span>
+                                                <span>R$ <span id="total-pis">0,00</span></span>
+                                            </div>
+                                            <div class="resumo-line">
+                                                <span>COFINS:</span>
+                                                <span>R$ <span id="total-cofins">0,00</span></span>
+                                            </div>
+                                            <div class="resumo-line tax-irrf">
+                                                <span>IRRF:</span>
+                                                <strong>R$ <span id="total-irrf">0,00</span></strong>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #dee2e6;">
-                                    <strong>Valor Líquido:</strong> R$ <span id="valor-liquido">0,00</span>
+
+                                    <div class="span4">
+                                        <div class="resumo-block total-final">
+                                            <span class="resumo-title">TOTAL DA NOTA FISCAL</span>
+                                            <div class="total-big">
+                                                <small>R$</small> <span id="valor-nf">0,00</span>
+                                            </div>
+                                            <div class="total-note">
+                                                Fórmula: Valor Líquido - IRRF
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+                            <style>
+                                .resumo-minimal {
+                                    margin-top: 25px;
+                                    padding: 20px;
+                                    background: #fff;
+                                    border: 1px solid #ddd;
+                                    border-radius: 4px;
+                                    box-sizing: border-box;
+                                }
+
+                                .resumo-minimal *,
+                                .resumo-minimal *:before,
+                                .resumo-minimal *:after {
+                                    box-sizing: border-box;
+                                }
+
+                                .resumo-block {
+                                    padding: 0 15px;
+                                    border-right: 1px solid #eee;
+                                    min-height: 100px;
+                                }
+
+                                .span4:last-child .resumo-block {
+                                    border-right: none;
+                                    padding-right: 0;
+                                }
+
+                                .resumo-title {
+                                    display: block;
+                                    font-size: 11px;
+                                    font-weight: bold;
+                                    color: #999;
+                                    margin-bottom: 12px;
+                                    letter-spacing: 1px;
+                                    text-transform: uppercase;
+                                }
+
+                                .resumo-line {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    font-size: 13px;
+                                    margin-bottom: 8px;
+                                    color: #555;
+                                }
+
+                                .color-bruto {
+                                    color: #468847;
+                                }
+
+                                /* Verde AgilizePro */
+
+                                .highlight-total {
+                                    color: #2b6893;
+                                    border-top: 1px solid #f5f5f5;
+                                    padding-top: 10px;
+                                    margin-top: 10px;
+                                }
+
+                                .tax-irrf {
+                                    color: #b94a48;
+                                    border-top: 1px solid #f5f5f5;
+                                    padding-top: 10px;
+                                    margin-top: 10px;
+                                }
+
+                                .total-final {
+                                    text-align: right;
+                                    padding-left: 15px;
+                                }
+
+                                .total-big {
+                                    font-size: 38px;
+                                    font-weight: bold;
+                                    color: #333;
+                                    line-height: 1.2;
+                                    margin: 5px 0;
+                                }
+
+                                .total-big small {
+                                    font-size: 18px;
+                                    font-weight: normal;
+                                    color: #999;
+                                }
+
+                                .total-note {
+                                    font-size: 11px;
+                                    color: #bbb;
+                                    font-style: italic;
+                                }
+
+                                .input-mini-wrapper input {
+                                    margin: 0 !important;
+                                    font-size: 12px !important;
+                                    font-weight: bold !important;
+                                    text-align: right !important;
+                                    font-weight: 800;
+                                    letter-spacing: -1px;
+                                }
+
+                                .resumo-info {
+                                    padding: 10px 18px;
+                                    background: #fffbeb;
+                                    border-top: 1px solid #fef3c7;
+                                    color: #92400e;
+                                    font-size: 11px;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                    font-style: italic;
+                                }
+                            </style>
 
                             <?php if (empty($servicos)): ?>
                                 <div id="servicos-aviso"
@@ -946,10 +1101,14 @@
                     <!-- Botões de ação -->
                     <div class="form-actions">
                         <div class="span12">
-                            <div class="span6 offset3" style="display: flex;justify-content: center">
-                                <button type="submit" class="button btn btn-mini btn-success" style="max-width: 160px">
+                            <div class="span6 offset3" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
+                                <button type="submit" name="acao" value="salvar" class="button btn btn-mini btn-success" style="max-width: 160px">
                                     <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
                                     <span class="button__text2">Salvar</span>
+                                </button>
+                                <button type="submit" name="acao" value="salvar_e_emitir" class="button btn btn-mini btn-primary" style="max-width: 180px" title="Salvar a NFCom e enviar para autorização na SEFAZ">
+                                    <span class="button__icon"><i class='bx bx-send'></i></span>
+                                    <span class="button__text2">Salvar e Emitir</span>
                                 </button>
                                 <a href="<?php echo base_url() ?>index.php/nfecom" id=""
                                     class="button btn btn-mini btn-warning">
@@ -972,50 +1131,50 @@
     $(document).ready(function () {
         // Exibir mensagem de sucesso com SweetAlert
         <?php if (!empty($success_message)): ?>
-        // Aguardar um pouco para garantir que o DOM está pronto e evitar conflito com o template
-        setTimeout(function() {
-            // Prevenir que o template geral exiba o SweetAlert
-            if (typeof window.__swalPrevented === 'undefined') {
-                window.__swalPrevented = true;
-            }
-            
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sucesso!',
-                    text: '<?php echo addslashes($success_message); ?>',
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showCloseButton: false,
-                    buttonsStyling: true,
-                    customClass: {
-                        confirmButton: 'btn btn-success'
-                    }
-                }).then((result) => {
-                    // Redirecionar para a listagem após clicar em OK
-                    if (result.isConfirmed || result.isDismissed) {
+            // Aguardar um pouco para garantir que o DOM está pronto e evitar conflito com o template
+            setTimeout(function () {
+                // Prevenir que o template geral exiba o SweetAlert
+                if (typeof window.__swalPrevented === 'undefined') {
+                    window.__swalPrevented = true;
+                }
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso!',
+                        text: '<?php echo addslashes($success_message); ?>',
+                        confirmButtonText: 'OK',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showCloseButton: false,
+                        buttonsStyling: true,
+                        customClass: {
+                            confirmButton: 'btn btn-success'
+                        }
+                    }).then((result) => {
+                        // Redirecionar para a listagem após clicar em OK
+                        if (result.isConfirmed || result.isDismissed) {
+                            window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
+                        }
+                    });
+                } else if (typeof swal !== 'undefined') {
+                    // Fallback para versão antiga do SweetAlert
+                    swal({
+                        title: "Sucesso!",
+                        text: "<?php echo addslashes($success_message); ?>",
+                        type: "success",
+                        confirmButtonText: "OK",
+                        closeOnConfirm: true
+                    }, function () {
                         window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
-                    }
-                });
-            } else if (typeof swal !== 'undefined') {
-                // Fallback para versão antiga do SweetAlert
-                swal({
-                    title: "Sucesso!",
-                    text: "<?php echo addslashes($success_message); ?>",
-                    type: "success",
-                    confirmButtonText: "OK",
-                    closeOnConfirm: true
-                }, function() {
+                    });
+                } else {
+                    alert('<?php echo addslashes($success_message); ?>');
                     window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
-                });
-            } else {
-                alert('<?php echo addslashes($success_message); ?>');
-                window.location.href = '<?php echo base_url(); ?>index.php/nfecom';
-            }
-        }, 200);
+                }
+            }, 200);
         <?php endif; ?>
-        
+
         // Configurar Select2 para busca de clientes (opções iniciais + busca AJAX)
         $('#cliente').select2({
             placeholder: 'Selecione um cliente ou digite para buscar...',
@@ -1052,7 +1211,7 @@
                 var cpfCnpj = cliente.cpf_cnpj || elData.cpfCnpj || '';
                 var codigo = cliente.codigo || elData.codigo || '';
                 var tituloBase = cliente.text || nomeFantasia || razaoSocial || '';
-                var titulo = codigo ? ( codigo + ' - ' + tituloBase) : tituloBase;
+                var titulo = codigo ? (codigo + ' - ' + tituloBase) : tituloBase;
 
                 var metaParts = [];
                 if (razaoSocial && razaoSocial !== titulo) {
@@ -1067,7 +1226,7 @@
                 return '<div class="cliente-select2">' +
                     '<div class="cliente-select2-title">' + titulo + '</div>' +
                     meta +
-                '</div>';
+                    '</div>';
             },
             templateSelection: function (cliente) {
                 return cliente.text || cliente.text;
@@ -1195,7 +1354,7 @@
                 return '<div class="servico-select2">' +
                     '<div class="servico-select2-title">' + (servico.text || '') + '</div>' +
                     meta +
-                '</div>';
+                    '</div>';
             },
             templateSelection: function (servico) {
                 return servico.text || servico.text;
@@ -1326,7 +1485,7 @@
                     dataType: 'json',
                     success: function (contratos) {
                         console.log('📋 Contratos recebidos:', contratos);
-                        
+
                         if (contratos.error) {
                             console.log('⚠️ Erro ao buscar contratos:', contratos.error);
                             return;
@@ -1342,7 +1501,7 @@
                             buscarServicosContrato(contrato.ctr_id);
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error('❌ Erro ao buscar contratos:', error);
                     }
                 });
@@ -1447,43 +1606,43 @@
         // Função para preencher dados do contrato
         function preencherDadosContrato(contrato) {
             console.log('📝 Preenchendo dados do contrato:', contrato);
-            
+
             if (contrato.ctr_numero) {
                 $('#numeroContrato').val(contrato.ctr_numero);
             }
-            
+
             if (contrato.ctr_data_inicio) {
                 $('#dataContratoIni').val(contrato.ctr_data_inicio);
             }
-            
+
             if (contrato.ctr_data_fim) {
                 $('#dataContratoFim').val(contrato.ctr_data_fim);
             }
-            
+
             if (contrato.ctr_observacao) {
                 $('#observacoes').val(contrato.ctr_observacao);
             }
-            
+
             if (contrato.ctr_tipo_assinante) {
                 $('#tpAssinante').val(contrato.ctr_tipo_assinante);
             }
-            
+
             console.log('✅ Dados do contrato preenchidos com sucesso');
         }
 
         // Autocomplete para número do contrato
         // Compatível com jQuery UI 1.9.2 (sem usar .instance)
         var autocompleteContrato = $('#numeroContrato').autocomplete({
-            source: function(request, response) {
+            source: function (request, response) {
                 $.ajax({
                     url: '<?php echo base_url(); ?>index.php/nfecom/buscarContratoPorCodigo',
                     dataType: 'json',
                     data: {
                         term: request.term
                     },
-                    success: function(data) {
+                    success: function (data) {
                         // Formatar os dados para exibição no autocomplete
-                        var formattedData = $.map(data, function(item) {
+                        var formattedData = $.map(data, function (item) {
                             var label = item.ctr_numero || item.label || item.value;
                             if (item.ctr_data_inicio) {
                                 label += ' - ' + new Date(item.ctr_data_inicio).toLocaleDateString('pt-BR');
@@ -1509,19 +1668,19 @@
                         });
                         response(formattedData);
                     },
-                    error: function() {
+                    error: function () {
                         response([]);
                     }
                 });
             },
             minLength: 2,
-            select: function(event, ui) {
+            select: function (event, ui) {
                 event.preventDefault();
-                
+
                 // Preencher dados do contrato
                 $('#numeroContrato').val(ui.item.ctr_numero);
                 $('#contratoId').val(ui.item.ctr_id);
-                
+
                 if (ui.item.ctr_data_inicio) {
                     $('#dataContratoIni').val(ui.item.ctr_data_inicio);
                 }
@@ -1534,14 +1693,14 @@
                 if (ui.item.ctr_tipo_assinante) {
                     $('#tpAssinante').val(ui.item.ctr_tipo_assinante);
                 }
-                
+
                 // Preencher cliente se não estiver preenchido
                 if (ui.item.cln_id) {
                     var clienteAtual = $('#cliente').val();
                     if (!clienteAtual || clienteAtual != ui.item.cln_id) {
                         // Buscar o cliente no select2 ou criar nova opção
                         var clienteExiste = $('#cliente option[value="' + ui.item.cln_id + '"]').length > 0;
-                        
+
                         if (!clienteExiste) {
                             // Criar nova opção
                             var labelCliente = ui.item.pes_nome;
@@ -1554,18 +1713,18 @@
                             var newOption = new Option(labelCliente, ui.item.cln_id, true, true);
                             $('#cliente').append(newOption);
                         }
-                        
+
                         // Selecionar o cliente
                         $('#cliente').val(ui.item.cln_id).trigger('change');
                     }
                 }
-                
+
                 // Buscar e preencher serviços do contrato
                 buscarServicosContrato(ui.item.ctr_id);
-                
+
                 return false;
             },
-            focus: function(event, ui) {
+            focus: function (event, ui) {
                 event.preventDefault();
                 return false;
             }
@@ -1756,12 +1915,12 @@
                 url: '<?php echo base_url(); ?>index.php/nfecom/getServicosContrato/' + contratoId,
                 type: 'GET',
                 dataType: 'json',
-                success: function(servicosContrato) {
+                success: function (servicosContrato) {
                     if (servicosContrato && servicosContrato.length > 0) {
                         // Limpar serviços existentes primeiro
                         $('#servicos-list-body').empty();
                         servicoIndex = 0; // Resetar o índice
-                        
+
                         // Função recursiva para adicionar serviços sequencialmente
                         function adicionarServicoSequencial(index) {
                             if (index >= servicosContrato.length) {
@@ -1769,13 +1928,13 @@
                                 atualizarTotais();
                                 return;
                             }
-                            
+
                             var servico = servicosContrato[index];
                             var servicoId = servico.pro_id || servico.idServicos;
                             var servicoNome = servico.nome || servico.pro_descricao || '';
                             var servicoPreco = parseFloat(servico.cti_preco || servico.preco || 0);
                             var servicoQuantidade = parseFloat(servico.cti_quantidade || servico.quantidade || 1);
-                            
+
                             // Preencher campos do formulário
                             $("#idServicoNfecom").val(servicoId);
                             setServicoSelecionado({
@@ -1786,18 +1945,18 @@
                             $("#quantidadeServicoNfecom").val(formatarQuantidade(servicoQuantidade));
                             $("#descontoServicoNfecom").val('0,00');
                             $("#outrosServicoNfecom").val('0,00');
-                            
+
                             // Buscar dados completos do serviço via autocomplete para obter cClass e uMed
                             $.ajax({
                                 url: "<?php echo base_url(); ?>index.php/nfecom/autoCompleteServico",
                                 dataType: "json",
                                 data: { term: servicoNome },
-                                success: function(data) {
+                                success: function (data) {
                                     if (data && data.length > 0) {
-                                        var servicoCompleto = data.find(function(s) {
+                                        var servicoCompleto = data.find(function (s) {
                                             return s.id == servicoId || s.label == servicoNome;
                                         }) || data[0];
-                                        
+
                                         if (servicoCompleto) {
                                             $("#cClassServicoNfecom").val(servicoCompleto.cClass || '');
                                             $("#uMedServicoNfecom").val(servicoCompleto.uMed || 'UN');
@@ -1807,36 +1966,36 @@
                                         $("#cClassServicoNfecom").val('');
                                         $("#uMedServicoNfecom").val('UN');
                                     }
-                                    
+
                                     // Adicionar serviço usando a função existente
                                     adicionarServicoNfecom();
-                                    
+
                                     // Aguardar um pouco antes de adicionar o próximo para garantir que o DOM foi atualizado
-                                    setTimeout(function() {
+                                    setTimeout(function () {
                                         adicionarServicoSequencial(index + 1);
                                     }, 100);
                                 },
-                                error: function() {
+                                error: function () {
                                     // Se não encontrar, adicionar mesmo assim com valores padrão
                                     $("#cClassServicoNfecom").val('');
                                     $("#uMedServicoNfecom").val('UN');
                                     adicionarServicoNfecom();
-                                    
+
                                     // Aguardar um pouco antes de adicionar o próximo
-                                    setTimeout(function() {
+                                    setTimeout(function () {
                                         adicionarServicoSequencial(index + 1);
                                     }, 100);
                                 }
                             });
                         }
-                        
+
                         // Iniciar adição sequencial
                         adicionarServicoSequencial(0);
                     } else {
                         console.log('ℹ️ Nenhum serviço encontrado para este contrato');
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Erro ao buscar serviços do contrato:', error);
                 }
             });
@@ -1897,9 +2056,9 @@
 
         function parseNumber(value) {
             if (!value || value === '') return 0;
-            
+
             const strValue = String(value).trim();
-            
+
             // Se tem vírgula, é formato brasileiro (1.234,56 ou 1234,56)
             if (strValue.indexOf(',') > -1) {
                 // Remover pontos (separadores de milhar) e trocar vírgula por ponto
@@ -1907,7 +2066,7 @@
                 const parsed = parseFloat(normalized);
                 return isNaN(parsed) ? 0 : parsed;
             }
-            
+
             // Se tem ponto, verificar se é separador decimal ou de milhar
             if (strValue.indexOf('.') > -1) {
                 const parts = strValue.split('.');
@@ -1926,7 +2085,7 @@
                     return isNaN(parsed) ? 0 : parsed;
                 }
             }
-            
+
             // Apenas números sem separadores
             const parsed = parseFloat(strValue);
             return isNaN(parsed) ? 0 : parsed;
@@ -1935,13 +2094,13 @@
         function formatMoney(value) {
             // Converter para número
             let numValue;
-            
+
             if (typeof value === 'string') {
                 // Detectar formato: se tem vírgula, é formato BR (1.234,56)
                 // Se tem ponto após 2 dígitos do final, é formato US (1234.56)
                 const hasComma = value.indexOf(',') > -1;
                 const hasDot = value.indexOf('.') > -1;
-                
+
                 if (hasComma && !hasDot) {
                     // Formato BR sem ponto: "1234,56" -> 1234.56
                     numValue = parseFloat(value.replace(',', '.'));
@@ -1958,9 +2117,9 @@
             } else {
                 numValue = parseFloat(value);
             }
-            
+
             if (isNaN(numValue)) return '0,00';
-            
+
             // Formatar com 2 casas decimais usando vírgula (formato brasileiro)
             return numValue.toFixed(2).replace('.', ',');
         }
@@ -1968,14 +2127,14 @@
         function formatarQuantidade(value) {
             // Converter para número
             let numValue = parseFloat(value);
-            
+
             if (isNaN(numValue)) return '0';
-            
+
             // Se for número inteiro, retornar sem decimais
             if (numValue % 1 === 0) {
                 return numValue.toString();
             }
-            
+
             // Se tiver decimais, formatar com vírgula (máximo 4 casas decimais)
             return numValue.toFixed(4).replace(/\.?0+$/, '').replace('.', ',');
         }
@@ -1994,12 +2153,38 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
 
+                // Se estiver no Select2 e ele estiver aberto, deixar o Select2 tratar o Enter
+                if (e.target.id === 'servicoNfecom' && $('#servicoNfecom').data('select2') && $('#servicoNfecom').data('select2').isOpen()) {
+                    return;
+                }
+
+                const servicoVal = $('#servicoNfecom').val();
+
+                // Se o serviço não estiver selecionado e tentar dar Enter, não avançar
+                if (!servicoVal && e.target.id === 'servicoNfecom') {
+                    console.log('⚠️ Selecione um serviço antes de avançar');
+                    return;
+                }
+
                 const fields = ['#servicoNfecom', '#precoServicoNfecom', '#quantidadeServicoNfecom', '#descontoServicoNfecom', '#outrosServicoNfecom', '#btnAdicionarServicoNfecom'];
                 const currentIndex = fields.indexOf('#' + e.target.id);
                 const nextIndex = Math.min(currentIndex + 1, fields.length - 1);
 
-                if (nextIndex === fields.length - 1) {
-                    $('#btnAdicionarServicoNfecom').click();
+                if (nextIndex === fields.length - 1 && e.target.id !== 'btnAdicionarServicoNfecom') {
+                    // Se o próximo campo for o botão e tivermos serviço, vamos para o botão
+                    if (servicoVal) {
+                        $(fields[nextIndex]).focus();
+                    } else {
+                        // Se não tem serviço, volta para o início ou abre o select
+                        $('#servicoNfecom').select2('open');
+                    }
+                } else if (e.target.id === 'btnAdicionarServicoNfecom') {
+                    // Se já estivermos no botão e der Enter, só adiciona se tiver serviço
+                    if (servicoVal) {
+                        adicionarServicoNfecom();
+                    } else {
+                        $('#servicoNfecom').select2('open');
+                    }
                 } else {
                     $(fields[nextIndex]).focus();
                 }
@@ -2039,7 +2224,7 @@
             const quantidadeRaw = $("#quantidadeServicoNfecom").val();
             const preco = parseNumber(precoRaw);
             const quantidade = parseNumber(quantidadeRaw);
-            
+
             console.log('🔍 Valores parseados:', {
                 precoRaw: precoRaw,
                 preco: preco,
@@ -2048,7 +2233,7 @@
             });
             const vDesc = parseNumber($("#descontoServicoNfecom").val() || '0');
             const vOutros = parseNumber($("#outrosServicoNfecom").val() || '0');
-            
+
             console.log('🔍 Validação de serviço:', {
                 servicoId: servicoId,
                 servicoNome: servicoNome,
@@ -2070,7 +2255,7 @@
                 }
                 return;
             }
-            
+
             if (isNaN(preco) || preco <= 0) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
@@ -2083,7 +2268,7 @@
                 }
                 return;
             }
-            
+
             if (isNaN(quantidade) || quantidade <= 0) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
@@ -2114,17 +2299,17 @@
             let valorCofins = 0;
             let baseIrrf = 0;
             let valorIrrf = 0;
-            
+
             // Buscar classificação fiscal se tiver operação comercial e cliente
             const operacaoComercialId = $("#opc_id").val(); // Campo correto é opc_id
             const clienteId = $("#cliente").val();
-            
+
             if (operacaoComercialId && clienteId) {
                 console.log('🔍 Buscando classificação fiscal...');
                 console.log('   opc_id:', operacaoComercialId);
                 console.log('   Cliente ID:', clienteId);
                 console.log('   Produto ID:', servicoId);
-                
+
                 $.ajax({
                     url: '<?php echo base_url(); ?>index.php/nfecom/getClassificacaoFiscal',
                     type: 'POST',
@@ -2134,16 +2319,16 @@
                         produto_id: servicoId || null
                     },
                     async: false, // Síncrono para aguardar o resultado
-                    success: function(response) {
+                    success: function (response) {
                         console.log('📋 Resposta da classificação fiscal:', response);
                         if (response.success && response.data) {
                             clfId = response.data.id;
                             defaultCfop = response.data.cfop || defaultCfop;
                             defaultCst = response.data.cst || defaultCst;
-                            
+
                             // cClass vem do produto, não da classificação fiscal
                             // cClassTrib é apenas informativo da classificação fiscal
-                            
+
                             console.log('✅ Classificação Fiscal encontrada:');
                             console.log('   clf_id:', clfId);
                             console.log('   CFOP:', defaultCfop);
@@ -2156,7 +2341,7 @@
                             console.log('⚠️  Classificação fiscal não encontrada:', response.error || 'Erro desconhecido');
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.log('❌ Erro ao buscar classificação fiscal:', error);
                     }
                 });
@@ -2177,7 +2362,7 @@
                         v_outro: vOutros,
                         endereco_id: $('#enderecoClienteId').val() || ''
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success && response.data) {
                             const dados = response.data;
                             baseIcms = parseFloat((dados.icms && dados.icms.base) || 0);
@@ -2194,7 +2379,7 @@
                             console.log('⚠️  Pré-visualização tributária não retornou dados:', response.error || 'Erro desconhecido');
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.log('❌ Erro ao pré-visualizar tributação:', error);
                     }
                 });
@@ -2235,16 +2420,16 @@
             <tr class="servico-row-tax" data-index="${servicoIndex}">
                 <td colspan="9">
                     <div class="servico-tax-grid">
-                        <span class="tax-item"><strong>cClass:</strong> ${cClass || '-'}</span>
+                        <span class="tax-item"><strong>Classe:</strong> ${cClass || '-'}</span>
                         <input type="hidden" name="servicos[${servicoIndex}][v_desc]" value="${vDesc}">
                         <input type="hidden" name="servicos[${servicoIndex}][v_outro]" value="${vOutros}">
-                        <span class="tax-item"><strong>B ICMS:</strong> <span class="tax-base-icms">${formatMoney(baseIcms)}</span></span>
-                        <span class="tax-item"><strong>% ICMS:</strong> <span class="tax-aliq-icms">${formatarPercentual(aliqIcms)}</span></span>
-                        <span class="tax-item"><strong>V ICMS:</strong> <span class="tax-valor-icms">${formatMoney(valorIcms)}</span></span>
-                        <span class="tax-item"><strong>ST:</strong> <span class="tax-valor-icmsst">${formatMoney(valorIcmsSt)}</span> (<span class="tax-base-icmsst">${formatMoney(baseIcmsSt)}</span>/<span class="tax-aliq-icmsst">${formatarPercentual(aliqIcmsSt)}</span>)</span>
+                        <span class="tax-item"><strong>Base ICMS:</strong> <span class="tax-base-icms">${formatMoney(baseIcms)}</span></span>
+                        <span class="tax-item"><strong>Alíq. ICMS:</strong> <span class="tax-aliq-icms">${formatarPercentual(aliqIcms)}</span></span>
+                        <span class="tax-item"><strong>Valor ICMS:</strong> <span class="tax-valor-icms">${formatMoney(valorIcms)}</span></span>
+                        <span class="tax-item"><strong>ICMS ST:</strong> <span class="tax-valor-icmsst">${formatMoney(valorIcmsSt)}</span> (<span class="tax-base-icmsst">${formatMoney(baseIcmsSt)}</span>/<span class="tax-aliq-icmsst">${formatarPercentual(aliqIcmsSt)}</span>)</span>
                         <span class="tax-item"><strong>IRRF:</strong> <span class="tax-valor-irrf">${formatMoney(valorIrrf)}</span> (<span class="tax-base-irrf">${formatMoney(baseIrrf)}</span>)</span>
                         <span class="tax-item"><strong>PIS:</strong> <span class="tax-valor-pis">${formatMoney(valorPis)}</span></span>
-                        <span class="tax-item"><strong>COF:</strong> <span class="tax-valor-cofins">${formatMoney(valorCofins)}</span></span>
+                        <span class="tax-item"><strong>COFINS:</strong> <span class="tax-valor-cofins">${formatMoney(valorCofins)}</span></span>
                         <span class="tax-item"><strong>CST:</strong> <span class="tax-cst-value">${defaultCst}</span>
                             <input type="hidden" name="servicos[${servicoIndex}][cst_icms]" value="${defaultCst}">
                             ${clfId ? '<input type="hidden" name="servicos[' + servicoIndex + '][clf_id]" value="' + clfId + '">' : ''}
@@ -2259,7 +2444,7 @@
         `;
 
             $('#servicos-list-body').append(row);
-            
+
             console.log('✅ Serviço adicionado com sucesso:', {
                 index: servicoIndex,
                 id: servicoId,
@@ -2271,15 +2456,15 @@
                 cClass: cClass,
                 clfId: clfId
             });
-            
+
             // Verificar se a linha foi realmente adicionada ao DOM
             const linhasAposAdicao = $('#servicos-list-body tr').length;
             console.log('📊 Total de linhas na tabela após adicionar:', linhasAposAdicao);
-            
+
             servicoIndex++;
             limparServicoFormulario();
             atualizarTotais();
-            
+
             // Log adicional para debug
             console.log('🔍 Verificação final - Campos hidden na tabela:', {
                 totalLinhas: $('#servicos-list-body tr').length,
@@ -2304,13 +2489,12 @@
             adicionarServicoNfecom();
         });
 
-        // Enter no botão adiciona o item sem submit
-        $('#btnAdicionarServicoNfecom').on('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                adicionarServicoNfecom();
-            }
+        // Botão para limpar serviço
+        $('#btnLimparServicoNfecom').on('click', function () {
+            limparServicoFormulario();
+            $('#servicoNfecom').select2('open');
         });
+
 
         // Remover serviço
         $(document).on('click', '.servico-remove', function () {
@@ -2330,20 +2514,45 @@
         // Função para calcular e atualizar totais
         function atualizarTotais() {
             let totalServicos = 0;
+            let totalPis = 0;
+            let totalCofins = 0;
+            let totalIrrf = 0;
             const comissao = parseFloat($('#comissaoAgencia').val()) || 0;
 
-            // Calcular total de todos os serviços adicionados
+            // Calcular total de todos os serviços adicionados E somar os impostos dos itens
             $('#servicos-list-body .servico-row-main').each(function () {
                 const valorProduto = parseFloat($(this).data('valor-produto')) || 0;
                 totalServicos += valorProduto;
+
+                // Buscar a linha de impostos correspondente (próxima linha com classe servico-row-tax)
+                const taxRow = $(this).next('.servico-row-tax');
+                if (taxRow.length > 0) {
+                    // Extrair valores dos impostos exibidos na linha de tributação
+                    const pisTxt = taxRow.find('.tax-valor-pis').text().replace(/[^\d,.-]/g, '').replace(',', '.');
+                    const cofinsTxt = taxRow.find('.tax-valor-cofins').text().replace(/[^\d,.-]/g, '').replace(',', '.');
+                    const irrfTxt = taxRow.find('.tax-valor-irrf').text().replace(/[^\d,.-]/g, '').replace(',', '.');
+
+                    totalPis += parseFloat(pisTxt) || 0;
+                    totalCofins += parseFloat(cofinsTxt) || 0;
+                    totalIrrf += parseFloat(irrfTxt) || 0;
+                }
             });
 
+            // Valor Líquido = Total - Comissão
             const valorLiquido = totalServicos - comissao;
+
+            // Valor da NF = Valor Líquido - IRRF (somado dos itens)
+            // Conforme regra G137: vNF = vProd + vOutro - vDesc - vRetPIS - vRetCofins - vRetCSLL - vIRRF
+            const valorNF = valorLiquido - totalIrrf;
 
             // Atualizar interface
             $('#total-servicos').text(formatMoney(totalServicos));
             $('#total-servicos-table').text(formatMoney(totalServicos));
             $('#valor-liquido').text(formatMoney(valorLiquido));
+            $('#total-pis').text(formatMoney(totalPis));
+            $('#total-cofins').text(formatMoney(totalCofins));
+            $('#total-irrf').text(formatMoney(totalIrrf));
+            $('#valor-nf').text(formatMoney(valorNF));
             $('#valorBruto').val(totalServicos.toFixed(2));
 
             // Mostrar/esconder resumo
@@ -2353,7 +2562,15 @@
                 $('#servicos-resumo').hide();
             }
 
-            console.log('💰 Totais atualizados:', { totalServicos, comissao, valorLiquido });
+            console.log('💰 Totais atualizados (somados dos itens):', {
+                totalServicos,
+                comissao,
+                valorLiquido,
+                pis: totalPis,
+                cofins: totalCofins,
+                irrf: totalIrrf,
+                valorNF
+            });
         }
 
         // Atualizar totais quando comissão muda

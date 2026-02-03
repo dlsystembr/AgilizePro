@@ -159,9 +159,25 @@ class NFComMake
             $this->append($node, 'idEstrangeiro', $this->clean($dest['id_estrangeiro']));
         }
 
-        $this->append($node, 'indIEDest', $dest['indicador_ie'] ?? '9');
-        if (!empty($dest['ie'])) {
-            $this->append($node, 'IE', preg_replace('/\D/', '', $dest['ie']));
+        // IE do destinatário: valor só dígitos; nunca enviar indIEDest=1 sem IE (rejeição 428)
+        // Rej. 428: "IE do Destinatário não cadastrada" = SEFAZ consulta Cadastro de Contribuinte da UF (chave: IE).
+        // Se a IE não estiver cadastrada na UF para NFCom, usar indIEDest=9 (não contribuinte) na capa/edição.
+        // Schema NFCom exige: indIEDest ANTES de IE (rejeição 215 se inverter).
+        $ieVal = isset($dest['ie']) ? preg_replace('/\D/', '', trim((string) $dest['ie'])) : '';
+        if ($ieVal !== '') {
+            $ufDest = isset($dest['endereco']['uf']) ? strtoupper(trim((string) $dest['endereco']['uf'])) : '';
+            // Goiás (52): alguns validadores NFCom esperam IE com 12 dígitos (zeros à esquerda)
+            if ($ufDest === 'GO' && strlen($ieVal) <= 12) {
+                $ieVal = str_pad($ieVal, 12, '0', STR_PAD_LEFT);
+            }
+        }
+        $indIe = $dest['indicador_ie'] ?? '9';
+        if (($indIe === '1' || $indIe === 1) && $ieVal === '') {
+            $indIe = '9';
+        }
+        $this->append($node, 'indIEDest', $indIe);
+        if ($ieVal !== '') {
+            $this->append($node, 'IE', $ieVal);
         }
 
         if (!empty($dest['endereco'])) {
@@ -172,7 +188,10 @@ class NFComMake
                 $this->append($ender, 'xCpl', $this->clean($dest['endereco']['complemento']));
             }
             $this->append($ender, 'xBairro', $this->clean($dest['endereco']['bairro']));
-            $this->append($ender, 'cMun', $dest['endereco']['codigo_municipio']);
+            // cMun: código IBGE do município (7 dígitos); garantir formato para evitar rejeição
+            $cMun = preg_replace('/\D/', '', (string) ($dest['endereco']['codigo_municipio'] ?? ''));
+            $cMun = str_pad($cMun, 7, '0', STR_PAD_LEFT);
+            $this->append($ender, 'cMun', $cMun);
             $this->append($ender, 'xMun', $this->clean($dest['endereco']['municipio']));
             $this->append($ender, 'CEP', preg_replace('/\D/', '', $dest['endereco']['cep']));
             $this->append($ender, 'UF', $dest['endereco']['uf']);

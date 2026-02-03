@@ -43,7 +43,7 @@ $parse_cpfcnpj = $this->input->get('c');
     <div class="main-login">
         <div class="left-login">
             <h1 class="h-one">Área do Cliente</h1>
-            <img src="<?php echo base_url() ?>assets/img/forms-animate.svg" class="left-login-imagec" alt="Map-OS 5.0">
+            <img src="<?php echo base_url() ?>assets/img/forms-animate.svg" class="left-login-imagec" alt="AgilizePro">
         </div>
 
         <div id="loginbox">

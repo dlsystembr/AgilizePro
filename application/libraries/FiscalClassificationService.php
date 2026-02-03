@@ -31,13 +31,14 @@ class FiscalClassificationService
      * @param int $clienteId ID do Cliente (pes_id)
      * @param int $produtoId ID do Produto (pro_id)
      * @param int $empresaId ID da Empresa (emp_id)
+     * @param string|null $naturezaContribuinteOverride Se informado (ex: 'Não Contribuinte'), usa em vez de obter do cadastro do cliente
      * @return array|null Retorna array com CFOP, CST e cClassTrib ou null se não encontrar
      * @throws Exception Se não houver tributação configurada para a destinação
      */
-    public function findClassification($operacaoComercialId, $clienteId, $produtoId, $empresaId)
+    public function findClassification($operacaoComercialId, $clienteId, $produtoId, $empresaId, $naturezaContribuinteOverride = null)
     {
         log_message('debug', '=== INÍCIO findClassification ===');
-        log_message('debug', "Parâmetros: opc_id={$operacaoComercialId}, Cliente={$clienteId}, Produto={$produtoId}, Empresa={$empresaId}");
+        log_message('debug', "Parâmetros: opc_id={$operacaoComercialId}, Cliente={$clienteId}, Produto={$produtoId}, Empresa={$empresaId}" . ($naturezaContribuinteOverride !== null ? ", NaturezaOverride={$naturezaContribuinteOverride}" : ''));
 
         // PASSO 1: Carga Inicial - Buscar todas as classificações da operação comercial
         $classificacoes = $this->carregarClassificacoesIniciais($operacaoComercialId);
@@ -115,9 +116,9 @@ class FiscalClassificationService
             return $first ? $this->formatarResultado($first) : null;
         }
 
-        // PASSO 5: Filtro de Natureza do Contribuinte
-        $naturezaContribuinte = $this->obterNaturezaContribuinte($clienteId);
-        log_message('debug', "Natureza do contribuinte obtida: {$naturezaContribuinte}");
+        // PASSO 5: Filtro de Natureza do Contribuinte (usa valor enviado pelo chamador se informado, ex. NFCom Simples/MEI)
+        $naturezaContribuinte = ($naturezaContribuinteOverride !== null && trim($naturezaContribuinteOverride) !== '') ? trim($naturezaContribuinteOverride) : $this->obterNaturezaContribuinte($clienteId);
+        log_message('debug', "Natureza do contribuinte obtida: {$naturezaContribuinte}" . ($naturezaContribuinteOverride !== null ? ' (dado enviado pelo chamador)' : ''));
         
         if ($naturezaContribuinte) {
             $classificacoesAntes = $classificacoes;
