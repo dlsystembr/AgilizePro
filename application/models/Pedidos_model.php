@@ -56,13 +56,12 @@ class Pedidos_model extends CI_Model
     public function getById($id)
     {
         $this->db->select('PEDIDOS.*, pessoas.*, pessoas.pes_contato as contato_cliente, pessoas.pes_email as emailCliente, 
-                          pessoas.pes_nome as nomeCliente, lancamentos.data_vencimento, usuarios.telefone as telefone_usuario, 
-                          usuarios.email as email_usuario, usuarios.nome as nome, usuarios.idUsuarios as usuarios_id,
+                          pessoas.pes_nome as nomeCliente, lancamentos.data_vencimento,                           usuarios.usu_email as email_usuario, usuarios.usu_nome as nome, usuarios.usu_id as usuarios_id,
                           operacao_comercial.opc_nome as operacao_comercial, operacao_comercial.opc_id as operacao_comercial_id,
                           PEDIDOS.pes_id as clientes_id');
         $this->db->from('PEDIDOS');
         $this->db->join('pessoas', 'pessoas.pes_id = PEDIDOS.pes_id');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = PEDIDOS.usu_id');
+        $this->db->join('usuarios', 'usuarios.usu_id = PEDIDOS.usu_id');
         $this->db->join('lancamentos', 'PEDIDOS.pds_id = lancamentos.vendas_id', 'LEFT');
         $this->db->join('operacao_comercial', 'operacao_comercial.opc_id = PEDIDOS.pds_operacao_comercial', 'left');
         $this->db->where('PEDIDOS.pds_id', $id);
@@ -222,12 +221,12 @@ class Pedidos_model extends CI_Model
         }
 
         $this->db->select('PEDIDOS.*, pessoas.pes_nome as nomeCliente, pessoas.pes_id as idClientes, 
-                          usuarios.nome, operacao_comercial.opc_nome as operacao_comercial,
+                          usuarios.usu_nome as nome, operacao_comercial.opc_nome as operacao_comercial,
                           PEDIDOS.pds_id as idVendas');
         $this->db->from('PEDIDOS');
         $this->db->limit($perpage, $start);
         $this->db->join('pessoas', 'pessoas.pes_id = PEDIDOS.pes_id');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = PEDIDOS.usu_id');
+        $this->db->join('usuarios', 'usuarios.usu_id = PEDIDOS.usu_id');
         $this->db->join('operacao_comercial', 'operacao_comercial.opc_id = PEDIDOS.pds_operacao_comercial', 'left');
         $this->db->order_by('pds_id', 'desc');
         

@@ -33,8 +33,7 @@
                     <tr>
                         <th>#</th>
                         <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Telefone</th>
+                        <th>E-mail</th>
                         <th>Nível</th>
                         <th>Situação</th>
                         <th>Validade</th>
@@ -44,24 +43,23 @@
                 <tbody>
                     <?php if (empty($results)): ?>
                         <tr>
-                            <td colspan="8">Nenhum Usuário Cadastrado</td>
+                            <td colspan="7">Nenhum Usuário Cadastrado</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($results as $r): ?>
                             <tr>
-                                <td><?= $r->idUsuarios ?></td>
-                                <td><?= $r->nome ?></td>
-                                <td><?= $r->cpf ?></td>
-                                <td><?= $r->telefone ?></td>
+                                <td><?= $r->usu_id ?></td>
+                                <td><?= $r->usu_nome ?></td>
+                                <td><?= $r->usu_email ?></td>
                                 <td><?= $r->permissao ?></td>
                                 <?php
-                                $situacao = ($r->situacao == 1) ? 'Ativo' : 'Inativo';
-                                $situacaoClasse = ($r->situacao == 1) ? 'situacao-ativo' : 'situacao-inativo';
+                                $situacao = (isset($r->usu_situacao) ? $r->usu_situacao : $r->situacao) == 1 ? 'Ativo' : 'Inativo';
+                                $situacaoClasse = (isset($r->usu_situacao) ? $r->usu_situacao : $r->situacao) == 1 ? 'situacao-ativo' : 'situacao-inativo';
                                 ?>
                                 <td><span class="badge <?= $situacaoClasse ?>"><?= ucfirst($situacao) ?></span></td>
-                                <td><?= $r->dataExpiracao ?></td>
+                                <td><?= isset($r->usu_data_expiracao) ? $r->usu_data_expiracao : ($r->dataExpiracao ?? '-') ?></td>
                                 <td>
-                                    <a href="<?= base_url('index.php/usuarios/editar/' . $r->idUsuarios) ?>" class="btn-nwe3" title="Editar OS"><i class="bx bx-edit"></i></a>
+                                    <a href="<?= base_url('index.php/usuarios/editar/' . $r->usu_id) ?>" class="btn-nwe3" title="Editar"><i class="bx bx-edit"></i></a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

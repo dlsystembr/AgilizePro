@@ -593,11 +593,13 @@
                                                 foreach ($tipos_pessoa as $tipo):
                                                     $checked = in_array($tipo->id, $tipos_vinculados_ids) ? 'checked' : '';
 
-                                                    // Fallback/Verificação direta: se for Cliente ou Vendedor, verificar as tabelas específicas
+                                                    // Fallback/Verificação direta: se for Cliente, Vendedor ou Usuário, verificar as tabelas específicas
                                                     if (!$checked) {
                                                         if (strtolower($tipo->nome) == 'cliente' && isset($cliente) && $cliente) {
                                                             $checked = 'checked';
                                                         } elseif (strtolower($tipo->nome) == 'vendedor' && isset($vendedor) && $vendedor) {
+                                                            $checked = 'checked';
+                                                        } elseif (strtolower($tipo->nome) == 'usuário' && isset($usuario) && $usuario) {
                                                             $checked = 'checked';
                                                         }
                                                     }
@@ -914,6 +916,76 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Seção Usuário (acesso ao sistema) -->
+                    <?php if (!empty($tipo_usuario_id) && !empty($grupos)): ?>
+                    <div class="form-section" id="secao-usuario" style="display:none; margin-top: 30px;">
+                        <div class="form-section-header">
+                            <i class="fas fa-user-lock"></i>
+                            <span>Usuário do sistema</span>
+                        </div>
+                        <div class="form-section-content">
+                            <input type="hidden" id="USU_ENABLE" name="USU_ENABLE" value="0" />
+                            <div class="row-fluid">
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label for="usu_email" class="control-label">E-mail (login)<span class="required">*</span></label>
+                                        <div class="controls">
+                                            <input id="usu_email" type="email" name="usu_email" class="span12"
+                                                value="<?php echo set_value('usu_email', isset($usuario) && $usuario ? $usuario->usu_email : ''); ?>"
+                                                placeholder="email@exemplo.com" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label for="usu_senha" class="control-label">Senha</label>
+                                        <div class="controls">
+                                            <input id="usu_senha" type="password" name="usu_senha" class="span12"
+                                                placeholder="<?php echo (isset($usuario) && $usuario) ? 'Deixe em branco para manter' : 'Mínimo 6 caracteres'; ?>" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label for="usu_situacao" class="control-label">Situação</label>
+                                        <div class="controls">
+                                            <select id="usu_situacao" name="usu_situacao" class="span12">
+                                                <?php
+                                                $usu_sit = isset($usuario) && $usuario ? (int) $usuario->usu_situacao : 1;
+                                                $usu_sit = set_value('usu_situacao', $usu_sit);
+                                                ?>
+                                                <option value="1" <?php echo $usu_sit == 1 ? 'selected' : ''; ?>>Ativo</option>
+                                                <option value="0" <?php echo $usu_sit == 0 ? 'selected' : ''; ?>>Inativo</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div class="span6">
+                                    <div class="control-group">
+                                        <label for="gpu_id" class="control-label">Grupo de usuário</label>
+                                        <div class="controls">
+                                            <select id="gpu_id" name="gpu_id" class="span12">
+                                                <option value="">Selecione um grupo</option>
+                                                <?php
+                                                $gpu_sel = isset($gpu_id_atual) ? (int) $gpu_id_atual : set_value('gpu_id');
+                                                foreach ($grupos as $g):
+                                                    $sel = ((int) $g->gpu_id) === $gpu_sel ? ' selected' : '';
+                                                ?>
+                                                    <option value="<?php echo (int) $g->gpu_id; ?>"<?php echo $sel; ?>>
+                                                        <?php echo htmlspecialchars($g->gpu_nome, ENT_QUOTES, 'UTF-8'); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
 
                     <!-- Botões de ação -->
                     <div class="form-actions">
@@ -1451,6 +1523,21 @@
                     $('#ven_percentual_comissao').val('');
                     $('#ven_tipo_comissao').val('');
                     $('#ven_meta_mensal').val('');
+                }
+            }
+
+            // Verificar se é o checkbox de Usuário (tipo de pessoa = acesso ao sistema)
+            var tipoUsuarioId = <?php echo isset($tipo_usuario_id) && $tipo_usuario_id ? (int) $tipo_usuario_id : 'null'; ?>;
+            if (tipoUsuarioId !== null && $(this).val() == tipoUsuarioId) {
+                if ($('#secao-usuario').length) {
+                    if ($(this).is(':checked')) {
+                        $('#secao-usuario').slideDown(300);
+                        $('#USU_ENABLE').val('1');
+                    } else {
+                        $('#secao-usuario').slideUp(300);
+                        $('#USU_ENABLE').val('0');
+                        $('#usu_senha').val('');
+                    }
                 }
             }
         });
@@ -2212,6 +2299,17 @@
             <?php foreach ($tipos_vinculados as $tipo): ?>
                 $('input[name="TIPOS_PESSOA[]"][value="<?php echo $tipo->TPP_ID; ?>"]').prop('checked', true).trigger('change');
             <?php endforeach; ?>
+        <?php endif; ?>
+
+        // Se a pessoa tem usuário vinculado, marcar tipo Usuário e exibir seção (fallback quando tipo não está em pessoa_tipos)
+        <?php if (isset($usuario) && $usuario && isset($tipo_usuario_id) && $tipo_usuario_id): ?>
+            if ($('input[name="TIPOS_PESSOA[]"][value="<?php echo (int) $tipo_usuario_id; ?>"]').length) {
+                $('input[name="TIPOS_PESSOA[]"][value="<?php echo (int) $tipo_usuario_id; ?>"]').prop('checked', true);
+                if ($('#secao-usuario').length) {
+                    $('#secao-usuario').show();
+                    $('#USU_ENABLE').val('1');
+                }
+            }
         <?php endif; ?>
 
         // Carregar dados de cliente

@@ -550,7 +550,7 @@ class Vendas extends MY_Controller
                 'cliente_fornecedor' => set_value('cliente'),
                 'forma_pgto' => $this->input->post('formaPgto'),
                 'tipo' => 'receita',
-                'usuarios_id' => $this->session->userdata('id_admin'),
+                'usu_id' => $this->session->userdata('id_admin'),
             ];
 
             $this->db->trans_start();
@@ -685,7 +685,7 @@ class Vendas extends MY_Controller
         // Validar dados do pedido
         $this->form_validation->set_rules('dataVenda', 'Data da Venda', 'required');
         $this->form_validation->set_rules('clientes_id', 'Cliente', 'required');
-        $this->form_validation->set_rules('usuarios_id', 'Vendedor', 'required');
+        $this->form_validation->set_rules('usu_id', 'Vendedor', 'required');
         $this->form_validation->set_rules('operacao_comercial_id', 'Operação Comercial', 'required');
         $this->form_validation->set_rules('status', 'Status', 'required');
 

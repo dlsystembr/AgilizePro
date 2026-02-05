@@ -1,45 +1,28 @@
 <div class="new122">
-  <div class="widget-title" style="margin:-15px -10px 0">
-    <h5>Editar Usuário do Tenant: <?= $tenant->ten_nome ?></h5>
+  <div class="widget-title" style="margin: -20px 0 0">
+    <span class="icon"><i class="bx bx-edit"></i></span>
+    <h5>Editar Usuário do Tenant: <?= htmlspecialchars($tenant->ten_nome) ?></h5>
   </div>
   <div class="widget-box">
-    <div class="widget-title" style="margin: -20px 0 0">
-      <span class="icon">
-        <i class="icon-edit"></i>
-      </span>
-      <h5 style="padding: 3px 0"></h5>
-    </div>
+    <h5 style="padding: 3px 0"></h5>
     <div class="widget-content nopadding tab-content">
     <?php if (isset($custom_error) && $custom_error): ?>
       <?= $custom_error ?>
     <?php endif; ?>
 
-    <form action="<?= base_url("index.php/super/editarUsuarioTenant/{$tenant->ten_id}/{$result->idUsuarios}") ?>" method="post" class="form-horizontal">
+    <?php $usu_id = isset($result->usu_id) ? $result->usu_id : $result->idUsuarios; ?>
+    <form action="<?= base_url("index.php/super/editarUsuarioTenant/{$tenant->ten_id}/{$usu_id}") ?>" method="post" class="form-horizontal">
       <div class="control-group">
         <label for="nome" class="control-label">Nome<span class="required">*</span></label>
         <div class="controls">
-          <input type="text" id="nome" name="nome" value="<?= set_value('nome', $result->nome) ?>" required />
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label for="cpf" class="control-label">CPF<span class="required">*</span></label>
-        <div class="controls">
-          <input type="text" id="cpf" name="cpf" value="<?= set_value('cpf', $result->cpf) ?>" required />
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label for="rg" class="control-label">RG</label>
-        <div class="controls">
-          <input type="text" id="rg" name="rg" value="<?= set_value('rg', $result->rg) ?>" />
+          <input type="text" id="nome" name="nome" value="<?= set_value('nome', isset($result->usu_nome) ? $result->usu_nome : $result->nome) ?>" required />
         </div>
       </div>
 
       <div class="control-group">
         <label for="email" class="control-label">E-mail<span class="required">*</span></label>
         <div class="controls">
-          <input type="email" id="email" name="email" value="<?= set_value('email', $result->email) ?>" required />
+          <input type="email" id="email" name="email" value="<?= set_value('email', isset($result->usu_email) ? $result->usu_email : $result->email) ?>" required />
         </div>
       </div>
 
@@ -51,28 +34,16 @@
       </div>
 
       <div class="control-group">
-        <label for="telefone" class="control-label">Telefone<span class="required">*</span></label>
+        <label for="gpu_id" class="control-label">Grupo de usuário<span class="required">*</span></label>
         <div class="controls">
-          <input type="text" id="telefone" name="telefone" value="<?= set_value('telefone', $result->telefone) ?>" required />
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label for="celular" class="control-label">Celular</label>
-        <div class="controls">
-          <input type="text" id="celular" name="celular" value="<?= set_value('celular', $result->celular) ?>" />
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label for="permissoes_id" class="control-label">Permissões<span class="required">*</span></label>
-        <div class="controls">
-          <select id="permissoes_id" name="permissoes_id" required>
+          <select id="gpu_id" name="gpu_id" required>
             <option value="">Selecione...</option>
-            <?php if (isset($permissoes)): ?>
-              <?php foreach ($permissoes as $permissao): ?>
-                <option value="<?= $permissao->idPermissao ?>" <?= set_select('permissoes_id', $permissao->idPermissao, $result->permissoes_id == $permissao->idPermissao) ?>>
-                  <?= $permissao->nome ?>
+            <?php if (isset($grupos)): ?>
+              <?php
+              $gpu_atual = isset($gpu_id_atual) ? (int) $gpu_id_atual : 0;
+              foreach ($grupos as $g): ?>
+                <option value="<?= (int) $g->gpu_id ?>" <?= set_select('gpu_id', $g->gpu_id, $result && ($gpu_atual === (int) $g->gpu_id)) ?>>
+                  <?= htmlspecialchars($g->gpu_nome, ENT_QUOTES, 'UTF-8') ?>
                 </option>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -83,9 +54,10 @@
       <div class="control-group">
         <label for="situacao" class="control-label">Situação</label>
         <div class="controls">
+          <?php $sit = isset($result->usu_situacao) ? $result->usu_situacao : $result->situacao; ?>
           <select id="situacao" name="situacao">
-            <option value="1" <?= set_select('situacao', '1', $result->situacao == 1) ?>>Ativo</option>
-            <option value="0" <?= set_select('situacao', '0', $result->situacao == 0) ?>>Inativo</option>
+            <option value="1" <?= set_select('situacao', '1', $sit == 1) ?>>Ativo</option>
+            <option value="0" <?= set_select('situacao', '0', $sit == 0) ?>>Inativo</option>
           </select>
         </div>
       </div>
@@ -93,7 +65,7 @@
       <div class="control-group">
         <label for="dataExpiracao" class="control-label">Data de Expiração</label>
         <div class="controls">
-          <input type="date" id="dataExpiracao" name="dataExpiracao" value="<?= set_value('dataExpiracao', $result->dataExpiracao) ?>" />
+          <input type="date" id="dataExpiracao" name="dataExpiracao" value="<?= set_value('dataExpiracao', isset($result->usu_data_expiracao) ? $result->usu_data_expiracao : ($result->dataExpiracao ?? '')) ?>" />
         </div>
       </div>
 

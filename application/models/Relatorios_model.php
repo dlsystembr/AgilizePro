@@ -292,7 +292,7 @@ class Relatorios_model extends CI_Model
             $whereCliente = 'AND clientes_id = ' . $this->db->escape($cliente);
         }
         if ($responsavel != null) {
-            $whereResponsavel = 'AND usuarios_id = ' . $this->db->escape($responsavel);
+            $whereResponsavel = 'AND usu_id = ' . $this->db->escape($responsavel);
         }
         if ($status != null) {
             $whereStatus = 'AND status = ' . $this->db->escape($status);
@@ -368,10 +368,10 @@ class Relatorios_model extends CI_Model
 
     public function vendasRapid($array = false)
     {
-        $this->db->select('vendas.*,clientes.nomeCliente, usuarios.nome');
+        $this->db->select('vendas.*,clientes.nomeCliente, usuarios.usu_nome as nome');
         $this->db->from('vendas');
         $this->db->join('clientes', 'clientes.idClientes = vendas.clientes_id');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = vendas.usuarios_id');
+        $this->db->join('usuarios', 'usuarios.usu_id = vendas.usu_id');
         $this->db->order_by('vendas.idVendas', 'ASC');
 
         $result = $this->db->get();
@@ -398,12 +398,12 @@ class Relatorios_model extends CI_Model
             $whereCliente = 'AND clientes_id = ' . $this->db->escape($cliente);
         }
         if ($responsavel != null) {
-            $whereResponsavel = 'AND usuarios_id = ' . $this->db->escape($responsavel);
+            $whereResponsavel = 'AND usu_id = ' . $this->db->escape($responsavel);
         }
 
-        $query = "SELECT vendas.*,clientes.nomeCliente, usuarios.nome FROM vendas
+        $query = "SELECT vendas.*,clientes.nomeCliente, usuarios.usu_nome as nome FROM vendas
         LEFT JOIN clientes ON vendas.clientes_id = clientes.idClientes
-        LEFT JOIN usuarios ON vendas.usuarios_id = usuarios.idUsuarios
+        LEFT JOIN usuarios ON vendas.usu_id = usuarios.usu_id
         WHERE idVendas != 0 $whereData $whereCliente $whereResponsavel ORDER BY vendas.idVendas";
 
         $result = $this->db->query($query);

@@ -84,31 +84,53 @@ class UsuariosController extends REST_Controller
         }
 
         $user = $this->logged_user();
-        $data = [
-            'nome' => $this->post('nome', true),
-            'rg' => $this->post('rg', true),
-            'cpf' => $this->post('cpf', true),
-            'cep' => $this->post('cep', true),
-            'rua' => $this->post('rua', true),
-            'numero' => $this->post('numero', true),
-            'bairro' => $this->post('bairro', true),
-            'cidade' => $this->post('cidade', true),
-            'estado' => $this->post('estado', true),
-            'email' => $this->post('email', true),
-            'senha' => password_hash($this->post('senha', true), PASSWORD_DEFAULT),
-            'telefone' => $this->post('telefone', true),
-            'celular' => $this->post('celular', true),
-            'dataExpiracao' => $this->post('dataExpiracao', true),
-            'situacao' => $this->post('situacao', true),
-            'permissoes_id' => $this->post('permissoes_id', true),
-            'dataCadastro' => date('Y-m-d'),
-            'ten_id' => isset($user->usuario->ten_id) ? $user->usuario->ten_id : null,
-        ];
+        $gre_id = isset($user->usuario->gre_id) ? $user->usuario->gre_id : (isset($user->usuario->ten_id) ? $user->usuario->ten_id : null);
+        if ($this->db->field_exists('usu_nome', 'usuarios')) {
+            $data = [
+                'usu_nome' => $this->post('nome', true),
+                'usu_email' => $this->post('email', true),
+                'usu_senha' => password_hash($this->post('senha', true), PASSWORD_DEFAULT),
+                'usu_situacao' => (int) $this->post('situacao', true) ?: 1,
+                'usu_data_cadastro' => date('Y-m-d H:i:s'),
+                'usu_data_atualizacao' => date('Y-m-d H:i:s'),
+                'gre_id' => $gre_id,
+            ];
+        } else {
+            $data = [
+                'nome' => $this->post('nome', true),
+                'rg' => $this->post('rg', true),
+                'cpf' => $this->post('cpf', true),
+                'cep' => $this->post('cep', true),
+                'rua' => $this->post('rua', true),
+                'numero' => $this->post('numero', true),
+                'bairro' => $this->post('bairro', true),
+                'cidade' => $this->post('cidade', true),
+                'estado' => $this->post('estado', true),
+                'email' => $this->post('email', true),
+                'senha' => password_hash($this->post('senha', true), PASSWORD_DEFAULT),
+                'telefone' => $this->post('telefone', true),
+                'celular' => $this->post('celular', true),
+                'dataExpiracao' => $this->post('dataExpiracao', true),
+                'situacao' => $this->post('situacao', true),
+                'ten_id' => $gre_id,
+            ];
+        }
 
         if ($this->usuarios_model->add('usuarios', $data)) {
-
+            $usu_id = $this->db->insert_id();
+            $gpu_id = (int) $this->post('gpu_id', true);
+            $emp_id = (int) $this->session->userdata('emp_id');
+            if ($gpu_id && $emp_id && $this->db->table_exists('grupo_usuario_empresa')) {
+                $this->db->replace('grupo_usuario_empresa', [
+                    'usu_id' => $usu_id,
+                    'gpu_id' => $gpu_id,
+                    'emp_id' => $emp_id,
+                    'uge_data_cadastro' => date('Y-m-d H:i:s'),
+                    'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                ]);
+            }
             $this->load->model('api_model');
-            $data = $this->api_model->lastRow('usuarios', 'idUsuarios');
+            $data = $this->api_model->lastRow('usuarios', 'usu_id');
 
             $this->response([
                 'status' => true,
@@ -150,7 +172,7 @@ class UsuariosController extends REST_Controller
             ! $this->put(['email'], true) ||
             ! $this->put(['telefone'], true) ||
             ! $this->put(['situacao'], true) ||
-            ! $this->put(['permissoes_id'], true)
+            ! $this->put(['gpu_id'], true)
         ) {
             $this->response([
                 'status' => false,
@@ -166,28 +188,37 @@ class UsuariosController extends REST_Controller
         }
 
         $data = [
-            'nome' => $this->put('nome', true),
-            'rg' => $this->put('rg', true),
-            'cpf' => $this->put('cpf', true),
-            'cep' => $this->put('cep', true),
-            'rua' => $this->put('rua', true),
-            'numero' => $this->put('numero', true),
-            'bairro' => $this->put('bairro', true),
-            'cidade' => $this->put('cidade', true),
-            'estado' => $this->put('estado', true),
-            'email' => $this->put('email', true),
-            'telefone' => $this->put('telefone', true),
-            'celular' => $this->put('celular', true),
-            'dataExpiracao' => $this->put('dataExpiracao', true),
-            'situacao' => $this->put('situacao', true),
-            'permissoes_id' => $this->put('permissoes_id', true),
+            'usu_nome' => $this->put('nome', true),
+            'usu_email' => $this->put('email', true),
+            'usu_data_expiracao' => $this->put('dataExpiracao', true) ?: null,
+            'usu_situacao' => $this->put('situacao', true),
+            'usu_data_atualizacao' => date('Y-m-d H:i:s'),
         ];
 
         if ($this->put('senha', true)) {
-            $data['senha'] = $this->put('senha', true);
+            $data['usu_senha'] = password_hash($this->put('senha', true), PASSWORD_DEFAULT);
         }
 
-        if ($this->usuarios_model->edit('usuarios', $data, 'idUsuarios', $id)) {
+        if ($this->usuarios_model->edit('usuarios', $data, 'usu_id', $id)) {
+            $gpu_id = (int) $this->put('gpu_id', true);
+            $emp_id = (int) $this->session->userdata('emp_id');
+            if ($gpu_id && $emp_id && $this->db->table_exists('grupo_usuario_empresa')) {
+                $uge = $this->db->get_where('grupo_usuario_empresa', ['usu_id' => $id, 'emp_id' => $emp_id])->row();
+                if ($uge) {
+                    $this->db->where('uge_id', $uge->uge_id)->update('grupo_usuario_empresa', [
+                        'gpu_id' => $gpu_id,
+                        'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                    ]);
+                } else {
+                    $this->db->insert('grupo_usuario_empresa', [
+                        'usu_id' => $id,
+                        'gpu_id' => $gpu_id,
+                        'emp_id' => $emp_id,
+                        'uge_data_cadastro' => date('Y-m-d H:i:s'),
+                        'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
             $this->log_app('Alterou um usuário. ID: ' . $id);
             $this->response([
                 'status' => true,
@@ -205,7 +236,7 @@ class UsuariosController extends REST_Controller
     public function index_delete($id)
     {
         $this->logged_user();
-        if (! $this->permission->checkPermission($this->logged_user()->level, 'cUsuario') || $this->logged_user()->usuario->idUsuarios == $id) {
+        if (! $this->permission->checkPermission($this->logged_user()->level, 'cUsuario') || (isset($this->logged_user()->usuario->usu_id) ? $this->logged_user()->usuario->usu_id : $this->logged_user()->usuario->idUsuarios) == $id) {
             $this->response([
                 'status' => false,
                 'message' => 'Você não está autorizado a Excluir Usuários!',
@@ -226,7 +257,7 @@ class UsuariosController extends REST_Controller
             ], REST_Controller::HTTP_BAD_REQUEST);
         }
 
-        $this->usuarios_model->delete('usuarios', 'idUsuarios', $id);
+        $this->usuarios_model->delete('usuarios', 'usu_id', $id);
 
         $this->log_app('Removeu um usuário. ID: ' . $id);
 
@@ -270,21 +301,23 @@ class UsuariosController extends REST_Controller
                 ], REST_Controller::HTTP_UNAUTHORIZED);
             }
 
+            $senha = isset($user->usu_senha) ? $user->usu_senha : $user->senha;
+            $nome = isset($user->usu_nome) ? $user->usu_nome : $user->nome;
+            $uid = isset($user->usu_id) ? $user->usu_id : $user->idUsuarios;
+            $email = isset($user->usu_email) ? $user->usu_email : $user->email;
             // Verificar credenciais do usuário
-            if (password_verify($password, $user->senha)) {
-                $this->log_app('Efetuou login no sistema', $user->nome);
-                $permissoes = $this->getInstanceDatabase('permissoes', '*', 'idPermissao = ' . $user->permissoes_id, 1, true);
-                $permissoes = unserialize($permissoes['permissoes']);
-
+            if (password_verify($password, $senha)) {
+                $this->log_app('Efetuou login no sistema', $nome);
+                // Permissões agora por grupo_usuario_empresa + grupo_usuario_permissoes; API retorna array vazio (compatibilidade)
                 $token_data = [
-                    'uid' => $user->idUsuarios,
-                    'email' => $user->email,
-                    'permissao' => $user->permissoes_id,
+                    'uid' => $uid,
+                    'email' => $email,
+                    'permissao' => 0,
                 ];
 
                 $result = [
                     'access_token' => $this->authorization_token->generateToken($token_data),
-                    'permissions' => [$permissoes],
+                    'permissions' => [],
                 ];
 
                 $this->response([
@@ -315,21 +348,20 @@ class UsuariosController extends REST_Controller
     {
         $user = $this->logged_user(true)->usuario;
 
-        if (! empty($user->email)) {
+        $email = isset($user->usu_email) ? $user->usu_email : $user->email;
+        $uid = isset($user->usu_id) ? $user->usu_id : $user->idUsuarios;
+        if (! empty($email)) {
             if (! empty($user)) {
-                // token regeneration process
+                // token regeneration (permissões agora por grupo; API retorna permissions vazio)
                 $token_data = [
-                    'uid' => $user->idUsuarios,
-                    'email' => $user->email,
-                    'permissao' => $user->permissoes_id,
+                    'uid' => $uid,
+                    'email' => $email,
+                    'permissao' => 0,
                 ];
-
-                $permissoes = $this->getInstanceDatabase('permissoes', '*', 'idPermissao = ' . $user->permissoes_id, 1, true);
-                $permissoes = unserialize($permissoes['permissoes']);
 
                 $result = [
                     'access_token' => $this->authorization_token->generateToken($token_data),
-                    'permissions' => [$permissoes],
+                    'permissions' => [],
                 ];
 
                 $this->response([

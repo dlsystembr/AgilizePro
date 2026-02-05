@@ -13,11 +13,11 @@ class Garantias_model extends CI_Model
 
     public function get($table, $fields, $where = '', $perpage = 0, $start = 0, $one = false, $array = 'array')
     {
-        $this->db->select($fields . ', usuarios.nome, usuarios.idUsuarios');
+        $this->db->select($fields . ', usuarios.usu_nome as nome, usuarios.usu_id');
         $this->db->from($table);
         $this->db->where('garantias.ten_id', $this->session->userdata('ten_id'));
         $this->db->limit($perpage, $start);
-        $this->db->join('usuarios', 'usuarios.idUsuarios = garantias.usuarios_id');
+        $this->db->join('usuarios', 'usuarios.usu_id = garantias.usu_id');
         $this->db->order_by('idGarantias', 'asc');
         if ($where) {
             $this->db->where($where);
@@ -32,9 +32,9 @@ class Garantias_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->select('garantias.*, usuarios.telefone, usuarios.email, usuarios.nome');
+        $this->db->select('garantias.*, usuarios.usu_email as email, usuarios.usu_nome as nome');
         $this->db->from('garantias');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = garantias.usuarios_id');
+        $this->db->join('usuarios', 'usuarios.usu_id = garantias.usu_id');
         $this->db->where('garantias.idGarantias', $id);
         $this->db->where('garantias.ten_id', $this->session->userdata('ten_id'));
         $this->db->limit(1);
@@ -134,15 +134,15 @@ class Garantias_model extends CI_Model
 
     public function autoCompleteUsuario($q)
     {
-        $this->db->select('*');
-        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        $this->db->select('usu_id, usu_nome, usu_email');
+        $this->db->where('gre_id', $this->session->userdata('ten_id'));
         $this->db->limit(5);
-        $this->db->like('nome', $q);
-        $this->db->where('situacao', 1);
+        $this->db->like('usu_nome', $q);
+        $this->db->where('usu_situacao', 1);
         $query = $this->db->get('usuarios');
         if ($query->num_rows() > 0) {
             foreach ($query->result_array() as $row) {
-                $row_set[] = ['label' => $row['nome'] . ' | Telefone: ' . $row['telefone'], 'id' => $row['idUsuarios']];
+                $row_set[] = ['label' => $row['usu_nome'] . ' | ' . ($row['usu_email'] ?? ''), 'id' => $row['usu_id']];
             }
             echo json_encode($row_set);
         }

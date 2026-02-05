@@ -1,19 +1,17 @@
 <div class="new122">
-  <div class="widget-title" style="margin:-15px -10px 0">
-    <h5>Permissões de Menu - Tenant: <?= $tenant->ten_nome ?></h5>
+  <div class="widget-title" style="margin: -20px 0 0">
+    <span class="icon"><i class="bx bx-lock"></i></span>
+    <h5>Permissões de Menu - Tenant: <?= htmlspecialchars($tenant->ten_nome) ?></h5>
   </div>
-  <a href="<?= base_url("index.php/super/tenants") ?>" class="button btn" style="max-width: 120px; margin-bottom: 15px;">
-    <span class="button__icon"><i class='bx bx-arrow-back'></i></span>
-    <span class="button__text2">Voltar</span>
-  </a>
+  <div class="span12" style="margin-left: 0; margin-bottom: 15px;">
+    <a href="<?= base_url("index.php/super/tenants") ?>" class="button btn btn-mini" style="max-width: 120px">
+      <span class="button__icon"><i class='bx bx-arrow-back'></i></span>
+      <span class="button__text2">Voltar</span>
+    </a>
+  </div>
 
   <div class="widget-box">
-    <div class="widget-title" style="margin: -20px 0 0">
-      <span class="icon">
-        <i class="icon-lock"></i>
-      </span>
-      <h5 style="padding: 3px 0"></h5>
-    </div>
+    <h5 style="padding: 3px 0"></h5>
     <div class="widget-content nopadding tab-content">
       <form action="<?= base_url("index.php/super/permissoesMenu/{$tenant->ten_id}") ?>" method="post" id="formPermissoes">
         <div style="padding: 20px;">

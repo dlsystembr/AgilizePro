@@ -1,14 +1,10 @@
 <div class="new122">
-  <div class="widget-title" style="margin:-15px -10px 0">
-    <h5>Adicionar Usuário ao Tenant: <?= $tenant->ten_nome ?></h5>
+  <div class="widget-title" style="margin: -20px 0 0">
+    <span class="icon"><i class="bx bx-user-plus"></i></span>
+    <h5>Adicionar Usuário ao Tenant: <?= htmlspecialchars($tenant->ten_nome) ?></h5>
   </div>
   <div class="widget-box">
-    <div class="widget-title" style="margin: -20px 0 0">
-      <span class="icon">
-        <i class="icon-plus"></i>
-      </span>
-      <h5 style="padding: 3px 0"></h5>
-    </div>
+    <h5 style="padding: 3px 0"></h5>
     <div class="widget-content nopadding tab-content">
     <?php if (isset($custom_error) && $custom_error): ?>
       <?= $custom_error ?>
@@ -65,14 +61,14 @@
       </div>
 
       <div class="control-group">
-        <label for="permissoes_id" class="control-label">Permissões<span class="required">*</span></label>
+        <label for="gpu_id" class="control-label">Grupo de usuário<span class="required">*</span></label>
         <div class="controls">
-          <select id="permissoes_id" name="permissoes_id" required>
+          <select id="gpu_id" name="gpu_id" required>
             <option value="">Selecione...</option>
-            <?php if (isset($permissoes)): ?>
-              <?php foreach ($permissoes as $permissao): ?>
-                <option value="<?= $permissao->idPermissao ?>" <?= set_select('permissoes_id', $permissao->idPermissao) ?>>
-                  <?= $permissao->nome ?>
+            <?php if (isset($grupos)): ?>
+              <?php foreach ($grupos as $g): ?>
+                <option value="<?= (int) $g->gpu_id ?>" <?= set_select('gpu_id', $g->gpu_id) ?>>
+                  <?= htmlspecialchars($g->gpu_nome, ENT_QUOTES, 'UTF-8') ?>
                 </option>
               <?php endforeach; ?>
             <?php endif; ?>

@@ -83,7 +83,7 @@
                                         <div class="span6">
                                             <label for="tecnico">Técnico / Responsável<span class="required">*</span></label>
                                             <input id="tecnico" class="span12" type="text" name="tecnico" value="<?php echo $result->nome ?>" />
-                                            <input id="usuarios_id" class="span12" type="hidden" name="usuarios_id" value="<?php echo $result->usuarios_id ?>" />
+                                            <input id="usu_id" class="span12" type="hidden" name="usu_id" value="<?php echo isset($result->usu_id) ? $result->usu_id : $result->usuarios_id ?>" />
                                         </div>
                                     </div>
                                     <div class="span12" style="padding: 1%; margin-left: 0">
@@ -854,7 +854,7 @@
             source: "<?php echo base_url(); ?>index.php/os/autoCompleteUsuario",
             minLength: 2,
             select: function (event, ui) {
-                $("#usuarios_id").val(ui.item.id);
+                $("#usu_id").val(ui.item.id);
             }
         });
 

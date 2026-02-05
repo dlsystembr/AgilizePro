@@ -45,10 +45,10 @@ class Os_model extends CI_Model
             }
         }
 
-        $this->db->select($fields . ',pessoas.pes_id as idClientes, pessoas.pes_nome as nomeCliente, usuarios.nome, garantias.*');
+        $this->db->select($fields . ',pessoas.pes_id as idClientes, pessoas.pes_nome as nomeCliente, usuarios.usu_nome as nome, garantias.*');
         $this->db->from($table);
         $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.orv_pess_id');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = ordem_servico.orv_usuarios_id');
+        $this->db->join('usuarios', 'usuarios.usu_id = ordem_servico.usu_id');
         $this->db->join('garantias', 'garantias.idGarantias = ordem_servico.orv_garantias_id', 'left');
         $this->db->join('produtos_os', 'produtos_os.os_id = ordem_servico.orv_id', 'left');
         $this->db->join('servicos_os', 'servicos_os.os_id = ordem_servico.orv_id', 'left');
@@ -97,10 +97,9 @@ class Os_model extends CI_Model
             pessoas.pes_observacao as contato_cliente,
             garantias.refGarantia, 
             garantias.textoGarantia, 
-            usuarios.telefone as telefone_usuario, 
-            usuarios.email as email_usuario, 
-            usuarios.nome, 
-            usuarios.idUsuarios as usuarios_id, 
+            usuarios.usu_email as email_usuario, 
+            usuarios.usu_nome as nome, 
+            usuarios.usu_id as usuarios_id, 
             telefones_celular.tel_numero as celular_cliente,
             telefones_celular.tel_numero as celular,
             telefones_residencial.tel_numero as telefone,
@@ -115,7 +114,7 @@ class Os_model extends CI_Model
             estados.est_uf as estado');
         $this->db->from('ordem_servico');
         $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.orv_pess_id');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = ordem_servico.orv_usuarios_id');
+        $this->db->join('usuarios', 'usuarios.usu_id = ordem_servico.usu_id');
         $this->db->join('garantias', 'garantias.idGarantias = ordem_servico.orv_garantias_id', 'left');
         $this->db->join('telefones as telefones_celular', 'telefones_celular.pes_id = pessoas.pes_id AND telefones_celular.tel_tipo = "Celular"', 'left');
         $this->db->join('telefones as telefones_residencial', 'telefones_residencial.pes_id = pessoas.pes_id AND telefones_residencial.tel_tipo = "Residencial"', 'left');
@@ -138,10 +137,9 @@ class Os_model extends CI_Model
             pessoas.pes_observacao as contato_cliente,
             garantias.refGarantia, 
             garantias.textoGarantia, 
-            usuarios.telefone as telefone_usuario, 
-            usuarios.email as email_usuario, 
-            usuarios.nome, 
-            usuarios.idUsuarios as usuarios_id, 
+            usuarios.usu_email as email_usuario, 
+            usuarios.usu_nome as nome, 
+            usuarios.usu_id as usuarios_id, 
             cobrancas.os_id, 
             cobrancas.idCobranca, 
             cobrancas.status, 
@@ -159,7 +157,7 @@ class Os_model extends CI_Model
             estados.est_uf as estado');
         $this->db->from('ordem_servico');
         $this->db->join('pessoas', 'pessoas.pes_id = ordem_servico.orv_pess_id');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = ordem_servico.orv_usuarios_id');
+        $this->db->join('usuarios', 'usuarios.usu_id = ordem_servico.usu_id');
         $this->db->join('cobrancas', 'cobrancas.os_id = ordem_servico.orv_id');
         $this->db->join('garantias', 'garantias.idGarantias = ordem_servico.orv_garantias_id', 'left');
         $this->db->join('telefones as telefones_celular', 'telefones_celular.pes_id = pessoas.pes_id AND telefones_celular.tel_tipo = "Celular"', 'left');
@@ -295,14 +293,15 @@ class Os_model extends CI_Model
 
     public function autoCompleteUsuario($q)
     {
-        $this->db->select('*');
+        $this->db->select('usu_id, usu_nome, usu_email');
+        $this->db->where('gre_id', $this->session->userdata('ten_id'));
         $this->db->limit(25);
-        $this->db->like('nome', $q);
-        $this->db->where('situacao', 1);
+        $this->db->like('usu_nome', $q);
+        $this->db->where('usu_situacao', 1);
         $query = $this->db->get('usuarios');
         if ($query->num_rows() > 0) {
             foreach ($query->result_array() as $row) {
-                $row_set[] = ['label' => $row['nome'] . ' | Telefone: ' . $row['telefone'], 'id' => $row['idUsuarios']];
+                $row_set[] = ['label' => $row['usu_nome'] . ' | ' . ($row['usu_email'] ?? ''), 'id' => $row['usu_id']];
             }
             echo json_encode($row_set);
         }

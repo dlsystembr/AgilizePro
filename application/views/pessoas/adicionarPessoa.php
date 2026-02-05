@@ -906,6 +906,68 @@
                         </div>
                     </div>
 
+                    <!-- Seção Usuário (acesso ao sistema) -->
+                    <?php if (!empty($tipo_usuario_id) && !empty($permissoes)): ?>
+                    <div class="form-section" id="secao-usuario" style="display:none; margin-top: 30px;">
+                        <div class="form-section-header">
+                            <i class="fas fa-user-lock"></i>
+                            <span>Usuário do sistema</span>
+                        </div>
+                        <div class="form-section-content">
+                            <input type="hidden" id="USU_ENABLE" name="USU_ENABLE" value="0" />
+                            <div class="row-fluid">
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label for="usu_email" class="control-label">E-mail (login)<span class="required">*</span></label>
+                                        <div class="controls">
+                                            <input id="usu_email" type="email" name="usu_email" class="span12"
+                                                value="<?php echo set_value('usu_email'); ?>"
+                                                placeholder="email@exemplo.com" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label for="usu_senha" class="control-label">Senha<span class="required">*</span></label>
+                                        <div class="controls">
+                                            <input id="usu_senha" type="password" name="usu_senha" class="span12"
+                                                placeholder="Mínimo 6 caracteres" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label for="usu_situacao" class="control-label">Situação</label>
+                                        <div class="controls">
+                                            <select id="usu_situacao" name="usu_situacao" class="span12">
+                                                <option value="1" selected>Ativo</option>
+                                                <option value="0">Inativo</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div class="span6">
+                                    <div class="control-group">
+                                        <label for="gpu_id" class="control-label">Grupo de usuário</label>
+                                        <div class="controls">
+                                            <select id="gpu_id" name="gpu_id" class="span12">
+                                                <option value="">Selecione um grupo</option>
+                                                <?php foreach ($grupos as $g): ?>
+                                                    <option value="<?php echo (int) $g->gpu_id; ?>" <?php echo set_select('gpu_id', $g->gpu_id); ?>>
+                                                        <?php echo htmlspecialchars($g->gpu_nome, ENT_QUOTES, 'UTF-8'); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <!-- Botões de ação -->
                     <div class="form-actions">
                         <div class="span12">
@@ -1666,6 +1728,24 @@
                     $('#ven_percentual_comissao').val('');
                     $('#ven_tipo_comissao').val('');
                     $('#ven_meta_mensal').val('');
+                }
+            }
+
+            // Verificar se é o checkbox de Usuário (tipo de pessoa = acesso ao sistema)
+            var tipoUsuarioId = <?php echo isset($tipo_usuario_id) && $tipo_usuario_id ? (int) $tipo_usuario_id : 'null'; ?>;
+            if (tipoUsuarioId !== null && $(this).val() == tipoUsuarioId) {
+                if ($('#secao-usuario').length) {
+                    if ($(this).is(':checked')) {
+                        $('#secao-usuario').slideDown(300);
+                        $('#USU_ENABLE').val('1');
+                    } else {
+                        $('#secao-usuario').slideUp(300);
+                        $('#USU_ENABLE').val('0');
+                        $('#usu_email').val('');
+                        $('#usu_senha').val('');
+                        $('#usu_situacao').val('1');
+                        $('#gpu_id').val('');
+                    }
                 }
             }
         });

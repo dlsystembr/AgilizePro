@@ -16,7 +16,7 @@ class Financeiro_model extends CI_Model
         $this->db->select($fields . ', usuarios.*');
         $this->db->from($table);
         $this->db->where($table . '.ten_id', $this->session->userdata('ten_id'));
-        $this->db->join('usuarios', 'usuarios.idUsuarios = usuarios_id', 'left');
+        $this->db->join('usuarios', 'usuarios.usu_id = lancamentos.usu_id', 'left');
         $this->db->order_by('data_vencimento', 'asc');
         $this->db->limit($perpage, $start);
         if ($where) {

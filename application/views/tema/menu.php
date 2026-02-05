@@ -8,12 +8,13 @@
             <?= (isset($configuration['app_theme']) && ($configuration['app_theme'] == 'white' || $configuration['app_theme'] == 'whitegreen')) ? '<img src="' . base_url() . 'assets/img/logo-mapos.png">' : '<img src="' . base_url() . 'assets/img/logo-mapos-branco.png">'; ?>
         </div>
     </div>
-    <!-- Debug Permissions -->
     <?php
     $user_permissions = $this->session->userdata('permissao');
-    echo "<!-- User Permissions: " . print_r($user_permissions, true) . " -->";
+    $menus_liberados = isset($menus_liberados) ? $menus_liberados : null;
+    $menu_liberado = function ($id) use ($menus_liberados) {
+        return $menus_liberados === null || (is_array($menus_liberados) && in_array($id, $menus_liberados, true));
+    };
     ?>
-    <!-- End Debug -->
     <a href="#" class="visible-phone">
         <div class="mode">
             <div class="moon-menu">
@@ -49,7 +50,7 @@
                     </a>
                 </li>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vPessoa')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vPessoa') && $menu_liberado('pessoas')) { ?>
                     <li class="<?php if (isset($menuPessoas)) {
                         echo 'active';
                     }
@@ -61,7 +62,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vTipoCliente')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vTipoCliente') && $menu_liberado('tipos_clientes')) { ?>
                     <li class="<?php if (isset($menuTiposClientes)) {
                         echo 'active';
                     }
@@ -73,7 +74,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vContrato')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vContrato') && $menu_liberado('contratos')) { ?>
                     <li class="<?php if (isset($menuContratos)) {
                         echo 'active';
                     }
@@ -85,7 +86,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vProduto')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vProduto') && $menu_liberado('produtos')) { ?>
                     <li class="<?php if (isset($menuProdutos)) {
                         echo 'active';
                     }
@@ -97,7 +98,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vVenda')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vVenda') && $menu_liberado('vendas')) { ?>
                     <li class="<?php if (isset($menuVendas)) {
                         echo 'active';
                     }
@@ -110,7 +111,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOs') && $menu_liberado('os')) { ?>
                     <li class="<?php if (isset($menuOs)) {
                         echo 'active';
                     }
@@ -122,7 +123,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vFaturamentoEntrada')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vFaturamentoEntrada') && $menu_liberado('faturamento_entrada')) { ?>
                     <li class="<?php if (isset($menuFaturamentoEntrada)) {
                         echo 'active';
                     }
@@ -134,7 +135,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfe')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfe') && $menu_liberado('nfe')) { ?>
                     <li class="<?php if (isset($menuNfe)) {
                         echo 'active';
                     }
@@ -146,7 +147,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vNfecom') && $menu_liberado('nfecom')) { ?>
                     <li class="<?php if (isset($menuNfecom)) {
                         echo 'active';
                     }
@@ -158,7 +159,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vLancamento')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vLancamento') && $menu_liberado('lancamentos')) { ?>
                     <li class="<?php if (isset($menuLancamentos)) {
                         echo 'active';
                     }
@@ -171,7 +172,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vGarantia')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vGarantia') && $menu_liberado('garantias')) { ?>
                     <li class="<?php if (isset($menuGarantias)) {
                         echo 'active';
                     }
@@ -183,31 +184,16 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vUsuario')) { ?>
-                    <li class="<?php if (isset($menuUsuarios)) {
-                        echo 'active';
-                    }
-                    ; ?>">
-                        <a class="tip-bottom" title="" href="<?= site_url('usuarios') ?>"><i class='bx bx-user iconX'></i>
-                            <span class="title">Usuários</span>
-                            <span class="title-tooltip">Usuários</span>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vUsuario') && $menu_liberado('grupo_usuario')) { ?>
+                    <li class="<?php if (isset($menuGruposUsuario)) { echo 'active'; } ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('gruposUsuario') ?>"><i class='bx bx-group iconX'></i>
+                            <span class="title">Grupos de Usuário</span>
+                            <span class="title-tooltip">Grupos de Usuário</span>
                         </a>
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vPermissao')) { ?>
-                    <li class="<?php if (isset($menuPermissoes)) {
-                        echo 'active';
-                    }
-                    ; ?>">
-                        <a class="tip-bottom" title="" href="<?= site_url('permissoes') ?>"><i class='bx bx-shield iconX'></i>
-                            <span class="title">Permissões</span>
-                            <span class="title-tooltip">Permissões</span>
-                        </a>
-                    </li>
-                <?php } ?>
-
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vConfiguracao')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vConfiguracao') && $menu_liberado('configuracoes')) { ?>
                     <li class="<?php if (isset($menuConfiguracoes)) {
                         echo 'active';
                     }
@@ -217,9 +203,15 @@
                             <span class="title-tooltip">Configurações</span>
                         </a>
                     </li>
+                    <li class="<?php if (isset($menuParametros)) { echo 'active'; } ?>">
+                        <a class="tip-bottom" title="" href="<?= site_url('parametros') ?>"><i class='bx bx-slider-alt iconX'></i>
+                            <span class="title">Parâmetros</span>
+                            <span class="title-tooltip">Parâmetros do sistema (por empresa)</span>
+                        </a>
+                    </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vAuditoria')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vAuditoria') && $menu_liberado('auditoria')) { ?>
                     <li class="<?php if (isset($menuAuditoria)) {
                         echo 'active';
                     }
@@ -231,7 +223,7 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vArquivo')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vArquivo') && $menu_liberado('arquivos')) { ?>
                     <li class="<?php if (isset($menuArquivos)) {
                         echo 'active';
                     }
@@ -243,19 +235,9 @@
                     </li>
                 <?php } ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vBackup')) { ?>
-                    <li class="<?php if (isset($menuBackup)) {
-                        echo 'active';
-                    }
-                    ; ?>">
-                        <a class="tip-bottom" title="" href="<?= site_url('mapos/backup') ?>"><i class='bx bx-data iconX'></i>
-                            <span class="title">Backup</span>
-                            <span class="title-tooltip">Backup</span>
-                        </a>
-                    </li>
-                <?php } ?>
+                <?php /* Backup só aparece no dropdown Configurações do topo, não no menu lateral */ ?>
 
-                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vEmitente')) { ?>
+                <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vEmitente') && $menu_liberado('emitente')) { ?>
                     <li class="<?php if (isset($menuEmitente)) {
                         echo 'active';
                     }

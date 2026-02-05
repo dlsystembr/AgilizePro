@@ -1,25 +1,22 @@
 <div class="new122">
-  <div class="widget-title" style="margin:-15px -10px 0">
+  <div class="widget-title" style="margin: -20px 0 0">
+    <span class="icon"><i class="bx bx-building"></i></span>
     <h5>Gerenciar Tenants</h5>
   </div>
-  <a href="<?= base_url('index.php/super/adicionarTenant') ?>" class="button btn btn-success" style="max-width: 160px">
-    <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
-    <span class="button__text2">Adicionar Tenant</span>
-  </a>
+  <div class="span12" style="margin-left: 0; margin-bottom: 15px;">
+    <a href="<?= base_url('index.php/super/adicionarTenant') ?>" class="button btn btn-mini btn-success" style="max-width: 165px">
+      <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
+      <span class="button__text2">Adicionar Tenant</span>
+    </a>
+  </div>
 
   <div class="widget-box">
-    <div class="widget-title" style="margin: -20px 0 0">
-      <span class="icon">
-        <i class="icon-building"></i>
-      </span>
-      <h5 style="padding: 3px 0"></h5>
-    </div>
+    <h5 style="padding: 3px 0"></h5>
     <div class="widget-content nopadding tab-content">
-
-    <form method="get" action="<?= base_url('index.php/super/tenants') ?>" style="margin: 20px 0;">
+    <form method="get" action="<?= base_url('index.php/super/tenants') ?>" style="margin: 15px 0;">
       <div class="input-append">
-        <input type="text" name="pesquisa" placeholder="Pesquisar..." value="<?= isset($search) ? $search : '' ?>" />
-        <button type="submit" class="btn"><i class="icon-search"></i></button>
+        <input type="text" name="pesquisa" placeholder="Pesquisar..." value="<?= isset($search) ? htmlspecialchars($search) : '' ?>" />
+        <button type="submit" class="btn"><i class="bx bx-search"></i></button>
       </div>
     </form>
 

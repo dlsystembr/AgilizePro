@@ -1,25 +1,38 @@
 <div class="new122">
-  <div class="widget-title" style="margin:-15px -10px 0">
+  <div class="widget-title" style="margin: -20px 0 0">
+    <span class="icon"><i class="bx bx-grid-alt"></i></span>
     <h5>Dashboard Super Administrador</h5>
   </div>
 
   <div class="row-fluid" style="margin-top: 20px;">
-    <div class="span4">
+    <div class="span3">
       <div class="widget-box">
         <div class="widget-title">
-          <span class="icon"><i class="icon-building"></i></span>
-          <h5>Total de Tenants</h5>
+          <span class="icon"><i class="bx bx-buildings"></i></span>
+          <h5>Grupos Empresariais</h5>
         </div>
         <div class="widget-content" style="text-align: center; padding: 30px;">
-          <h1 style="font-size: 48px; margin: 0; color: #2D335B;"><?= $total_tenants ?></h1>
-          <p style="margin-top: 10px; color: #666;">Tenants cadastrados</p>
+          <h1 style="font-size: 48px; margin: 0; color: #2D335B;"><?= isset($total_grupos_empresariais) ? $total_grupos_empresariais : 0 ?></h1>
+          <p style="margin-top: 10px; color: #666;">Grupos cadastrados</p>
         </div>
       </div>
     </div>
-    <div class="span4">
+    <div class="span3">
       <div class="widget-box">
         <div class="widget-title">
-          <span class="icon"><i class="icon-user"></i></span>
+          <span class="icon"><i class="bx bx-building"></i></span>
+          <h5>Total de Empresas</h5>
+        </div>
+        <div class="widget-content" style="text-align: center; padding: 30px;">
+          <h1 style="font-size: 48px; margin: 0; color: #2D335B;"><?= isset($total_empresas) ? $total_empresas : 0 ?></h1>
+          <p style="margin-top: 10px; color: #666;">Empresas nos grupos</p>
+        </div>
+      </div>
+    </div>
+    <div class="span3">
+      <div class="widget-box">
+        <div class="widget-title">
+          <span class="icon"><i class="bx bx-user"></i></span>
           <h5>Total de Usuários</h5>
         </div>
         <div class="widget-content" style="text-align: center; padding: 30px;">
@@ -28,10 +41,10 @@
         </div>
       </div>
     </div>
-    <div class="span4">
+    <div class="span3">
       <div class="widget-box">
         <div class="widget-title">
-          <span class="icon"><i class="icon-star"></i></span>
+          <span class="icon"><i class="bx bx-user-check"></i></span>
           <h5>Super Usuários</h5>
         </div>
         <div class="widget-content" style="text-align: center; padding: 30px;">
@@ -46,44 +59,35 @@
     <div class="span12">
       <div class="widget-box">
         <div class="widget-title" style="margin: -20px 0 0">
-          <span class="icon">
-            <i class="icon-list"></i>
-          </span>
-          <h5 style="padding: 3px 0"></h5>
+          <span class="icon"><i class="bx bx-list-ul"></i></span>
+          <h5 style="padding: 3px 0">Últimos Grupos Empresariais</h5>
         </div>
         <div class="widget-content nopadding tab-content">
           <table id="tabela" class="table table-bordered">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nome</th>
-                <th>CNPJ</th>
-                <th>E-mail</th>
-                <th>Telefone</th>
+                <th>Nome do Grupo</th>
                 <th>Data Cadastro</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              <?php if ($ultimos_tenants): ?>
-                <?php foreach ($ultimos_tenants as $tenant): ?>
+              <?php if (!empty($ultimos_grupos_empresariais)): ?>
+                <?php foreach ($ultimos_grupos_empresariais as $grupo): ?>
                   <tr>
-                    <td><?= $tenant->ten_id ?></td>
-                    <td><?= $tenant->ten_nome ?></td>
-                    <td><?= $tenant->ten_cnpj ?: '-' ?></td>
-                    <td><?= $tenant->ten_email ?: '-' ?></td>
-                    <td><?= $tenant->ten_telefone ?: '-' ?></td>
-                    <td><?= !empty($tenant->ten_data_cadastro) && $tenant->ten_data_cadastro != '0000-00-00 00:00:00' && $tenant->ten_data_cadastro != '1969-12-31' ? date('d/m/Y H:i', strtotime($tenant->ten_data_cadastro)) : '-' ?></td>
+                    <td><?= $grupo->gre_id ?></td>
+                    <td><?= htmlspecialchars($grupo->gre_nome) ?></td>
+                    <td><?= !empty($grupo->gre_data_cadastro) && $grupo->gre_data_cadastro != '0000-00-00 00:00:00' ? date('d/m/Y H:i', strtotime($grupo->gre_data_cadastro)) : '-' ?></td>
                     <td>
-                      <a href="<?= base_url("index.php/super/editarTenant/{$tenant->ten_id}") ?>" class="btn-nwe3" title="Editar"><i class="bx bx-edit"></i></a>
-                      <a href="<?= base_url("index.php/super/usuariosTenant/{$tenant->ten_id}") ?>" class="btn-nwe3" title="Usuários"><i class="bx bx-user"></i></a>
-                      <a href="<?= base_url("index.php/super/permissoesMenu/{$tenant->ten_id}") ?>" class="btn-nwe3" title="Permissões"><i class="bx bx-lock"></i></a>
+                      <a href="<?= base_url("index.php/super/editarGrupoEmpresarial/{$grupo->gre_id}") ?>" class="btn-nwe3" title="Editar"><i class="bx bx-edit"></i></a>
+                      <a href="<?= base_url("index.php/super/empresas/{$grupo->gre_id}") ?>" class="btn-nwe3" title="Empresas"><i class="bx bx-building"></i></a>
                     </td>
                   </tr>
                 <?php endforeach; ?>
               <?php else: ?>
                 <tr>
-                  <td colspan="7">Nenhum tenant cadastrado.</td>
+                  <td colspan="4">Nenhum grupo empresarial cadastrado.</td>
                 </tr>
               <?php endif; ?>
             </tbody>

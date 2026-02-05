@@ -54,7 +54,7 @@
                                         <div class="span3">
                                             <label for="tecnico">Vendedor<span class="required">*</span></label>
                                             <input id="tecnico" class="span12" type="text" name="tecnico" value="<?= $this->session->userdata('nome_admin'); ?>" />
-                                            <input id="usuarios_id" class="span12" type="hidden" name="usuarios_id" value="<?= $this->session->userdata('id_admin'); ?>" />
+                                            <input id="usu_id" class="span12" type="hidden" name="usu_id" value="<?= $this->session->userdata('id_admin'); ?>" />
                                         </div>
                                     </div>
                                     <div class="span12" style="padding: 1%; margin-left: 0">
@@ -200,7 +200,7 @@
             source: "<?php echo base_url(); ?>index.php/vendas/autoCompleteUsuario",
             minLength: 1,
             select: function(event, ui) {
-                $("#usuarios_id").val(ui.item.id);
+                $("#usu_id").val(ui.item.id);
             }
         });
 
@@ -361,7 +361,7 @@
             var dados = {
                 dataVenda: $("#dataVenda").val(),
                 clientes_id: $("#clientes_id").val(),
-                usuarios_id: $("#usuarios_id").val(),
+                usu_id: $("#usu_id").val(),
                 operacao_comercial_id: $("#operacao_comercial").val(),
                 status: $("#status").val(),
                 garantia: $("#garantia").val(),

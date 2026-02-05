@@ -24,35 +24,6 @@
                     </div>
 
                     <div class="control-group">
-                        <label for="rg" class="control-label">RG<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="rg" type="text" name="rg" value="<?php echo set_value('rg'); ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="cpf" class="control-label">CPF<span class="required">*</span></label>
-                        <div class="controls">
-                            <input class="" type="text" id="cpfUser" name="cpf" value="<?php echo set_value('cpf'); ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="telefone" class="control-label">Telefone<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="telefone" type="text" name="telefone" value="<?php echo set_value('telefone'); ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="celular" class="control-label">Celular</label>
-                        <div class="controls">
-                            <input id="celular" type="text" name="celular" value="<?php echo set_value('celular'); ?>" />
-                        </div>
-                    </div>
-
-
-                    <div class="control-group">
                         <label for="email" class="control-label">Email<span class="required">*</span></label>
                         <div class="controls">
                             <input id="email" type="text" name="email" value="<?php echo set_value('email'); ?>" />
@@ -66,52 +37,8 @@
                         </div>
                     </div>
 
-                    <div class="control-group" class="control-label">
-                        <label for="cep" class="control-label">CEP<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="cep" type="text" name="cep" value="<?php echo set_value('cep'); ?>" />
-                        </div>
-                    </div>
-
                     <div class="control-group">
-                        <label for="rua" class="control-label">Rua<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="rua" type="text" name="rua" value="<?php echo set_value('rua'); ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="numero" class="control-label">Numero<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="numero" type="text" name="numero" value="<?php echo set_value('numero'); ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="bairro" class="control-label">Bairro<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="bairro" type="text" name="bairro" value="<?php echo set_value('bairro'); ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="cidade" class="control-label">Cidade<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="cidade" type="text" name="cidade" value="<?php echo set_value('cidade'); ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="estado" class="control-label">Estado<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="estado" type="text" name="estado" value="<?php echo set_value('estado'); ?>" />
-                        </div>
-                    </div>
-
-
-                    <!-- Campo para inserir a data de validade de acesso do usuário-->
-                    <div class="control-group">
-                        <label for="dataExpiracao" class="control-label">Expira em <span class="required">*</span></label>
+                        <label for="dataExpiracao" class="control-label">Expira em</label>
                         <div class="controls">
                             <input id="dataExpiracao" type="date" name="dataExpiracao" value="<?php echo set_value('dataExpiracao'); ?>" />
                         </div>
@@ -128,11 +55,12 @@
                     </div>
 
                     <div class="control-group">
-                        <label class="control-label">Permissões<span class="required">*</span></label>
+                        <label class="control-label">Grupo de usuário<span class="required">*</span></label>
                         <div class="controls">
-                            <select name="permissoes_id" id="permissoes_id">
-                                <?php foreach ($permissoes as $p) {
-                                    echo '<option value="' . $p->idPermissao . '">' . $p->nome . '</option>';
+                            <select name="gpu_id" id="gpu_id" required>
+                                <option value="">Selecione um grupo</option>
+                                <?php foreach ($grupos as $g) {
+                                    echo '<option value="' . (int) $g->gpu_id . '">' . htmlspecialchars($g->gpu_nome, ENT_QUOTES, 'UTF-8') . '</option>';
                                 } ?>
                             </select>
                         </div>
@@ -149,94 +77,25 @@
                         </div>
                     </div>
 
-
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-
 <script src="<?php echo base_url() ?>assets/js/jquery.validate.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-
         $('#formUsuario').validate({
             rules: {
-                nome: {
-                    required: true
-                },
-                dataExpiracao: {
-                    required: true
-                },
-                cpf: {
-                    required: true
-                },
-                telefone: {
-                    required: true
-                },
-                email: {
-                    required: true
-                },
-                senha: {
-                    required: true
-                },
-                rua: {
-                    required: true
-                },
-                numero: {
-                    required: true
-                },
-                bairro: {
-                    required: true
-                },
-                cidade: {
-                    required: true
-                },
-                estado: {
-                    required: true
-                },
-                cep: {
-                    required: true
-                }
+                nome: { required: true },
+                email: { required: true },
+                senha: { required: true }
             },
             messages: {
-                nome: {
-                    required: 'Campo Requerido.'
-                },
-                dataExpiracao: {
-                    required: 'Campo Requerido.'
-                },
-                cpf: {
-                    required: 'Campo Requerido.'
-                },
-                telefone: {
-                    required: 'Campo Requerido.'
-                },
-                email: {
-                    required: 'Campo Requerido.'
-                },
-                senha: {
-                    required: 'Campo Requerido.'
-                },
-                rua: {
-                    required: 'Campo Requerido.'
-                },
-                numero: {
-                    required: 'Campo Requerido.'
-                },
-                bairro: {
-                    required: 'Campo Requerido.'
-                },
-                cidade: {
-                    required: 'Campo Requerido.'
-                },
-                estado: {
-                    required: 'Campo Requerido.'
-                },
-                cep: {
-                    required: 'Campo Requerido.'
-                }
+                nome: { required: 'Campo Requerido.' },
+                email: { required: 'Campo Requerido.' },
+                senha: { required: 'Campo Requerido.' }
             },
             errorClass: "help-inline",
             errorElement: "span",

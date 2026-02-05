@@ -34,9 +34,14 @@ class Mapos_model extends CI_Model
     public function getById($id)
     {
         $this->db->from('usuarios');
-        $this->db->select('usuarios.*, permissoes.nome as permissao');
-        $this->db->join('permissoes', 'permissoes.idPermissao = usuarios.permissoes_id', 'left');
-        $this->db->where('idUsuarios', $id);
+        $this->db->select('usuarios.*');
+        if ($this->db->table_exists('grupo_usuario_empresa') && $this->db->table_exists('grupo_usuario')) {
+            $emp_id = (int) $this->session->userdata('emp_id');
+            $this->db->select('grupo_usuario.gpu_nome as permissao');
+            $this->db->join('grupo_usuario_empresa', 'grupo_usuario_empresa.usu_id = usuarios.usu_id AND grupo_usuario_empresa.emp_id = ' . $emp_id, 'left');
+            $this->db->join('grupo_usuario', 'grupo_usuario.gpu_id = grupo_usuario_empresa.gpu_id', 'left');
+        }
+        $this->db->where('usuarios.usu_id', $id);
         $this->db->limit(1);
 
         return $this->db->get()->row();
@@ -44,9 +49,9 @@ class Mapos_model extends CI_Model
 
     public function alterarSenha($senha)
     {
-        $this->db->set('senha', password_hash($senha, PASSWORD_DEFAULT));
-        $this->db->where('idUsuarios', $this->session->userdata('id_admin'));
-        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        $this->db->set('usu_senha', password_hash($senha, PASSWORD_DEFAULT));
+        $this->db->where('usu_id', $this->session->userdata('id_admin'));
+        $this->db->where('gre_id', $this->session->userdata('ten_id'));
         $this->db->update('usuarios');
 
         if ($this->db->affected_rows() >= 0) {
@@ -507,17 +512,17 @@ class Mapos_model extends CI_Model
 
     public function editImageUser($id, $imageUserPath)
     {
-        $this->db->set('url_image_user', $imageUserPath);
-        $this->db->where('idUsuarios', $id);
-        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        $this->db->set('usu_url_imagem', $imageUserPath);
+        $this->db->where('usu_id', $id);
+        $this->db->where('gre_id', $this->session->userdata('ten_id'));
 
         return $this->db->update('usuarios');
     }
 
     public function check_credentials($email)
     {
-        $this->db->where('email', $email);
-        $this->db->where('situacao', 1);
+        $this->db->where('usu_email', $email);
+        $this->db->where('usu_situacao', 1);
         $this->db->limit(1);
 
         return $this->db->get('usuarios')->row();

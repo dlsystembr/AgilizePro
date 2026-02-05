@@ -10,10 +10,15 @@ class Usuarios_model extends CI_Model
     public function get($perpage = 0, $start = 0, $one = false)
     {
         $this->db->from('usuarios');
-        $this->db->select('usuarios.*, permissoes.nome as permissao');
+        $this->db->select('usuarios.*');
+        if ($this->db->table_exists('grupo_usuario_empresa') && $this->db->table_exists('grupo_usuario')) {
+            $this->db->select('grupo_usuario.gpu_nome as permissao');
+            $emp_id = (int) $this->session->userdata('emp_id');
+            $this->db->join('grupo_usuario_empresa', 'grupo_usuario_empresa.usu_id = usuarios.usu_id AND grupo_usuario_empresa.emp_id = ' . $emp_id, 'left');
+            $this->db->join('grupo_usuario', 'grupo_usuario.gpu_id = grupo_usuario_empresa.gpu_id', 'left');
+        }
         $this->db->limit($perpage, $start);
-        $this->db->join('permissoes', 'usuarios.permissoes_id = permissoes.idPermissao', 'left');
-        $this->db->where('usuarios.ten_id', $this->session->userdata('ten_id'));
+        $this->db->where('usuarios.gre_id', $this->session->userdata('ten_id'));
 
         $query = $this->db->get();
 
@@ -31,8 +36,12 @@ class Usuarios_model extends CI_Model
 
     public function getById($id)
     {
-        $this->db->where('idUsuarios', $id);
-        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        $this->db->where('usu_id', $id);
+        if ($this->db->field_exists('gre_id', 'usuarios')) {
+            $this->db->where('gre_id', $this->session->userdata('ten_id'));
+        } elseif ($this->db->field_exists('ten_id', 'usuarios')) {
+            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        }
         $this->db->limit(1);
 
         return $this->db->get('usuarios')->row();
@@ -40,7 +49,8 @@ class Usuarios_model extends CI_Model
 
     public function getAll()
     {
-        $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        $col = $this->db->field_exists('gre_id', 'usuarios') ? 'gre_id' : 'ten_id';
+        $this->db->where($col, $this->session->userdata('ten_id'));
         return $this->db->get('usuarios')->result();
     }
 
@@ -62,8 +72,10 @@ class Usuarios_model extends CI_Model
     public function edit($table, $data, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
-        if ($table != 'permissoes') {
-            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        if ($table === 'usuarios' && $this->db->field_exists('gre_id', 'usuarios')) {
+            $this->db->where('gre_id', $this->session->userdata('ten_id'));
+        } elseif ($table !== 'usuarios') {
+            $this->db->where('gre_id', $this->session->userdata('ten_id'));
         }
         $this->db->update($table, $data);
 
@@ -77,8 +89,10 @@ class Usuarios_model extends CI_Model
     public function delete($table, $fieldID, $ID)
     {
         $this->db->where($fieldID, $ID);
-        if ($table != 'permissoes') {
-            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        if ($table === 'usuarios' && $this->db->field_exists('gre_id', 'usuarios')) {
+            $this->db->where('gre_id', $this->session->userdata('ten_id'));
+        } elseif ($table !== 'usuarios') {
+            $this->db->where('gre_id', $this->session->userdata('ten_id'));
         }
         $this->db->delete($table);
         if ($this->db->affected_rows() == '1') {
@@ -90,8 +104,10 @@ class Usuarios_model extends CI_Model
 
     public function count($table)
     {
-        if ($table != 'permissoes') {
-            $this->db->where('ten_id', $this->session->userdata('ten_id'));
+        if ($table === 'usuarios' && $this->db->field_exists('gre_id', 'usuarios')) {
+            $this->db->where('gre_id', $this->session->userdata('ten_id'));
+        } elseif ($table !== 'usuarios') {
+            $this->db->where('gre_id', $this->session->userdata('ten_id'));
         }
         return $this->db->count_all_results($table);
     }

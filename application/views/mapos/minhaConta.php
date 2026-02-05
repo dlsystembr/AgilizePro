@@ -108,7 +108,8 @@
                         <section>
                             <div class="profileMC">
                                 <div class="profile-img">
-                                    <img src="<?= (!$usuario->url_image_user || !is_file(FCPATH . "assets/userImage/" . $usuario->url_image_user)) ? base_url() . "assets/img/User.png" : base_url() . "assets/userImage/" . $usuario->url_image_user ?>"
+                                    <?php $url_img = isset($usuario->usu_url_imagem) ? $usuario->usu_url_imagem : $usuario->url_image_user; ?>
+                                    <img src="<?= (!$url_img || !is_file(FCPATH . "assets/userImage/" . $url_img)) ? base_url() . "assets/img/User.png" : base_url() . "assets/userImage/" . $url_img ?>"
                                         alt="">
                                     <a href="#modalImageUser" data-toggle="modal" role="button"><span
                                             class="tip-top img-user button__icon" title="Alterar Foto"><i
@@ -124,17 +125,16 @@
                 <div class="span12">
                     <ul class="site-stats">
                         <li class="bg_ls span12"><strong>Nome:
-                                <?= $usuario->nome ?></strong></li>
-                        <li class="bg_lb span12" style="margin-left: 0"><strong>Telefone:
-                                <?= $usuario->telefone ?></strong></li>
+                                <?= isset($usuario->usu_nome) ? $usuario->usu_nome : $usuario->nome ?></strong></li>
                         <li class="bg_lg span12" style="margin-left: 0"><strong>Email:
-                                <?= $usuario->email ?></strong></li>
+                                <?= isset($usuario->usu_email) ? $usuario->usu_email : $usuario->email ?></strong></li>
                         <li class="bg_lo span12" style="margin-left: 0"><strong>Nível:
                                 <?= $usuario->permissao; ?></strong></li>
                         <li class="bg_lh span12"
                             style="margin-left: 0; border-bottom-left-radius: 9px;border-bottom-right-radius: 9px">
                             <strong>Acesso expira em:
-                                <?= isset($usuario->dataExpiracao) && $usuario->dataExpiracao ? date('d/m/Y', strtotime($usuario->dataExpiracao)) : 'Sem expiração'; ?></strong>
+                                <?php $dt_exp = isset($usuario->usu_data_expiracao) ? $usuario->usu_data_expiracao : ($usuario->dataExpiracao ?? null); ?>
+                                <?= $dt_exp ? date('d/m/Y', strtotime($dt_exp)) : 'Sem expiração'; ?></strong>
                         </li>
                     </ul>
                 </div>

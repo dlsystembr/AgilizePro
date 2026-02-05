@@ -128,6 +128,12 @@
   <!--top-Header-menu-->
   <div class="navebarn">
     <div id="user-nav" class="navbar navbar-inverse">
+      <?php
+      $menus_liberados_topo = isset($menus_liberados) ? $menus_liberados : null;
+      $menu_liberado_topo = function ($id) use ($menus_liberados_topo) {
+        return $menus_liberados_topo === null || (is_array($menus_liberados_topo) && in_array($id, $menus_liberados_topo, true));
+      };
+      ?>
       <ul class="nav">
         <li class="dropdown">
           <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Perfis"><i
@@ -157,34 +163,34 @@
             <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Relatórios"><i
                 class='bx bx-pie-chart-alt-2 iconN'></i><span class="text"></span></a>
             <ul class="dropdown-menu">
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rCliente')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_clientes') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rCliente')) { ?>
                 <li><a href="<?= site_url('relatorios/clientes') ?>">Clientes</a></li>
               <?php } ?>
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rProduto')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_produtos') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rProduto')) { ?>
                 <li><a href="<?= site_url('relatorios/produtos') ?>">Produtos</a></li>
               <?php } ?>
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rServico')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_servicos') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rServico')) { ?>
                 <li><a href="<?= site_url('relatorios/servicos') ?>">Serviços</a></li>
               <?php } ?>
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_os') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
                 <li><a href="<?= site_url('relatorios/os') ?>">Ordens de Serviço</a></li>
               <?php } ?>
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_vendas') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda')) { ?>
                 <li><a href="<?= site_url('relatorios/vendas') ?>">Vendas</a></li>
               <?php } ?>
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_contratos') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rContrato')) { ?>
                 <li><a href="<?= site_url('relatorios/contratos') ?>">Contratos</a></li>
               <?php } ?>
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_financeiro') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
                 <li><a href="<?= site_url('relatorios/financeiro') ?>">Financeiro</a></li>
               <?php } ?>
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_sku') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rVenda') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rOs')) { ?>
                 <li><a href="<?= site_url('relatorios/sku') ?>">SKU</a></li>
               <?php } ?>
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_receitas_mei') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rFinanceiro')) { ?>
                 <li><a href="<?= site_url('relatorios/receitasBrutasMei') ?>">Receitas Brutas - MEI</a></li>
               <?php } ?>
-              <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'rNfe')) { ?>
+              <?php if ($menu_liberado_topo('relatorio_nfe_emitidas') && $this->permission->checkPermission($this->session->userdata('permissao'), 'rNfe')) { ?>
                 <li><a href="<?= site_url('relatorios/nfe_emitidas') ?>">Relatório NFe emitidas</a></li>
               <?php } ?>
             </ul>
@@ -194,25 +200,22 @@
           <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Tributação"><i
               class='bx bx-calculator iconN'></i><span class="text"></span></a>
           <ul class="dropdown-menu">
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vCliente')) { ?>
+            <?php if ($menu_liberado_topo('simulador_tributacao') && $this->permission->checkPermission($this->session->userdata('permissao'), 'vCliente')) { ?>
               <li><a href="<?= site_url('simuladortributacao') ?>">Simulador de Tributação</a></li>
             <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vTributacaoProduto')) { ?>
+            <?php if ($menu_liberado_topo('tributacao_produto') && $this->permission->checkPermission($this->session->userdata('permissao'), 'vTributacaoProduto')) { ?>
               <li><a href="<?= site_url('tributacaoproduto') ?>">Tributação Produto</a></li>
             <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vClassificacaoFiscal')) { ?>
+            <?php if ($menu_liberado_topo('classificacao_fiscal') && $this->permission->checkPermission($this->session->userdata('permissao'), 'vClassificacaoFiscal')) { ?>
               <li><a href="<?= site_url('classificacaofiscal') ?>">Classificação Fiscal</a></li>
             <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vOperacaoComercial')) { ?>
+            <?php if ($menu_liberado_topo('operacao_comercial') && $this->permission->checkPermission($this->session->userdata('permissao'), 'vOperacaoComercial')) { ?>
               <li><a href="<?= site_url('operacaocomercial') ?>">Operação Comercial</a></li>
             <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vAliquota')) { ?>
+            <?php if ($menu_liberado_topo('aliquotas') && $this->permission->checkPermission($this->session->userdata('permissao'), 'vAliquota')) { ?>
               <li><a href="<?= site_url('aliquotas') ?>">Alíquotas</a></li>
             <?php } ?>
-            <?php
-            $permissao = $this->session->userdata('permissao');
-            if ($this->permission->checkPermission($permissao, 'vNcm') === true) {
-              ?>
+            <?php if ($menu_liberado_topo('ncms') && $this->permission->checkPermission($this->session->userdata('permissao'), 'vNcm')) { ?>
               <li><a href="<?= site_url('ncms') ?>">NCMs</a></li>
             <?php } ?>
           </ul>
@@ -221,22 +224,36 @@
           <a href="#" class="tip-right dropdown-toggle" data-toggle="dropdown" title="Configurações"><i
               class='bx bx-cog iconN'></i><span class="text"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="<?= site_url('mapos/configurar') ?>">Sistema</a></li>
-            <li><a href="<?= site_url('usuarios') ?>">Usuários</a></li>
-            <li><a href="<?= site_url('mapos/emitente') ?>">Emitente</a></li>
-            <li><a href="<?= site_url('permissoes') ?>">Permissões</a></li>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vEmpresa')) { ?>
+            <?php if ($menu_liberado_topo('sistema')) { ?>
+              <li><a href="<?= site_url('mapos/configurar') ?>">Sistema</a></li>
+            <?php } ?>
+            <?php if ($menu_liberado_topo('usuarios')) { ?>
+              <li><a href="<?= site_url('usuarios') ?>">Usuários</a></li>
+            <?php } ?>
+            <?php if ($menu_liberado_topo('emitente')) { ?>
+              <li><a href="<?= site_url('mapos/emitente') ?>">Emitente</a></li>
+            <?php } ?>
+            <?php if ($menu_liberado_topo('permissoes')) { ?>
+              <li><a href="<?= site_url('permissoes') ?>">Permissões</a></li>
+            <?php } ?>
+            <?php if ($menu_liberado_topo('empresas') && $this->permission->checkPermission($this->session->userdata('permissao'), 'vEmpresa')) { ?>
               <li><a href="<?= site_url('empresas') ?>">Empresas</a></li>
             <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vCertificado')) { ?>
+            <?php if ($menu_liberado_topo('certificados') && $this->permission->checkPermission($this->session->userdata('permissao'), 'vCertificado')) { ?>
               <li><a href="<?= site_url('certificados') ?>">Certificados</a></li>
             <?php } ?>
-            <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'vConfigFiscal')) { ?>
+            <?php if ($menu_liberado_topo('configuracoes_fiscais') && $this->permission->checkPermission($this->session->userdata('permissao'), 'vConfigFiscal')) { ?>
               <li><a href="<?= site_url('configuracoesfiscais') ?>">Configurações Fiscais</a></li>
             <?php } ?>
-            <li><a href="<?= site_url('auditoria') ?>">Auditoria</a></li>
-            <li><a href="<?= site_url('mapos/emails') ?>">Emails</a></li>
-            <li><a href="<?= site_url('mapos/backup') ?>">Backup</a></li>
+            <?php if ($menu_liberado_topo('auditoria')) { ?>
+              <li><a href="<?= site_url('auditoria') ?>">Auditoria</a></li>
+            <?php } ?>
+            <?php if ($menu_liberado_topo('emails')) { ?>
+              <li><a href="<?= site_url('mapos/emails') ?>">Emails</a></li>
+            <?php } ?>
+            <?php if ($menu_liberado_topo('backup')) { ?>
+              <li><a href="<?= site_url('mapos/backup') ?>">Backup</a></li>
+            <?php } ?>
           </ul>
         </li>
       </ul>

@@ -129,10 +129,26 @@ class MY_Controller extends CI_Controller
         if (is_object($this->data['configuration'])) {
             $this->data['configuration'] = json_decode(json_encode($this->data['configuration']), true);
         }
-        
+
+        // Menus liberados para a empresa do usuário (null = sem restrição; array = só esses identificadores)
+        $this->data['menus_liberados'] = null;
+        $emp_id = $this->session->userdata('emp_id');
+        if ($emp_id && $this->db->table_exists('menu_empresa') && $this->db->table_exists('menus')) {
+            $rows = $this->db->select('m.men_identificador')
+                ->from('menu_empresa me')
+                ->join('menus m', 'm.men_id = me.men_id')
+                ->where('me.emp_id', $emp_id)
+                ->get()->result();
+            if (!empty($rows)) {
+                $this->data['menus_liberados'] = array_map(function ($r) {
+                    return $r->men_identificador;
+                }, $rows);
+            }
+        }
+
         // load views
         $this->load->view('tema/topo', $this->data);
-        $this->load->view('tema/menu');
+        $this->load->view('tema/menu', $this->data);
         $this->load->view('tema/conteudo');
         $this->load->view('tema/rodape');
     }

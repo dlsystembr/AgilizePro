@@ -145,16 +145,16 @@ class Login extends CI_Controller
             $user = $this->Mapos_model->check_credentials($email);
 
             if ($user) {
-                // Compatibilidade: tentar minúsculas primeiro, depois maiúsculas
-                $data_expiracao = isset($user->data_expiracao) ? $user->data_expiracao : (isset($user->dataExpiracao) ? $user->dataExpiracao : null);
-                $senha = isset($user->senha) ? $user->senha : (isset($user->Senha) ? $user->Senha : '');
-                $nome = isset($user->nome) ? $user->nome : (isset($user->Nome) ? $user->Nome : '');
-                $email = isset($user->email) ? $user->email : (isset($user->Email) ? $user->Email : '');
-                $url_image = isset($user->url_image_user) ? $user->url_image_user : (isset($user->urlImageUser) ? $user->urlImageUser : '');
-                $id_usuarios = isset($user->idusuarios) ? $user->idusuarios : (isset($user->idUsuarios) ? $user->idUsuarios : 0);
-                $permissoes_id = isset($user->permissoes_id) ? $user->permissoes_id : (isset($user->permissoesId) ? $user->permissoesId : 0);
-                $ten_id = isset($user->ten_id) ? $user->ten_id : (isset($user->tenId) ? $user->tenId : 0);
-                
+                // Nova estrutura: usu_* e gre_id
+                $data_expiracao = isset($user->usu_data_expiracao) ? $user->usu_data_expiracao : (isset($user->dataExpiracao) ? $user->dataExpiracao : null);
+                $senha = isset($user->usu_senha) ? $user->usu_senha : (isset($user->senha) ? $user->senha : '');
+                $nome = isset($user->usu_nome) ? $user->usu_nome : (isset($user->nome) ? $user->nome : '');
+                $email = isset($user->usu_email) ? $user->usu_email : (isset($user->email) ? $user->email : '');
+                $url_image = isset($user->usu_url_imagem) ? $user->usu_url_imagem : (isset($user->url_image_user) ? $user->url_image_user : '');
+                $id_usuarios = isset($user->usu_id) ? $user->usu_id : (isset($user->idUsuarios) ? $user->idUsuarios : 0);
+                $gre_id = isset($user->gre_id) ? $user->gre_id : (isset($user->ten_id) ? $user->ten_id : 0);
+                $ten_id = $gre_id; // compatibilidade: sessão mantém ten_id = gre_id
+
                 // Verificar se acesso está expirado
                 if ($data_expiracao && $this->chk_date($data_expiracao)) {
                     $json = ['result' => false, 'message' => 'A conta do usuário está expirada, por favor entre em contato com o administrador do sistema.'];
@@ -162,16 +162,25 @@ class Login extends CI_Controller
                     exit();
                 }
 
-                // Verificar credenciais do usuário
+                // Verificar credenciais do usuário (permissões agora por grupo_usuario_empresa; permissao na sessão mantido por compatibilidade)
                 if ($senha && password_verify($password, $senha)) {
+                    $emp_id = null;
+                    if ($this->db->table_exists('empresas')) {
+                        $emp = $this->db->select('emp_id')->from('empresas')->where('gre_id', $gre_id)->limit(1)->get()->row();
+                        if (!$emp && $this->db->field_exists('ten_id', 'empresas')) {
+                            $emp = $this->db->select('emp_id')->from('empresas')->where('ten_id', $gre_id)->limit(1)->get()->row();
+                        }
+                        $emp_id = $emp ? (int) $emp->emp_id : null;
+                    }
                     $session_admin_data = [
                         'nome_admin' => $nome,
                         'email_admin' => $email,
                         'url_image_user_admin' => $url_image,
                         'id_admin' => $id_usuarios,
-                        'permissao' => $permissoes_id,
+                        'permissao' => 0,
                         'logado' => true,
-                        'ten_id' => $ten_id
+                        'ten_id' => $ten_id,
+                        'emp_id' => $emp_id
                     ];
                     $this->session->set_userdata($session_admin_data);
                     log_info('Efetuou login no sistema');

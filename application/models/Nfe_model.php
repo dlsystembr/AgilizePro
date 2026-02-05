@@ -445,7 +445,7 @@ class Nfe_model extends CI_Model
         $this->db->select('vendas.*, clientes.*, usuarios.*, garantias.*');
         $this->db->from('vendas');
         $this->db->join('clientes', 'clientes.idClientes = vendas.clientes_id');
-        $this->db->join('usuarios', 'usuarios.idUsuarios = vendas.usuarios_id');
+        $this->db->join('usuarios', 'usuarios.usu_id = vendas.usu_id');
         $this->db->join('garantias', 'garantias.idGarantias = vendas.garantias_id', 'left');
         $this->db->where('vendas.idVendas', $id);
         $venda = $this->db->get()->row();

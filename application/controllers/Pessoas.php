@@ -466,13 +466,81 @@ class Pessoas extends MY_Controller
                     }
                 }
 
-                if ($this->input->is_ajax_request()) {
-                    echo json_encode(['result' => true, 'message' => 'Pessoa adicionada com sucesso!', 'redirect' => base_url('index.php/pessoas/visualizar/' . $pessoaId)]);
-                    return;
+                // Cadastrar usuário do sistema quando tipo "Usuário" estiver marcado
+                $tipoUsuario = $this->db->select('id')->from('tipos_pessoa')->where('nome', 'Usuário')->limit(1)->get()->row();
+                $tipoUsuarioId = $tipoUsuario ? (int) $tipoUsuario->id : null;
+                $usuEnable = (bool) $this->input->post('USU_ENABLE');
+                $tiposPessoaPost = $this->input->post('TIPOS_PESSOA');
+                $ehTipoUsuario = $tipoUsuarioId && is_array($tiposPessoaPost) && in_array((string) $tipoUsuarioId, $tiposPessoaPost, true);
+                if ($usuEnable && $ehTipoUsuario && $this->db->table_exists('usuarios')) {
+                    $usu_email = trim((string) $this->input->post('usu_email'));
+                    $usu_senha = $this->input->post('usu_senha');
+                    $usu_situacao = (int) $this->input->post('usu_situacao');
+                    $gpu_id = $this->input->post('gpu_id') ? (int) $this->input->post('gpu_id') : null;
+                    $ok = true;
+                    if ($usu_email === '') {
+                        $this->data['custom_error'] = '<div class="alert alert-danger">Para tipo Usuário, o e-mail (login) é obrigatório.</div>';
+                        $ok = false;
+                    } elseif (!filter_var($usu_email, FILTER_VALIDATE_EMAIL)) {
+                        $this->data['custom_error'] = '<div class="alert alert-danger">E-mail do usuário inválido.</div>';
+                        $ok = false;
+                    } else {
+                        $existe = $this->db->limit(1)->get_where('usuarios', ['usu_email' => $usu_email])->row();
+                        if ($existe) {
+                            $this->data['custom_error'] = '<div class="alert alert-danger">Este e-mail já está em uso por outro usuário.</div>';
+                            $ok = false;
+                        }
+                    }
+                    if ($ok && ($usu_senha === null || $usu_senha === '')) {
+                        $this->data['custom_error'] = '<div class="alert alert-danger">Para cadastrar usuário, a senha é obrigatória.</div>';
+                        $ok = false;
+                    }
+                    if ($ok) {
+                        $gre_id = $this->session->userdata('ten_id');
+                        if ($gre_id === null || $gre_id === '') {
+                            $gre_id = null;
+                        } else {
+                            $gre_id = (int) $gre_id;
+                        }
+                        $pessoa = $this->db->select('pes_nome')->from('pessoas')->where('pes_id', $pessoaId)->get()->row();
+                        $usu_nome = $pessoa ? $pessoa->pes_nome : 'Usuário';
+                        $dataUsuario = [
+                            'usu_nome' => $usu_nome,
+                            'usu_email' => $usu_email,
+                            'usu_senha' => password_hash($usu_senha, PASSWORD_DEFAULT),
+                            'usu_situacao' => $usu_situacao,
+                            'usu_data_cadastro' => date('Y-m-d H:i:s'),
+                            'usu_data_atualizacao' => date('Y-m-d H:i:s'),
+                            'gre_id' => $gre_id,
+                            'pes_id' => $pessoaId,
+                        ];
+                        if (!$this->db->insert('usuarios', $dataUsuario)) {
+                            $this->data['custom_error'] = '<div class="alert alert-danger">Erro ao criar usuário do sistema.</div>';
+                        } elseif ($gpu_id && $this->db->table_exists('grupo_usuario_empresa')) {
+                            $usu_id = $this->db->insert_id();
+                            $emp_id = (int) $this->session->userdata('emp_id');
+                            if ($emp_id) {
+                                $this->db->replace('grupo_usuario_empresa', [
+                                    'usu_id' => $usu_id,
+                                    'gpu_id' => $gpu_id,
+                                    'emp_id' => $emp_id,
+                                    'uge_data_cadastro' => date('Y-m-d H:i:s'),
+                                    'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                                ]);
+                            }
+                        }
+                    }
                 }
-                $this->session->set_flashdata('success', 'Pessoa adicionada com sucesso!');
-                log_info('Adicionou uma pessoa.');
-                redirect(base_url('index.php/pessoas/visualizar/' . $pessoaId));
+
+                if (empty($this->data['custom_error'])) {
+                    if ($this->input->is_ajax_request()) {
+                        echo json_encode(['result' => true, 'message' => 'Pessoa adicionada com sucesso!', 'redirect' => base_url('index.php/pessoas/visualizar/' . $pessoaId)]);
+                        return;
+                    }
+                    $this->session->set_flashdata('success', 'Pessoa adicionada com sucesso!');
+                    log_info('Adicionou uma pessoa.');
+                    redirect(base_url('index.php/pessoas/visualizar/' . $pessoaId));
+                }
             } else {
                 $dbError = $this->db->error();
                 log_message('error', 'Pessoas::adicionar insert pessoas falhou: ' . json_encode($dbError));
@@ -497,6 +565,15 @@ class Pessoas extends MY_Controller
         $this->data['estados'] = $this->db->order_by('est_uf', 'ASC')->get('estados')->result();
 
         $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('tipos_clientes', 'tpc_id, tpc_nome', '', 0, 0, false, 'object', 'tpc_nome', 'ASC');
+        // Tipo "Usuário" e grupos de usuário para cadastro de usuário pelo cadastro de pessoas
+        $tipoUsuario = $this->db->select('id')->from('tipos_pessoa')->where('nome', 'Usuário')->limit(1)->get()->row();
+        $this->data['tipo_usuario_id'] = $tipoUsuario ? (int) $tipoUsuario->id : null;
+        $emp_id = (int) $this->session->userdata('emp_id');
+        $this->data['grupos'] = [];
+        if ($emp_id && $this->db->table_exists('grupo_usuario')) {
+            $this->data['grupos'] = $this->db->select('gpu_id, gpu_nome')->from('grupo_usuario')
+                ->where('emp_id', $emp_id)->where('gpu_situacao', 1)->order_by('gpu_nome', 'ASC')->get()->result();
+        }
         $this->data['view'] = 'pessoas/adicionarPessoa';
         return $this->layout();
     }
@@ -889,6 +966,105 @@ class Pessoas extends MY_Controller
                     }
                 }
 
+                // Criar ou atualizar usuário do sistema quando tipo "Usuário" estiver marcado
+                $tipoUsuario = $this->db->select('id')->from('tipos_pessoa')->where('nome', 'Usuário')->limit(1)->get()->row();
+                $tipoUsuarioId = $tipoUsuario ? (int) $tipoUsuario->id : null;
+                $usuEnable = (bool) $this->input->post('USU_ENABLE');
+                $tiposPessoaPost = $this->input->post('TIPOS_PESSOA');
+                $ehTipoUsuario = $tipoUsuarioId && is_array($tiposPessoaPost) && in_array((string) $tipoUsuarioId, $tiposPessoaPost, true);
+                if ($usuEnable && $ehTipoUsuario && $this->db->table_exists('usuarios')) {
+                    $usu_email = trim((string) $this->input->post('usu_email'));
+                    $usu_senha = $this->input->post('usu_senha');
+                    $usu_situacao = (int) $this->input->post('usu_situacao');
+                    $gpu_id = $this->input->post('gpu_id') ? (int) $this->input->post('gpu_id') : null;
+                    $usuarioExistente = $this->db->where('pes_id', $id)->get('usuarios')->row();
+                    $ok = true;
+                    if ($usu_email === '') {
+                        $this->data['custom_error'] = '<div class="alert alert-danger">Para tipo Usuário, o e-mail (login) é obrigatório.</div>';
+                        $ok = false;
+                    } elseif (!filter_var($usu_email, FILTER_VALIDATE_EMAIL)) {
+                        $this->data['custom_error'] = '<div class="alert alert-danger">E-mail do usuário inválido.</div>';
+                        $ok = false;
+                    } else {
+                        $this->db->where('usu_email', $usu_email);
+                        if ($usuarioExistente) {
+                            $this->db->where('usu_id !=', $usuarioExistente->usu_id);
+                        }
+                        $existe = $this->db->limit(1)->get('usuarios')->row();
+                        if ($existe) {
+                            $this->data['custom_error'] = '<div class="alert alert-danger">Este e-mail já está em uso por outro usuário.</div>';
+                            $ok = false;
+                        }
+                    }
+                    if ($ok && !$usuarioExistente && ($usu_senha === null || $usu_senha === '')) {
+                        $this->data['custom_error'] = '<div class="alert alert-danger">Para cadastrar novo usuário, a senha é obrigatória.</div>';
+                        $ok = false;
+                    }
+                    if ($ok) {
+                        $pessoa = $this->db->select('pes_nome')->from('pessoas')->where('pes_id', $id)->get()->row();
+                        $usu_nome = $pessoa ? $pessoa->pes_nome : 'Usuário';
+                        $gre_id = $this->session->userdata('ten_id');
+                        $gre_id = ($gre_id === null || $gre_id === '') ? null : (int) $gre_id;
+                        $emp_id = (int) $this->session->userdata('emp_id');
+                        if ($usuarioExistente) {
+                            $dataUsuario = [
+                                'usu_nome' => $usu_nome,
+                                'usu_email' => $usu_email,
+                                'usu_situacao' => $usu_situacao,
+                                'usu_data_atualizacao' => date('Y-m-d H:i:s'),
+                                'gre_id' => $gre_id,
+                            ];
+                            if ($usu_senha !== null && $usu_senha !== '') {
+                                $dataUsuario['usu_senha'] = password_hash($usu_senha, PASSWORD_DEFAULT);
+                            }
+                            $this->db->where('usu_id', $usuarioExistente->usu_id);
+                            $this->db->update('usuarios', $dataUsuario);
+                            if ($gpu_id && $emp_id && $this->db->table_exists('grupo_usuario_empresa')) {
+                                $uge = $this->db->get_where('grupo_usuario_empresa', [
+                                    'usu_id' => $usuarioExistente->usu_id,
+                                    'emp_id' => $emp_id,
+                                ])->row();
+                                if ($uge) {
+                                    $this->db->where('uge_id', $uge->uge_id)->update('grupo_usuario_empresa', [
+                                        'gpu_id' => $gpu_id,
+                                        'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                                    ]);
+                                } else {
+                                    $this->db->insert('grupo_usuario_empresa', [
+                                        'usu_id' => $usuarioExistente->usu_id,
+                                        'gpu_id' => $gpu_id,
+                                        'emp_id' => $emp_id,
+                                        'uge_data_cadastro' => date('Y-m-d H:i:s'),
+                                        'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                                    ]);
+                                }
+                            }
+                        } else {
+                            $dataUsuario = [
+                                'usu_nome' => $usu_nome,
+                                'usu_email' => $usu_email,
+                                'usu_senha' => password_hash($usu_senha, PASSWORD_DEFAULT),
+                                'usu_situacao' => $usu_situacao,
+                                'usu_data_cadastro' => date('Y-m-d H:i:s'),
+                                'usu_data_atualizacao' => date('Y-m-d H:i:s'),
+                                'gre_id' => $gre_id,
+                                'pes_id' => $id,
+                            ];
+                            $this->db->insert('usuarios', $dataUsuario);
+                            if ($this->db->affected_rows() && $gpu_id && $emp_id && $this->db->table_exists('grupo_usuario_empresa')) {
+                                $usu_id = $this->db->insert_id();
+                                $this->db->replace('grupo_usuario_empresa', [
+                                    'usu_id' => $usu_id,
+                                    'gpu_id' => $gpu_id,
+                                    'emp_id' => $emp_id,
+                                    'uge_data_cadastro' => date('Y-m-d H:i:s'),
+                                    'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                                ]);
+                            }
+                        }
+                    }
+                }
+
                 if (empty($this->data['custom_error'])) {
                     if ($this->input->is_ajax_request()) {
                         echo json_encode(['result' => true, 'message' => 'Pessoa editada com sucesso!', 'redirect' => base_url('index.php/pessoas/visualizar/' . $id)]);
@@ -1018,6 +1194,31 @@ class Pessoas extends MY_Controller
             $this->data['vendedor'] = null;
         }
 
+        // Tipo "Usuário" e usuário vinculado (se existir) para edição
+        $tipoUsuario = $this->db->select('id')->from('tipos_pessoa')->where('nome', 'Usuário')->limit(1)->get()->row();
+        $this->data['tipo_usuario_id'] = $tipoUsuario ? (int) $tipoUsuario->id : null;
+        if ($this->db->table_exists('usuarios')) {
+            $this->data['usuario'] = $this->db->where('pes_id', $id)->get('usuarios')->row();
+        } else {
+            $this->data['usuario'] = null;
+        }
+        $emp_id = (int) $this->session->userdata('emp_id');
+        $this->data['grupos'] = [];
+        $this->data['gpu_id_atual'] = null;
+        if ($emp_id && $this->db->table_exists('grupo_usuario')) {
+            $this->data['grupos'] = $this->db->select('gpu_id, gpu_nome')->from('grupo_usuario')
+                ->where('emp_id', $emp_id)->where('gpu_situacao', 1)->order_by('gpu_nome', 'ASC')->get()->result();
+            if (!empty($this->data['usuario']) && $this->db->table_exists('grupo_usuario_empresa')) {
+                $uge = $this->db->get_where('grupo_usuario_empresa', [
+                    'usu_id' => $this->data['usuario']->usu_id,
+                    'emp_id' => $emp_id,
+                ])->row();
+                if ($uge) {
+                    $this->data['gpu_id_atual'] = (int) $uge->gpu_id;
+                }
+            }
+        }
+
         $this->data['tipos_clientes'] = $this->Tipos_clientes_model->get('tipos_clientes', 'tpc_id, tpc_nome', '', 0, 0, false, 'object', 'tpc_nome', 'ASC');
         $this->data['view'] = 'pessoas/editarPessoa';
         return $this->layout();
@@ -1131,6 +1332,12 @@ class Pessoas extends MY_Controller
             $this->data['vendedor'] = $this->db->where('pes_id', $id)->get('vendedores')->row();
         } else {
             $this->data['vendedor'] = null;
+        }
+
+        if ($this->db->table_exists('usuarios')) {
+            $this->data['usuario'] = $this->db->where('pes_id', $id)->get('usuarios')->row();
+        } else {
+            $this->data['usuario'] = null;
         }
 
         $this->data['view'] = 'pessoas/visualizarPessoa';

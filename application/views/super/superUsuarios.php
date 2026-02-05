@@ -1,19 +1,17 @@
 <div class="new122">
-  <div class="widget-title" style="margin:-15px -10px 0">
+  <div class="widget-title" style="margin: -20px 0 0">
+    <span class="icon"><i class="bx bx-user-check"></i></span>
     <h5>Gerenciar Super Usuários</h5>
   </div>
-  <a href="<?= base_url('index.php/super/adicionarSuperUsuario') ?>" class="button btn btn-success" style="max-width: 200px">
-    <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
-    <span class="button__text2">Adicionar Super Usuário</span>
-  </a>
+  <div class="span12" style="margin-left: 0; margin-bottom: 15px;">
+    <a href="<?= base_url('index.php/super/adicionarSuperUsuario') ?>" class="button btn btn-mini btn-success" style="max-width: 200px">
+      <span class="button__icon"><i class='bx bx-plus-circle'></i></span>
+      <span class="button__text2">Adicionar Super Usuário</span>
+    </a>
+  </div>
 
   <div class="widget-box">
-    <div class="widget-title" style="margin: -20px 0 0">
-      <span class="icon">
-        <i class="icon-star"></i>
-      </span>
-      <h5 style="padding: 3px 0"></h5>
-    </div>
+    <h5 style="padding: 3px 0"></h5>
     <div class="widget-content nopadding tab-content">
       <table id="tabela" class="table table-bordered">
       <thead>
@@ -72,8 +70,6 @@
         <?php endif; ?>
       </tbody>
     </table>
-
-      </table>
     </div>
   </div>
 </div>

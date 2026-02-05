@@ -51,27 +51,28 @@ class Usuarios extends MY_Controller
             $this->data['custom_error'] = (validation_errors() ? '<div class="alert alert-danger">' . validation_errors() . '</div>' : false);
         } else {
             $data = [
-                'nome' => set_value('nome'),
-                'rg' => set_value('rg'),
-                'cpf' => set_value('cpf'),
-                'cep' => set_value('cep'),
-                'rua' => set_value('rua'),
-                'numero' => set_value('numero'),
-                'bairro' => set_value('bairro'),
-                'cidade' => set_value('cidade'),
-                'estado' => set_value('estado'),
-                'email' => set_value('email'),
-                'senha' => password_hash($this->input->post('senha'), PASSWORD_DEFAULT),
-                'telefone' => set_value('telefone'),
-                'celular' => set_value('celular'),
-                'dataExpiracao' => set_value('dataExpiracao'),
-                'situacao' => set_value('situacao'),
-                'permissoes_id' => $this->input->post('permissoes_id'),
-                'dataCadastro' => date('Y-m-d'),
-                'ten_id' => $this->session->userdata('ten_id'),
+                'usu_nome' => set_value('nome'),
+                'usu_email' => set_value('email'),
+                'usu_senha' => password_hash($this->input->post('senha'), PASSWORD_DEFAULT),
+                'usu_data_expiracao' => set_value('dataExpiracao'),
+                'usu_situacao' => set_value('situacao'),
+                'usu_data_cadastro' => date('Y-m-d H:i:s'),
+                'gre_id' => $this->session->userdata('ten_id'),
             ];
 
             if ($this->usuarios_model->add('usuarios', $data) == true) {
+                $gpu_id = $this->input->post('gpu_id') ? (int) $this->input->post('gpu_id') : null;
+                $emp_id = (int) $this->session->userdata('emp_id');
+                if ($gpu_id && $emp_id && $this->db->table_exists('grupo_usuario_empresa')) {
+                    $usu_id = $this->db->insert_id();
+                    $this->db->replace('grupo_usuario_empresa', [
+                        'usu_id' => $usu_id,
+                        'gpu_id' => $gpu_id,
+                        'emp_id' => $emp_id,
+                        'uge_data_cadastro' => date('Y-m-d H:i:s'),
+                        'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                    ]);
+                }
                 $this->session->set_flashdata('success', 'Usuário cadastrado com sucesso!');
                 log_info('Adicionou um usuário.');
                 redirect(site_url('usuarios/adicionar/'));
@@ -80,9 +81,12 @@ class Usuarios extends MY_Controller
             }
         }
 
-        $this->load->model('permissoes_model');
-        $ten_id = $this->session->userdata('ten_id');
-        $this->data['permissoes'] = $this->permissoes_model->getActive('permissoes', 'permissoes.idPermissao,permissoes.nome', $ten_id);
+        $emp_id = (int) $this->session->userdata('emp_id');
+        $this->data['grupos'] = [];
+        if ($emp_id && $this->db->table_exists('grupo_usuario')) {
+            $this->data['grupos'] = $this->db->select('gpu_id, gpu_nome')->from('grupo_usuario')
+                ->where('emp_id', $emp_id)->where('gpu_situacao', 1)->order_by('gpu_nome', 'ASC')->get()->result();
+        }
         $this->data['view'] = 'usuarios/adicionarUsuario';
 
         return $this->layout();
@@ -109,7 +113,7 @@ class Usuarios extends MY_Controller
         $this->form_validation->set_rules('email', 'Email', 'trim|required');
         $this->form_validation->set_rules('telefone', 'Telefone', 'trim|required');
         $this->form_validation->set_rules('situacao', 'Situação', 'trim|required');
-        $this->form_validation->set_rules('permissoes_id', 'Permissão', 'trim|required');
+        $this->form_validation->set_rules('gpu_id', 'Grupo de usuário', 'trim|required');
 
         if ($this->form_validation->run() == false) {
             $this->data['custom_error'] = (validation_errors() ? '<div class="form_error">' . validation_errors() . '</div>' : false);
@@ -124,58 +128,73 @@ class Usuarios extends MY_Controller
                 $senha = password_hash($senha, PASSWORD_DEFAULT);
 
                 $data = [
-                    'nome' => $this->input->post('nome'),
-                    'rg' => $this->input->post('rg'),
-                    'cpf' => $this->input->post('cpf'),
-                    'cep' => $this->input->post('cep'),
-                    'rua' => $this->input->post('rua'),
-                    'numero' => $this->input->post('numero'),
-                    'bairro' => $this->input->post('bairro'),
-                    'cidade' => $this->input->post('cidade'),
-                    'estado' => $this->input->post('estado'),
-                    'email' => $this->input->post('email'),
-                    'senha' => $senha,
-                    'telefone' => $this->input->post('telefone'),
-                    'celular' => $this->input->post('celular'),
-                    'dataExpiracao' => set_value('dataExpiracao'),
-                    'situacao' => $this->input->post('situacao'),
-                    'permissoes_id' => $this->input->post('permissoes_id'),
-                    'ten_id' => $this->session->userdata('ten_id'),
+                    'usu_nome' => $this->input->post('nome'),
+                    'usu_email' => $this->input->post('email'),
+                    'usu_senha' => $senha,
+                    'usu_data_expiracao' => set_value('dataExpiracao'),
+                    'usu_situacao' => $this->input->post('situacao'),
+                    'usu_data_atualizacao' => date('Y-m-d H:i:s'),
+                    'gre_id' => $this->session->userdata('ten_id'),
                 ];
             } else {
                 $data = [
-                    'nome' => $this->input->post('nome'),
-                    'rg' => $this->input->post('rg'),
-                    'cpf' => $this->input->post('cpf'),
-                    'cep' => $this->input->post('cep'),
-                    'rua' => $this->input->post('rua'),
-                    'numero' => $this->input->post('numero'),
-                    'bairro' => $this->input->post('bairro'),
-                    'cidade' => $this->input->post('cidade'),
-                    'estado' => $this->input->post('estado'),
-                    'email' => $this->input->post('email'),
-                    'telefone' => $this->input->post('telefone'),
-                    'celular' => $this->input->post('celular'),
-                    'dataExpiracao' => set_value('dataExpiracao'),
-                    'situacao' => $this->input->post('situacao'),
-                    'permissoes_id' => $this->input->post('permissoes_id'),
-                    'ten_id' => $this->session->userdata('ten_id'),
+                    'usu_nome' => $this->input->post('nome'),
+                    'usu_email' => $this->input->post('email'),
+                    'usu_data_expiracao' => set_value('dataExpiracao'),
+                    'usu_situacao' => $this->input->post('situacao'),
+                    'usu_data_atualizacao' => date('Y-m-d H:i:s'),
+                    'gre_id' => $this->session->userdata('ten_id'),
                 ];
             }
 
-            if ($this->usuarios_model->edit('usuarios', $data, 'idUsuarios', $this->input->post('idUsuarios')) == true) {
+            $usu_id = (int) $this->input->post('usu_id');
+            if (!$usu_id) {
+                $usu_id = (int) $this->input->post('idUsuarios');
+            }
+            if ($this->usuarios_model->edit('usuarios', $data, 'usu_id', $usu_id) == true) {
+                $gpu_id = $this->input->post('gpu_id') ? (int) $this->input->post('gpu_id') : null;
+                $emp_id = (int) $this->session->userdata('emp_id');
+                if ($gpu_id && $emp_id && $this->db->table_exists('grupo_usuario_empresa')) {
+                    $uge = $this->db->get_where('grupo_usuario_empresa', ['usu_id' => $usu_id, 'emp_id' => $emp_id])->row();
+                    if ($uge) {
+                        $this->db->where('uge_id', $uge->uge_id)->update('grupo_usuario_empresa', [
+                            'gpu_id' => $gpu_id,
+                            'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                        ]);
+                    } else {
+                        $this->db->insert('grupo_usuario_empresa', [
+                            'usu_id' => $usu_id,
+                            'gpu_id' => $gpu_id,
+                            'emp_id' => $emp_id,
+                            'uge_data_cadastro' => date('Y-m-d H:i:s'),
+                            'uge_data_atualizacao' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
                 $this->session->set_flashdata('success', 'Usuário editado com sucesso!');
                 log_info('Alterou um usuário. ID: ' . $this->input->post('idUsuarios'));
-                redirect(site_url('usuarios/editar/') . $this->input->post('idUsuarios'));
+                redirect(site_url('usuarios/editar/') . $usu_id);
             } else {
                 $this->data['custom_error'] = '<div class="form_error"><p>Ocorreu um erro</p></div>';
             }
         }
 
         $this->data['result'] = $this->usuarios_model->getById($this->uri->segment(3));
-        $this->load->model('permissoes_model');
-        $ten_id = $this->session->userdata('ten_id');
-        $this->data['permissoes'] = $this->permissoes_model->getActive('permissoes', 'permissoes.idPermissao,permissoes.nome', $ten_id);
+        $emp_id = (int) $this->session->userdata('emp_id');
+        $this->data['grupos'] = [];
+        $this->data['gpu_id_atual'] = null;
+        if ($emp_id && $this->db->table_exists('grupo_usuario')) {
+            $this->data['grupos'] = $this->db->select('gpu_id, gpu_nome')->from('grupo_usuario')
+                ->where('emp_id', $emp_id)->where('gpu_situacao', 1)->order_by('gpu_nome', 'ASC')->get()->result();
+            $result = $this->data['result'];
+            $usu_id = isset($result->usu_id) ? $result->usu_id : (isset($result->idUsuarios) ? $result->idUsuarios : null);
+            if ($usu_id && $this->db->table_exists('grupo_usuario_empresa')) {
+                $uge = $this->db->get_where('grupo_usuario_empresa', ['usu_id' => $usu_id, 'emp_id' => $emp_id])->row();
+                if ($uge) {
+                    $this->data['gpu_id_atual'] = (int) $uge->gpu_id;
+                }
+            }
+        }
 
         $this->data['view'] = 'usuarios/editarUsuario';
 
@@ -185,7 +204,7 @@ class Usuarios extends MY_Controller
     public function excluir()
     {
         $id = $this->uri->segment(3);
-        $this->usuarios_model->delete('usuarios', 'idUsuarios', $id);
+        $this->usuarios_model->delete('usuarios', 'usu_id', $id);
 
         log_info('Removeu um usuário. ID: ' . $id);
 

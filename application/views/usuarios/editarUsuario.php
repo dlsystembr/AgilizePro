@@ -17,44 +17,17 @@
                 } ?>
                 <form action="<?php echo current_url(); ?>" id="formUsuario" method="post" class="form-horizontal">
                     <div class="control-group">
-                        <?php echo form_hidden('idUsuarios', $result->idUsuarios) ?>
+                        <?php echo form_hidden('usu_id', isset($result->usu_id) ? $result->usu_id : $result->idUsuarios) ?>
                         <label for="nome" class="control-label">Nome<span class="required">*</span></label>
                         <div class="controls">
-                            <input id="nome" type="text" name="nome" value="<?php echo $result->nome; ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="rg" class="control-label">RG<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="rg" type="text" name="rg" value="<?php echo $result->rg; ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="cpf" class="control-label">CPF<span class="required">*</span></label>
-                        <div class="controls">
-                            <input class="cpfUser" type="text" name="cpf" value="<?php echo $result->cpf; ?>"/>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label for="telefone" class="control-label">Telefone<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="telefone" type="text" name="telefone" value="<?php echo $result->telefone; ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="celular" class="control-label">Celular</label>
-                        <div class="controls">
-                            <input id="celular" type="text" name="celular" value="<?php echo $result->celular; ?>" />
+                            <input id="nome" type="text" name="nome" value="<?php echo isset($result->usu_nome) ? $result->usu_nome : $result->nome; ?>" />
                         </div>
                     </div>
 
                     <div class="control-group">
                         <label for="email" class="control-label">Email<span class="required">*</span></label>
                         <div class="controls">
-                            <input id="email" type="text" name="email" value="<?php echo $result->email; ?>" />
+                            <input id="email" type="text" name="email" value="<?php echo isset($result->usu_email) ? $result->usu_email : $result->email; ?>" />
                         </div>
                     </div>
 
@@ -66,68 +39,22 @@
                         </div>
                     </div>
 
-                    <div class="control-group" class="control-label">
-                        <label for="cep" class="control-label">CEP<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="cep" type="text" name="cep" value="<?php echo $result->cep; ?>" />
-                        </div>
-                    </div>
-
                     <div class="control-group">
-                        <label for="rua" class="control-label">Rua<span class="required">*</span></label>
+                        <label for="dataExpiracao" class="control-label">Expira em</label>
                         <div class="controls">
-                            <input id="rua" type="text" name="rua" value="<?php echo $result->rua; ?>" />
+                            <input id="dataExpiracao" type="date" name="dataExpiracao" value="<?php echo isset($result->usu_data_expiracao) ? $result->usu_data_expiracao : ($result->dataExpiracao ?? ''); ?>" />
                         </div>
                     </div>
-
-                    <div class="control-group">
-                        <label for="numero" class="control-label">Numero<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="numero" type="text" name="numero" value="<?php echo $result->numero; ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="bairro" class="control-label">Bairro<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="bairro" type="text" name="bairro" value="<?php echo $result->bairro; ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="cidade" class="control-label">Cidade<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="cidade" type="text" name="cidade" value="<?php echo $result->cidade; ?>" />
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="estado" class="control-label">Estado<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="estado" type="text" name="estado" value="<?php echo $result->estado; ?>" />
-                        </div>
-                    </div>
-
-                    <!--DATA-->
-                    <div class="control-group">
-                        <label for="dataExpiracao" class="control-label">Expira em<span class="required">*</span></label>
-                        <div class="controls">
-                            <input id="dataExpiracao" type="date" name="dataExpiracao" value="<?php echo $result->dataExpiracao; ?>" />
-                        </div>
-                    </div>
-
 
                     <div class="control-group">
                         <label class="control-label">Situação*</label>
                         <div class="controls">
                             <select name="situacao" id="situacao">
-                                <?php if ($result->situacao == 1) {
-                                    $ativo = 'selected';
-                                    $inativo = '';
-                                } else {
-                                    $ativo = '';
-                                    $inativo = 'selected';
-                                } ?>
+                                <?php
+                                $sit = isset($result->usu_situacao) ? $result->usu_situacao : ($result->situacao ?? 1);
+                                $ativo = ($sit == 1) ? 'selected' : '';
+                                $inativo = ($sit == 0) ? 'selected' : '';
+                                ?>
                                 <option value="1" <?php echo $ativo; ?>>Ativo</option>
                                 <option value="0" <?php echo $inativo; ?>>Inativo</option>
                             </select>
@@ -136,17 +63,17 @@
 
 
                     <div class="control-group">
-                        <label class="control-label">Permissões<span class="required">*</span></label>
+                        <label class="control-label">Grupo de usuário<span class="required">*</span></label>
                         <div class="controls">
-                            <select name="permissoes_id" id="permissoes_id">
-                                <?php foreach ($permissoes as $p) {
-                                    if ($p->idPermissao == $result->permissoes_id) {
-                                        $selected = 'selected';
-                                    } else {
-                                        $selected = '';
-                                    }
-                                    echo '<option value="' . $p->idPermissao . '"' . $selected . '>' . $p->nome . '</option>';
-                                } ?>
+                            <select name="gpu_id" id="gpu_id" required>
+                                <option value="">Selecione um grupo</option>
+                                <?php
+                                $gpu_atual = isset($gpu_id_atual) ? (int) $gpu_id_atual : 0;
+                                foreach ($grupos as $g) {
+                                    $selected = ((int) $g->gpu_id === $gpu_atual) ? ' selected' : '';
+                                    echo '<option value="' . (int) $g->gpu_id . '"' . $selected . '>' . htmlspecialchars($g->gpu_nome, ENT_QUOTES, 'UTF-8') . '</option>';
+                                }
+                                ?>
                             </select>
                         </div>
                     </div>
@@ -174,77 +101,13 @@
 
         $('#formUsuario').validate({
             rules: {
-                nome: {
-                    required: true
-                },
-                dataExpiracao: {
-                    required: true
-                },
-                cpf: {
-                    required: true
-                },
-                telefone: {
-                    required: true
-                },
-                email: {
-                    required: true
-                },
-                rua: {
-                    required: true
-                },
-                numero: {
-                    required: true
-                },
-                bairro: {
-                    required: true
-                },
-                cidade: {
-                    required: true
-                },
-                estado: {
-                    required: true
-                },
-                cep: {
-                    required: true
-                }
+                nome: { required: true },
+                email: { required: true }
             },
             messages: {
-                nome: {
-                    required: 'Campo Requerido.'
-                },
-                dataExpiracao: {
-                    required: 'Campo Requerido.'
-                },
-                cpf: {
-                    required: 'Campo Requerido.'
-                },
-                telefone: {
-                    required: 'Campo Requerido.'
-                },
-                email: {
-                    required: 'Campo Requerido.'
-                },
-                rua: {
-                    required: 'Campo Requerido.'
-                },
-                numero: {
-                    required: 'Campo Requerido.'
-                },
-                bairro: {
-                    required: 'Campo Requerido.'
-                },
-                cidade: {
-                    required: 'Campo Requerido.'
-                },
-                estado: {
-                    required: 'Campo Requerido.'
-                },
-                cep: {
-                    required: 'Campo Requerido.'
-                }
-
+                nome: { required: 'Campo Requerido.' },
+                email: { required: 'Campo Requerido.' }
             },
-
             errorClass: "help-inline",
             errorElement: "span",
             highlight: function(element, errorClass, validClass) {

@@ -7,27 +7,17 @@ if (! defined('BASEPATH')) {
 /**
  * Permission Class
  *
- * Biblioteca para controle de permissões
+ * Controle de permissões baseado em grupo de usuário (grupo_usuario_empresa + grupo_usuario_permissoes).
+ * Substitui o antigo sistema por perfil (tabela permissoes).
  *
- * @author      Ramon Silva
- * @copyright   Copyright (c) 2013, Ramon Silva.
- *
- * @since       Version 1.0
- * v... Visualizar
- * e... Editar
- * d... Deletar ou Desabilitar
- * c... Cadastrar
+ * v... Visualizar -> gup_visualizar
+ * e... Editar -> gup_editar
+ * d... Deletar -> gup_deletar
+ * r... Relatório -> gup_relatorio
+ * a... Alterar -> gup_alterar
  */
 class Permission
 {
-    private $permissions = [];
-
-    private $table = 'permissoes'; //Nome tabela onde ficam armazenadas as permissões
-
-    private $pk = 'idPermissao'; // Nome da chave primaria da tabela
-
-    private $select = 'permissoes'; // Campo onde fica o array de permissoes.
-
     public function __construct()
     {
         log_message('debug', 'Permission Class Initialized');
@@ -35,98 +25,99 @@ class Permission
         $this->CI->load->database();
     }
 
+    /**
+     * Verifica se o usuário tem permissão para a atividade.
+     * $idPermissao é ignorado (mantido por compatibilidade com chamadas existentes).
+     */
     public function checkPermission($idPermissao = null, $atividade = null)
     {
-        if ($idPermissao == null || $atividade == null) {
-            return false;
-        }
-
         $CI = &get_instance();
-        $ten_id = $CI->session->userdata('ten_id');
         $is_super = $CI->session->userdata('is_super');
 
-        // Super usuário tem acesso a tudo
         if ($is_super) {
             return true;
         }
 
-        // Se for um tenant, verificar permissões específicas do tenant
-        if ($ten_id) {
-            // Primeiro verificar se a permissão está habilitada para o tenant
-            // Limpar query builder para evitar problemas de cache
-            $CI->db->reset_query();
-            $CI->db->select('tpm_ativo, tpm_permissao');
-            $CI->db->from('tenant_permissoes_menu');
-            $CI->db->where('tpm_ten_id', $ten_id);
-            $CI->db->where('tpm_permissao', $atividade);
-            $CI->db->where('tpm_ativo', 1);
-            $query = $CI->db->get();
-            $result = $query->row();
-
-            // Debug: log da verificação
-            log_message('debug', "Permission::checkPermission - ten_id: {$ten_id}, atividade: {$atividade}, encontrado: " . ($result ? 'SIM' : 'NÃO'));
-            if ($result) {
-                log_message('debug', "Permission::checkPermission - tpm_ativo: {$result->tpm_ativo}, tpm_permissao: {$result->tpm_permissao}");
-            } else {
-                // Verificar se há alguma permissão para este tenant (para debug)
-                $CI->db->reset_query();
-                $CI->db->select('COUNT(*) as total');
-                $CI->db->from('tenant_permissoes_menu');
-                $CI->db->where('tpm_ten_id', $ten_id);
-                $CI->db->where('tpm_ativo', 1);
-                $count_query = $CI->db->get();
-                $count_result = $count_query->row();
-                log_message('debug', "Permission::checkPermission - Total de permissões ativas para tenant {$ten_id}: " . ($count_result ? $count_result->total : 0));
-            }
-
-            if ($result && $result->tpm_ativo == 1) {
-                // Permissão habilitada para o tenant - retorna true imediatamente
-                // Isso permite que o menu apareça mesmo se não estiver no perfil do usuário
-                // As ações específicas ainda podem verificar o perfil do usuário se necessário
-                log_message('debug', "Permission::checkPermission - Permissão {$atividade} habilitada para tenant {$ten_id} - retornando TRUE");
-                return true;
-            } else {
-                // Permissão não habilitada para este tenant
-                log_message('debug', "Permission::checkPermission - Permissão {$atividade} NÃO habilitada para tenant {$ten_id} - retornando FALSE");
-                return false;
-            }
-        } else {
-            // Lógica de permissão padrão (para usuários não-super e sem ten_id)
-            // Se as permissões não estiverem carregadas, requisita o carregamento
-            if ($this->permissions == null) {
-                // Se não carregar retorna falso
-                if (! $this->loadPermission($idPermissao)) {
-                    return false;
-                }
-            }
-
-            if (is_array($this->permissions[0])) {
-                if (array_key_exists($atividade, $this->permissions[0])) {
-                    // compara a atividade requisitada com a permissão.
-                    if ($this->permissions[0][$atividade] == 1) {
-                        return true;
-                    }
-                }
-            }
+        if ($atividade === null || $atividade === '') {
+            return false;
         }
 
-        return false;
-    }
+        $usu_id = $CI->session->userdata('id_admin');
+        $emp_id = $CI->session->userdata('emp_id');
 
-    private function loadPermission($id = null)
-    {
-        if ($id != null) {
-            $this->CI->db->select($this->table . '.' . $this->select);
-            $this->CI->db->where($this->pk, $id);
-            $this->CI->db->limit(1);
-            $array = $this->CI->db->get($this->table)->row_array();
+        if (!$usu_id || !$emp_id) {
+            return false;
+        }
 
-            if (count($array) > 0) {
-                $array = unserialize($array[$this->select]);
-                //Atribui as permissoes ao atributo permissions
-                $this->permissions = [$array];
+        // Novo sistema: permissão por grupo (grupo_usuario_empresa + grupo_usuario_permissoes + menu_empresa)
+        if ($CI->db->table_exists('grupo_usuario_empresa') && $CI->db->table_exists('grupo_usuario_permissoes')
+            && $CI->db->table_exists('menu_empresa') && $CI->db->table_exists('menus')) {
 
-                return true;
+            $gpu_id = $CI->db->select('gpu_id')->from('grupo_usuario_empresa')
+                ->where('usu_id', $usu_id)
+                ->where('emp_id', $emp_id)
+                ->limit(1)
+                ->get()->row();
+
+            if (!$gpu_id) {
+                return false;
+            }
+
+            $gpu_id = (int) $gpu_id->gpu_id;
+
+            // Menu que exige esta permissão: men_permissao pode ser vUsuario, vPessoa, etc.
+            // Atividades c/e/d/a/r (ex: cUsuario) não têm menu próprio; usar o menu "v" correspondente (vUsuario)
+            $men_permissao_busca = $atividade;
+            if (strlen($atividade) > 1 && !in_array(substr($atividade, 0, 1), ['v'], true)) {
+                $men_permissao_busca = 'v' . substr($atividade, 1);
+            }
+            $men = $CI->db->select('men_id')->from('menus')
+                ->where('men_permissao', $men_permissao_busca)
+                ->where('men_situacao', 1)
+                ->order_by('men_ordem', 'ASC')
+                ->limit(1)
+                ->get()->row();
+
+            if (!$men) {
+                return false;
+            }
+
+            $mep = $CI->db->select('mep_id')->from('menu_empresa')
+                ->where('men_id', $men->men_id)
+                ->where('emp_id', $emp_id)
+                ->limit(1)
+                ->get()->row();
+
+            if (!$mep) {
+                return false;
+            }
+
+            $gup = $CI->db->select('gup_visualizar, gup_editar, gup_deletar, gup_alterar, gup_relatorio')
+                ->from('grupo_usuario_permissoes')
+                ->where('gpu_id', $gpu_id)
+                ->where('mep_id', $mep->mep_id)
+                ->limit(1)
+                ->get()->row();
+
+            if (!$gup) {
+                return false;
+            }
+
+            $prefix = substr($atividade, 0, 1);
+            switch ($prefix) {
+                case 'v':
+                    return !empty($gup->gup_visualizar);
+                case 'e':
+                    return !empty($gup->gup_editar);
+                case 'd':
+                    return !empty($gup->gup_deletar);
+                case 'r':
+                    return !empty($gup->gup_relatorio);
+                case 'a':
+                case 'c':
+                    return !empty($gup->gup_alterar);
+                default:
+                    return !empty($gup->gup_visualizar);
             }
         }
 

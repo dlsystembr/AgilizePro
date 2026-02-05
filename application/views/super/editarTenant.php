@@ -1,14 +1,10 @@
 <div class="new122">
-  <div class="widget-title" style="margin:-15px -10px 0">
+  <div class="widget-title" style="margin: -20px 0 0">
+    <span class="icon"><i class="bx bx-edit"></i></span>
     <h5>Editar Tenant</h5>
   </div>
   <div class="widget-box">
-    <div class="widget-title" style="margin: -20px 0 0">
-      <span class="icon">
-        <i class="icon-edit"></i>
-      </span>
-      <h5 style="padding: 3px 0"></h5>
-    </div>
+    <h5 style="padding: 3px 0"></h5>
     <div class="widget-content nopadding tab-content">
     <?php if (isset($custom_error) && $custom_error): ?>
       <?= $custom_error ?>

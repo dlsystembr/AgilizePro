@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
@@ -1910,9 +1910,9 @@ class Nfe extends MY_Controller
             }
 
             // Busca informações da venda para o log
-            $this->db->select('vendas.*, usuarios.nome as nome_usuario, clientes.nomeCliente');
+            $this->db->select('vendas.*, usuarios.usu_nome as nome_usuario, clientes.nomeCliente');
             $this->db->from('vendas');
-            $this->db->join('usuarios', 'usuarios.idUsuarios = vendas.usuarios_id');
+            $this->db->join('usuarios', 'usuarios.usu_id = vendas.usu_id');
             $this->db->join('clientes', 'clientes.idClientes = vendas.clientes_id');
             $this->db->where('vendas.idVendas', $nfe->venda_id);
             $venda_info = $this->db->get()->row();

@@ -113,7 +113,7 @@ class Os extends MY_Controller
             $data = [
                 'dataInicial' => $dataInicial,
                 'clientes_id' => $this->input->post('clientes_id'), //set_value('idCliente'),
-                'usuarios_id' => $this->input->post('usuarios_id'), //set_value('idUsuario'),
+                'usu_id' => $this->input->post('usu_id') ?: $this->input->post('usuarios_id'),
                 'dataFinal' => $dataFinal,
                 'garantia' => set_value('garantia'),
                 'garantias_id' => $termoGarantiaId,
@@ -133,7 +133,7 @@ class Os extends MY_Controller
                 $os = $this->os_model->getById($idOs);
                 $emitente = $this->mapos_model->getEmitente();
 
-                $tecnico = $this->usuarios_model->getById($os->usuarios_id);
+                $tecnico = $this->usuarios_model->getById(isset($os->usu_id) ? $os->usu_id : $os->usuarios_id);
 
                 // Verificar configuração de notificação
                 if ($this->data['configuration']['os_notification'] != 'nenhum' && $this->data['configuration']['email_automatico'] == 1) {
@@ -141,14 +141,14 @@ class Os extends MY_Controller
                     switch ($this->data['configuration']['os_notification']) {
                         case 'todos':
                             array_push($remetentes, $os->email);
-                            array_push($remetentes, $tecnico->email);
+                            array_push($remetentes, isset($tecnico->usu_email) ? $tecnico->usu_email : $tecnico->email);
                             array_push($remetentes, $emitente->email);
                             break;
                         case 'cliente':
                             array_push($remetentes, $os->email);
                             break;
                         case 'tecnico':
-                            array_push($remetentes, $tecnico->email);
+                            array_push($remetentes, isset($tecnico->usu_email) ? $tecnico->usu_email : $tecnico->email);
                             break;
                         case 'emitente':
                             array_push($remetentes, $emitente->email);
@@ -223,7 +223,7 @@ class Os extends MY_Controller
                 'status' => $this->input->post('status'),
                 'observacoes' => $this->input->post('observacoes'),
                 'laudoTecnico' => $this->input->post('laudoTecnico'),
-                'usuarios_id' => $this->input->post('usuarios_id'),
+                'usu_id' => $this->input->post('usu_id') ?: $this->input->post('usuarios_id'),
                 'clientes_id' => $this->input->post('clientes_id'),
             ];
             $os = $this->os_model->getById($this->input->post('idOs'));
@@ -246,7 +246,7 @@ class Os extends MY_Controller
 
                 $os = $this->os_model->getById($idOs);
                 $emitente = $this->mapos_model->getEmitente();
-                $tecnico = $this->usuarios_model->getById($os->usuarios_id);
+                $tecnico = $this->usuarios_model->getById(isset($os->usu_id) ? $os->usu_id : $os->usuarios_id);
 
                 // Verificar configuração de notificação
                 if ($this->data['configuration']['os_notification'] != 'nenhum' && $this->data['configuration']['email_automatico'] == 1) {
@@ -254,14 +254,14 @@ class Os extends MY_Controller
                     switch ($this->data['configuration']['os_notification']) {
                         case 'todos':
                             array_push($remetentes, $os->email);
-                            array_push($remetentes, $tecnico->email);
+                            array_push($remetentes, isset($tecnico->usu_email) ? $tecnico->usu_email : $tecnico->email);
                             array_push($remetentes, $emitente->email);
                             break;
                         case 'cliente':
                             array_push($remetentes, $os->email);
                             break;
                         case 'tecnico':
-                            array_push($remetentes, $tecnico->email);
+                            array_push($remetentes, isset($tecnico->usu_email) ? $tecnico->usu_email : $tecnico->email);
                             break;
                         case 'emitente':
                             array_push($remetentes, $emitente->email);
@@ -504,7 +504,7 @@ class Os extends MY_Controller
         $idOs = $this->uri->segment(3);
 
         $emitente = $this->data['emitente'];
-        $tecnico = $this->usuarios_model->getById($this->data['result']->usuarios_id);
+        $tecnico = $this->usuarios_model->getById(isset($this->data['result']->usu_id) ? $this->data['result']->usu_id : $this->data['result']->usuarios_id);
 
         // Verificar configuração de notificação
         $ValidarEmail = false;
@@ -513,7 +513,7 @@ class Os extends MY_Controller
             switch ($this->data['configuration']['os_notification']) {
                 case 'todos':
                     array_push($remetentes, $this->data['result']->email);
-                    array_push($remetentes, $tecnico->email);
+                    array_push($remetentes, isset($tecnico->usu_email) ? $tecnico->usu_email : $tecnico->email);
                     array_push($remetentes, $emitente->email);
                     $ValidarEmail = true;
                     break;
@@ -522,7 +522,7 @@ class Os extends MY_Controller
                     $ValidarEmail = true;
                     break;
                 case 'tecnico':
-                    array_push($remetentes, $tecnico->email);
+                    array_push($remetentes, isset($tecnico->usu_email) ? $tecnico->usu_email : $tecnico->email);
                     break;
                 case 'emitente':
                     array_push($remetentes, $emitente->email);
@@ -1046,7 +1046,7 @@ class Os extends MY_Controller
                 'forma_pgto' => $this->input->post('formaPgto'),
                 'tipo' => $this->input->post('tipo'),
                 'observacoes' => set_value('observacoes'),
-                'usuarios_id' => $this->session->userdata('id_admin'),
+                'usu_id' => $this->session->userdata('id_admin'),
             ];
 
             $this->db->trans_start();

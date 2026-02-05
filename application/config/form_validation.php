@@ -257,8 +257,8 @@ $config = [
             'rules' => 'trim|required',
         ],
         [
-            'field' => 'usuarios_id',
-            'label' => 'usuarios_id',
+            'field' => 'usu_id',
+            'label' => 'Técnico',
             'rules' => 'trim|required',
         ],
         [
@@ -405,7 +405,7 @@ $config = [
             'rules' => 'required|trim',
         ],
         [
-            'field' => 'usuarios_id',
+            'field' => 'usu_id',
             'label' => 'Vendedor',
             'rules' => 'required|trim',
         ],

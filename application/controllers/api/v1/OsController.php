@@ -138,7 +138,7 @@ class OsController extends REST_Controller
         $data = [
             'dataInicial' => $dataInicial,
             'clientes_id' => $this->post('clientes_id', true),
-            'usuarios_id' => $this->post('usuarios_id', true),
+            'usu_id' => $this->post('usu_id', true) ?: $this->post('usuarios_id', true),
             'dataFinal' => $dataFinal,
             'garantia' => $this->post('garantia', true),
             'garantias_id' => $termoGarantiaId,
@@ -157,7 +157,7 @@ class OsController extends REST_Controller
             $idOs = $id;
             $os = $this->os_model->getById($idOs);
             $emitente = $this->mapos_model->getEmitente();
-            $tecnico = $this->usuarios_model->getById($os->usuarios_id);
+            $tecnico = $this->usuarios_model->getById(isset($os->usu_id) ? $os->usu_id : $os->usuarios_id);
 
             // Verificar configuração de notificação
             if ($this->getConfig('os_notification') != 'nenhum' && $this->getConfig('email_automatico') == 1) {
@@ -256,7 +256,7 @@ class OsController extends REST_Controller
         $data = [
             'dataInicial' => $dataInicial,
             'clientes_id' => $this->put('clientes_id', true),
-            'usuarios_id' => $this->put('usuarios_id', true),
+            'usu_id' => $this->put('usu_id', true) ?: $this->put('usuarios_id', true),
             'dataFinal' => $dataFinal,
             'garantia' => $this->put('garantia', true),
             'garantias_id' => $termoGarantiaId,
@@ -282,7 +282,7 @@ class OsController extends REST_Controller
             $idOs = $id;
             $os = $this->os_model->getById($idOs);
             $emitente = $this->mapos_model->getEmitente();
-            $tecnico = $this->usuarios_model->getById($os->usuarios_id);
+            $tecnico = $this->usuarios_model->getById(isset($os->usu_id) ? $os->usu_id : $os->usuarios_id);
 
             // Verificar configuração de notificação
             if ($this->getConfig('os_notification') != 'nenhum' && $this->getConfig('email_automatico') == 1) {

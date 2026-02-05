@@ -716,6 +716,40 @@
                     </div>
                 <?php endif; ?>
 
+                <!-- Usuário do sistema -->
+                <?php if (isset($usuario) && $usuario): ?>
+                    <div class="form-section" style="margin-top: 30px;">
+                        <div class="form-section-header">
+                            <i class="fas fa-user-lock"></i>
+                            <span>Dados de Usuário do sistema</span>
+                        </div>
+                        <div class="form-section-content">
+                            <div class="row-fluid">
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label class="control-label">E-mail (login)</label>
+                                        <div class="controls">
+                                            <input type="text" readonly
+                                                value="<?php echo htmlspecialchars($usuario->usu_email ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                class="span12">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="span4">
+                                    <div class="control-group">
+                                        <label class="control-label">Situação</label>
+                                        <div class="controls">
+                                            <input type="text" readonly
+                                                value="<?php echo !empty($usuario->usu_situacao) ? 'Ativo' : 'Inativo'; ?>"
+                                                class="span12">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Ações -->
                 <div class="form-actions" style="margin: 0; padding: 20px; text-align: center;">
                     <?php if ($this->permission->checkPermission($this->session->userdata('permissao'), 'ePessoa')): ?>
